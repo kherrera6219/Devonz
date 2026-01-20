@@ -79,54 +79,89 @@ export const Artifact = memo(({ artifactId }: ArtifactProps) => {
 
   return (
     <>
-      <div className="artifact border border-bolt-elements-borderColor flex flex-col overflow-hidden rounded-lg w-full transition-border duration-150">
-        <div className="flex">
-          <button
-            className="flex items-stretch bg-bolt-elements-artifacts-background hover:bg-bolt-elements-artifacts-backgroundHover w-full overflow-hidden"
-            onClick={() => {
-              const showWorkbench = workbenchStore.showWorkbench.get();
-              workbenchStore.showWorkbench.set(!showWorkbench);
-            }}
+      <div
+        className="artifact border border-white/10 flex flex-col overflow-hidden rounded-xl w-full transition-all duration-150"
+        style={{ background: 'linear-gradient(180deg, #1a2332 0%, #131a24 100%)' }}
+      >
+        {/* Header - Glossy dark style */}
+        <button
+          className="flex items-center justify-between w-full px-4 py-3 hover:bg-white/5 transition-colors"
+          onClick={toggleActions}
+          style={{ background: 'rgba(255,255,255,0.02)' }}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="i-ph:wrench-duotone text-blue-400 text-lg" />
+            <span className="text-sm text-white/90">
+              Used tools {actions.length > 0 && <span className="text-white/50">{actions.length} times</span>}
+            </span>
+          </div>
+          <div
+            className={classNames('transition-transform duration-200 text-white/40', showActions ? 'rotate-180' : '')}
           >
-            <div className="px-5 p-3.5 w-full text-left">
-              <div className="w-full text-bolt-elements-textPrimary font-medium leading-5 text-sm">
-                {/* Use the dynamic title here */}
-                {dynamicTitle}
-              </div>
-              <div className="w-full w-full text-bolt-elements-textSecondary text-xs mt-0.5">
-                Click to open Workbench
-              </div>
-            </div>
-          </button>
-          {artifact.type !== 'bundled' && <div className="bg-bolt-elements-artifacts-borderColor w-[1px]" />}
-          <AnimatePresence>
-            {actions.length && artifact.type !== 'bundled' && (
-              <motion.button
-                initial={{ width: 0 }}
-                animate={{ width: 'auto' }}
-                exit={{ width: 0 }}
-                transition={{ duration: 0.15, ease: cubicEasingFn }}
-                className="bg-bolt-elements-artifacts-background hover:bg-bolt-elements-artifacts-backgroundHover"
-                onClick={toggleActions}
+            <div className="i-ph:caret-down" />
+          </div>
+        </button>
+
+        {/* Collapsible Actions List */}
+        <AnimatePresence>
+          {showActions && actions.length > 0 && (
+            <motion.div
+              className="actions"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: cubicEasingFn }}
+            >
+              {/* To-dos header */}
+              <div
+                className="flex items-center justify-between px-4 py-2.5 border-t border-white/8"
+                style={{ background: 'rgba(0,0,0,0.2)' }}
               >
-                <div className="p-4">
-                  <div className={showActions ? 'i-ph:caret-up-bold' : 'i-ph:caret-down-bold'}></div>
+                <div className="flex items-center gap-2">
+                  <div className="i-ph:list-checks text-white/40 text-sm" />
+                  <span className="text-xs text-white/60">To-dos</span>
                 </div>
-              </motion.button>
-            )}
-          </AnimatePresence>
-        </div>
+                <span className="text-xs text-white/40">
+                  {actions.filter((a) => a.status === 'complete').length} of {actions.length} Done
+                </span>
+              </div>
+
+              {/* Action list */}
+              <div className="px-4 py-3" style={{ background: 'rgba(0,0,0,0.1)' }}>
+                <ActionList actions={actions} />
+              </div>
+
+              {/* Workbench button */}
+              <button
+                className="flex items-center gap-3 w-full px-4 py-3 border-t border-white/8 hover:bg-white/5 transition-colors group"
+                onClick={() => {
+                  const showWorkbench = workbenchStore.showWorkbench.get();
+                  workbenchStore.showWorkbench.set(!showWorkbench);
+                }}
+                style={{ background: 'rgba(0,0,0,0.15)' }}
+              >
+                <div className="i-ph:code-duotone text-blue-400 text-lg" />
+                <div className="flex-1 text-left">
+                  <div className="text-sm text-white/90">{dynamicTitle}</div>
+                  <div className="text-xs text-white/50">Click to open Workbench</div>
+                </div>
+                <div className="i-ph:pencil-simple text-white/40 group-hover:text-white/70 transition-colors" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Bundled artifact status */}
         {artifact.type === 'bundled' && (
-          <div className="flex items-center gap-1.5 p-5 bg-bolt-elements-actions-background border-t border-bolt-elements-artifacts-borderColor">
+          <div className="flex items-center gap-2.5 px-4 py-3 border-t border-white/8">
             <div className={classNames('text-lg', getIconColor(allActionFinished ? 'complete' : 'running'))}>
               {allActionFinished ? (
-                <div className="i-ph:check"></div>
+                <div className="i-ph:check-circle-fill"></div>
               ) : (
                 <div className="i-svg-spinners:90-ring-with-bg"></div>
               )}
             </div>
-            <div className="text-bolt-elements-textPrimary font-medium leading-5 text-sm">
-              {/* This status text remains the same */}
+            <div className="text-white/90 text-sm">
               {allActionFinished
                 ? artifact.id === 'restored-project-setup'
                   ? 'Restore files from snapshot'
@@ -135,23 +170,6 @@ export const Artifact = memo(({ artifactId }: ArtifactProps) => {
             </div>
           </div>
         )}
-        <AnimatePresence>
-          {artifact.type !== 'bundled' && showActions && actions.length > 0 && (
-            <motion.div
-              className="actions"
-              initial={{ height: 0 }}
-              animate={{ height: 'auto' }}
-              exit={{ height: '0px' }}
-              transition={{ duration: 0.15 }}
-            >
-              <div className="bg-bolt-elements-artifacts-borderColor h-[1px]" />
-
-              <div className="p-5 text-left bg-bolt-elements-actions-background">
-                <ActionList actions={actions} />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </>
   );
@@ -194,80 +212,119 @@ export function openArtifactInWorkbench(filePath: any) {
 }
 
 const ActionList = memo(({ actions }: ActionListProps) => {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-      <ul className="list-none space-y-2.5">
+      <div className="space-y-1">
         {actions.map((action, index) => {
           const { status, type, content } = action;
-          const isLast = index === actions.length - 1;
+          const isComplete = status === 'complete';
+          const isRunning = status === 'running';
+          const isFailed = status === 'failed' || status === 'aborted';
+          const isExpanded = expandedIndex === index;
+
+          // Determine action label and file info
+          let actionLabel = '';
+          let fileName = '';
+
+          if (type === 'file') {
+            actionLabel = 'Create';
+            fileName = action.filePath || '';
+          } else if (type === 'shell') {
+            actionLabel = 'Run command';
+          } else if (type === 'start') {
+            actionLabel = 'Start Application';
+          }
 
           return (
-            <motion.li
+            <motion.div
               key={index}
               variants={actionVariants}
               initial="hidden"
               animate="visible"
-              transition={{
-                duration: 0.2,
-                ease: cubicEasingFn,
-              }}
+              transition={{ duration: 0.2, ease: cubicEasingFn }}
             >
-              <div className="flex items-center gap-1.5 text-sm">
-                <div className={classNames('text-lg', getIconColor(action.status))}>
-                  {status === 'running' ? (
-                    <>
-                      {type !== 'start' ? (
-                        <div className="i-svg-spinners:90-ring-with-bg"></div>
-                      ) : (
-                        <div className="i-ph:terminal-window-duotone"></div>
-                      )}
-                    </>
-                  ) : status === 'pending' ? (
-                    <div className="i-ph:circle-duotone"></div>
-                  ) : status === 'complete' ? (
-                    <div className="i-ph:check"></div>
-                  ) : status === 'failed' || status === 'aborted' ? (
-                    <div className="i-ph:x"></div>
+              {/* Action Card - compact, no background */}
+              <button
+                onClick={() => {
+                  if (type === 'file') {
+                    openArtifactInWorkbench(action.filePath);
+                  } else if (content) {
+                    setExpandedIndex(isExpanded ? null : index);
+                  }
+                }}
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-white/5 transition-colors"
+                style={{ background: 'transparent' }}
+              >
+                {/* Smaller circular outlined checkmark */}
+                <div
+                  className={classNames(
+                    'w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0',
+                    isComplete
+                      ? 'border border-green-500/80 text-green-500'
+                      : isRunning
+                        ? 'border border-blue-400/80'
+                        : isFailed
+                          ? 'border border-red-500/80 text-red-500'
+                          : 'border border-white/30',
+                  )}
+                >
+                  {isComplete ? (
+                    <div className="i-ph:check" style={{ fontSize: '10px' }} />
+                  ) : isRunning ? (
+                    <div className="i-svg-spinners:ring-resize text-blue-400" style={{ fontSize: '10px' }} />
+                  ) : isFailed ? (
+                    <div className="i-ph:x" style={{ fontSize: '10px' }} />
                   ) : null}
                 </div>
-                {type === 'file' ? (
-                  <div>
-                    Create{' '}
-                    <code
-                      className="bg-bolt-elements-artifacts-inlineCode-background text-bolt-elements-artifacts-inlineCode-text px-1.5 py-1 rounded-md text-bolt-elements-item-contentAccent hover:underline cursor-pointer"
-                      onClick={() => openArtifactInWorkbench(action.filePath)}
-                    >
-                      {action.filePath}
-                    </code>
-                  </div>
-                ) : type === 'shell' ? (
-                  <div className="flex items-center w-full min-h-[28px]">
-                    <span className="flex-1">Run command</span>
-                  </div>
-                ) : type === 'start' ? (
-                  <a
-                    onClick={(e) => {
-                      e.preventDefault();
-                      workbenchStore.currentView.set('preview');
-                    }}
-                    className="flex items-center w-full min-h-[28px]"
+
+                {/* Action label - smaller */}
+                <span className="text-xs text-white/60">{actionLabel}</span>
+
+                {/* File badge - darker, smaller */}
+                {type === 'file' && fileName && (
+                  <span
+                    className="px-1.5 py-0.5 rounded text-xs font-mono truncate max-w-[180px] text-white/80"
+                    style={{ background: 'rgba(255,255,255,0.08)' }}
                   >
-                    <span className="flex-1">Start Application</span>
-                  </a>
-                ) : null}
-              </div>
-              {(type === 'shell' || type === 'start') && (
-                <ShellCodeBlock
-                  classsName={classNames('mt-1', {
-                    'mb-3.5': !isLast,
-                  })}
-                  code={content}
-                />
-              )}
-            </motion.li>
+                    {fileName}
+                  </span>
+                )}
+
+                {/* Expand arrow for shell commands */}
+                {(type === 'shell' || type === 'start') && content && (
+                  <div
+                    className={classNames(
+                      'ml-auto transition-transform duration-200 text-white/40',
+                      isExpanded ? 'rotate-180' : '',
+                    )}
+                  >
+                    <div className="i-ph:caret-down" style={{ fontSize: '10px' }} />
+                  </div>
+                )}
+              </button>
+
+              {/* Expandable content */}
+              <AnimatePresence>
+                {isExpanded && content && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden ml-8"
+                  >
+                    <div className="py-2">
+                      <ShellCodeBlock classsName="opacity-80" code={content} />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           );
         })}
-      </ul>
+      </div>
     </motion.div>
   );
 });

@@ -67,13 +67,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
-
-        /*
-         * {
-         *   'sticky bottom-2': chatStarted,
-         * },
-         */
+        'relative bg-bolt-elements-background-depth-2/80 backdrop-blur-xl p-3 rounded-xl border border-bolt-elements-borderColor w-full max-w-chat mx-auto z-prompt shadow-lg shadow-black/5',
       )}
     >
       <svg className={classNames(styles.PromptEffectContainer)}>
@@ -87,15 +81,15 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             gradientUnits="userSpaceOnUse"
             gradientTransform="rotate(-45)"
           >
-            <stop offset="0%" stopColor="#b44aff" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#b44aff" stopOpacity="80%"></stop>
-            <stop offset="50%" stopColor="#b44aff" stopOpacity="80%"></stop>
-            <stop offset="100%" stopColor="#b44aff" stopOpacity="0%"></stop>
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0%"></stop>
+            <stop offset="40%" stopColor="#3b82f6" stopOpacity="60%"></stop>
+            <stop offset="50%" stopColor="#60a5fa" stopOpacity="60%"></stop>
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0%"></stop>
           </linearGradient>
           <linearGradient id="shine-gradient">
             <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#ffffff" stopOpacity="80%"></stop>
-            <stop offset="50%" stopColor="#ffffff" stopOpacity="80%"></stop>
+            <stop offset="40%" stopColor="#ffffff" stopOpacity="60%"></stop>
+            <stop offset="50%" stopColor="#ffffff" stopOpacity="60%"></stop>
             <stop offset="100%" stopColor="white" stopOpacity="0%"></stop>
           </linearGradient>
         </defs>
@@ -236,7 +230,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             minHeight: props.TEXTAREA_MIN_HEIGHT,
             maxHeight: props.TEXTAREA_MAX_HEIGHT,
           }}
-          placeholder={props.chatMode === 'build' ? 'How can Bolt help you today?' : 'What would you like to discuss?'}
+          placeholder={props.chatMode === 'build' ? 'Ask Bolt to build...' : 'What would you like to discuss?'}
           translate="no"
         />
         <ClientOnly>

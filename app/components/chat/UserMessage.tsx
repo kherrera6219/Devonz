@@ -36,36 +36,49 @@ export function UserMessage({ content, parts }: UserMessageProps) {
     const textContent = stripMetadata(textItem?.text || '');
 
     return (
-      <div className="overflow-hidden flex flex-col gap-3 items-center ">
-        <div className="flex flex-row items-start justify-center overflow-hidden shrink-0 self-start">
+      <div className="overflow-hidden flex flex-col gap-3 items-end w-full">
+        <div className="flex flex-row items-center gap-2 self-end">
           {profile?.avatar || profile?.username ? (
-            <div className="flex items-end gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-bolt-elements-textSecondary text-sm">
+                {profile?.username ? profile.username : 'You'}
+              </span>
               <img
                 src={profile.avatar}
                 alt={profile?.username || 'User'}
-                className="w-[25px] h-[25px] object-cover rounded-full"
+                className="w-6 h-6 object-cover rounded-full ring-1 ring-bolt-elements-borderColor"
                 loading="eager"
                 decoding="sync"
               />
-              <span className="text-bolt-elements-textPrimary text-sm">
-                {profile?.username ? profile.username : ''}
-              </span>
             </div>
           ) : (
-            <div className="i-ph:user-fill text-accent-500 text-2xl" />
+            <div className="flex items-center gap-2">
+              <span className="text-bolt-elements-textSecondary text-sm">You</span>
+              <div className="w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center">
+                <div className="i-ph:user text-accent-400 text-sm" />
+              </div>
+            </div>
           )}
         </div>
-        <div className="flex flex-col gap-4 bg-accent-500/10 backdrop-blur-sm p-3 py-3 w-auto rounded-lg mr-auto">
-          {textContent && <Markdown html>{textContent}</Markdown>}
-          {images.map((item, index) => (
-            <img
-              key={index}
-              src={`data:${item.mimeType};base64,${item.data}`}
-              alt={`Image ${index + 1}`}
-              className="max-w-full h-auto rounded-lg"
-              style={{ maxHeight: '512px', objectFit: 'contain' }}
-            />
-          ))}
+        <div className="flex flex-col gap-3 max-w-[85%] ml-auto">
+          {textContent && (
+            <div className="text-bolt-elements-textPrimary text-sm leading-relaxed">
+              <Markdown html>{textContent}</Markdown>
+            </div>
+          )}
+          {images.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {images.map((item, index) => (
+                <img
+                  key={index}
+                  src={`data:${item.mimeType};base64,${item.data}`}
+                  alt={`Image ${index + 1}`}
+                  className="max-w-full h-auto rounded-lg border border-bolt-elements-borderColor"
+                  style={{ maxHeight: '256px', objectFit: 'contain' }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -74,23 +87,46 @@ export function UserMessage({ content, parts }: UserMessageProps) {
   const textContent = stripMetadata(content);
 
   return (
-    <div className="flex flex-col bg-accent-500/10 backdrop-blur-sm px-5 p-3.5 w-auto rounded-lg ml-auto">
-      <div className="flex gap-3.5 mb-4">
-        {images.map((item, index) => (
-          <div className="relative flex rounded-lg border border-bolt-elements-borderColor overflow-hidden">
-            <div className="h-16 w-16 bg-transparent outline-none">
-              <img
-                key={index}
-                src={`data:${item.mimeType};base64,${item.data}`}
-                alt={`Image ${index + 1}`}
-                className="h-full w-full rounded-lg"
-                style={{ objectFit: 'fill' }}
-              />
+    <div className="flex flex-col items-end gap-3 w-full">
+      <div className="flex items-center gap-2">
+        {profile?.avatar ? (
+          <>
+            <span className="text-bolt-elements-textSecondary text-sm">{profile?.username || 'You'}</span>
+            <img
+              src={profile.avatar}
+              alt={profile?.username || 'User'}
+              className="w-6 h-6 object-cover rounded-full ring-1 ring-bolt-elements-borderColor"
+              loading="eager"
+              decoding="sync"
+            />
+          </>
+        ) : (
+          <>
+            <span className="text-bolt-elements-textSecondary text-sm">You</span>
+            <div className="w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center">
+              <div className="i-ph:user text-accent-400 text-sm" />
             </div>
-          </div>
-        ))}
+          </>
+        )}
       </div>
-      <Markdown html>{textContent}</Markdown>
+      <div className="max-w-[85%] ml-auto">
+        {images.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {images.map((item, index) => (
+              <div key={index} className="relative rounded-lg border border-bolt-elements-borderColor overflow-hidden">
+                <img
+                  src={`data:${item.mimeType};base64,${item.data}`}
+                  alt={`Image ${index + 1}`}
+                  className="h-16 w-16 object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="text-bolt-elements-textPrimary text-sm leading-relaxed">
+          <Markdown html>{textContent}</Markdown>
+        </div>
+      </div>
     </div>
   );
 }

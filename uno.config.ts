@@ -22,30 +22,32 @@ const customIconCollection = iconPaths.reduce(
 const BASE_COLORS = {
   white: '#FFFFFF',
   gray: {
-    50: '#FAFAFA',
-    100: '#F5F5F5',
-    200: '#E5E5E5',
-    300: '#D4D4D4',
-    400: '#A3A3A3',
-    500: '#737373',
-    600: '#525252',
-    700: '#404040',
-    800: '#262626',
-    900: '#171717',
-    950: '#0A0A0A',
+    // Blink.new inspired navy/charcoal palette
+    50: '#f0f4f8',
+    100: '#d9e2ec',
+    200: '#bcccdc',
+    300: '#9fb3c8',
+    400: '#829ab1',
+    500: '#627d98',
+    600: '#486581',
+    700: '#334e68',
+    800: '#1a2332', // Main card background
+    900: '#131a24', // Secondary background
+    950: '#0d1117', // Deepest background (like GitHub dark)
   },
   accent: {
-    50: '#F8F5FF',
-    100: '#F0EBFF',
-    200: '#E1D6FF',
-    300: '#CEBEFF',
-    400: '#B69EFF',
-    500: '#9C7DFF',
-    600: '#8A5FFF',
-    700: '#7645E8',
-    800: '#6234BB',
-    900: '#502D93',
-    950: '#2D1959',
+    // Blue accent like Blink.new
+    50: '#eff6ff',
+    100: '#dbeafe',
+    200: '#bfdbfe',
+    300: '#93c5fd',
+    400: '#60a5fa',
+    500: '#3b82f6', // Primary blue
+    600: '#2563eb',
+    700: '#1d4ed8',
+    800: '#1e40af',
+    900: '#1e3a8a',
+    950: '#172554',
   },
   green: {
     50: '#F0FDF4',
