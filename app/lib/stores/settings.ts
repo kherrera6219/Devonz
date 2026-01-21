@@ -258,6 +258,7 @@ const SETTINGS_KEYS = {
   EVENT_LOGS: 'isEventLogsEnabled',
   PROMPT_ID: 'promptId',
   DEVELOPER_MODE: 'isDeveloperMode',
+  AUTO_SWITCH_TO_FILE: 'autoSwitchToFile',
 } as const;
 
 // Initialize settings from localStorage or defaults
@@ -287,6 +288,7 @@ const getInitialSettings = () => {
     eventLogs: getStoredBoolean(SETTINGS_KEYS.EVENT_LOGS, true),
     promptId: isBrowser ? localStorage.getItem(SETTINGS_KEYS.PROMPT_ID) || 'default' : 'default',
     developerMode: getStoredBoolean(SETTINGS_KEYS.DEVELOPER_MODE, false),
+    autoSwitchToFile: getStoredBoolean(SETTINGS_KEYS.AUTO_SWITCH_TO_FILE, false),
   };
 };
 
@@ -298,11 +300,17 @@ export const autoSelectStarterTemplate = atom<boolean>(initialSettings.autoSelec
 export const enableContextOptimizationStore = atom<boolean>(initialSettings.contextOptimization);
 export const isEventLogsEnabled = atom<boolean>(initialSettings.eventLogs);
 export const promptStore = atom<string>(initialSettings.promptId);
+export const autoSwitchToFileStore = atom<boolean>(initialSettings.autoSwitchToFile);
 
 // Helper functions to update settings with persistence
 export const updateLatestBranch = (enabled: boolean) => {
   latestBranchStore.set(enabled);
   localStorage.setItem(SETTINGS_KEYS.LATEST_BRANCH, JSON.stringify(enabled));
+};
+
+export const updateAutoSwitchToFile = (enabled: boolean) => {
+  autoSwitchToFileStore.set(enabled);
+  localStorage.setItem(SETTINGS_KEYS.AUTO_SWITCH_TO_FILE, JSON.stringify(enabled));
 };
 
 export const updateAutoSelectTemplate = (enabled: boolean) => {

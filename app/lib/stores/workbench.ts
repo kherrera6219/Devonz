@@ -9,6 +9,7 @@ import { EditorStore } from './editor';
 import { FilesStore, type FileMap } from './files';
 import { PreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
+import { autoSwitchToFileStore } from './settings';
 import JSZip from 'jszip';
 import fileSaver from 'file-saver';
 import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
@@ -585,12 +586,15 @@ export class WorkbenchStore {
        * This is a more complex feature that would be implemented in a future update
        */
 
-      if (this.selectedFile.value !== fullPath) {
-        this.setSelectedFile(fullPath);
-      }
+      // Only auto-switch to file view if the setting is enabled
+      if (autoSwitchToFileStore.get()) {
+        if (this.selectedFile.value !== fullPath) {
+          this.setSelectedFile(fullPath);
+        }
 
-      if (this.currentView.value !== 'code') {
-        this.currentView.set('code');
+        if (this.currentView.value !== 'code') {
+          this.currentView.set('code');
+        }
       }
 
       const doc = this.#editorStore.documents.get()[fullPath];

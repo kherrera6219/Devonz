@@ -111,10 +111,12 @@ export default function FeaturesTab() {
     isLatestBranch,
     contextOptimizationEnabled,
     eventLogs,
+    autoSwitchToFile,
     setAutoSelectTemplate,
     enableLatestBranch,
     enableContextOptimization,
     setEventLogs,
+    setAutoSwitchToFile,
     setPromptId,
     promptId,
   } = useSettings();
@@ -170,11 +172,17 @@ export default function FeaturesTab() {
           break;
         }
 
+        case 'autoSwitchToFile': {
+          setAutoSwitchToFile(enabled);
+          toast.success(`Auto-switch to file ${enabled ? 'enabled' : 'disabled'}`);
+          break;
+        }
+
         default:
           break;
       }
     },
-    [enableLatestBranch, setAutoSelectTemplate, enableContextOptimization, setEventLogs],
+    [enableLatestBranch, setAutoSelectTemplate, enableContextOptimization, setEventLogs, setAutoSwitchToFile],
   );
 
   const features = {
@@ -210,6 +218,15 @@ export default function FeaturesTab() {
         icon: 'i-ph:list-bullets',
         enabled: eventLogs,
         tooltip: 'Enabled by default to record detailed logs of system events and user actions',
+      },
+      {
+        id: 'autoSwitchToFile',
+        title: 'Auto-Switch to File During AI Edits',
+        description: 'Automatically switch to code view when AI edits files',
+        icon: 'i-ph:file-code',
+        enabled: autoSwitchToFile,
+        tooltip:
+          'When enabled, the editor will automatically switch to show each file as the AI edits it. When disabled, you can stay in preview mode while the AI works.',
       },
     ],
     beta: [],
