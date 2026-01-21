@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { setPendingChatMessage } from '~/lib/stores/chat';
 import { PortDropdown } from './PortDropdown';
 import { ScreenshotSelector } from './ScreenshotSelector';
 import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
@@ -675,7 +676,9 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
 
   // Handler for style changes from InspectorPanel
   const handleStyleChange = useCallback((property: string, value: string) => {
+    console.log('[Preview] handleStyleChange:', property, value, 'iframe:', iframeRef.current);
     if (iframeRef.current?.contentWindow) {
+      console.log('[Preview] Sending INSPECTOR_EDIT_STYLE to iframe');
       iframeRef.current.contentWindow.postMessage(
         {
           type: 'INSPECTOR_EDIT_STYLE',
@@ -706,6 +709,95 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     setInspectorElement(null);
   }, []);
 
+  // Handler for applying changes with AI
+  const handleApplyWithAI = useCallback(
+    (changes: { element: ElementInfo; styles: Record<string, string>; text?: string }) => {
+      const { element, styles, text } = changes;
+
+      // Build the selector description
+      const selectorParts = [element.tagName.toLowerCase()];
+
+      if (element.id) {
+        selectorParts.push(`#${element.id}`);
+      }
+
+      if (element.className) {
+        const firstClass = element.className.split(' ')[0];
+
+        if (firstClass) {
+          selectorParts.push(`.${firstClass}`);
+        }
+      }
+
+      const selector = selectorParts.join('');
+
+      // Build the changes description
+      const changeLines: string[] = [];
+
+      if (Object.keys(styles).length > 0) {
+        changeLines.push('**Style changes:**');
+        Object.entries(styles).forEach(([prop, value]) => {
+          changeLines.push(`- ${prop}: ${value}`);
+        });
+      }
+
+      if (text) {
+        changeLines.push(`**Text content:** "${text}"`);
+      }
+
+      const message = `Please apply these changes to the element \`${selector}\`:
+
+${changeLines.join('\n')}
+
+Find this element in the source code and update its styles/text accordingly.`;
+
+      // Send to chat
+      setPendingChatMessage(message);
+
+      // Close inspector panel
+      setIsInspectorPanelVisible(false);
+      setInspectorElement(null);
+    },
+    [],
+  );
+
+  // Handler for deleting an element via AI
+  const handleDeleteElement = useCallback((element: ElementInfo) => {
+    // Build the selector description
+    const selectorParts = [element.tagName.toLowerCase()];
+
+    if (element.id) {
+      selectorParts.push(`#${element.id}`);
+    }
+
+    if (element.className) {
+      const firstClass = element.className.split(' ')[0];
+
+      if (firstClass) {
+        selectorParts.push(`.${firstClass}`);
+      }
+    }
+
+    const selector = selectorParts.join('');
+
+    // Get text content preview for context
+    const textPreview = element.textContent?.slice(0, 50) || '';
+    const textContext = textPreview
+      ? ` with text "${textPreview}${element.textContent && element.textContent.length > 50 ? '...' : ''}"`
+      : '';
+
+    const message = `Please delete/remove the element \`${selector}\`${textContext} from the source code.
+
+Remove this element completely from the JSX/HTML.`;
+
+    // Send to chat
+    setPendingChatMessage(message);
+
+    // Close inspector panel
+    setIsInspectorPanelVisible(false);
+    setInspectorElement(null);
+  }, []);
+
   return (
     <div ref={containerRef} className={`w-full h-full flex flex-col relative`}>
       {/* Inspector Panel */}
@@ -715,6 +807,8 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
         onClose={handleCloseInspectorPanel}
         onStyleChange={handleStyleChange}
         onTextChange={handleTextChange}
+        onApplyWithAI={handleApplyWithAI}
+        onDeleteElement={handleDeleteElement}
       />
 
       {isPortDropdownOpen && (

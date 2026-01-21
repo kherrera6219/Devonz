@@ -6,7 +6,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
 import { description, useChatHistory } from '~/lib/persistence';
-import { chatStore } from '~/lib/stores/chat';
+import { chatStore, clearPendingChatMessage } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
@@ -110,7 +110,7 @@ export const ChatImpl = memo(
       const savedProvider = Cookies.get('selectedProvider');
       return (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
     });
-    const { showChat } = useStore(chatStore);
+    const { showChat, pendingMessage } = useStore(chatStore);
     const [animationScope, animate] = useAnimate();
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
     const [chatMode, setChatMode] = useState<'discuss' | 'build'>('build');
@@ -176,6 +176,20 @@ export const ChatImpl = memo(
       initialMessages,
       initialInput: Cookies.get(PROMPT_COOKIE_KEY) || '',
     });
+
+    // Watch for pending messages from inspector panel
+    useEffect(() => {
+      if (pendingMessage) {
+        setInput(pendingMessage);
+        clearPendingChatMessage();
+
+        // Ensure chat is visible
+        if (!showChat) {
+          chatStore.setKey('showChat', true);
+        }
+      }
+    }, [pendingMessage, setInput, showChat]);
+
     useEffect(() => {
       const prompt = searchParams.get('prompt');
 

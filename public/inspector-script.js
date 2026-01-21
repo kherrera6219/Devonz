@@ -398,11 +398,22 @@
 
   // Listen for messages from parent
   window.addEventListener('message', function (event) {
+    console.log('[Inspector] Received message:', event.data.type, event.data);
+
     if (event.data.type === 'INSPECTOR_ACTIVATE') {
       setInspectorActive(event.data.active);
     } else if (event.data.type === 'INSPECTOR_EDIT_STYLE') {
+      console.log(
+        '[Inspector] Edit style:',
+        event.data.property,
+        '=',
+        event.data.value,
+        'selectedElement:',
+        selectedElement,
+      );
       handleStyleEdit(event.data.property, event.data.value);
     } else if (event.data.type === 'INSPECTOR_EDIT_TEXT') {
+      console.log('[Inspector] Edit text:', event.data.text, 'selectedElement:', selectedElement);
       handleTextEdit(event.data.text);
     }
   });
