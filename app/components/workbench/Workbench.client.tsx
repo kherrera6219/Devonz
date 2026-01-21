@@ -383,7 +383,7 @@ export const Workbench = memo(
         >
           <div
             className={classNames(
-              'fixed top-[calc(var(--header-height)+1.2rem)] bottom-6 w-[var(--workbench-inner-width)] z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier',
+              'fixed top-[calc(var(--header-height)+1.2rem)] bottom-0 right-0 w-[var(--workbench-inner-width)] z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier pointer-events-auto',
               {
                 'w-full': isSmallViewport,
                 'left-0': showWorkbench && isSmallViewport,
@@ -392,8 +392,8 @@ export const Workbench = memo(
               },
             )}
           >
-            <div className="absolute inset-0 px-2 lg:px-4">
-              <div className="h-full flex flex-col bg-bolt-elements-background-depth-2/95 backdrop-blur-xl border border-bolt-elements-borderColor shadow-xl shadow-black/10 rounded-xl overflow-hidden">
+            <div className="absolute inset-0">
+              <div className="h-full flex flex-col bg-bolt-elements-background-depth-2/95 backdrop-blur-xl border-l border-bolt-elements-borderColor shadow-xl shadow-black/10 overflow-hidden">
                 <div className="flex items-center px-3 py-2.5 border-b border-bolt-elements-borderColor gap-2 bg-bolt-elements-background-depth-2/80">
                   <button
                     className={`${showChat ? 'i-ph:sidebar-simple-fill' : 'i-ph:sidebar-simple'} text-lg text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors mr-1`}

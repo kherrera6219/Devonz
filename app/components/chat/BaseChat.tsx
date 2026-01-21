@@ -359,7 +359,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               </div>
             )}
             <StickToBottom
-              className={classNames('pt-6 px-2 sm:px-6 relative', {
+              className={classNames('pt-6 pl-0 pr-2 sm:pr-6 relative', {
                 'h-full flex flex-col modern-scrollbar': chatStarted,
               })}
               resize="smooth"
@@ -386,7 +386,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 <ScrollToBottom />
               </StickToBottom.Content>
               <div
-                className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-6', {
+                className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-2', {
                   'sticky bottom-2': chatStarted,
                 })}
               >
