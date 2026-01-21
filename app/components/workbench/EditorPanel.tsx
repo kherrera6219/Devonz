@@ -95,30 +95,33 @@ export const EditorPanel = memo(
                 <Tabs.Root defaultValue="files" className="flex flex-col h-full">
                   <PanelHeader className="w-full text-sm font-medium text-bolt-elements-textSecondary px-1">
                     <div className="h-full flex-shrink-0 flex items-center justify-between w-full">
-                      <Tabs.List className="h-full flex-shrink-0 flex items-center">
+                      <Tabs.List className="h-full flex-shrink-0 flex items-center gap-1">
                         <Tabs.Trigger
                           value="files"
+                          title="Files"
                           className={classNames(
-                            'h-full bg-transparent hover:bg-bolt-elements-background-depth-3 py-0.5 px-2 rounded-lg text-sm font-medium text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary data-[state=active]:text-bolt-elements-textPrimary',
+                            'h-full bg-transparent hover:bg-bolt-elements-background-depth-3 p-1.5 rounded-lg text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary data-[state=active]:text-bolt-elements-textPrimary',
                           )}
                         >
-                          Files
+                          <div className="i-ph:files text-lg" />
                         </Tabs.Trigger>
                         <Tabs.Trigger
                           value="search"
+                          title="Search"
                           className={classNames(
-                            'h-full bg-transparent hover:bg-bolt-elements-background-depth-3 py-0.5 px-2 rounded-lg text-sm font-medium text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary data-[state=active]:text-bolt-elements-textPrimary',
+                            'h-full bg-transparent hover:bg-bolt-elements-background-depth-3 p-1.5 rounded-lg text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary data-[state=active]:text-bolt-elements-textPrimary',
                           )}
                         >
-                          Search
+                          <div className="i-ph:magnifying-glass text-lg" />
                         </Tabs.Trigger>
                         <Tabs.Trigger
                           value="locks"
+                          title="Locks"
                           className={classNames(
-                            'h-full bg-transparent hover:bg-bolt-elements-background-depth-3 py-0.5 px-2 rounded-lg text-sm font-medium text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary data-[state=active]:text-bolt-elements-textPrimary',
+                            'h-full bg-transparent hover:bg-bolt-elements-background-depth-3 p-1.5 rounded-lg text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary data-[state=active]:text-bolt-elements-textPrimary',
                           )}
                         >
-                          Locks
+                          <div className="i-ph:lock text-lg" />
                         </Tabs.Trigger>
                       </Tabs.List>
                     </div>
