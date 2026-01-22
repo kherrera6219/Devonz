@@ -25,17 +25,21 @@ function getEditorTheme(settings: EditorSettings) {
     },
     '&.cm-editor': {
       height: '100%',
-      background: 'var(--cm-backgroundColor)',
-      color: 'var(--cm-textColor)',
+      background: 'var(--cm-backgroundColor, #0b0d13)',
+      color: 'var(--cm-textColor, #e4e4e7)',
     },
     '.cm-cursor': {
       borderLeft: 'var(--cm-cursor-width) solid var(--cm-cursor-backgroundColor)',
     },
     '.cm-scroller': {
       lineHeight: '1.5',
+      background: 'inherit',
       '&:focus-visible': {
         outline: 'none',
       },
+    },
+    '.cm-content': {
+      background: 'inherit',
     },
     '.cm-line': {
       padding: '0 0 0 4px',
@@ -52,12 +56,12 @@ function getEditorTheme(settings: EditorSettings) {
       backgroundColor: 'var(--cm-matching-bracket)',
     },
     '.cm-activeLine': {
-      background: 'var(--cm-activeLineBackgroundColor)',
+      background: 'var(--cm-activeLineBackgroundColor, #0b0d13)',
     },
     '.cm-gutters': {
-      background: 'var(--cm-gutter-backgroundColor)',
+      background: 'var(--cm-gutter-backgroundColor, #0b0d13)',
       borderRight: 0,
-      color: 'var(--cm-gutter-textColor)',
+      color: 'var(--cm-gutter-textColor, #6b7280)',
     },
     '.cm-gutter': {
       '&.cm-lineNumbers': {

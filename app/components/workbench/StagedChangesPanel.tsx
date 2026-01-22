@@ -355,10 +355,10 @@ export const StagedChangesPanel = memo(() => {
 
     return (
         <Collapsible.Root open={isOpen} onOpenChange={setIsOpen}>
-            <div className="border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-1">
+            <div className="border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2">
                 {/* Header */}
                 <Collapsible.Trigger asChild>
-                    <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-bolt-elements-background-depth-2 transition-colors">
+                    <button className="w-full flex items-center justify-between px-4 py-3 bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3 transition-colors">
                         <div className="flex items-center gap-3">
                             <motion.span
                                 className="i-ph:caret-right w-4 h-4 text-bolt-elements-textSecondary"
@@ -481,7 +481,13 @@ export const StagedChangesPanel = memo(() => {
                                 {count} pending{cmdCount > 0 && ` • ${cmdCount} commands`}
                             </span>
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="sm" onClick={handleRejectAll} disabled={isApplying}>
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={handleRejectAll}
+                                    disabled={isApplying}
+                                    className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+                                >
                                     <span className="i-ph:x-circle mr-1.5" />
                                     Reject All
                                 </Button>
