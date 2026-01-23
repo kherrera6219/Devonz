@@ -68,6 +68,7 @@ export function useChatHistory() {
           if (!storedMessages || storedMessages.messages.length === 0) {
             navigate('/', { replace: true });
             setReady(true);
+
             return;
           }
 
@@ -86,9 +87,11 @@ export function useChatHistory() {
             ? storedMessages.messages.findIndex((m) => m.id === rewindId) + 1
             : storedMessages.messages.length;
 
-          // SKIP SNAPSHOT MODE: Always load full message history
-          // This avoids the "Bolt Restored your chat" message that requires manual "Revert" click
-          // and prevents jsh command not found errors since we don't intercept command execution
+          /*
+           * SKIP SNAPSHOT MODE: Always load full message history
+           * This avoids the "Bolt Restored your chat" message that requires manual "Revert" click
+           * and prevents jsh command not found errors since we don't intercept command execution
+           */
           const filteredMessages = storedMessages.messages.slice(0, endingIdx);
 
           // No archived messages needed when loading full history
@@ -96,8 +99,10 @@ export function useChatHistory() {
 
           // Still restore files from snapshot for instant load (if snapshot exists)
           if (validSnapshot?.files && Object.keys(validSnapshot.files).length > 0) {
-            // For normal reloads (not rewind), still restore from snapshot for instant load
-            // Set flag SYNCHRONOUSLY before setInitialMessages triggers message parsing
+            /*
+             * For normal reloads (not rewind), still restore from snapshot for instant load
+             * Set flag SYNCHRONOUSLY before setInitialMessages triggers message parsing
+             */
             workbenchStore.isRestoringSession.set(true);
             restoreSnapshot(mixedId, validSnapshot);
           }

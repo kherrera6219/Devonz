@@ -544,6 +544,7 @@ ${content.trim()}
     super.reset();
     this._processedCodeBlocks.clear();
     this._artifactCounter = 0;
+
     // Note: We don't reset _lastResetOccurred here because it's read AFTER parse returns
   }
 }

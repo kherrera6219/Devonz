@@ -24,19 +24,19 @@
  * @returns Proxied URL that works with CORS
  */
 export function getProxiedSplineUrl(originalUrl?: string, sceneId?: string): string {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
 
-    if (originalUrl) {
-        // Use the full URL parameter
-        return `${baseUrl}/api/spline-proxy?url=${encodeURIComponent(originalUrl)}`;
-    }
+  if (originalUrl) {
+    // Use the full URL parameter
+    return `${baseUrl}/api/spline-proxy?url=${encodeURIComponent(originalUrl)}`;
+  }
 
-    if (sceneId) {
-        // Use the scene ID parameter
-        return `${baseUrl}/api/spline-proxy?scene=${encodeURIComponent(sceneId)}`;
-    }
+  if (sceneId) {
+    // Use the scene ID parameter
+    return `${baseUrl}/api/spline-proxy?scene=${encodeURIComponent(sceneId)}`;
+  }
 
-    throw new Error('Either originalUrl or sceneId must be provided');
+  throw new Error('Either originalUrl or sceneId must be provided');
 }
 
 /**
@@ -46,31 +46,31 @@ export function getProxiedSplineUrl(originalUrl?: string, sceneId?: string): str
  * @returns Scene ID or null if not found
  */
 export function extractSplineSceneId(url: string): string | null {
-    /*
-     * Match patterns like:
-     * https://prod.spline.design/V2pT-fO5F255I0pA/scene.splinecode
-     * https://my.spline.design/genkubgreetingrobot-xxx/
-     */
-    const prodMatch = url.match(/prod\.spline\.design\/([^/]+)/);
+  /*
+   * Match patterns like:
+   * https://prod.spline.design/V2pT-fO5F255I0pA/scene.splinecode
+   * https://my.spline.design/genkubgreetingrobot-xxx/
+   */
+  const prodMatch = url.match(/prod\.spline\.design\/([^/]+)/);
 
-    if (prodMatch) {
-        return prodMatch[1];
-    }
+  if (prodMatch) {
+    return prodMatch[1];
+  }
 
-    const myMatch = url.match(/my\.spline\.design\/([^/]+)/);
+  const myMatch = url.match(/my\.spline\.design\/([^/]+)/);
 
-    if (myMatch) {
-        return myMatch[1];
-    }
+  if (myMatch) {
+    return myMatch[1];
+  }
 
-    return null;
+  return null;
 }
 
 /**
  * Check if a URL is a Spline scene URL
  */
 export function isSplineUrl(url: string): boolean {
-    return url.includes('spline.design') || url.includes('.splinecode');
+  return url.includes('spline.design') || url.includes('.splinecode');
 }
 
 /**
@@ -81,23 +81,23 @@ export function isSplineUrl(url: string): boolean {
  * @returns Proxied scene URL
  */
 export function proxySplineScene(sceneProp: string): string {
-    // If it's already using our proxy, return as-is
-    if (sceneProp.includes('/api/spline-proxy')) {
-        return sceneProp;
-    }
-
-    // If it's a Spline URL, proxy it
-    if (isSplineUrl(sceneProp)) {
-        return getProxiedSplineUrl(sceneProp);
-    }
-
-    // If it looks like just a scene ID
-    if (!sceneProp.includes('://') && !sceneProp.includes('/')) {
-        return getProxiedSplineUrl(undefined, sceneProp);
-    }
-
-    // Return as-is if we can't determine what it is
+  // If it's already using our proxy, return as-is
+  if (sceneProp.includes('/api/spline-proxy')) {
     return sceneProp;
+  }
+
+  // If it's a Spline URL, proxy it
+  if (isSplineUrl(sceneProp)) {
+    return getProxiedSplineUrl(sceneProp);
+  }
+
+  // If it looks like just a scene ID
+  if (!sceneProp.includes('://') && !sceneProp.includes('/')) {
+    return getProxiedSplineUrl(undefined, sceneProp);
+  }
+
+  // Return as-is if we can't determine what it is
+  return sceneProp;
 }
 
 /**
@@ -105,17 +105,17 @@ export function proxySplineScene(sceneProp: string): string {
  * Provides loading state and error handling
  */
 export interface SplineProxyResult {
-    url: string;
-    isProxied: boolean;
-    originalUrl: string;
+  url: string;
+  isProxied: boolean;
+  originalUrl: string;
 }
 
 export function useSplineProxy(sceneUrl: string): SplineProxyResult {
-    const proxiedUrl = proxySplineScene(sceneUrl);
+  const proxiedUrl = proxySplineScene(sceneUrl);
 
-    return {
-        url: proxiedUrl,
-        isProxied: proxiedUrl !== sceneUrl,
-        originalUrl: sceneUrl,
-    };
+  return {
+    url: proxiedUrl,
+    isProxied: proxiedUrl !== sceneUrl,
+    originalUrl: sceneUrl,
+  };
 }

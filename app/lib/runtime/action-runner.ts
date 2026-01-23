@@ -339,7 +339,7 @@ export class ActionRunner {
       });
       logger.info(`Queued start command for staging: ${action.content.substring(0, 50)}...`);
 
-      return;
+      return undefined;
     }
 
     if (!this.#shellTerminal) {
