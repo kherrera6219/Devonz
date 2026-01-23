@@ -86,8 +86,18 @@ const messageParser = new EnhancedStreamingMessageParser({
     onActionOpen: (data) => {
       logger.trace('onActionOpen', data.action);
 
-      // Skip file actions during session restore - files are already loaded from snapshot
-      if (data.action.type === 'file' && workbenchStore.isRestoringSession.get()) {
+      /*
+       * Skip file actions during session restore ONLY if:
+       * 1. We're currently restoring a session (isRestoringSession is true)
+       * 2. AND this message is from the initial restore (is a reloaded message)
+       * This prevents skipping actions for NEW messages sent after restore.
+       */
+      const isRestoring = workbenchStore.isRestoringSession.get();
+      const isReloadedMsg = workbenchStore.isReloadedMessage(data.messageId);
+
+      if (data.action.type === 'file' && isRestoring && isReloadedMsg) {
+        logger.debug('Skipping file action during restore for reloaded message:', data.messageId);
+
         return;
       }
 
@@ -102,8 +112,18 @@ const messageParser = new EnhancedStreamingMessageParser({
     onActionClose: (data) => {
       logger.trace('onActionClose', data.action);
 
-      // Skip file actions during session restore - files are already loaded from snapshot
-      if (data.action.type === 'file' && workbenchStore.isRestoringSession.get()) {
+      /*
+       * Skip file actions during session restore ONLY if:
+       * 1. We're currently restoring a session (isRestoringSession is true)
+       * 2. AND this message is from the initial restore (is a reloaded message)
+       * This prevents skipping actions for NEW messages sent after restore.
+       */
+      const isRestoring = workbenchStore.isRestoringSession.get();
+      const isReloadedMsg = workbenchStore.isReloadedMessage(data.messageId);
+
+      if (data.action.type === 'file' && isRestoring && isReloadedMsg) {
+        logger.debug('Skipping file action close during restore for reloaded message:', data.messageId);
+
         return;
       }
 
@@ -120,8 +140,15 @@ const messageParser = new EnhancedStreamingMessageParser({
     onActionStream: (data) => {
       logger.trace('onActionStream', data.action);
 
-      // Skip file streaming during session restore
-      if (data.action.type === 'file' && workbenchStore.isRestoringSession.get()) {
+      /*
+       * Skip file streaming during session restore ONLY if:
+       * 1. We're currently restoring a session (isRestoringSession is true)
+       * 2. AND this message is from the initial restore (is a reloaded message)
+       */
+      const isRestoring = workbenchStore.isRestoringSession.get();
+      const isReloadedMsg = workbenchStore.isReloadedMessage(data.messageId);
+
+      if (data.action.type === 'file' && isRestoring && isReloadedMsg) {
         return;
       }
 

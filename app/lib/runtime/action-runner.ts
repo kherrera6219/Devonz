@@ -284,13 +284,18 @@ export class ActionRunner {
     const stagingState = stagingStore.get();
 
     if (stagingState.settings.isEnabled) {
-      queueCommand({
+      const queued = queueCommand({
         type: 'shell',
         command: action.content,
         artifactId: 'pending-artifact',
         title: `Shell: ${action.content.substring(0, 40)}${action.content.length > 40 ? '...' : ''}`,
       });
-      logger.info(`Queued shell command for staging: ${action.content.substring(0, 50)}...`);
+
+      if (queued) {
+        logger.info(`Queued shell command for staging: ${action.content.substring(0, 50)}...`);
+      } else {
+        logger.debug(`Skipped duplicate shell command: ${action.content.substring(0, 50)}...`);
+      }
 
       return;
     }
@@ -331,13 +336,18 @@ export class ActionRunner {
     const stagingState = stagingStore.get();
 
     if (stagingState.settings.isEnabled) {
-      queueCommand({
+      const queued = queueCommand({
         type: 'start',
         command: action.content,
         artifactId: 'pending-artifact',
         title: `Start: ${action.content.substring(0, 40)}${action.content.length > 40 ? '...' : ''}`,
       });
-      logger.info(`Queued start command for staging: ${action.content.substring(0, 50)}...`);
+
+      if (queued) {
+        logger.info(`Queued start command for staging: ${action.content.substring(0, 50)}...`);
+      } else {
+        logger.debug(`Skipped duplicate start command: ${action.content.substring(0, 50)}...`);
+      }
 
       return undefined;
     }

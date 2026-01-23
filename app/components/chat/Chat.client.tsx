@@ -226,14 +226,21 @@ export const ChatImpl = memo(
         storeMessageHistory,
       });
 
-      // Clear the restoring flag after first parse of initial messages
+      /*
+       * Clear the restoring flag after first parse of initial messages.
+       * This MUST happen synchronously to prevent race conditions where
+       * new messages arrive before the flag is cleared.
+       * FIX: Removed requestAnimationFrame to prevent timing issues
+       * that caused new file actions to be skipped after page refresh.
+       */
       if (!hasInitialParsed.current && initialMessages.length > 0) {
         hasInitialParsed.current = true;
 
-        // Use requestAnimationFrame to ensure parsing has completed
-        requestAnimationFrame(() => {
-          workbenchStore.isRestoringSession.set(false);
-        });
+        // Clear reloaded messages set so new messages aren't treated as historical
+        workbenchStore.clearReloadedMessages();
+
+        // Set flag synchronously - must happen before any new messages can be parsed
+        workbenchStore.isRestoringSession.set(false);
       }
     }, [messages, isLoading, parseMessages]);
 

@@ -567,10 +567,33 @@ export function clearProcessedChanges(): void {
  */
 
 /**
- * Queue a shell or start command for execution after files are accepted
+ * Check if a command with the same type and content already exists in the queue.
+ * This prevents duplicate commands from being queued (e.g., from session restore or parsing issues).
  */
-export function queueCommand(command: Omit<PendingCommand, 'id' | 'timestamp'>): PendingCommand {
+function isDuplicateCommand(existingCommands: PendingCommand[], newCommand: Omit<PendingCommand, 'id' | 'timestamp'>): boolean {
+  // Normalize command string for comparison (trim whitespace, normalize line endings)
+  const normalizedNewCommand = newCommand.command.trim().replace(/\r\n/g, '\n');
+
+  return existingCommands.some((existing) => {
+    const normalizedExisting = existing.command.trim().replace(/\r\n/g, '\n');
+
+    return existing.type === newCommand.type && normalizedExisting === normalizedNewCommand;
+  });
+}
+
+/**
+ * Queue a shell or start command for execution after files are accepted.
+ * Automatically deduplicates commands to prevent the same command from being queued multiple times.
+ */
+export function queueCommand(command: Omit<PendingCommand, 'id' | 'timestamp'>): PendingCommand | null {
   const state = stagingStore.get();
+
+  // Check for duplicate command before adding
+  if (isDuplicateCommand(state.pendingCommands, command)) {
+    logger.debug(`Skipping duplicate ${command.type} command: ${command.command.substring(0, 50)}...`);
+
+    return null; // Return null to indicate command was not queued (duplicate)
+  }
 
   const pendingCommand: PendingCommand = {
     ...command,

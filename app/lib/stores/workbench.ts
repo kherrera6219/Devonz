@@ -19,8 +19,10 @@ import { description } from '~/lib/persistence';
 import Cookies from 'js-cookie';
 import { createSampler } from '~/utils/sampler';
 import type { ActionAlert, DeployAlert, SupabaseAlert } from '~/types/actions';
+import { createScopedLogger } from '~/utils/logger';
 
 const { saveAs } = fileSaver;
+const logger = createScopedLogger('WorkbenchStore');
 
 export interface ArtifactState {
   id: string;
@@ -92,7 +94,12 @@ export class WorkbenchStore {
   }
 
   addToExecutionQueue(callback: () => Promise<void>) {
-    this.#globalExecutionQueue = this.#globalExecutionQueue.then(() => callback());
+    this.#globalExecutionQueue = this.#globalExecutionQueue
+      .then(() => callback())
+      .catch((error) => {
+        // Log the error but don't break the queue - allow subsequent operations to continue
+        console.error('[WorkbenchStore] Execution queue error:', error);
+      });
   }
 
   get previews() {
@@ -491,12 +498,38 @@ export class WorkbenchStore {
 
   setReloadedMessages(messages: string[]) {
     this.#reloadedMessages = new Set(messages);
+    logger.debug('Set reloaded messages:', messages.length, 'message IDs');
+  }
+
+  /**
+   * Clear the reloaded messages set.
+   * This should be called after initial session restore is complete
+   * to ensure new messages are not treated as historical reloaded messages.
+   */
+  clearReloadedMessages() {
+    logger.debug('Clearing reloaded messages set, was:', this.#reloadedMessages.size, 'messages');
+    this.#reloadedMessages.clear();
+  }
+
+  /**
+   * Check if a message ID is from the initial session restore.
+   * Used to determine if actions should be skipped during restore.
+   */
+  isReloadedMessage(messageId: string): boolean {
+    const isReloaded = this.#reloadedMessages.has(messageId);
+    logger.trace('isReloadedMessage check:', messageId, '->', isReloaded);
+
+    return isReloaded;
   }
 
   addArtifact({ messageId, title, id, type }: ArtifactCallbackData) {
+    logger.debug('addArtifact:', { messageId, id, title, type });
+
     const artifact = this.#getArtifact(id);
 
     if (artifact) {
+      logger.debug('Artifact already exists, skipping:', id);
+
       return;
     }
 
@@ -550,30 +583,46 @@ export class WorkbenchStore {
 
     this.artifacts.setKey(artifactId, { ...artifact, ...state });
   }
-  addAction(data: ActionCallbackData) {
-    // this._addAction(data);
 
+  addAction(data: ActionCallbackData) {
+    logger.debug('addAction queued:', {
+      artifactId: data.artifactId,
+      actionId: data.actionId,
+      actionType: data.action.type,
+    });
     this.addToExecutionQueue(() => this._addAction(data));
   }
+
   async _addAction(data: ActionCallbackData) {
     const { artifactId } = data;
 
     const artifact = this.#getArtifact(artifactId);
 
     if (!artifact) {
+      logger.error('_addAction: Artifact not found:', artifactId);
       unreachable('Artifact not found');
     }
+
+    logger.debug('_addAction executing:', data.actionId, 'type:', data.action.type);
 
     return artifact.runner.addAction(data);
   }
 
   runAction(data: ActionCallbackData, isStreaming: boolean = false) {
+    logger.debug('runAction:', {
+      artifactId: data.artifactId,
+      actionId: data.actionId,
+      actionType: data.action.type,
+      isStreaming,
+    });
+
     if (isStreaming) {
       this.actionStreamSampler(data, isStreaming);
     } else {
       this.addToExecutionQueue(() => this._runAction(data, isStreaming));
     }
   }
+
   async _runAction(data: ActionCallbackData, isStreaming: boolean = false) {
     const { artifactId } = data;
 
