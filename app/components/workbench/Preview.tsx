@@ -64,6 +64,21 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const hasSelectedPreview = useRef(false);
   const previews = useStore(workbenchStore.previews);
   const activePreview = previews[activePreviewIndex];
+
+  // Compute local preview URL (HTTP localhost format like "Open in new window" uses)
+  const localPreviewUrl = (() => {
+    if (!activePreview?.baseUrl) return '';
+
+    const match = activePreview.baseUrl.match(/^https?:\/\/([^.]+)\.local-credentialless\.webcontainer-api\.io/);
+
+    if (match) {
+      const previewId = match[1];
+      return `http://localhost:5173/webcontainer/preview/${previewId}`;
+    }
+
+    return activePreview.baseUrl;
+  })();
+
   const [displayPath, setDisplayPath] = useState('/');
   const [iframeUrl, setIframeUrl] = useState<string | undefined>();
   const [isSelectionMode, setIsSelectionMode] = useState(false);
@@ -825,23 +840,45 @@ Remove this element completely from the JSX/HTML.`;
           />
         </div>
 
-        <div className="flex-grow flex items-center gap-1 bg-bolt-elements-preview-addressBar-background border border-bolt-elements-borderColor text-bolt-elements-preview-addressBar-text rounded-full px-1 py-1 text-sm hover:bg-bolt-elements-preview-addressBar-backgroundHover hover:focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within-border-bolt-elements-borderColorActive focus-within:text-bolt-elements-preview-addressBar-textActive">
-          <PortDropdown
-            activePreviewIndex={activePreviewIndex}
-            setActivePreviewIndex={setActivePreviewIndex}
-            isDropdownOpen={isPortDropdownOpen}
-            setHasSelectedPreview={(value) => (hasSelectedPreview.current = value)}
-            setIsDropdownOpen={setIsPortDropdownOpen}
-            previews={previews}
-          />
+        <div className="flex-grow flex items-center gap-1 bg-bolt-elements-preview-addressBar-background border border-bolt-elements-borderColor text-bolt-elements-preview-addressBar-text rounded-full px-3 py-1 text-sm hover:bg-bolt-elements-preview-addressBar-backgroundHover hover:focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within:bg-bolt-elements-preview-addressBar-backgroundActive focus-within-border-bolt-elements-borderColorActive focus-within:text-bolt-elements-preview-addressBar-textActive">
+          {/* Port dropdown - only visible when multiple ports available */}
+          {previews.length > 1 && (
+            <PortDropdown
+              activePreviewIndex={activePreviewIndex}
+              setActivePreviewIndex={setActivePreviewIndex}
+              isDropdownOpen={isPortDropdownOpen}
+              setHasSelectedPreview={(value) => (hasSelectedPreview.current = value)}
+              setIsDropdownOpen={setIsPortDropdownOpen}
+              previews={previews}
+            />
+          )}
+          {/* Full URL input - shows HTTP localhost preview URL */}
           <input
-            title="URL Path"
+            title="Full URL"
             ref={inputRef}
-            className="w-full bg-transparent outline-none"
+            className="w-full bg-transparent outline-none text-xs font-mono truncate"
             type="text"
-            value={displayPath}
+            value={localPreviewUrl || ''}
             onChange={(event) => {
-              setDisplayPath(event.target.value);
+              if (!activePreview) return;
+
+              const inputValue = event.target.value;
+
+              // Extract the path from the URL (works with both localhost and WebContainer URLs)
+              if (inputValue.startsWith('http')) {
+                try {
+                  const url = new URL(inputValue);
+                  setDisplayPath(url.pathname + url.search + url.hash || '/');
+                } catch {
+                  // Invalid URL, just keep current path
+                }
+              } else if (inputValue.startsWith('/')) {
+                // User is typing just a path
+                setDisplayPath(inputValue);
+              } else {
+                // Treat as path
+                setDisplayPath('/' + inputValue);
+              }
             }}
             onKeyDown={(event) => {
               if (event.key === 'Enter' && activePreview) {
@@ -860,8 +897,22 @@ Remove this element completely from the JSX/HTML.`;
                 }
               }
             }}
+            onClick={(event) => {
+              // Select all text on click for easy copying
+              (event.target as HTMLInputElement).select();
+            }}
             disabled={!activePreview}
           />
+          {/* Open in new tab button */}
+          {activePreview && (
+            <button
+              onClick={openInNewTab}
+              className="flex-shrink-0 p-1 bg-transparent text-bolt-elements-preview-addressBar-text hover:text-bolt-elements-preview-addressBar-textActive rounded transition-colors"
+              title="Open in new tab"
+            >
+              <div className="i-ph:arrow-square-out w-4 h-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -962,36 +1013,32 @@ Remove this element completely from the JSX/HTML.`;
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-bolt-elements-textTertiary">Show Device Frame</span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
-                            showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                          } relative`}
+                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
+                            } relative`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setShowDeviceFrame(!showDeviceFrame);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                              showDeviceFrame ? 'transform translate-x-5' : ''
-                            }`}
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${showDeviceFrame ? 'transform translate-x-5' : ''
+                              }`}
                           />
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-bolt-elements-textTertiary">Landscape Mode</span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
-                            isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                          } relative`}
+                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
+                            } relative`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsLandscape(!isLandscape);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                              isLandscape ? 'transform translate-x-5' : ''
-                            }`}
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${isLandscape ? 'transform translate-x-5' : ''
+                              }`}
                           />
                         </button>
                       </div>
