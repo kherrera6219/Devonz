@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { usePreviewStore } from '~/lib/stores/previews';
 import { WORK_DIR } from '~/utils/constants';
+import { takeDelayedSnapshot } from '~/lib/persistence/snapshotUtils';
 import {
   stagingStore,
   pendingCount,
@@ -404,6 +405,14 @@ export const StagedChangesPanel = memo(() => {
       try {
         acceptChange(filePath);
         await applyChangesToWebContainer();
+
+        // Take a snapshot after changes are applied to persist the new file state
+        try {
+          await takeDelayedSnapshot(150); // 150ms delay for WebContainer sync
+          console.log('[StagedChangesPanel] Snapshot taken after accepting single change');
+        } catch (snapshotError) {
+          console.error('[StagedChangesPanel] Failed to take snapshot after single accept:', snapshotError);
+        }
       } finally {
         setIsApplying(false);
       }
@@ -534,6 +543,16 @@ export const StagedChangesPanel = memo(() => {
 
       // Execute pending commands after files are applied
       await executePendingCommands();
+
+      // Take a snapshot after changes are applied to persist the new file state
+      // This ensures the files are saved even when staging mode delays writes
+      try {
+        await takeDelayedSnapshot(150); // 150ms delay for WebContainer sync
+        console.log('[StagedChangesPanel] Snapshot taken after accepting changes');
+      } catch (snapshotError) {
+        console.error('[StagedChangesPanel] Failed to take snapshot after accept:', snapshotError);
+        // Don't show toast for snapshot errors - files are still applied
+      }
     } finally {
       setIsApplying(false);
     }
