@@ -113,6 +113,7 @@ export const CombinedModelSelector = ({
   setProvider,
   modelList,
   providerList,
+  apiKeys,
   modelLoading,
   isOpen,
   onOpenChange,
@@ -443,14 +444,15 @@ export const CombinedModelSelector = ({
         </div>
       )}
 
-      {/* Dropdown Panel - Opens Upwards */}
+      {/* Dropdown Panel */}
       {isDropdownOpen && (
         <div
           className={classNames(
-            'absolute z-50 w-full bottom-full mb-2 rounded-xl overflow-hidden',
+            'z-50 w-full rounded-xl overflow-hidden',
             'border border-bolt-elements-borderColor',
             'bg-[#0f0f0f]',
             'shadow-xl shadow-black/50',
+            'max-h-[400px] flex flex-col',
           )}
         >
           {/* Section Tabs */}
@@ -491,6 +493,22 @@ export const CombinedModelSelector = ({
               <span className="i-ph:brain-duotone" />
               Model
             </button>
+            {/* API Key Status Badge */}
+            {provider && (
+              <div className="flex items-center px-3">
+                {apiKeys[provider.name] ? (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 text-green-400 text-xs">
+                    <div className="i-ph:check-circle-fill text-sm" />
+                    <span className="whitespace-nowrap">API Key</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 text-green-400 text-xs">
+                    <div className="i-ph:check-circle-fill text-sm" />
+                    <span className="whitespace-nowrap">ENV Key</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Search Input */}
@@ -570,7 +588,7 @@ export const CombinedModelSelector = ({
           {/* Options List */}
           <div
             className={classNames(
-              'max-h-64 overflow-y-auto',
+              'flex-1 overflow-y-auto',
               '[&::-webkit-scrollbar]:w-1.5',
               '[&::-webkit-scrollbar-thumb]:bg-bolt-elements-borderColor',
               '[&::-webkit-scrollbar-thumb]:hover:bg-[#4d6a8f]/50',

@@ -78,8 +78,10 @@ const RightIconPanel: React.FC = () => {
       const speed = 0.03;
       positionRef.current += speed * delta;
 
-      // Seamless reset: when we've scrolled through one complete set,
-      // jump back by one set width (invisible because the next set is identical)
+      /*
+       * Seamless reset: when we've scrolled through one complete set,
+       * jump back by one set width (invisible because the next set is identical)
+       */
       if (positionRef.current >= singleSetWidth) {
         positionRef.current -= singleSetWidth;
       }

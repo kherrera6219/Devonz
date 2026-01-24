@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 import { SupabaseConnection } from './SupabaseConnection';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
+import { Dialog, DialogRoot } from '~/components/ui/Dialog';
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/types/model';
 import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
@@ -102,6 +103,29 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         backdropFilter: 'blur(24px)',
       }}
     >
+      {/* Model Selector Modal/Popout */}
+      <DialogRoot open={isModelSelectorOpen} onOpenChange={setIsModelSelectorOpen}>
+        <Dialog
+          className="w-[90vw] max-w-[500px] p-0 overflow-hidden"
+          showCloseButton={false}
+          onBackdrop={() => setIsModelSelectorOpen(false)}
+        >
+          <CombinedModelSelector
+            key={props.provider?.name + ':' + props.modelList.length}
+            model={props.model}
+            setModel={props.setModel}
+            modelList={props.modelList}
+            provider={props.provider}
+            setProvider={props.setProvider}
+            providerList={props.providerList || (PROVIDER_LIST as ProviderInfo[])}
+            apiKeys={props.apiKeys}
+            modelLoading={props.isModelLoading}
+            isOpen={isModelSelectorOpen}
+            onOpenChange={setIsModelSelectorOpen}
+            hideTrigger={true}
+          />
+        </Dialog>
+      </DialogRoot>
       <svg className={classNames(styles.PromptEffectContainer)}>
         <defs>
           <linearGradient
@@ -128,61 +152,6 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <rect className={classNames(styles.PromptEffectLine)} pathLength="100" strokeLinecap="round"></rect>
         <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
       </svg>
-
-      {/* Model Selector - Hidden trigger, dropdown controlled by button */}
-      <div className="mb-3">
-        <ClientOnly>
-          {() => (
-            <div className="flex items-center gap-3 flex-wrap justify-end">
-              {/* Hidden Model Selector - dropdown only */}
-              <div className="flex-1 min-w-[200px]">
-                <CombinedModelSelector
-                  key={props.provider?.name + ':' + props.modelList.length}
-                  model={props.model}
-                  setModel={props.setModel}
-                  modelList={props.modelList}
-                  provider={props.provider}
-                  setProvider={props.setProvider}
-                  providerList={props.providerList || (PROVIDER_LIST as ProviderInfo[])}
-                  apiKeys={props.apiKeys}
-                  modelLoading={props.isModelLoading}
-                  isOpen={isModelSelectorOpen}
-                  onOpenChange={setIsModelSelectorOpen}
-                  hideTrigger={true}
-                />
-              </div>
-
-              {/* API Key Status - Compact inline display */}
-              {props.provider && !isLocalProvider && (
-                <div className="flex items-center gap-2 text-xs shrink-0">
-                  {hasApiKeyAvailable ? (
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-500/10 text-green-400">
-                      <div className="i-ph:check-circle-fill text-sm" />
-                      <span className="whitespace-nowrap">{hasApiKey ? 'API Key Set' : 'ENV Key'}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-yellow-500/10 text-yellow-400">
-                        <div className="i-ph:warning-circle-fill text-sm" />
-                        <span className="whitespace-nowrap">No API Key</span>
-                      </div>
-                      <a
-                        href={`https://console.cloud.google.com/apis/credentials`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-2 py-1 rounded-md text-cyan-400 hover:bg-cyan-400/10 transition-colors whitespace-nowrap"
-                      >
-                        <span>Get API Key</span>
-                        <div className="i-ph:arrow-square-out text-xs" />
-                      </a>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </ClientOnly>
-      </div>
 
       <FilePreview
         files={props.uploadedFiles}
@@ -346,17 +315,21 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 {props.chatMode === 'discuss' ? <span>Discuss</span> : <span />}
               </IconButton>
             )}
-            <IconButton
-              title="Select Model"
-              className={classNames('transition-all flex items-center gap-1', {
-                'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': isModelSelectorOpen,
-                'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault': !isModelSelectorOpen,
-              })}
-              onClick={() => setIsModelSelectorOpen(!isModelSelectorOpen)}
-              disabled={!props.providerList || props.providerList.length === 0}
-            >
-              <div className="i-ph:robot text-lg" />
-            </IconButton>
+            {/* Model Selector Button with Dropdown */}
+            <div className="relative">
+              <IconButton
+                title="Select Model"
+                className={classNames('transition-all flex items-center gap-1', {
+                  'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': isModelSelectorOpen,
+                  'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
+                    !isModelSelectorOpen,
+                })}
+                onClick={() => setIsModelSelectorOpen(!isModelSelectorOpen)}
+                disabled={!props.providerList || props.providerList.length === 0}
+              >
+                <div className="i-ph:robot text-lg" />
+              </IconButton>
+            </div>
           </div>
           {props.input.length > 3 ? (
             <div className="text-xs text-bolt-elements-textTertiary">
