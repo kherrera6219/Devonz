@@ -7,8 +7,47 @@
 
 import { workbenchStore } from '~/lib/stores/workbench';
 import { createScopedLogger } from '~/utils/logger';
+import {
+  autoFixStore,
+  startAutoFix,
+  shouldContinueFix,
+  hasExceededMaxRetries,
+  type ErrorSource,
+} from '~/lib/stores/autofix';
 
 const logger = createScopedLogger('TerminalErrorDetector');
+
+/**
+ * Callback type for auto-fix integration
+ * Called when an error is detected and auto-fix should handle it
+ */
+export type AutoFixCallback = (error: {
+  source: ErrorSource;
+  type: string;
+  message: string;
+  content: string;
+}) => Promise<void>;
+
+// Global auto-fix callback - set by Chat component
+let globalAutoFixCallback: AutoFixCallback | null = null;
+
+/**
+ * Register a callback to handle auto-fix requests
+ * This should be called by the Chat component on mount
+ */
+export function registerAutoFixCallback(callback: AutoFixCallback): void {
+  globalAutoFixCallback = callback;
+  logger.debug('Auto-fix callback registered');
+}
+
+/**
+ * Unregister the auto-fix callback
+ * This should be called by the Chat component on unmount
+ */
+export function unregisterAutoFixCallback(): void {
+  globalAutoFixCallback = null;
+  logger.debug('Auto-fix callback unregistered');
+}
 
 /**
  * Error pattern definition
@@ -26,6 +65,9 @@ export interface ErrorPattern {
   /** Human-readable title for the alert */
   title: string;
 
+  /** Whether this error type can be auto-fixed by the LLM */
+  autoFixable?: boolean;
+
   /** Optional function to extract details from the match */
   extractDetails?: (match: RegExpMatchArray, fullOutput: string) => string;
 }
@@ -41,11 +83,15 @@ export interface DetectedError {
   details: string;
   timestamp: number;
   hash: string;
+  /** Whether this error can be auto-fixed */
+  autoFixable: boolean;
 }
 
 /**
  * Error patterns to detect in terminal output
  * Ordered by specificity - more specific patterns first
+ * autoFixable: true for errors the LLM can likely fix (code issues)
+ * autoFixable: false for errors requiring user action (ports, permissions, network)
  */
 const ERROR_PATTERNS: ErrorPattern[] = [
   // esbuild errors (X ERROR format)
@@ -54,6 +100,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'build',
     severity: 'error',
     title: 'Build Error',
+    autoFixable: true,
     extractDetails: (match, fullOutput) => {
       // Get more context for esbuild errors (includes file path and suggestion)
       const errorIdx = fullOutput.indexOf(match[0]);
@@ -69,6 +116,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'syntax',
     severity: 'error',
     title: 'JSX Syntax Error',
+    autoFixable: true,
     extractDetails: (match, fullOutput) => {
       const errorIdx = fullOutput.indexOf(match[0]);
       const contextEnd = Math.min(fullOutput.length, errorIdx + 600);
@@ -83,6 +131,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'build',
     severity: 'error',
     title: 'Vite Build Error',
+    autoFixable: true,
     extractDetails: (match, fullOutput) => {
       // Try to extract more context around the error
       const errorIdx = fullOutput.indexOf(match[0]);
@@ -99,6 +148,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'build',
     severity: 'error',
     title: 'CSS/PostCSS Error',
+    autoFixable: true,
     extractDetails: (match, fullOutput) => {
       const errorIdx = fullOutput.indexOf(match[0]);
       const contextEnd = Math.min(fullOutput.length, errorIdx + 800);
@@ -111,6 +161,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'build',
     severity: 'error',
     title: 'Vite Plugin Error',
+    autoFixable: true,
     extractDetails: (match, fullOutput) => {
       const errorIdx = fullOutput.indexOf(match[0]);
       const contextEnd = Math.min(fullOutput.length, errorIdx + 600);
@@ -125,6 +176,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'build',
     severity: 'error',
     title: 'Tailwind CSS Error',
+    autoFixable: true,
     extractDetails: (match) =>
       `The class "${match[1]}" does not exist. Make sure it is defined in your Tailwind config or use a valid utility class.`,
   },
@@ -133,12 +185,14 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'syntax',
     severity: 'error',
     title: 'CSS Syntax Error',
+    autoFixable: true,
   },
   {
     pattern: /Failed to resolve import ["'](.+?)["'].*?from ["'](.+?)["']/i,
     type: 'module',
     severity: 'error',
     title: 'Import Resolution Failed',
+    autoFixable: true,
     extractDetails: (match) => `Cannot resolve import "${match[1]}" from "${match[2]}"`,
   },
   {
@@ -146,12 +200,14 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'module',
     severity: 'error',
     title: 'Module Not Found',
+    autoFixable: true,
   },
   {
     pattern: /Cannot find module ["'](.+?)["']/i,
     type: 'module',
     severity: 'error',
     title: 'Module Not Found',
+    autoFixable: true,
     extractDetails: (match) => `Cannot find module "${match[1]}"`,
   },
 
@@ -161,6 +217,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'syntax',
     severity: 'error',
     title: 'TypeScript Error',
+    autoFixable: true,
     extractDetails: (match) => `TS${match[1]}: ${match[2]}`,
   },
   {
@@ -168,6 +225,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'syntax',
     severity: 'error',
     title: 'TypeScript Type Error',
+    autoFixable: true,
   },
 
   // JavaScript runtime errors
@@ -176,6 +234,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'syntax',
     severity: 'error',
     title: 'Syntax Error',
+    autoFixable: true,
     extractDetails: (match) => match[1],
   },
   {
@@ -183,6 +242,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'runtime',
     severity: 'error',
     title: 'Type Error',
+    autoFixable: true,
     extractDetails: (match) => match[1],
   },
   {
@@ -190,6 +250,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'runtime',
     severity: 'error',
     title: 'Reference Error',
+    autoFixable: true,
     extractDetails: (match) => match[1],
   },
 
@@ -199,6 +260,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'package',
     severity: 'error',
     title: 'npm Error',
+    autoFixable: true, // Often missing dependencies that can be added
     extractDetails: (match, fullOutput) => {
       // Get more npm error context
       const lines = fullOutput.split('\n');
@@ -212,12 +274,14 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'package',
     severity: 'error',
     title: 'pnpm Error',
+    autoFixable: true,
   },
   {
     pattern: /ENOENT:\s*no such file or directory[,\s]*(?:open\s*)?["']?(.+?)["']?/i,
     type: 'build',
     severity: 'error',
     title: 'File Not Found',
+    autoFixable: true,
     extractDetails: (match) => `File not found: ${match[1]}`,
   },
 
@@ -227,6 +291,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'syntax',
     severity: 'error',
     title: 'ESLint Errors',
+    autoFixable: true,
     extractDetails: (match) => `${match[1]} ESLint error(s) found`,
   },
 
@@ -236,6 +301,7 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'build',
     severity: 'error',
     title: 'Build Failed',
+    autoFixable: true,
     extractDetails: (match) => `Build failed with ${match[1]} error(s)`,
   },
   {
@@ -243,12 +309,14 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     type: 'build',
     severity: 'error',
     title: 'Build Error',
+    autoFixable: true,
   },
   {
     pattern: /Failed to scan for dependencies/i,
     type: 'build',
     severity: 'error',
     title: 'Dependency Scan Failed',
+    autoFixable: true,
     extractDetails: (_match, fullOutput) => {
       // Get context around the error
       const errorIdx = fullOutput.indexOf('Failed to scan');
@@ -258,13 +326,15 @@ const ERROR_PATTERNS: ErrorPattern[] = [
     },
   },
 
-  // Port in use
+  // Port in use - NOT auto-fixable (requires user action)
   {
     pattern: /Port\s+(\d+)\s+is\s+(?:already\s+)?in\s+use/i,
     type: 'runtime',
     severity: 'error',
     title: 'Port In Use',
-    extractDetails: (match) => `Port ${match[1]} is already in use`,
+    autoFixable: false, // User needs to free the port manually
+    extractDetails: (match) =>
+      `Port ${match[1]} is already in use. Close the process using this port or use a different port.`,
   },
 ];
 
@@ -399,6 +469,7 @@ export class TerminalErrorDetector {
           details,
           timestamp: Date.now(),
           hash: errorHash,
+          autoFixable: pattern.autoFixable ?? true, // Default to true for unlabeled patterns
         };
 
         newErrors.push(error);
@@ -436,7 +507,45 @@ export class TerminalErrorDetector {
     // Format content for display
     const content = this.#formatErrorContent();
 
-    // Trigger workbench alert
+    // Check if we should trigger auto-fix instead of showing alert
+    const autoFixState = autoFixStore.get();
+    const canAutoFix = primaryError.autoFixable && shouldContinueFix() && globalAutoFixCallback;
+
+    if (canAutoFix) {
+      // Trigger auto-fix instead of showing alert
+      const started = startAutoFix({
+        source: 'terminal',
+        type: primaryError.type,
+        message: primaryError.message,
+        content,
+      });
+
+      if (started && globalAutoFixCallback) {
+        logger.info(`Auto-fix triggered for: ${primaryError.title}`);
+
+        // Add delay before triggering fix (configurable)
+        setTimeout(() => {
+          globalAutoFixCallback?.({
+            source: 'terminal',
+            type: primaryError.type,
+            message: primaryError.message,
+            content,
+          });
+        }, autoFixState.settings.delayBetweenAttempts);
+
+        // Clear processed errors
+        this.#detectedErrors = [];
+
+        return;
+      }
+    }
+
+    // If auto-fix didn't trigger, show max retries warning if applicable
+    if (primaryError.autoFixable && hasExceededMaxRetries()) {
+      logger.warn('Max auto-fix retries exceeded, showing alert to user');
+    }
+
+    // Fallback to workbench alert (existing behavior)
     workbenchStore.actionAlert.set({
       type: 'error',
       title: primaryError.title,

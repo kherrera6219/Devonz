@@ -571,8 +571,9 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   };
 
   const openInNewTab = () => {
-    if (activePreview?.baseUrl) {
-      window.open(activePreview?.baseUrl, '_blank');
+    // Use localPreviewUrl to match what's displayed in the address bar
+    if (localPreviewUrl) {
+      window.open(localPreviewUrl, '_blank');
     }
   };
 
@@ -660,6 +661,12 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
           setInspectorElement(element);
           setIsInspectorPanelVisible(true);
         });
+      } else if (event.data.type === 'INSPECTOR_BULK_APPLIED') {
+        console.log('[Preview] Bulk style applied:', event.data);
+        setBulkAffectedCount(event.data.count);
+      } else if (event.data.type === 'INSPECTOR_BULK_REVERTED') {
+        console.log('[Preview] Bulk revert complete:', event.data);
+        setBulkAffectedCount(undefined);
       }
     };
 
@@ -723,6 +730,66 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const handleCloseInspectorPanel = useCallback(() => {
     setIsInspectorPanelVisible(false);
     setInspectorElement(null);
+  }, []);
+
+  // Handler for selecting element from tree navigator
+  const handleSelectFromTree = useCallback((selector: string) => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        {
+          type: 'INSPECTOR_SELECT_BY_SELECTOR',
+          selector,
+        },
+        '*',
+      );
+    }
+  }, []);
+
+  // Handler for reverting changes on selected element
+  const handleRevert = useCallback(() => {
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        {
+          type: 'INSPECTOR_REVERT',
+        },
+        '*',
+      );
+    }
+  }, []);
+
+  // State for tracking bulk affected element count
+  const [bulkAffectedCount, setBulkAffectedCount] = useState<number | undefined>(undefined);
+
+  // Handler for bulk style changes
+  const handleBulkStyleChange = useCallback((selector: string, property: string, value: string) => {
+    console.log('[Preview] handleBulkStyleChange:', selector, property, value);
+
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        {
+          type: 'INSPECTOR_BULK_STYLE',
+          selector,
+          property,
+          value,
+        },
+        '*',
+      );
+    }
+  }, []);
+
+  // Handler for bulk revert
+  const handleBulkRevert = useCallback((selector: string) => {
+    console.log('[Preview] handleBulkRevert:', selector);
+
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage(
+        {
+          type: 'INSPECTOR_BULK_REVERT',
+          selector,
+        },
+        '*',
+      );
+    }
   }, []);
 
   // Handler for applying changes with AI
@@ -814,6 +881,16 @@ Remove this element completely from the JSX/HTML.`;
     setInspectorElement(null);
   }, []);
 
+  // Handler for AI quick actions
+  const handleAIAction = useCallback((message: string) => {
+    // Send the message to chat
+    setPendingChatMessage(message);
+
+    // Close inspector panel
+    setIsInspectorPanelVisible(false);
+    setInspectorElement(null);
+  }, []);
+
   return (
     <div ref={containerRef} className={`w-full h-full flex flex-col relative`}>
       {/* Inspector Panel */}
@@ -825,6 +902,12 @@ Remove this element completely from the JSX/HTML.`;
         onTextChange={handleTextChange}
         onApplyWithAI={handleApplyWithAI}
         onDeleteElement={handleDeleteElement}
+        onAIAction={handleAIAction}
+        onSelectFromTree={handleSelectFromTree}
+        onRevert={handleRevert}
+        onBulkStyleChange={handleBulkStyleChange}
+        onBulkRevert={handleBulkRevert}
+        bulkAffectedCount={bulkAffectedCount}
       />
 
       {isPortDropdownOpen && (

@@ -28,6 +28,14 @@ import type { ElementInfo } from '~/components/workbench/Inspector';
 import type { TextUIPart, FileUIPart, Attachment } from '@ai-sdk/ui-utils';
 import { useMCPStore } from '~/lib/stores/mcp';
 import type { LlmErrorAlertType } from '~/types/actions';
+import {
+  registerAutoFixCallback,
+  unregisterAutoFixCallback,
+  resetTerminalErrorDetector,
+} from '~/utils/terminalErrorDetector';
+import { resetPreviewErrorHandler } from '~/utils/previewErrorHandler';
+import { createAutoFixHandler, handleFixSuccess, isAutoFixActive } from '~/lib/services/autoFixService';
+import { autoFixStore, recordFixAttempt } from '~/lib/stores/autofix';
 
 const logger = createScopedLogger('Chat');
 
@@ -172,6 +180,29 @@ export const ChatImpl = memo(
         }
 
         logger.debug('Finished streaming');
+
+        // Check if this was an auto-fix response
+        // Wait for terminal/preview to run the code, then check if errors cleared
+        if (isAutoFixActive()) {
+          const settings = autoFixStore.get().settings;
+
+          setTimeout(() => {
+            // If still auto-fixing and no new alert was triggered, consider it fixed
+            if (isAutoFixActive()) {
+              const currentAlert = workbenchStore.actionAlert.get();
+
+              if (!currentAlert) {
+                // No new error detected - fix was successful!
+                handleFixSuccess();
+                logger.info('Auto-fix successful - no new errors detected');
+              } else {
+                // Error still present or new error - record attempt
+                recordFixAttempt(false);
+                logger.debug('Auto-fix attempt completed, error still present');
+              }
+            }
+          }, settings.delayBetweenAttempts + 2000); // Wait for code to run + buffer
+        }
       },
       initialMessages,
       initialInput: Cookies.get(PROMPT_COOKIE_KEY) || '',
@@ -609,6 +640,39 @@ export const ChatImpl = memo(
       }, 1000),
       [],
     );
+
+    /**
+     * Register auto-fix callback on mount
+     * This allows the terminal error detector to automatically send errors to chat
+     */
+    useEffect(() => {
+      // Create a function that sends messages for auto-fix
+      const autoFixSendMessage = (message: string) => {
+        // Reset error handlers before sending (same as "Ask Bolt")
+        resetTerminalErrorDetector();
+        resetPreviewErrorHandler();
+
+        // Build the message in same format as ChatAlert's handleAskBolt
+        const messageText = `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${message}`;
+
+        // Use append to send the message
+        runAnimation();
+
+        append({
+          role: 'user',
+          content: messageText,
+        });
+      };
+
+      // Register the callback
+      const handler = createAutoFixHandler(autoFixSendMessage);
+      registerAutoFixCallback(handler);
+
+      // Cleanup on unmount
+      return () => {
+        unregisterAutoFixCallback();
+      };
+    }, [model, provider, append]);
 
     useEffect(() => {
       const storedApiKeys = Cookies.get('apiKeys');

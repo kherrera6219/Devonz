@@ -1,9 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
+import type { BoxModelData } from './BoxModelEditor';
 
 interface InspectorProps {
   isActive: boolean;
   iframeRef: React.RefObject<HTMLIFrameElement>;
   onElementSelect: (elementInfo: ElementInfo) => void;
+}
+
+export interface ElementSummary {
+  tagName: string;
+  id: string;
+  classes: string[];
+  selector: string;
+  displayText: string;
+  hasChildren: boolean;
+}
+
+export interface ElementHierarchy {
+  parents: ElementSummary[];
+  current: ElementSummary | null;
+  children: ElementSummary[];
+  siblings: ElementSummary[];
+  totalChildren: number;
+  totalSiblings: number;
 }
 
 export interface ElementInfo {
@@ -13,7 +32,10 @@ export interface ElementInfo {
   id: string;
   textContent: string;
   styles: Record<string, string>; // Changed from CSSStyleDeclaration
+  boxModel?: BoxModelData;
   selector?: string;
+  hierarchy?: ElementHierarchy;
+  colors?: string[];
   rect: {
     x: number;
     y: number;

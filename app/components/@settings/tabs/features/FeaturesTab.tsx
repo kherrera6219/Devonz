@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { PromptLibrary } from '~/lib/common/prompt-library';
 import { useStore } from '@nanostores/react';
 import { stagingStore, updateSettings as updateStagingSettings } from '~/lib/stores/staging';
+import { autoFixStore, updateAutoFixSettings } from '~/lib/stores/autofix';
 
 interface FeatureToggle {
   id: string;
@@ -127,6 +128,10 @@ export default function FeaturesTab() {
   const stagingState = useStore(stagingStore);
   const { settings: stagingSettings } = stagingState;
 
+  // AutoFix settings from autofix store
+  const autoFixState = useStore(autoFixStore);
+  const { settings: autoFixSettings } = autoFixState;
+
   // Enable features by default on first load
   React.useEffect(() => {
     // Only set defaults if values are undefined
@@ -205,6 +210,18 @@ export default function FeaturesTab() {
         case 'stagingAutoCheckpoint': {
           updateStagingSettings({ autoCheckpointOnAccept: enabled });
           toast.success(`Auto-checkpoint ${enabled ? 'enabled' : 'disabled'}`);
+          break;
+        }
+
+        case 'autoFixEnabled': {
+          updateAutoFixSettings({ isEnabled: enabled });
+          toast.success(`Auto-fix ${enabled ? 'enabled' : 'disabled'}`);
+          break;
+        }
+
+        case 'autoFixShowNotifications': {
+          updateAutoFixSettings({ showNotifications: enabled });
+          toast.success(`Auto-fix notifications ${enabled ? 'enabled' : 'disabled'}`);
           break;
         }
 
@@ -295,6 +312,25 @@ export default function FeaturesTab() {
         enabled: stagingSettings.autoCheckpointOnAccept,
         beta: true,
         tooltip: 'Allows you to restore to before the changes were applied',
+      },
+      {
+        id: 'autoFixEnabled',
+        title: 'Auto-Fix Errors',
+        description: 'Automatically send errors to AI for fixing (up to 3 attempts)',
+        icon: 'i-ph:wrench',
+        enabled: autoFixSettings.isEnabled,
+        beta: true,
+        tooltip:
+          'When enabled, terminal and preview errors are automatically sent to the AI for fixing without user intervention',
+      },
+      {
+        id: 'autoFixShowNotifications',
+        title: 'Auto-Fix Notifications',
+        description: 'Show status notifications during auto-fix',
+        icon: 'i-ph:bell',
+        enabled: autoFixSettings.showNotifications,
+        beta: true,
+        tooltip: 'Display toast notifications when auto-fix starts, succeeds, or fails',
       },
     ],
   };
