@@ -336,8 +336,8 @@ export const Menu = () => {
           isSettingsOpen ? 'z-40' : 'z-sidebar',
         )}
       >
-        <div className="h-12 flex items-center justify-between px-4 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2/80 rounded-tr-2xl">
-          <div className="text-bolt-elements-textPrimary font-medium">Devonz</div>
+        <div className="h-12 flex items-center px-4 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2/80 rounded-tr-2xl">
+          <span className="text-bolt-elements-textPrimary font-semibold text-lg">Devonz</span>
         </div>
         <CurrentDateTime />
         <div className="flex-1 flex flex-col h-full w-full overflow-hidden">

@@ -8,6 +8,7 @@ import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 
 export function Header() {
   const chat = useStore(chatStore);
+  const sidebarOpen = useStore(sidebarStore.open);
 
   return (
     <header
@@ -17,13 +18,12 @@ export function Header() {
       })}
     >
       <div className="flex items-center gap-3 z-logo text-bolt-elements-textPrimary cursor-pointer">
-        <div
-          className="i-ph:sidebar-simple text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
-          onClick={() => sidebarStore.toggle()}
-        />
-        <a href="/" className="text-xl font-semibold text-bolt-elements-textPrimary flex items-center">
-          Devonz
-        </a>
+        {!sidebarOpen && (
+          <div
+            className="i-ph:sidebar-simple text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
+            onClick={() => sidebarStore.toggle()}
+          />
+        )}
       </div>
       {chat.started && (
         <>
