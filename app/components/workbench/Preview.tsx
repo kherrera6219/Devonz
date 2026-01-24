@@ -152,6 +152,51 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     }
   };
 
+  // Hard reload with cache-busting for config file changes
+  const hardReloadPreview = useCallback(() => {
+    if (iframeRef.current && iframeUrl) {
+      // Add cache-busting query param to force a completely fresh load
+      const url = new URL(iframeUrl);
+      url.searchParams.set('_t', Date.now().toString());
+
+      // Clear and reload with cache-busting URL
+      iframeRef.current.src = '';
+      requestAnimationFrame(() => {
+        if (iframeRef.current) {
+          iframeRef.current.src = url.toString();
+        }
+      });
+      console.log('[Preview] Hard reload triggered for config changes');
+    }
+  }, [iframeUrl]);
+
+  // Listen for preview refresh messages via BroadcastChannel
+  // This handles hard-refresh for config file changes (tailwind.config, vite.config, etc.)
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.BroadcastChannel !== 'function') {
+      return;
+    }
+
+    const channel = new BroadcastChannel('preview-updates');
+
+    channel.onmessage = (event) => {
+      const { type } = event.data;
+
+      if (type === 'hard-refresh') {
+        // Config file changes need a full cache-busting reload
+        console.log('[Preview] Received hard-refresh message, reloading...');
+        hardReloadPreview();
+      } else if (type === 'file-change' || type === 'refresh-preview') {
+        // Regular file changes can use simple reload
+        reloadPreview();
+      }
+    };
+
+    return () => {
+      channel.close();
+    };
+  }, [hardReloadPreview]);
+
   const toggleFullscreen = async () => {
     if (!isFullscreen && containerRef.current) {
       await containerRef.current.requestFullscreen();
@@ -1192,32 +1237,36 @@ Add these rules to style the elements as specified. The !important flags ensure 
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-bolt-elements-textTertiary">Show Device Frame</span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                            } relative`}
+                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
+                            showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
+                          } relative`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setShowDeviceFrame(!showDeviceFrame);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${showDeviceFrame ? 'transform translate-x-5' : ''
-                              }`}
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                              showDeviceFrame ? 'transform translate-x-5' : ''
+                            }`}
                           />
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-bolt-elements-textTertiary">Landscape Mode</span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                            } relative`}
+                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
+                            isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
+                          } relative`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsLandscape(!isLandscape);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${isLandscape ? 'transform translate-x-5' : ''
-                              }`}
+                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                              isLandscape ? 'transform translate-x-5' : ''
+                            }`}
                           />
                         </button>
                       </div>

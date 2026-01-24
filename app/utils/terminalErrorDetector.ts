@@ -388,6 +388,7 @@ export class TerminalErrorDetector {
   #recentErrorHashes: Set<string> = new Set();
   #debounceTimer: NodeJS.Timeout | null = null;
   #isEnabled: boolean = true;
+  #cleanupIntervalId: ReturnType<typeof setInterval> | null = null;
 
   // Configuration constants
   #DEBOUNCE_MS = 500;
@@ -396,8 +397,29 @@ export class TerminalErrorDetector {
   #HASH_TTL_MS = 30000;
 
   constructor() {
-    // Clean up old hashes periodically
-    setInterval(() => this.#cleanupOldHashes(), this.#HASH_TTL_MS);
+    // Clean up old hashes periodically - store interval ID for cleanup
+    this.#cleanupIntervalId = setInterval(() => this.#cleanupOldHashes(), this.#HASH_TTL_MS);
+  }
+
+  /**
+   * Cleanup resources when detector is no longer needed
+   * Call this method to prevent memory leaks
+   */
+  destroy(): void {
+    if (this.#cleanupIntervalId) {
+      clearInterval(this.#cleanupIntervalId);
+      this.#cleanupIntervalId = null;
+    }
+
+    if (this.#debounceTimer) {
+      clearTimeout(this.#debounceTimer);
+      this.#debounceTimer = null;
+    }
+
+    this.#buffer = '';
+    this.#detectedErrors = [];
+    this.#recentErrorHashes.clear();
+    logger.debug('TerminalErrorDetector destroyed');
   }
 
   /**

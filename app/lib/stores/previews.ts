@@ -302,6 +302,33 @@ export class PreviewsStore {
       }
     }
   }
+
+  /**
+   * Force a hard refresh of all previews with cache-busting.
+   * Used when config files change and Vite's HMR cannot handle the update.
+   * Config files (tailwind.config, vite.config, etc.) are cached by build tools
+   * and require a full page reload for changes to take effect.
+   */
+  hardRefreshAllPreviews() {
+    const previews = this.previews.get();
+
+    for (const preview of previews) {
+      const previewId = this.getPreviewId(preview.baseUrl);
+
+      if (previewId) {
+        const timestamp = Date.now();
+        this.#lastUpdate.set(previewId, timestamp);
+
+        this.#broadcastChannel?.postMessage({
+          type: 'hard-refresh',
+          previewId,
+          timestamp,
+        });
+      }
+    }
+
+    console.log('[PreviewsStore] Broadcasted hard-refresh to all previews');
+  }
 }
 
 // Create a singleton instance

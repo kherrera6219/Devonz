@@ -33,6 +33,23 @@ export default function WebContainerPreview() {
     }
   }, [previewUrl]);
 
+  // Handle hard refresh with cache-busting for config file changes
+  const handleHardRefresh = useCallback(() => {
+    if (iframeRef.current && previewUrl) {
+      // Add cache-busting query param to force a completely fresh load
+      const url = new URL(previewUrl);
+      url.searchParams.set('_t', Date.now().toString());
+
+      // Clear and reload with cache-busting URL
+      iframeRef.current.src = '';
+      requestAnimationFrame(() => {
+        if (iframeRef.current) {
+          iframeRef.current.src = url.toString();
+        }
+      });
+    }
+  }, [previewUrl]);
+
   // Notify other tabs that this preview is ready
   const notifyPreviewReady = useCallback(() => {
     if (broadcastChannelRef.current && previewUrl) {
@@ -54,7 +71,10 @@ export default function WebContainerPreview() {
       // Listen for preview updates
       broadcastChannelRef.current.onmessage = (event) => {
         if (event.data.previewId === previewId) {
-          if (event.data.type === 'refresh-preview' || event.data.type === 'file-change') {
+          if (event.data.type === 'hard-refresh') {
+            // Config file changes need a full cache-busting reload
+            handleHardRefresh();
+          } else if (event.data.type === 'refresh-preview' || event.data.type === 'file-change') {
             handleRefresh();
           }
         }
@@ -79,7 +99,7 @@ export default function WebContainerPreview() {
     return () => {
       broadcastChannelRef.current?.close();
     };
-  }, [previewId, handleRefresh, notifyPreviewReady]);
+  }, [previewId, handleRefresh, handleHardRefresh, notifyPreviewReady]);
 
   return (
     <div className="w-full h-full">

@@ -9,6 +9,7 @@ import { IconButton } from '~/components/ui/IconButton';
 import { webcontainer } from '~/lib/webcontainer';
 import { toast } from 'react-toastify';
 import { workbenchStore } from '~/lib/stores/workbench';
+import { usePreviewStore } from '~/lib/stores/previews';
 import { WORK_DIR } from '~/utils/constants';
 import {
   stagingStore,
@@ -358,7 +359,12 @@ export const StagedChangesPanel = memo(() => {
 
         if (change && change.type === 'modify' && change.originalContent !== null) {
           // Update filesStore with original content
-          console.log('[DEBUG] Updating filesStore for modify:', absolutePath, 'original:', change.originalContent.substring(0, 100));
+          console.log(
+            '[DEBUG] Updating filesStore for modify:',
+            absolutePath,
+            'original:',
+            change.originalContent.substring(0, 100),
+          );
           workbenchStore.files.setKey(absolutePath, {
             type: 'file',
             content: change.originalContent,
@@ -405,57 +411,54 @@ export const StagedChangesPanel = memo(() => {
     [applyChangesToWebContainer],
   );
 
-  const handleReject = useCallback(
-    async (filePath: string) => {
-      setIsApplying(true);
+  const handleReject = useCallback(async (filePath: string) => {
+    setIsApplying(true);
 
-      try {
-        // Get the change BEFORE rejecting (since it modifies the status)
-        const change = getChangeForFile(filePath);
+    try {
+      // Get the change BEFORE rejecting (since it modifies the status)
+      const change = getChangeForFile(filePath);
 
-        rejectChange(filePath);
+      rejectChange(filePath);
 
-        const wc = await webcontainer;
-        const result = await applyRejectedChange(filePath, wc);
+      const wc = await webcontainer;
+      const result = await applyRejectedChange(filePath, wc);
 
-        if (!result.success) {
-          toast.error(`Failed to revert: ${result.error}`);
-        } else {
-          /*
-           * Convert relative path (from staging store) to absolute path (for filesStore)
-           * Staging uses paths like "src/components/Hero.tsx"
-           * FilesStore uses paths like "/home/project/src/components/Hero.tsx"
-           */
-          const absolutePath = filePath.startsWith(WORK_DIR) ? filePath : `${WORK_DIR}/${filePath}`;
+      if (!result.success) {
+        toast.error(`Failed to revert: ${result.error}`);
+      } else {
+        /*
+         * Convert relative path (from staging store) to absolute path (for filesStore)
+         * Staging uses paths like "src/components/Hero.tsx"
+         * FilesStore uses paths like "/home/project/src/components/Hero.tsx"
+         */
+        const absolutePath = filePath.startsWith(WORK_DIR) ? filePath : `${WORK_DIR}/${filePath}`;
 
-          // Also update filesStore
-          if (change && change.type === 'modify' && change.originalContent !== null) {
-            workbenchStore.files.setKey(absolutePath, {
-              type: 'file',
-              content: change.originalContent,
-              isBinary: false,
-            });
-          } else if (change && change.type === 'delete' && change.originalContent !== null) {
-            workbenchStore.files.setKey(absolutePath, {
-              type: 'file',
-              content: change.originalContent,
-              isBinary: false,
-            });
-          } else if (change && change.type === 'create') {
-            workbenchStore.files.setKey(absolutePath, undefined);
-          }
-
-          toast.success('Change reverted');
+        // Also update filesStore
+        if (change && change.type === 'modify' && change.originalContent !== null) {
+          workbenchStore.files.setKey(absolutePath, {
+            type: 'file',
+            content: change.originalContent,
+            isBinary: false,
+          });
+        } else if (change && change.type === 'delete' && change.originalContent !== null) {
+          workbenchStore.files.setKey(absolutePath, {
+            type: 'file',
+            content: change.originalContent,
+            isBinary: false,
+          });
+        } else if (change && change.type === 'create') {
+          workbenchStore.files.setKey(absolutePath, undefined);
         }
-      } catch (error) {
-        console.error('Error reverting change:', error);
-        toast.error('Failed to revert change');
-      } finally {
-        setIsApplying(false);
+
+        toast.success('Change reverted');
       }
-    },
-    [],
-  );
+    } catch (error) {
+      console.error('Error reverting change:', error);
+      toast.error('Failed to revert change');
+    } finally {
+      setIsApplying(false);
+    }
+  }, []);
 
   const handlePreview = useCallback((filePath: string) => {
     openDiffModal(filePath);
@@ -487,6 +490,20 @@ export const StagedChangesPanel = memo(() => {
           toast.error(`Failed to preview ${result.failed.length} file(s)`);
         } else {
           toast.success('Preview mode: changes applied temporarily');
+
+          // If config files were changed, trigger hard refresh after a delay
+          // Config files (tailwind.config, vite.config, etc.) require a full page reload
+          // because Vite's HMR cannot properly handle config changes
+          if (result.requiresHardRefresh) {
+            // Wait for WebContainer to process the file changes
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // Trigger hard refresh for all previews
+            const previewStore = usePreviewStore();
+            previewStore.hardRefreshAllPreviews();
+
+            toast.info('Reloading preview for config changes...');
+          }
         }
       }
     } catch (error) {
@@ -697,9 +714,7 @@ export const StagedChangesPanel = memo(() => {
             {isPreviewMode && (
               <div className="mx-4 mt-2 mb-1 px-3 py-2 bg-yellow-500/20 border border-yellow-500/50 rounded-lg flex items-center gap-2">
                 <span className="i-ph:eye text-yellow-400" />
-                <span className="flex-1 text-sm text-yellow-300">
-                  Preview Mode - Changes are temporarily applied
-                </span>
+                <span className="flex-1 text-sm text-yellow-300">Preview Mode - Changes are temporarily applied</span>
                 <button
                   onClick={handleTogglePreviewMode}
                   disabled={isApplying}

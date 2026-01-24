@@ -107,8 +107,8 @@ export class FilesStore {
     if (typeof window !== 'undefined') {
       let lastChatId = getCurrentChatId();
 
-      // Use MutationObserver to detect URL changes (for SPA navigation)
-      const observer = new MutationObserver(() => {
+      // Handler for URL changes - used by both popstate and hashchange
+      const handleUrlChange = () => {
         const currentChatId = getCurrentChatId();
 
         if (currentChatId !== lastChatId) {
@@ -116,9 +116,27 @@ export class FilesStore {
           lastChatId = currentChatId;
           this.#loadLockedFiles(currentChatId);
         }
-      });
+      };
 
-      observer.observe(document, { subtree: true, childList: true });
+      // Use popstate for browser back/forward navigation
+      window.addEventListener('popstate', handleUrlChange);
+
+      // Use hashchange for hash-based routing
+      window.addEventListener('hashchange', handleUrlChange);
+
+      // Also listen for pushState/replaceState via a patched history API
+      const originalPushState = history.pushState.bind(history);
+      const originalReplaceState = history.replaceState.bind(history);
+
+      history.pushState = (...args) => {
+        originalPushState(...args);
+        handleUrlChange();
+      };
+
+      history.replaceState = (...args) => {
+        originalReplaceState(...args);
+        handleUrlChange();
+      };
     }
 
     this.#init();

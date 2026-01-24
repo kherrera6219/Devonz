@@ -48,14 +48,29 @@ class PreviewErrorHandler {
   #lastAlertTime: number = 0;
   #recentErrorHashes: Set<string> = new Set();
   #isEnabled: boolean = true;
+  #cleanupIntervalId: ReturnType<typeof setInterval> | null = null;
 
   // Configuration constants
   #COOLDOWN_MS = 5000; // 5 seconds cooldown between alerts
   #HASH_TTL_MS = 60000; // Clear hashes after 1 minute
 
   constructor() {
-    // Clean up old hashes periodically
-    setInterval(() => this.#cleanupOldHashes(), this.#HASH_TTL_MS);
+    // Clean up old hashes periodically - store interval ID for cleanup
+    this.#cleanupIntervalId = setInterval(() => this.#cleanupOldHashes(), this.#HASH_TTL_MS);
+  }
+
+  /**
+   * Cleanup resources when handler is no longer needed
+   * Call this method to prevent memory leaks
+   */
+  destroy(): void {
+    if (this.#cleanupIntervalId) {
+      clearInterval(this.#cleanupIntervalId);
+      this.#cleanupIntervalId = null;
+    }
+
+    this.#recentErrorHashes.clear();
+    logger.debug('PreviewErrorHandler destroyed');
   }
 
   /**

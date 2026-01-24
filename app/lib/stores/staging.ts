@@ -267,6 +267,46 @@ function generateChangeId(): string {
 }
 
 /**
+ * Patterns for files that require a hard refresh after modification
+ * because Vite's HMR cannot properly handle config file changes.
+ * These files are typically read at server startup and cached in memory.
+ */
+const CONFIG_FILE_PATTERNS = [
+  // Build tool configs
+  /tailwind\.config\.(js|ts|mjs|cjs)$/i,
+  /vite\.config\.(js|ts|mjs|cjs)$/i,
+  /postcss\.config\.(js|cjs|mjs)$/i,
+  /webpack\.config\.(js|ts)$/i,
+  /babel\.config\.(js|json|cjs)$/i,
+  /\.babelrc(\.json)?$/i,
+
+  // Framework configs
+  /next\.config\.(js|ts|mjs)$/i,
+  /svelte\.config\.js$/i,
+  /nuxt\.config\.(js|ts)$/i,
+  /astro\.config\.(js|ts|mjs)$/i,
+  /remix\.config\.(js|ts)$/i,
+  /angular\.json$/i,
+
+  // TypeScript configs
+  /tsconfig(\.[^/]+)?\.json$/i,
+  /jsconfig\.json$/i,
+
+  // Environment files (often require restart)
+  /\.env(\.[^/]+)?$/i,
+];
+
+/**
+ * Check if a file path matches config file patterns that require hard refresh.
+ * Config files are typically cached by build tools and require a full page reload
+ * for changes to take effect (HMR is insufficient).
+ */
+export function isConfigFile(filePath: string): boolean {
+  const fileName = filePath.split('/').pop() || '';
+  return CONFIG_FILE_PATTERNS.some((pattern) => pattern.test(fileName));
+}
+
+/**
  * Load settings from localStorage
  */
 function loadSettingsFromStorage(): StagingSettings {
@@ -987,25 +1027,26 @@ export function isInPreviewMode(): boolean {
  * Call exitPreviewMode() to restore original content.
  *
  * @param webcontainer - The WebContainer instance to write files to
- * @returns Object with arrays of applied and failed file paths
+ * @returns Object with arrays of applied and failed file paths, plus requiresHardRefresh flag
  */
 export async function enterPreviewMode(webcontainer: {
   fs: {
     writeFile: (path: string, content: string) => Promise<void>;
     mkdir: (path: string, options: { recursive: true }) => Promise<string>;
   };
-}): Promise<{ applied: string[]; failed: Array<{ path: string; error: string }> }> {
+}): Promise<{ applied: string[]; failed: Array<{ path: string; error: string }>; requiresHardRefresh: boolean }> {
   const state = stagingStore.get();
 
   // Already in preview mode
   if (state.isPreviewMode) {
     logger.debug('Already in preview mode');
-    return { applied: [], failed: [] };
+    return { applied: [], failed: [], requiresHardRefresh: false };
   }
 
   const pending = pendingChanges.get();
   const applied: string[] = [];
   const failed: Array<{ path: string; error: string }> = [];
+  let requiresHardRefresh = false;
 
   logger.info(`Entering preview mode: applying ${pending.length} pending changes temporarily`);
 
@@ -1016,6 +1057,24 @@ export async function enterPreviewMode(webcontainer: {
        * Paths like "/home/project/src/file.ts" -> "src/file.ts"
        */
       const relativePath = change.filePath.replace(/^\/home\/project\/?/, '');
+
+      // DEBUG: Log the change details
+      logger.info(`[PREVIEW DEBUG] Processing change: ${relativePath}`);
+      logger.info(`[PREVIEW DEBUG] Change type: ${change.type}`);
+      logger.info(`[PREVIEW DEBUG] Has newContent: ${!!change.newContent}`);
+      logger.info(`[PREVIEW DEBUG] newContent length: ${change.newContent?.length ?? 0}`);
+
+      // Log first 200 chars of newContent to verify it's the expected content
+      if (change.newContent) {
+        const preview = change.newContent.substring(0, 200).replace(/\n/g, '\\n');
+        logger.info(`[PREVIEW DEBUG] newContent preview: ${preview}...`);
+      }
+
+      // Check if this is a config file that requires hard refresh
+      if (isConfigFile(relativePath)) {
+        requiresHardRefresh = true;
+        logger.debug(`Preview: config file detected, will require hard refresh: ${relativePath}`);
+      }
 
       if (change.type === 'delete') {
         /*
@@ -1037,24 +1096,27 @@ export async function enterPreviewMode(webcontainer: {
         }
 
         // Write the new content temporarily
+        logger.info(`[PREVIEW DEBUG] Writing file to WebContainer: ${relativePath}`);
         await webcontainer.fs.writeFile(relativePath, change.newContent);
-        logger.debug(`Preview: wrote file ${relativePath}`);
+        logger.info(`[PREVIEW DEBUG] Successfully wrote file: ${relativePath}`);
       }
 
       applied.push(change.filePath);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       failed.push({ path: change.filePath, error: errorMessage });
-      logger.error(`Preview: failed to apply ${change.filePath}`, error);
+      logger.error(`[PREVIEW DEBUG] Failed to apply ${change.filePath}: ${errorMessage}`, error);
     }
   }
 
   // Mark as preview mode
   stagingStore.setKey('isPreviewMode', true);
 
-  logger.info(`Entered preview mode: ${applied.length} files applied, ${failed.length} failed`);
+  logger.info(
+    `Entered preview mode: ${applied.length} files applied, ${failed.length} failed, requiresHardRefresh: ${requiresHardRefresh}`,
+  );
 
-  return { applied, failed };
+  return { applied, failed, requiresHardRefresh };
 }
 
 /**

@@ -46,6 +46,9 @@ export class LLMManager {
           }
         }
       }
+
+      // Log summary of all registered providers (instead of individual logs)
+      this.logProviderSummary();
     } catch (error) {
       logger.error('Error registering providers:', error);
     }
@@ -57,9 +60,17 @@ export class LLMManager {
       return;
     }
 
-    logger.info('Registering Provider: ', provider.name);
+    // Silently register - summary logged after all providers are registered
     this._providers.set(provider.name, provider);
     this._modelList = [...this._modelList, ...provider.staticModels];
+  }
+
+  /**
+   * Log a summary of all registered providers (called after registration completes)
+   */
+  logProviderSummary() {
+    const providerNames = Array.from(this._providers.keys());
+    logger.info(`Registered ${providerNames.length} providers: ${providerNames.join(', ')}`);
   }
 
   getProvider(name: string): BaseProvider | undefined {
