@@ -78,7 +78,7 @@ async function vercelProxyLoader({ request, context }: LoaderFunctionArgs) {
     const response = await fetch(`${VERCEL_API_BASE}/v2/user`, {
       headers: {
         Authorization: `Bearer ${vercelToken}`,
-        'User-Agent': 'bolt.diy-app',
+        'User-Agent': 'devonz-app',
       },
     });
 
@@ -141,7 +141,7 @@ async function vercelProxyAction({ request, context }: ActionFunctionArgs) {
       method,
       headers: {
         Authorization: `Bearer ${vercelToken}`,
-        'User-Agent': 'bolt.diy-app',
+        'User-Agent': 'devonz-app',
         'Content-Type': 'application/json',
       },
     };

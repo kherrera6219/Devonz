@@ -30,8 +30,8 @@ interface AssistantMessageProps {
   model?: string;
   provider?: ProviderInfo;
   parts:
-    | (TextUIPart | ReasoningUIPart | ToolInvocationUIPart | SourceUIPart | FileUIPart | StepStartUIPart)[]
-    | undefined;
+  | (TextUIPart | ReasoningUIPart | ToolInvocationUIPart | SourceUIPart | FileUIPart | StepStartUIPart)[]
+  | undefined;
   addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
 }
 
@@ -107,9 +107,9 @@ export const AssistantMessage = memo(
         {/* Assistant Header - Blink style */}
         <div className="flex items-center gap-2 mb-3">
           <div className="w-6 h-6 rounded-full bg-bolt-elements-bg-depth-3 border border-bolt-elements-borderColor flex items-center justify-center">
-            <span className="text-xs font-bold text-bolt-elements-textPrimary">B</span>
+            <span className="text-xs font-bold text-bolt-elements-textPrimary">D</span>
           </div>
-          <span className="text-sm font-medium text-bolt-elements-textSecondary">Bolt</span>
+          <span className="text-sm font-medium text-bolt-elements-textSecondary">Devonz</span>
           {(codeContext || chatSummary) && (
             <Popover
               side="right"

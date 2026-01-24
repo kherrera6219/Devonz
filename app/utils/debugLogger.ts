@@ -858,7 +858,7 @@ class DebugLogger {
     try {
       // Try to get from localStorage or environment
       if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('bolt_current_model');
+        const stored = localStorage.getItem('devonz_current_model');
 
         if (stored) {
           return stored;
@@ -874,7 +874,7 @@ class DebugLogger {
   private _getCurrentProvider(): string {
     try {
       if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('bolt_current_provider');
+        const stored = localStorage.getItem('devonz_current_provider');
 
         if (stored) {
           return stored;
@@ -890,7 +890,7 @@ class DebugLogger {
   private _getProjectType(): string {
     try {
       if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('bolt_project_type');
+        const stored = localStorage.getItem('devonz_project_type');
 
         if (stored) {
           return stored;
@@ -922,10 +922,10 @@ class DebugLogger {
           remoteUrl: gitInfoTyped.local?.remoteUrl,
           lastCommit: gitInfoTyped.local
             ? {
-                message: 'Latest commit',
-                date: gitInfoTyped.local.commitTime,
-                author: gitInfoTyped.local.author,
-              }
+              message: 'Latest commit',
+              date: gitInfoTyped.local.commitTime,
+              author: gitInfoTyped.local.author,
+            }
             : undefined,
         };
       }
@@ -941,7 +941,7 @@ class DebugLogger {
   private _getGitInfoFallback(): AppInfo['gitInfo'] {
     try {
       // Try to get from localStorage (could be set by the app)
-      const stored = localStorage.getItem('bolt_git_info');
+      const stored = localStorage.getItem('devonz_git_info');
 
       if (stored) {
         return JSON.parse(stored);
@@ -977,10 +977,10 @@ class DebugLogger {
       firstContentfulPaint: paintEntries.find((entry) => entry.name === 'first-contentful-paint')?.startTime,
       memoryUsage: (performance as any).memory
         ? {
-            used: (performance as any).memory.usedJSHeapSize,
-            total: (performance as any).memory.totalJSHeapSize,
-            limit: (performance as any).memory.jsHeapSizeLimit,
-          }
+          used: (performance as any).memory.usedJSHeapSize,
+          total: (performance as any).memory.totalJSHeapSize,
+          limit: (performance as any).memory.jsHeapSizeLimit,
+        }
         : undefined,
       timing,
     };
@@ -1141,7 +1141,7 @@ export async function downloadDebugLog(filename?: string): Promise<void> {
 
     const link = document.createElement('a');
     link.href = url;
-    link.download = filename || `bolt-debug-${new Date().toISOString().split('T')[0]}.txt`;
+    link.download = filename || `devonz-debug-${new Date().toISOString().split('T')[0]}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1157,7 +1157,7 @@ export async function downloadDebugLog(filename?: string): Promise<void> {
 // Create a human-readable summary of the debug data
 function createDebugSummary(data: DebugLogData): string {
   const summary = [
-    '=== BOLT DIY DEBUG LOG SUMMARY ===',
+    '=== DEVONZ DEBUG LOG SUMMARY ===',
     `Generated: ${new Date(data.timestamp).toLocaleString()}`,
     `Session ID: ${data.sessionId}`,
     '',
@@ -1180,16 +1180,16 @@ function createDebugSummary(data: DebugLogData): string {
     '=== GIT INFORMATION ===',
     data.appInfo.gitInfo
       ? [
-          `Branch: ${data.appInfo.gitInfo.branch}`,
-          `Commit: ${data.appInfo.gitInfo.commit.substring(0, 8)}`,
-          `Working Directory: ${data.appInfo.gitInfo.isDirty ? 'Dirty' : 'Clean'}`,
-          data.appInfo.gitInfo.remoteUrl ? `Remote: ${data.appInfo.gitInfo.remoteUrl}` : '',
-          data.appInfo.gitInfo.lastCommit
-            ? `Last Commit: ${data.appInfo.gitInfo.lastCommit.message.substring(0, 50)}...`
-            : '',
-        ]
-          .filter(Boolean)
-          .join('\n')
+        `Branch: ${data.appInfo.gitInfo.branch}`,
+        `Commit: ${data.appInfo.gitInfo.commit.substring(0, 8)}`,
+        `Working Directory: ${data.appInfo.gitInfo.isDirty ? 'Dirty' : 'Clean'}`,
+        data.appInfo.gitInfo.remoteUrl ? `Remote: ${data.appInfo.gitInfo.remoteUrl}` : '',
+        data.appInfo.gitInfo.lastCommit
+          ? `Last Commit: ${data.appInfo.gitInfo.lastCommit.message.substring(0, 50)}...`
+          : '',
+      ]
+        .filter(Boolean)
+        .join('\n')
       : 'Git information not available',
     '',
     '=== SESSION STATISTICS ===',

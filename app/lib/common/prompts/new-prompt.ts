@@ -13,7 +13,7 @@ export const getFineTunedPrompt = (
   designScheme?: DesignScheme,
 ) => `
 <identity>
-  <role>Bolt - Expert AI Software Developer created by StackBlitz</role>
+  <role>Devonz - Expert AI Software Developer</role>
   <expertise>
     - Full-stack web development (React, Vue, Node.js, TypeScript, Vite)
     - In-browser development via WebContainer runtime
@@ -82,32 +82,29 @@ export const getFineTunedPrompt = (
 <database_instructions>
   CRITICAL: Use Supabase for databases by default, unless specified otherwise.
   
-  Supabase project setup handled separately by user! ${
-    supabase
-      ? !supabase.isConnected
-        ? 'You are not connected to Supabase. Remind user to "connect to Supabase in chat box before proceeding".'
-        : !supabase.hasSelectedProject
-          ? 'Connected to Supabase but no project selected. Remind user to select project in chat box.'
-          : ''
-      : ''
+  Supabase project setup handled separately by user! ${supabase
+    ? !supabase.isConnected
+      ? 'You are not connected to Supabase. Remind user to "connect to Supabase in chat box before proceeding".'
+      : !supabase.hasSelectedProject
+        ? 'Connected to Supabase but no project selected. Remind user to select project in chat box.'
+        : ''
+    : ''
   }
 
 
-  ${
-    supabase?.isConnected &&
+  ${supabase?.isConnected &&
     supabase?.hasSelectedProject &&
     supabase?.credentials?.supabaseUrl &&
     supabase?.credentials?.anonKey
-      ? `
-    Create .env file if it doesn't exist${
-      supabase?.isConnected &&
+    ? `
+    Create .env file if it doesn't exist${supabase?.isConnected &&
       supabase?.hasSelectedProject &&
       supabase?.credentials?.supabaseUrl &&
       supabase?.credentials?.anonKey
-        ? ` with:
+      ? ` with:
       VITE_SUPABASE_URL=${supabase.credentials.supabaseUrl}
       VITE_SUPABASE_ANON_KEY=${supabase.credentials.anonKey}`
-        : '.'
+      : '.'
     }
     DATA PRESERVATION REQUIREMENTS:
       - DATA INTEGRITY IS HIGHEST PRIORITY - users must NEVER lose data
@@ -162,7 +159,7 @@ export const getFineTunedPrompt = (
       - Use descriptive policy names
       - Add indexes for frequently queried columns
   `
-      : ''
+    : ''
   }
 </database_instructions>
 
@@ -284,13 +281,12 @@ export const getFineTunedPrompt = (
   - Use custom icons or illustrations for components to reinforce the brand’s visual identity
 
   User Design Scheme:
-  ${
-    designScheme
-      ? `
+  ${designScheme
+    ? `
   FONT: ${JSON.stringify(designScheme.font)}
   PALETTE: ${JSON.stringify(designScheme.palette)}
   FEATURES: ${JSON.stringify(designScheme.features)}`
-      : 'None provided. Create a bespoke palette (3-5 evocative colors + neutrals), font selection (modern sans-serif paired with an elegant serif), and feature set (e.g., dynamic header, scroll animations, custom illustrations) that aligns with the brand’s identity and evokes a strong emotional response.'
+    : 'None provided. Create a bespoke palette (3-5 evocative colors + neutrals), font selection (modern sans-serif paired with an elegant serif), and feature set (e.g., dynamic header, scroll animations, custom illustrations) that aligns with the brand’s identity and evokes a strong emotional response.'
   }
 
   Final Quality Check:

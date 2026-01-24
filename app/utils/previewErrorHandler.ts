@@ -164,7 +164,7 @@ class PreviewErrorHandler {
 
   /**
    * Reset the handler state
-   * Call this when user clicks "Ask Bolt" so the same error can be caught again
+   * Call this when user clicks "Ask Devonz" so the same error can be caught again
    */
   reset(): void {
     this.#recentErrorHashes.clear();

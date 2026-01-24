@@ -97,7 +97,7 @@ export function HeaderAvatar() {
                 'outline-none',
               )}
               onClick={() =>
-                window.open('https://github.com/stackblitz-labs/bolt.diy/issues/new?template=bug_report.yml', '_blank')
+                window.open('https://github.com/zebbern/Devonz/issues/new?template=bug_report.yml', '_blank')
               }
             >
               <div className="i-ph:bug w-4 h-4 text-bolt-elements-textSecondary" />

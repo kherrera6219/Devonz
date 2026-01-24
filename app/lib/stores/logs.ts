@@ -11,19 +11,19 @@ export interface LogEntry {
   message: string;
   details?: Record<string, any>;
   category:
-    | 'system'
-    | 'provider'
-    | 'user'
-    | 'error'
-    | 'api'
-    | 'auth'
-    | 'database'
-    | 'network'
-    | 'performance'
-    | 'settings'
-    | 'task'
-    | 'update'
-    | 'feature';
+  | 'system'
+  | 'provider'
+  | 'user'
+  | 'error'
+  | 'api'
+  | 'auth'
+  | 'database'
+  | 'network'
+  | 'performance'
+  | 'settings'
+  | 'task'
+  | 'update'
+  | 'feature';
   subCategory?: string;
   duration?: number;
   statusCode?: number;
@@ -84,7 +84,7 @@ class LogStore {
       return;
     }
 
-    const savedReadLogs = localStorage.getItem('bolt_read_logs');
+    const savedReadLogs = localStorage.getItem('devonz_read_logs');
 
     if (savedReadLogs) {
       try {
@@ -106,7 +106,7 @@ class LogStore {
       return;
     }
 
-    localStorage.setItem('bolt_read_logs', JSON.stringify(Array.from(this._readLogs)));
+    localStorage.setItem('devonz_read_logs', JSON.stringify(Array.from(this._readLogs)));
   }
 
   private _generateId(): string {
@@ -250,11 +250,11 @@ class LogStore {
     const errorDetails =
       error instanceof Error
         ? {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-            ...details,
-          }
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          ...details,
+        }
         : { error, ...details };
 
     return this._addLog(message, 'error', 'error', errorDetails);

@@ -648,7 +648,7 @@ export const ChatImpl = memo(
     useEffect(() => {
       // Create a function that sends messages for auto-fix
       const autoFixSendMessage = (message: string) => {
-        // Reset error handlers before sending (same as "Ask Bolt")
+        // Reset error handlers before sending (same as "Ask Devonz")
         resetTerminalErrorDetector();
         resetPreviewErrorHandler();
 

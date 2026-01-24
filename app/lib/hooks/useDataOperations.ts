@@ -105,7 +105,7 @@ export function useDataOperations({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'bolt-settings.json';
+      a.download = 'devonz-settings.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -200,7 +200,7 @@ export function useDataOperations({
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `bolt-settings-${categoryIds.join('-')}.json`;
+        a.download = `devonz-settings-${categoryIds.join('-')}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -326,7 +326,7 @@ export function useDataOperations({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'bolt-chats.json';
+      a.download = 'devonz-chats.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -437,7 +437,7 @@ export function useDataOperations({
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'bolt-selected-chats.json';
+        a.download = 'devonz-selected-chats.json';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -745,7 +745,7 @@ export function useDataOperations({
 
         toast.success(
           `${keyCount} API keys imported successfully (${newKeyCount} new/updated)\n` +
-            'Note: Keys are stored in browser cookies. For server-side usage, add them to your .env.local file.',
+          'Note: Keys are stored in browser cookies. For server-side usage, add them to your .env.local file.',
           { position: 'bottom-right', autoClose: 5000 },
         );
 
@@ -936,7 +936,7 @@ export function useDataOperations({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'bolt-api-keys-template.json';
+      a.download = 'devonz-api-keys-template.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1011,7 +1011,7 @@ export function useDataOperations({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'bolt-api-keys.json';
+      a.download = 'devonz-api-keys.json';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

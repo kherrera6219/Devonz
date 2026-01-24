@@ -22,7 +22,7 @@ export function Header() {
           onClick={() => sidebarStore.toggle()}
         />
         <a href="/" className="text-xl font-semibold text-bolt-elements-textPrimary flex items-center">
-          1337vibe
+          Devonz
         </a>
       </div>
       {chat.started && (

@@ -2,7 +2,7 @@
  * Terminal Error Detector
  *
  * Detects actionable errors in terminal output and triggers alerts
- * so users can easily send errors to Bolt for fixing.
+ * so users can easily send errors to Devonz for fixing.
  */
 
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -83,6 +83,7 @@ export interface DetectedError {
   details: string;
   timestamp: number;
   hash: string;
+
   /** Whether this error can be auto-fixed */
   autoFixable: boolean;
 }

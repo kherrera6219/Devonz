@@ -272,7 +272,7 @@ function generateChangeId(): string {
 function loadSettingsFromStorage(): StagingSettings {
   try {
     if (typeof localStorage !== 'undefined') {
-      const saved = localStorage.getItem('bolt-staging-settings');
+      const saved = localStorage.getItem('devonz-staging-settings');
 
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -293,7 +293,7 @@ function loadSettingsFromStorage(): StagingSettings {
 function saveSettingsToStorage(settings: StagingSettings): void {
   try {
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('bolt-staging-settings', JSON.stringify(settings));
+      localStorage.setItem('devonz-staging-settings', JSON.stringify(settings));
     }
   } catch (error) {
     logger.error('Failed to save staging settings to localStorage', error);
@@ -646,7 +646,10 @@ export function clearProcessedChanges(): void {
  * Check if a command with the same type and content already exists in the queue.
  * This prevents duplicate commands from being queued (e.g., from session restore or parsing issues).
  */
-function isDuplicateCommand(existingCommands: PendingCommand[], newCommand: Omit<PendingCommand, 'id' | 'timestamp'>): boolean {
+function isDuplicateCommand(
+  existingCommands: PendingCommand[],
+  newCommand: Omit<PendingCommand, 'id' | 'timestamp'>,
+): boolean {
   // Normalize command string for comparison (trim whitespace, normalize line endings)
   const normalizedNewCommand = newCommand.command.trim().replace(/\r\n/g, '\n');
 
@@ -1015,8 +1018,10 @@ export async function enterPreviewMode(webcontainer: {
       const relativePath = change.filePath.replace(/^\/home\/project\/?/, '');
 
       if (change.type === 'delete') {
-        // For deletions in preview, we don't actually delete - just skip
-        // The user will see the deletion effect when they accept
+        /*
+         * For deletions in preview, we don't actually delete - just skip
+         * The user will see the deletion effect when they accept
+         */
         logger.debug(`Preview: skipping delete for ${relativePath} (preview only)`);
       } else {
         // Create directory if needed
@@ -1089,8 +1094,10 @@ export async function exitPreviewMode(webcontainer: {
          * But since staging prevented the original write, the file shouldn't exist originally
          * We need to delete it to restore the pre-change state
          */
-        // For now, skip delete operations in exit preview - they're complex
-        // The file will be properly handled when user accepts or rejects
+        /*
+         * For now, skip delete operations in exit preview - they're complex
+         * The file will be properly handled when user accepts or rejects
+         */
         logger.debug(`Preview exit: skipping cleanup of new file ${relativePath}`);
       } else if (change.originalContent !== null) {
         // Restore original content
