@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 import { SupabaseConnection } from './SupabaseConnection';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
-import { Dialog, DialogRoot, DialogTitle } from '~/components/ui/Dialog';
+import { Dialog, DialogRoot, DialogTitle, DialogDescription } from '~/components/ui/Dialog';
 import styles from './BaseChat.module.scss';
 import type { ProviderInfo } from '~/types/model';
 import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
@@ -110,8 +110,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           showCloseButton={false}
           onBackdrop={() => setIsModelSelectorOpen(false)}
         >
-          {/* Visually hidden title for accessibility */}
+          {/* Visually hidden title and description for accessibility */}
           <DialogTitle className="sr-only">Select AI Model and Provider</DialogTitle>
+          <DialogDescription className="sr-only">
+            Choose an AI provider and model for your chat session
+          </DialogDescription>
           <CombinedModelSelector
             key={props.provider?.name + ':' + props.modelList.length}
             model={props.model}

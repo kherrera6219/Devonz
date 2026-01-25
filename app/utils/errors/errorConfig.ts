@@ -338,9 +338,43 @@ export const RECOVERY_SUGGESTIONS: Array<{
 ];
 
 /**
+ * Patterns that should NEVER be suppressed, even if they match suppression patterns.
+ * These are real code errors that need fixing.
+ */
+const NEVER_SUPPRESS_PATTERNS: RegExp[] = [
+  // SyntaxError in module loading - real code issue
+  /SyntaxError.*module|module.*SyntaxError/i,
+
+  // Module does not provide an export - missing/wrong import
+  /does not provide an export named/i,
+
+  // Cannot find module - missing dependency
+  /Cannot find module/i,
+
+  // Module not found - missing import
+  /Module not found/i,
+
+  // Failed to resolve import - bad import path
+  /Failed to resolve import/i,
+
+  // TypeError in initialization - real code issue
+  /TypeError.*undefined|TypeError.*null/i,
+
+  // ReferenceError - undeclared variable
+  /ReferenceError/i,
+];
+
+/**
  * Check if an error should be suppressed
  */
 export function shouldSuppressError(message: string, category: ErrorCategory = 'preview'): boolean {
+  // First check if this error should NEVER be suppressed (real code errors)
+  const isRealCodeError = NEVER_SUPPRESS_PATTERNS.some((pattern) => pattern.test(message));
+
+  if (isRealCodeError) {
+    return false; // Never suppress real code errors
+  }
+
   return SUPPRESSION_PATTERNS.some(({ pattern, categories }) => pattern.test(message) && categories.includes(category));
 }
 

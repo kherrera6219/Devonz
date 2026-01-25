@@ -14,6 +14,465 @@
   let resizeHandle = null;
   let bulkOriginalStyles = new Map(); // Store original styles for bulk revert
 
+  // ============================================================
+  // Console Error Capture for Auto-Fix Integration
+  // ============================================================
+
+  // Store original console methods
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+
+  // Debounce mechanism to prevent flooding
+  let lastErrorTime = 0;
+  const ERROR_DEBOUNCE_MS = 1000;
+  const recentErrorHashes = new Set();
+
+  function hashString(str) {
+    let hash = 0;
+    const normalized = String(str).replace(/\d+/g, 'N').slice(0, 200);
+    for (let i = 0; i < normalized.length; i++) {
+      const char = normalized.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash;
+    }
+    return hash.toString(16);
+  }
+
+  function shouldForwardError(message) {
+    const now = Date.now();
+    const errorHash = hashString(message);
+
+    // Skip if same error was sent recently
+    if (recentErrorHashes.has(errorHash)) {
+      return false;
+    }
+
+    // Skip if too soon after last error
+    if (now - lastErrorTime < ERROR_DEBOUNCE_MS) {
+      return false;
+    }
+
+    // Track this error
+    recentErrorHashes.add(errorHash);
+    lastErrorTime = now;
+
+    // Clear old hashes after 30 seconds
+    setTimeout(() => recentErrorHashes.delete(errorHash), 30000);
+
+    return true;
+  }
+
+  function isAutoFixableError(message) {
+    const autoFixPatterns = [
+      /SyntaxError/i,
+      /TypeError/i,
+      /ReferenceError/i,
+      /does not provide an export named/i,
+      /Cannot find module/i,
+      /Module not found/i,
+      /Failed to resolve import/i,
+      /\[hmr\].*failed.*reload/i,
+      /Unexpected token/i,
+      /is not defined/i,
+      /is not a function/i,
+    ];
+    return autoFixPatterns.some((pattern) => pattern.test(message));
+  }
+
+  function forwardErrorToParent(type, message, stack) {
+    const fullMessage = String(message);
+
+    if (!shouldForwardError(fullMessage)) {
+      return;
+    }
+
+    // Only forward errors that are likely to be fixable by the AI
+    if (!isAutoFixableError(fullMessage)) {
+      return;
+    }
+
+    try {
+      window.parent.postMessage(
+        {
+          type: 'PREVIEW_CONSOLE_ERROR',
+          errorType: type,
+          message: fullMessage,
+          stack: stack || '',
+          url: window.location.href,
+          timestamp: Date.now(),
+        },
+        '*',
+      );
+    } catch (e) {
+      // Silently fail if postMessage fails
+    }
+  }
+
+  // Override console.error to capture errors
+  console.error = function (...args) {
+    originalConsoleError.apply(console, args);
+
+    const message = args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          return arg.message + (arg.stack ? '\n' + arg.stack : '');
+        }
+        return String(arg);
+      })
+      .join(' ');
+
+    forwardErrorToParent('console.error', message);
+  };
+
+  // Capture global errors (synchronous)
+  window.addEventListener('error', function (event) {
+    const message = event.message || 'Unknown error';
+    const stack = event.error?.stack || `at ${event.filename}:${event.lineno}:${event.colno}`;
+    forwardErrorToParent('error', message, stack);
+  });
+
+  // Capture unhandled promise rejections
+  window.addEventListener('unhandledrejection', function (event) {
+    const reason = event.reason;
+    let message = 'Unhandled Promise Rejection';
+    let stack = '';
+
+    if (reason instanceof Error) {
+      message = reason.message;
+      stack = reason.stack || '';
+    } else if (typeof reason === 'string') {
+      message = reason;
+    } else if (reason) {
+      message = String(reason);
+    }
+
+    forwardErrorToParent('unhandledrejection', message, stack);
+  });
+
+  // ============================================================
+  // End Console Error Capture
+  // ============================================================
+
+  // ============================================================
+  // Vite Error Overlay Detection
+  // ============================================================
+  // Vite displays errors (including ES module errors) in a custom element
+  // called <vite-error-overlay>. We observe the DOM for this element and
+  // extract error info from its shadow DOM.
+
+  function extractViteOverlayError(overlay) {
+    try {
+      const shadowRoot = overlay.shadowRoot;
+      if (!shadowRoot) {
+        console.log('[Preview] vite-error-overlay has no shadowRoot');
+        return null;
+      }
+
+      const messageBody = shadowRoot.querySelector('.message-body');
+      const fileEl = shadowRoot.querySelector('.file');
+      const stackEl = shadowRoot.querySelector('.stack');
+
+      const message = messageBody?.textContent?.trim() || 'Unknown Vite error';
+      const file = fileEl?.textContent?.trim() || '';
+      const stack = stackEl?.textContent?.trim() || '';
+
+      // Combine into full error message
+      const fullMessage = [message, file ? `File: ${file}` : '', stack].filter(Boolean).join('\n');
+
+      return {
+        message: message,
+        fullMessage: fullMessage,
+        file: file,
+        stack: stack,
+      };
+    } catch (e) {
+      console.log('[Preview] Error extracting vite overlay:', e);
+      return null;
+    }
+  }
+
+  function forwardViteOverlayError(errorInfo) {
+    if (!errorInfo || !shouldForwardError(errorInfo.message)) {
+      return;
+    }
+
+    console.log('[Preview] Detected Vite error overlay:', errorInfo.message);
+
+    try {
+      window.parent.postMessage(
+        {
+          type: 'PREVIEW_VITE_ERROR',
+          errorType: 'vite-overlay',
+          message: errorInfo.message,
+          fullMessage: errorInfo.fullMessage,
+          file: errorInfo.file,
+          stack: errorInfo.stack,
+          url: window.location.href,
+          timestamp: Date.now(),
+        },
+        '*',
+      );
+    } catch (e) {
+      // Silently fail if postMessage fails
+    }
+  }
+
+  // Set up MutationObserver to watch for vite-error-overlay
+  function setupViteOverlayObserver() {
+    // Check if vite-error-overlay already exists
+    const existingOverlay = document.querySelector('vite-error-overlay');
+    if (existingOverlay) {
+      const errorInfo = extractViteOverlayError(existingOverlay);
+      if (errorInfo) {
+        forwardViteOverlayError(errorInfo);
+      }
+    }
+
+    // Observe for new overlays being added
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeName && node.nodeName.toLowerCase() === 'vite-error-overlay') {
+            // Give the shadow DOM a moment to populate
+            setTimeout(() => {
+              const errorInfo = extractViteOverlayError(node);
+              if (errorInfo) {
+                forwardViteOverlayError(errorInfo);
+              }
+            }, 100);
+          }
+        }
+      }
+    });
+
+    observer.observe(document.body || document.documentElement, {
+      childList: true,
+      subtree: false, // Only watch direct children of body
+    });
+
+    console.log('[Preview] Vite error overlay observer initialized');
+  }
+
+  // Initialize vite overlay observer when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupViteOverlayObserver);
+  } else {
+    setupViteOverlayObserver();
+  }
+
+  // ============================================================
+  // End Vite Error Overlay Detection
+  // ============================================================
+
+  // ============================================================
+  // Screenshot Capture for Version Thumbnails
+  // ============================================================
+  // Uses html2canvas to capture the page and send it back to parent
+
+  let html2canvasLoaded = false;
+  let html2canvasLoading = false;
+  const html2canvasLoadCallbacks = [];
+
+  function loadHtml2Canvas(callback) {
+    if (html2canvasLoaded && window.html2canvas) {
+      callback(window.html2canvas);
+      return;
+    }
+
+    html2canvasLoadCallbacks.push(callback);
+
+    if (html2canvasLoading) {
+      return;
+    }
+
+    html2canvasLoading = true;
+
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.async = true;
+    script.onload = function () {
+      html2canvasLoaded = true;
+      html2canvasLoading = false;
+      console.log('[Preview] html2canvas loaded successfully');
+
+      while (html2canvasLoadCallbacks.length > 0) {
+        const cb = html2canvasLoadCallbacks.shift();
+        cb(window.html2canvas);
+      }
+    };
+    script.onerror = function () {
+      html2canvasLoading = false;
+      console.error('[Preview] Failed to load html2canvas');
+
+      while (html2canvasLoadCallbacks.length > 0) {
+        const cb = html2canvasLoadCallbacks.shift();
+        cb(null);
+      }
+    };
+    document.head.appendChild(script);
+  }
+
+  async function captureScreenshot(requestId, options = {}) {
+    const width = options.width || 320;
+    const height = options.height || 200;
+
+    loadHtml2Canvas(async function (html2canvas) {
+      if (!html2canvas) {
+        // Send fallback placeholder
+        sendScreenshotResponse(requestId, generatePlaceholderScreenshot(width, height), true);
+        return;
+      }
+
+      try {
+        // Capture the full page
+        const canvas = await html2canvas(document.body, {
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#0d1117',
+          scale: 0.5, // Lower scale for smaller file size
+          logging: false,
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+
+        // Resize to thumbnail size
+        const thumbCanvas = document.createElement('canvas');
+        thumbCanvas.width = width;
+        thumbCanvas.height = height;
+        const ctx = thumbCanvas.getContext('2d');
+
+        if (ctx) {
+          // Calculate aspect ratio crop
+          const srcRatio = canvas.width / canvas.height;
+          const destRatio = width / height;
+
+          let srcX = 0,
+            srcY = 0,
+            srcW = canvas.width,
+            srcH = canvas.height;
+
+          if (srcRatio > destRatio) {
+            // Source is wider - crop sides
+            srcW = canvas.height * destRatio;
+            srcX = (canvas.width - srcW) / 2;
+          } else {
+            // Source is taller - crop bottom
+            srcH = canvas.width / destRatio;
+          }
+
+          ctx.drawImage(canvas, srcX, srcY, srcW, srcH, 0, 0, width, height);
+
+          const dataUrl = thumbCanvas.toDataURL('image/jpeg', 0.7);
+          sendScreenshotResponse(requestId, dataUrl, false);
+        } else {
+          sendScreenshotResponse(requestId, generatePlaceholderScreenshot(width, height), true);
+        }
+      } catch (error) {
+        console.error('[Preview] Screenshot capture failed:', error);
+        sendScreenshotResponse(requestId, generatePlaceholderScreenshot(width, height), true);
+      }
+    });
+  }
+
+  function generatePlaceholderScreenshot(width, height) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      return '';
+    }
+
+    // Dark background with gradient
+    const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+    bgGradient.addColorStop(0, '#1a1f2e');
+    bgGradient.addColorStop(1, '#0f1219');
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, width, height);
+
+    // Browser chrome mockup - top bar
+    ctx.fillStyle = '#252a38';
+    ctx.fillRect(0, 0, width, 28);
+
+    // Traffic lights
+    ctx.fillStyle = '#ff5f57';
+    ctx.beginPath();
+    ctx.arc(12, 14, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#febc2e';
+    ctx.beginPath();
+    ctx.arc(28, 14, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#28c840';
+    ctx.beginPath();
+    ctx.arc(44, 14, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // URL bar
+    ctx.fillStyle = '#1a1f2e';
+    ctx.beginPath();
+    ctx.roundRect(60, 6, width - 70, 16, 4);
+    ctx.fill();
+
+    // Content mockup
+    const contentY = 38;
+    ctx.fillStyle = '#2d3548';
+    ctx.fillRect(0, contentY, width, 32);
+
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath();
+    ctx.roundRect(10, contentY + 8, 60, 16, 3);
+    ctx.fill();
+
+    // Text lines
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(20, contentY + 50, width * 0.6, 20);
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(20, contentY + 78, width * 0.45, 12);
+
+    // Border
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
+
+    return canvas.toDataURL('image/png', 0.8);
+  }
+
+  function sendScreenshotResponse(requestId, dataUrl, isPlaceholder) {
+    try {
+      window.parent.postMessage(
+        {
+          type: 'PREVIEW_SCREENSHOT_RESPONSE',
+          requestId: requestId,
+          dataUrl: dataUrl,
+          isPlaceholder: isPlaceholder,
+          timestamp: Date.now(),
+        },
+        '*',
+      );
+      console.log('[Preview] Screenshot sent, size:', Math.round(dataUrl.length / 1024), 'KB');
+    } catch (e) {
+      console.error('[Preview] Failed to send screenshot:', e);
+    }
+  }
+
+  // Listen for screenshot requests from parent
+  window.addEventListener('message', function (event) {
+    if (event.data && event.data.type === 'CAPTURE_SCREENSHOT_REQUEST') {
+      console.log('[Preview] Screenshot request received:', event.data.requestId);
+      captureScreenshot(event.data.requestId, event.data.options || {});
+    }
+  });
+
+  console.log('[Preview] Screenshot capture handler initialized');
+
+  // ============================================================
+  // End Screenshot Capture
+  // ============================================================
+
   // Function to get relevant styles
   function getRelevantStyles(element) {
     const computedStyles = window.getComputedStyle(element);
@@ -185,7 +644,7 @@
 
     // Get colors from current element
     const computedStyles = window.getComputedStyle(element);
-    colorProps.forEach(prop => {
+    colorProps.forEach((prop) => {
       const value = computedStyles.getPropertyValue(prop);
       if (value && value !== 'rgba(0, 0, 0, 0)' && value !== 'transparent') {
         colors.add(value);
@@ -197,7 +656,7 @@
       if (depth > 3) return; // Limit recursion depth
 
       const styles = window.getComputedStyle(el);
-      colorProps.forEach(prop => {
+      colorProps.forEach((prop) => {
         const value = styles.getPropertyValue(prop);
         if (value && value !== 'rgba(0, 0, 0, 0)' && value !== 'transparent') {
           colors.add(value);
@@ -205,20 +664,24 @@
       });
 
       // Recurse into children
-      Array.from(el.children).slice(0, 10).forEach(child => {
-        collectColors(child, depth + 1);
-      });
+      Array.from(el.children)
+        .slice(0, 10)
+        .forEach((child) => {
+          collectColors(child, depth + 1);
+        });
     };
 
     // Collect from children
-    Array.from(element.children).slice(0, 10).forEach(child => {
-      collectColors(child, 1);
-    });
+    Array.from(element.children)
+      .slice(0, 10)
+      .forEach((child) => {
+        collectColors(child, 1);
+      });
 
     // Also look at parent for context colors
     if (element.parentElement) {
       const parentStyles = window.getComputedStyle(element.parentElement);
-      colorProps.forEach(prop => {
+      colorProps.forEach((prop) => {
         const value = parentStyles.getPropertyValue(prop);
         if (value && value !== 'rgba(0, 0, 0, 0)' && value !== 'transparent') {
           colors.add(value);
@@ -305,7 +768,10 @@
     const tagName = element.tagName.toLowerCase();
     const id = element.id || '';
     const className = getElementClassName(element);
-    const classes = className.trim().split(/\s+/).filter(c => c && !c.startsWith('inspector-'));
+    const classes = className
+      .trim()
+      .split(/\s+/)
+      .filter((c) => c && !c.startsWith('inspector-'));
 
     // Build a CSS selector for this element
     let selector = tagName;
@@ -329,7 +795,7 @@
       classes,
       selector,
       displayText,
-      hasChildren: element.children.length > 0
+      hasChildren: element.children.length > 0,
     };
   }
 
@@ -361,7 +827,7 @@
     // Get siblings (limit to 10)
     if (element.parentElement) {
       const siblingElements = Array.from(element.parentElement.children)
-        .filter(el => el !== element)
+        .filter((el) => el !== element)
         .slice(0, 10);
       for (const sibling of siblingElements) {
         const summary = createElementSummary(sibling);
@@ -380,7 +846,7 @@
       children,
       siblings,
       totalChildren: element.children.length,
-      totalSiblings: element.parentElement ? element.parentElement.children.length - 1 : 0
+      totalSiblings: element.parentElement ? element.parentElement.children.length - 1 : 0,
     };
   }
 
@@ -428,10 +894,28 @@
     originalStyles = {};
     const computedStyles = window.getComputedStyle(target);
     const relevantProps = [
-      'display', 'position', 'width', 'height', 'margin', 'padding', 'border',
-      'background', 'background-color', 'color', 'font-size', 'font-weight',
-      'font-family', 'text-align', 'flex-direction', 'justify-content',
-      'align-items', 'gap', 'border-radius', 'box-shadow', 'opacity', 'overflow',
+      'display',
+      'position',
+      'width',
+      'height',
+      'margin',
+      'padding',
+      'border',
+      'background',
+      'background-color',
+      'color',
+      'font-size',
+      'font-weight',
+      'font-family',
+      'text-align',
+      'flex-direction',
+      'justify-content',
+      'align-items',
+      'gap',
+      'border-radius',
+      'box-shadow',
+      'opacity',
+      'overflow',
     ];
     relevantProps.forEach((prop) => {
       originalStyles[prop] = computedStyles.getPropertyValue(prop);
@@ -611,11 +1095,14 @@
     updateResizeHandles();
 
     // Notify parent of resize
-    window.parent.postMessage({
-      type: 'INSPECTOR_RESIZE',
-      width: newWidth,
-      height: newHeight,
-    }, '*');
+    window.parent.postMessage(
+      {
+        type: 'INSPECTOR_RESIZE',
+        width: newWidth,
+        height: newHeight,
+      },
+      '*',
+    );
   }
 
   // Stop resize operation
@@ -629,10 +1116,13 @@
     // Send final element info
     if (selectedElement) {
       const elementInfo = createElementInfo(selectedElement);
-      window.parent.postMessage({
-        type: 'INSPECTOR_RESIZE_END',
-        elementInfo: elementInfo,
-      }, '*');
+      window.parent.postMessage(
+        {
+          type: 'INSPECTOR_RESIZE_END',
+          elementInfo: elementInfo,
+        },
+        '*',
+      );
     }
   }
 

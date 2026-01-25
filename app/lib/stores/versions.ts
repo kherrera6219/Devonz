@@ -139,9 +139,24 @@ class VersionsStore {
   /**
    * Capture a thumbnail from the preview iframe
    * Returns a base64 data URL or undefined if capture fails
-   * Note: Due to cross-origin restrictions with WebContainer, we generate stylized placeholders
+   * Uses html2canvas inside the iframe to capture actual content
    */
   async capturePreviewThumbnail(): Promise<string | undefined> {
+    try {
+      // Dynamic import to avoid circular dependencies
+      const { requestPreviewScreenshot } = await import('~/components/workbench/Preview');
+      const screenshot = await requestPreviewScreenshot({ width: 320, height: 200 }, 5000);
+      return screenshot || undefined;
+    } catch (error) {
+      console.warn('Failed to capture preview thumbnail:', error);
+      return this._generateFallbackThumbnail();
+    }
+  }
+
+  /**
+   * Generate a fallback thumbnail when screenshot capture fails
+   */
+  private _generateFallbackThumbnail(): string | undefined {
     try {
       const width = 320;
       const height = 200;

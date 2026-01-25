@@ -9,6 +9,7 @@ import { expoUrlAtom } from '~/lib/stores/qrCodeStore';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import { InspectorPanel } from './InspectorPanel';
 import type { ElementInfo } from './Inspector';
+import { getPreviewErrorHandler } from '~/utils/previewErrorHandler';
 
 type ResizeSide = 'left' | 'right' | null;
 
@@ -54,6 +55,124 @@ const WINDOW_SIZES: WindowSize[] = [
   { name: '4K Display', width: 3840, height: 2160, icon: 'i-ph:monitor', hasFrame: true, frameType: 'desktop' },
 ];
 
+// Global screenshot request callbacks map
+const screenshotCallbacks = new Map<string, (dataUrl: string, isPlaceholder: boolean) => void>();
+
+// Global iframe reference for screenshot requests
+let globalIframeRef: HTMLIFrameElement | null = null;
+
+/**
+ * Request a screenshot from the preview iframe.
+ * Returns a promise that resolves to the screenshot data URL.
+ * @param options - Optional width and height for the thumbnail
+ * @param timeout - Timeout in milliseconds (default 5000)
+ */
+export function requestPreviewScreenshot(
+  options: { width?: number; height?: number } = {},
+  timeout: number = 5000,
+): Promise<string> {
+  return new Promise((resolve) => {
+    const requestId = `screenshot-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Set up timeout fallback
+    const timeoutId = setTimeout(() => {
+      screenshotCallbacks.delete(requestId);
+      console.log('[Preview] Screenshot request timed out, using fallback');
+      resolve(generateFallbackScreenshot(options.width || 320, options.height || 200));
+    }, timeout);
+
+    // Set up callback
+    screenshotCallbacks.set(requestId, (dataUrl, _isPlaceholder) => {
+      clearTimeout(timeoutId);
+      resolve(dataUrl);
+    });
+
+    // Send request to iframe
+    if (globalIframeRef?.contentWindow) {
+      globalIframeRef.contentWindow.postMessage(
+        {
+          type: 'CAPTURE_SCREENSHOT_REQUEST',
+          requestId,
+          options: {
+            width: options.width || 320,
+            height: options.height || 200,
+          },
+        },
+        '*',
+      );
+    } else {
+      clearTimeout(timeoutId);
+      screenshotCallbacks.delete(requestId);
+      console.log('[Preview] No iframe available for screenshot');
+      resolve(generateFallbackScreenshot(options.width || 320, options.height || 200));
+    }
+  });
+}
+
+/**
+ * Generate a fallback screenshot placeholder when iframe is not available
+ */
+function generateFallbackScreenshot(width: number, height: number): string {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx) {
+    return '';
+  }
+
+  // Dark background with gradient
+  const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+  bgGradient.addColorStop(0, '#1a1f2e');
+  bgGradient.addColorStop(1, '#0f1219');
+  ctx.fillStyle = bgGradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Browser chrome mockup
+  ctx.fillStyle = '#252a38';
+  ctx.fillRect(0, 0, width, 28);
+
+  // Traffic lights
+  ctx.fillStyle = '#ff5f57';
+  ctx.beginPath();
+  ctx.arc(12, 14, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#febc2e';
+  ctx.beginPath();
+  ctx.arc(28, 14, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#28c840';
+  ctx.beginPath();
+  ctx.arc(44, 14, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Content mockup
+  const contentY = 38;
+  ctx.fillStyle = '#2d3548';
+  ctx.fillRect(0, contentY, width, 32);
+
+  ctx.fillStyle = '#3b82f6';
+  ctx.beginPath();
+  ctx.roundRect(10, contentY + 8, 60, 16, 3);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.fillRect(20, contentY + 50, width * 0.6, 20);
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.fillRect(20, contentY + 78, width * 0.45, 12);
+
+  // Border
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
+
+  return canvas.toDataURL('image/png', 0.8);
+}
+
 export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,7 +187,9 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
 
   // Compute local preview URL (HTTP localhost format like "Open in new window" uses)
   const localPreviewUrl = (() => {
-    if (!activePreview?.baseUrl) return '';
+    if (!activePreview?.baseUrl) {
+      return '';
+    }
 
     const match = activePreview.baseUrl.match(/^https?:\/\/([^.]+)\.local-credentialless\.webcontainer-api\.io/);
 
@@ -97,6 +218,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     property: string;
     value: string;
   }
+
   const [accumulatedBulkChanges, setAccumulatedBulkChanges] = useState<BulkStyleChange[]>([]);
 
   const resizingState = useRef({
@@ -170,11 +292,13 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     }
   }, [iframeUrl]);
 
-  // Listen for preview refresh messages via BroadcastChannel
-  // This handles hard-refresh for config file changes (tailwind.config, vite.config, etc.)
+  /*
+   * Listen for preview refresh messages via BroadcastChannel
+   * This handles hard-refresh for config file changes (tailwind.config, vite.config, etc.)
+   */
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.BroadcastChannel !== 'function') {
-      return;
+      return undefined;
     }
 
     const channel = new BroadcastChannel('preview-updates');
@@ -195,7 +319,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     return () => {
       channel.close();
     };
-  }, [hardReloadPreview]);
+  }, [hardReloadPreview, reloadPreview]);
 
   const toggleFullscreen = async () => {
     if (!isFullscreen && containerRef.current) {
@@ -216,6 +340,15 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
+
+  // Keep global iframe reference in sync for screenshot capture
+  useEffect(() => {
+    globalIframeRef = iframeRef.current;
+
+    return () => {
+      globalIframeRef = null;
+    };
+  });
 
   const toggleDeviceMode = () => {
     setIsDeviceModeOn((prev) => !prev);
@@ -720,6 +853,43 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
       } else if (event.data.type === 'INSPECTOR_BULK_REVERTED') {
         console.log('[Preview] Bulk revert complete:', event.data);
         setBulkAffectedCount(undefined);
+      } else if (event.data.type === 'PREVIEW_CONSOLE_ERROR') {
+        // Handle console errors captured from preview iframe (module import errors, etc.)
+        console.log('[Preview] Console error captured:', event.data.message?.slice(0, 100));
+
+        // Route to preview error handler's auto-fix system
+        getPreviewErrorHandler().handlePreviewMessage({
+          type: 'PREVIEW_UNCAUGHT_EXCEPTION', // Use existing type for compatibility
+          message: event.data.message,
+          stack: event.data.stack,
+          pathname: new URL(event.data.url || window.location.href).pathname,
+          search: new URL(event.data.url || window.location.href).search,
+          hash: new URL(event.data.url || window.location.href).hash,
+          port: selectedWindowSize?.width || 0,
+        });
+      } else if (event.data.type === 'PREVIEW_VITE_ERROR') {
+        // Handle Vite error overlay detection (ES module errors, HMR failures, etc.)
+        console.log('[Preview] Vite error overlay detected:', event.data.message?.slice(0, 100));
+
+        // Route to preview error handler's auto-fix system
+        getPreviewErrorHandler().handlePreviewMessage({
+          type: 'PREVIEW_UNCAUGHT_EXCEPTION', // Use existing type for compatibility
+          message: event.data.fullMessage || event.data.message,
+          stack: event.data.stack || '',
+          pathname: new URL(event.data.url || window.location.href).pathname,
+          search: new URL(event.data.url || window.location.href).search,
+          hash: new URL(event.data.url || window.location.href).hash,
+          port: selectedWindowSize?.width || 0,
+        });
+      } else if (event.data.type === 'PREVIEW_SCREENSHOT_RESPONSE') {
+        // Handle screenshot response from iframe
+        const requestId = event.data.requestId;
+        const callback = screenshotCallbacks.get(requestId);
+
+        if (callback) {
+          callback(event.data.dataUrl, event.data.isPlaceholder);
+          screenshotCallbacks.delete(requestId);
+        }
       }
     };
 
@@ -826,6 +996,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
         // Update existing change
         const updated = [...prev];
         updated[existingIndex] = { selector, property, value };
+
         return updated;
       } else {
         // Add new change
@@ -977,6 +1148,7 @@ Remove this element completely from the JSX/HTML.`;
       if (!groupedChanges[selector]) {
         groupedChanges[selector] = {};
       }
+
       groupedChanges[selector][property] = value;
     });
 
@@ -1084,7 +1256,9 @@ Add these rules to style the elements as specified. The !important flags ensure 
             type="text"
             value={localPreviewUrl || ''}
             onChange={(event) => {
-              if (!activePreview) return;
+              if (!activePreview) {
+                return;
+              }
 
               const inputValue = event.target.value;
 

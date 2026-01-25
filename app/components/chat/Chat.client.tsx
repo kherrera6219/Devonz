@@ -33,7 +33,11 @@ import {
   unregisterAutoFixCallback,
   resetTerminalErrorDetector,
 } from '~/utils/terminalErrorDetector';
-import { resetPreviewErrorHandler } from '~/utils/previewErrorHandler';
+import {
+  resetPreviewErrorHandler,
+  registerPreviewAutoFixCallback,
+  unregisterPreviewAutoFixCallback,
+} from '~/utils/previewErrorHandler';
 import { createAutoFixHandler, handleFixSuccess, isAutoFixActive } from '~/lib/services/autoFixService';
 import { autoFixStore, recordFixAttempt } from '~/lib/stores/autofix';
 
@@ -688,13 +692,15 @@ export const ChatImpl = memo(
         });
       };
 
-      // Register the callback
+      // Register the callback for both terminal and preview errors
       const handler = createAutoFixHandler(autoFixSendMessage);
       registerAutoFixCallback(handler);
+      registerPreviewAutoFixCallback(handler);
 
       // Cleanup on unmount
       return () => {
         unregisterAutoFixCallback();
+        unregisterPreviewAutoFixCallback();
       };
     }, []); // Empty deps - only run on mount/unmount
 

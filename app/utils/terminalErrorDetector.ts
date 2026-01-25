@@ -95,6 +95,47 @@ export interface DetectedError {
  * autoFixable: false for errors requiring user action (ports, permissions, network)
  */
 const ERROR_PATTERNS: ErrorPattern[] = [
+  // Module export errors (specific - check first)
+  {
+    pattern: /does not provide an export named ["'](.+?)["']/i,
+    type: 'module',
+    severity: 'error',
+    title: 'Invalid Export',
+    autoFixable: true,
+    extractDetails: (match, fullOutput) => {
+      // Get context around the error
+      const errorIdx = fullOutput.indexOf(match[0]);
+      const contextEnd = Math.min(fullOutput.length, errorIdx + 500);
+
+      return `Export "${match[1]}" does not exist. ${fullOutput.slice(Math.max(0, errorIdx - 100), contextEnd).trim()}`;
+    },
+  },
+
+  // HMR failed to reload with underlying error
+  {
+    pattern: /\[hmr\]\s*(?:Failed to reload|failed).*?\/(.+?)(?:\.|$)/i,
+    type: 'build',
+    severity: 'error',
+    title: 'HMR Reload Failed',
+    autoFixable: true,
+    extractDetails: (match, fullOutput) => {
+      // Check if there's a SyntaxError or other real error nearby
+      const errorIdx = fullOutput.indexOf(match[0]);
+      const contextStart = Math.max(0, errorIdx - 300);
+      const contextEnd = Math.min(fullOutput.length, errorIdx + 500);
+      const context = fullOutput.slice(contextStart, contextEnd);
+
+      // If there's a SyntaxError, include it
+      const syntaxMatch = context.match(/SyntaxError[:\s]+(.+?)(?:\n|$)/i);
+
+      if (syntaxMatch) {
+        return `HMR failed for ${match[1]}: ${syntaxMatch[1]}`;
+      }
+
+      return `HMR failed to reload ${match[1]}. Check for syntax or import errors.`;
+    },
+  },
+
   // esbuild errors (X ERROR format)
   {
     pattern: /X\s+ERROR\s+(.+?)(?:\n|$)/i,
