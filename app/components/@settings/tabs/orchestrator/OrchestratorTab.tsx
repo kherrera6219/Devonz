@@ -1,9 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useStore } from '@nanostores/react';
 import { Switch } from '~/components/ui/Switch';
-
-import { Button } from '~/components/ui/Button'; // Assuming we have this
 import { classNames } from '~/utils/classNames';
 
 // Mock store for now, in real impl create separate store
@@ -12,9 +10,9 @@ import { atom } from 'nanostores';
 export const orchestratorSettings = atom({
   enabled: false,
   mode: 'fast' as 'fast' | 'hardened' | 'security-strict',
-  coordinatorModel: 'gpt-4-turbo-preview',
-  researcherModel: 'gemini-2.0-flash-exp',
-  architectModel: 'claude-3-opus-20240229',
+  coordinatorModel: 'gpt-5.2',
+  researcherModel: 'gemini-3.0-flash',
+  architectModel: 'claude-4-opus',
 });
 
 export default function OrchestratorTab() {

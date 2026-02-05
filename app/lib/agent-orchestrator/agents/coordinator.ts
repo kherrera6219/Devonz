@@ -13,7 +13,7 @@ export class CoordinatorAgent extends BaseAgent {
   constructor() {
     super();
     this.model = new ChatOpenAI({
-      modelName: 'gpt-4-turbo-preview',
+      modelName: 'gpt-5.2',
       temperature: 0.3,
     });
   }

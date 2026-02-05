@@ -989,14 +989,22 @@ export function useDataOperations({
       // Step 1: Get API keys from all sources
       showProgress('Retrieving API keys', 25);
 
-      // Create a fetch request to get API keys from server
-      const response = await fetch('/api/export-api-keys');
+      /*
+      // const response = await fetch('/api/export-api-keys');
+      // For security reasons, API keys export is now handled manually through encrypted backups.
+      console.warn('Direct API keys export via endpoint is disabled for security.');
 
       if (!response.ok) {
         throw new Error('Failed to retrieve API keys from server');
       }
 
       const apiKeys = await response.json();
+      */
+
+      // Get current API keys from cookies since server endpoint is gone
+      const cookieHeader = document.cookie;
+      const apiKeysMatch = cookieHeader.match(/apiKeys=([^;]+)/);
+      const apiKeys = apiKeysMatch ? JSON.parse(decodeURIComponent(apiKeysMatch[1])) : {};
 
       // Step 2: Create blob
       showProgress('Creating file', 50);

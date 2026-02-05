@@ -3,7 +3,6 @@ import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { ProviderInfo } from '~/types/model';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
-import { withSecurity } from '~/lib/security';
 
 interface ModelsResponse {
   modelList: ModelInfo[];
@@ -39,7 +38,7 @@ function getProviderInfo(llmManager: LLMManager) {
   return { providers: cachedProviders, defaultProvider: cachedDefaultProvider };
 }
 
-export const loader = withSecurity(async ({ request, params, context }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params, context }: LoaderFunctionArgs) => {
   const llmManager = LLMManager.getInstance((context as any).cloudflare?.env);
 
   // Get client side maintained API keys and provider settings from cookies
@@ -76,4 +75,4 @@ export const loader = withSecurity(async ({ request, params, context }: LoaderFu
     providers,
     defaultProvider,
   });
-});
+};

@@ -14,14 +14,14 @@ export class ResearcherAgent extends BaseAgent {
   constructor() {
     super();
     this.model = new ChatGoogleGenerativeAI({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-3.0-flash',
       maxOutputTokens: 8192,
       temperature: 0.1,
     });
 
     // Model configuration for search
     this.searchModel = new ChatGoogleGenerativeAI({
-       model: 'gemini-2.0-flash-exp',
+       model: 'gemini-3.0-flash',
        temperature: 0.1,
     });
   }

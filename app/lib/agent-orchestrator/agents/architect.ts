@@ -12,7 +12,7 @@ export class ArchitectAgent extends BaseAgent {
   constructor() {
     super();
     this.model = new ChatAnthropic({
-      modelName: 'claude-3-opus-20240229', // Using supported opus model name
+      modelName: 'claude-4-opus', // Using latest requested opus model
       temperature: 0.5,
       maxTokens: 4096,
     });

@@ -1,8 +1,7 @@
 import { json, type ActionFunction } from '@remix-run/node';
 import type { SupabaseProject } from '~/types/supabase';
-import { withSecurity } from '~/lib/security';
 
-export const action: ActionFunction = withSecurity(async ({ request }) => {
+export const action: ActionFunction = async ({ request }) => {
   if (request.method !== 'POST') {
     return json({ error: 'Method not allowed' }, { status: 405 });
   }
@@ -54,4 +53,4 @@ export const action: ActionFunction = withSecurity(async ({ request }) => {
       { status: 401 },
     );
   }
-});
+};

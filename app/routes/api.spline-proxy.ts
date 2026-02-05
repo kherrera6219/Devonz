@@ -205,7 +205,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs): Prom
       },
     );
   }
-}
+});
 
 /**
  * Handle OPTIONS requests for CORS preflight
