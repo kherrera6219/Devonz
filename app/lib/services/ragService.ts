@@ -52,9 +52,8 @@ export class RAGService {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       const { OpenAI, OpenAIEmbedding } = await import('@llamaindex/openai');
 
-      /**
-       * LLM Settings - using OpenAI as default
-       */
+      const embeddingModel = process.env.OPENAI_EMBEDDING_MODEL || 'text-embedding-3-small';
+
       Settings.llm = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
         model: 'gpt-4o-mini',
@@ -62,8 +61,17 @@ export class RAGService {
 
       Settings.embedModel = new OpenAIEmbedding({
         apiKey: process.env.OPENAI_API_KEY,
-        model: 'text-embedding-3-small',
+        model: embeddingModel,
       });
+
+      // Map common models to their dimensions
+      const dimensionMap: Record<string, number> = {
+        'text-embedding-3-small': 1536,
+        'text-embedding-3-large': 3072,
+        'text-embedding-ada-002': 1536,
+      };
+
+      const dimensions = dimensionMap[embeddingModel] || 1536;
 
       this._vectorStore = new PGVectorStore({
         clientConfig: {
@@ -71,18 +79,18 @@ export class RAGService {
         },
         tableName: 'project_embeddings',
         schemaName: 'public',
-        dimensions: 1536, // text-embedding-3-small is 1536 by default
+        dimensions,
       });
 
       this._isInitialized = true;
-      logger.info('RAG Service initialized with PGVectorStore');
+      logger.info(`RAG Service initialized with PGVectorStore (${embeddingModel}, ${dimensions} dims)`);
     } catch (error) {
       logger.error('Failed to initialize RAG Service', error);
       throw error;
     }
   }
 
-  async indexFiles(files: Record<string, string>): Promise<IndexResult> {
+  async indexFiles(projectId: string, files: Record<string, string>): Promise<IndexResult> {
     await this._initialize();
 
     if (!this._vectorStore) {
@@ -93,7 +101,7 @@ export class RAGService {
       const documents = Object.entries(files).map(([path, content]) => {
         return new Document({
           text: content,
-          metadata: { path },
+          metadata: { path, projectId },
         });
       });
 
@@ -115,7 +123,7 @@ export class RAGService {
     }
   }
 
-  async query(query: string, topK: number = 5): Promise<string[]> {
+  async query(projectId: string, query: string, topK: number = 5): Promise<string[]> {
     await this._initialize();
 
     if (!this._vectorStore) {
@@ -124,7 +132,20 @@ export class RAGService {
 
     try {
       const index = await VectorStoreIndex.fromVectorStore(this._vectorStore);
-      const retriever = index.asRetriever({ similarityTopK: topK });
+
+      // Filter by projectId
+      const retriever = index.asRetriever({
+        similarityTopK: topK,
+        filters: {
+          filters: [
+            {
+              key: 'projectId',
+              value: projectId,
+              operator: '==',
+            },
+          ],
+        },
+      } as any);
 
       const nodesWithScores = await retriever.retrieve({ query });
 
@@ -142,24 +163,38 @@ export class RAGService {
     }
   }
 
-  async clearIndex() {
+  async deleteProjectIndex(projectId: string) {
     await this._initialize();
 
-    /**
-     * Manual cleanup of the table if needed
-     */
     const client = new PG_CLIENT({
       connectionString: process.env.DATABASE_URL,
     });
 
     try {
       await client.connect();
-      await client.query('DROP TABLE IF EXISTS project_embeddings');
-      this._isInitialized = false;
-      await this._initialize();
-      logger.info('Index cleared');
+      // Only delete rows matching this project
+      await client.query('DELETE FROM project_embeddings WHERE metadata->>\'projectId\' = $1', [projectId]);
+      logger.info(`Cleared RAG index for project: ${projectId}`);
     } catch (error) {
-      logger.error('Error clearing index', error);
+      logger.error(`Error clearing index for project: ${projectId}`, error);
+    } finally {
+      await client.end();
+    }
+  }
+
+  async clearIndex() {
+    await this._initialize();
+
+    const client = new PG_CLIENT({
+      connectionString: process.env.DATABASE_URL,
+    });
+
+    try {
+      await client.connect();
+      await client.query('TRUNCATE TABLE project_embeddings');
+      logger.info('Global RAG index cleared');
+    } catch (error) {
+      logger.error('Error clearing global index', error);
     } finally {
       await client.end();
     }

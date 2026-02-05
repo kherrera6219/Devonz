@@ -183,6 +183,9 @@ export interface SearchCodeParams {
 
   /** Regex pattern to exclude matching file paths */
   excludePattern?: string;
+
+  /** If true, the search will be case-sensitive. Default false. */
+  caseSensitive?: boolean;
 }
 
 /**

@@ -26,6 +26,8 @@ import {
   isAgentToolName,
 } from '~/lib/services/agentChatIntegration';
 import { RAGService } from '~/lib/services/ragService';
+import { redisService } from '~/lib/services/redisService';
+import crypto from 'crypto';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -140,25 +142,51 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             message: 'Analysing Request',
           } satisfies ProgressAnnotation);
 
-          // Create a summary of the chat
-          console.log(`Messages count: ${processedMessages.length}`);
+          // Create or retrieve summary of the chat
+          const lastMessage = processedMessages.at(-1)?.content || '';
+          const cacheKey = `summary:${crypto.createHash('md5').update(lastMessage).digest('hex')}`;
 
-          summary = await createSummary({
-            messages: [...processedMessages],
-            env: (context as any).cloudflare?.env,
-            apiKeys,
-            providerSettings,
-            promptId,
-            contextOptimization,
-            onFinish(resp) {
-              if (resp.usage) {
-                logger.debug('createSummary token usage', JSON.stringify(resp.usage));
-                cumulativeUsage.completionTokens += resp.usage.completionTokens || 0;
-                cumulativeUsage.promptTokens += resp.usage.promptTokens || 0;
-                cumulativeUsage.totalTokens += resp.usage.totalTokens || 0;
-              }
-            },
-          });
+          summary = (await redisService.get(cacheKey)) ?? undefined;
+
+          if (summary) {
+            logger.info('Retrieved summary from Redis cache');
+            dataStream.writeMessageAnnotation({
+              type: 'chatSummary',
+              summary,
+              chatId: processedMessages.slice(-1)?.[0]?.id,
+            } as ContextAnnotation);
+          } else {
+            console.log(`Messages count: ${processedMessages.length}`);
+
+            summary = await createSummary({
+              messages: [...processedMessages],
+              env: (context as any).cloudflare?.env,
+              apiKeys,
+              providerSettings,
+              promptId,
+              contextOptimization,
+              onFinish(resp) {
+                if (resp.usage) {
+                  logger.debug('createSummary token usage', JSON.stringify(resp.usage));
+                  cumulativeUsage.completionTokens += resp.usage.completionTokens || 0;
+                  cumulativeUsage.promptTokens += resp.usage.promptTokens || 0;
+                  cumulativeUsage.totalTokens += resp.usage.totalTokens || 0;
+                }
+              },
+            });
+
+            if (summary) {
+              await redisService.set(cacheKey, summary, 3600); // Cache for 1 hour
+              logger.info('Saved summary to Redis cache');
+            }
+
+            dataStream.writeMessageAnnotation({
+              type: 'chatSummary',
+              summary,
+              chatId: processedMessages.slice(-1)?.[0]?.id,
+            } as ContextAnnotation);
+          }
+
           dataStream.writeData({
             type: 'progress',
             label: 'summary',
@@ -166,12 +194,6 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             order: progressCounter++,
             message: 'Analysis Complete',
           } satisfies ProgressAnnotation);
-
-          dataStream.writeMessageAnnotation({
-            type: 'chatSummary',
-            summary,
-            chatId: processedMessages.slice(-1)?.[0]?.id,
-          } as ContextAnnotation);
 
           // Update context buffer
           logger.debug('Updating Context Buffer');

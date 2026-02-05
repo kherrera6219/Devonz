@@ -46,8 +46,24 @@ services:
     volumes:
       - redis_insight_data:/db
 
+  neo4j:
+    image: neo4j:5.26.0
+    container_name: devonz-neo4j
+    restart: always
+    ports:
+      - "7474:7474" # Browser UI
+      - "7687:7687" # Bolt protocol
+    environment:
+      - NEO4J_AUTH=neo4j/devonz_graph_password
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
 volumes:
   postgres_data:
   minio_data:
   redis_data:
   redis_insight_data:
+  neo4j_data:
+  neo4j_logs:

@@ -32,15 +32,26 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | Multi-Provider Support       | 19 AI providers including OpenAI, Anthropic, Google, Groq, Ollama, and more |
 | Model Context Protocol (MCP) | Extend Devonz capabilities with MCP tools                                   |
 | Auto-Fix                     | Automatic error detection and fixing with terminal error detector           |
+| **Multi-Language Expert**    | Support for 25+ programming languages (Python, Go, Rust, C++, Java, etc.)   |
+
+### Specialized Agent Tools
+
+| Tool                          | Description                                                              |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| **Optimized Folder Import**   | Multi-stage import: MinIO backup → pgvector RAG indexing → Workspace sync |
+| **AI Image Generation**       | Create assets, logos, and UI illustrations using DALL-E 3                 |
+| **AI Audio Synthesis**        | Generate synthesized voiceovers and audio clips using OpenAI TTS         |
+| **Professional PDF Creation** | Generate formatted reports and documentation directly in your project     |
 
 ### Development Environment
 
-| Feature                | Description                                           |
-| ---------------------- | ----------------------------------------------------- |
-| In-Browser Development | Full development environment powered by WebContainers |
-| Real-time Preview      | Instant preview of your applications                  |
-| Terminal Access        | Full terminal access within the browser               |
-| Code Editor            | Integrated CodeMirror editor with syntax highlighting |
+| Feature                 | Description                                           |
+| ----------------------- | ----------------------------------------------------- |
+| In-Browser Development  | Full development environment powered by WebContainers |
+| Real-time Preview       | Instant preview of your applications                  |
+| **RAG-Powered Memory**  | Long-term project memory using pgvector and LlamaIndex |
+| Integrated Code Editor  | CodeMirror editor with advanced syntax highlighting    |
+| Terminal Access         | Full terminal access within the browser               |
 
 ### Deployment Options
 
@@ -181,34 +192,26 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 
 ## Project Structure
 
-```
-bolt.diy/
+```tree
+Devonz/
 ├── app/
 │   ├── components/         # React components
-│   │   ├── @settings/      # Settings panel (14 tabs)
-│   │   ├── auth/           # Authentication components
-│   │   ├── chat/           # Chat interface
-│   │   ├── deploy/         # Deployment (GitHub, GitLab, Netlify, Vercel)
-│   │   ├── editor/         # Code editor
-│   │   ├── git/            # Git integration
-│   │   ├── header/         # App header
-│   │   ├── sidebar/        # Sidebar navigation
-│   │   ├── ui/             # Shared UI components
-│   │   └── workbench/      # Development workbench
+│   │   ├── chat/           # Chat interface & Folder Import
+│   │   ├── workbench/      # Development workbench
+│   │   └── ui/             # Shared Design System
 │   ├── lib/                # Core libraries
-│   │   ├── api/            # API utilities
-│   │   ├── hooks/          # React hooks
-│   │   ├── modules/        # Feature modules (llm with 19 providers)
-│   │   ├── services/       # API services
-│   │   ├── stores/         # State management (nanostores)
-│   │   └── utils/          # Utility functions
-│   ├── routes/             # Remix routes (39 API endpoints + pages)
-│   ├── styles/             # Global styles
-│   └── types/              # TypeScript types
-├── docs/                   # Documentation (mkdocs)
-├── public/                 # Static assets
-├── scripts/                # Build scripts
-└── supabase/               # Supabase folder (requires configuration)
+│   │   ├── agent/          # Agent prompts & multi-language types
+│   │   ├── services/       # RAG, Storage, & Agent Tool services
+│   │   ├── stores/         # State management
+│   │   └── utils/          # File & Context utilities
+│   ├── routes/             # Remix routes (Media Gen & RAG endpoints)
+│   ├── styles/             # Global CSS & UnoCSS tokens
+│   └── types/              # Global TypeScript types
+├── database/               # Infrastructure (PostgreSQL, MinIO, Redis)
+├── docs/                   # Extended Documentation
+├── public/                 # Static assets & Generated Media
+├── scripts/                # Development & Clean scripts
+└── supabase/               # Backend integrations
 ```
 
 ---

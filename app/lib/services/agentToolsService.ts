@@ -128,15 +128,20 @@ async function writeFile(params: WriteFileParams): Promise<ToolExecutionResult<W
 
     // Handle encoding
     if (encoding === 'base64') {
-      // Convert base64 to Uint8Array for binary write
-      const binaryString = atob(content);
-      const bytes = new Uint8Array(binaryString.length);
+      try {
+        // Convert base64 to Uint8Array for binary write
+        const binaryString = atob(content);
+        const bytes = new Uint8Array(binaryString.length);
 
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        await container.fs.writeFile(path, bytes);
+      } catch (decodeError) {
+        logger.error(`Failed to decode base64 content for ${path}`, decodeError);
+        throw new Error(`Invalid base64 content provided: ${decodeError instanceof Error ? decodeError.message : String(decodeError)}`);
       }
-
-      await container.fs.writeFile(path, bytes);
     } else {
       // Default utf-8 write
       await container.fs.writeFile(path, content, 'utf-8');
@@ -508,7 +513,7 @@ async function getErrors(params: GetErrorsParams): Promise<ToolExecutionResult<G
  * Searches for a text pattern across files in the WebContainer.
  */
 async function searchCode(params: SearchCodeParams): Promise<ToolExecutionResult<SearchCodeResult>> {
-  const { query, path = '/', maxResults = 50, includePattern, excludePattern } = params;
+  const { query, path = '/', maxResults = 50, includePattern, excludePattern, caseSensitive = false } = params;
 
   try {
     const container = await webcontainer;
@@ -599,13 +604,16 @@ async function searchCode(params: SearchCodeParams): Promise<ToolExecutionResult
                 break;
               }
 
-              if (lines[i].includes(query)) {
+              const lineContent = lines[i];
+              const matchIndex = caseSensitive ? lineContent.indexOf(query) : lineContent.toLowerCase().indexOf(query.toLowerCase());
+
+              if (matchIndex !== -1) {
                 results.push({
                   file: fullPath,
                   line: i + 1,
-                  content: lines[i].trim(),
-                  matchStart: lines[i].indexOf(query),
-                  matchEnd: lines[i].indexOf(query) + query.length,
+                  content: lineContent.trim(),
+                  matchStart: matchIndex,
+                  matchEnd: matchIndex + query.length,
                 });
                 totalMatches++;
               }
@@ -707,6 +715,63 @@ async function readDocument(params: ReadDocumentParams): Promise<ToolExecutionRe
       success: false,
       error: `Failed to read document: ${errorMessage}`,
     };
+  }
+}
+
+/**
+ * Knowledge Ingest Tool
+ * Ingests a set of files into the unified knowledge engine.
+ */
+async function knowledgeIngest(params: { projectId: string; files: Record<string, string> }): Promise<ToolExecutionResult<unknown>> {
+  const { projectId, files } = params;
+  logger.info(`Ingesting ${Object.keys(files).length} files for project: ${projectId}`);
+
+  try {
+    const response = await fetch('/api/knowledge?action=ingest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId, files }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to ingest knowledge');
+    }
+
+    return { success: true, data: { status: 'ingested', count: Object.keys(files).length } };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Knowledge ingestion failed`, error);
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * Knowledge Query Tool
+ * Queries the unified knowledge engine for context.
+ */
+async function knowledgeQuery(params: { projectId: string; query: string; topK?: number }): Promise<ToolExecutionResult<unknown>> {
+  const { projectId, query, topK = 5 } = params;
+  logger.info(`Querying knowledge for project: ${projectId}`);
+
+  try {
+    const response = await fetch('/api/knowledge?action=query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId, query, topK }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to query knowledge');
+    }
+
+    const { results } = await response.json();
+    return { success: true, data: { results } };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Knowledge query failed`, error);
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -944,6 +1009,10 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
           type: 'string',
           description: 'Regex pattern to exclude matching file paths',
         },
+        caseSensitive: {
+          type: 'boolean',
+          description: 'If true, the search will be case-sensitive. Default false.',
+        },
       },
       required: ['query'],
     },
@@ -973,6 +1042,52 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['path'],
     },
     execute: readDocument as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+  },
+
+  devonz_knowledge_ingest: {
+    name: 'devonz_knowledge_ingest',
+    description:
+      'Ingest workspace files into the unified knowledge engine (SQL, Vector, Graph). Use this when you want to make a large set of files searchable and analyze their relationships.',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: 'A unique identifier for the project context (UUID format)',
+        },
+        files: {
+          type: 'object',
+          description: 'Map of filename to content to ingest',
+        },
+      },
+      required: ['projectId', 'files'],
+    },
+    execute: knowledgeIngest as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+  },
+
+  devonz_knowledge_query: {
+    name: 'devonz_knowledge_query',
+    description:
+      'Query the unified knowledge engine for deep context using both semantic search and graph relationships. Use this to find relevant code patterns and dependencies.',
+    parameters: {
+      type: 'object',
+      properties: {
+        projectId: {
+          type: 'string',
+          description: 'The unique identifier for the project context',
+        },
+        query: {
+          type: 'string',
+          description: 'The natural language query or task description',
+        },
+        topK: {
+          type: 'number',
+          description: 'Number of results to return (default: 5)',
+        },
+      },
+      required: ['projectId', 'query'],
+    },
+    execute: knowledgeQuery as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 };
 

@@ -13,8 +13,11 @@ const logger = createScopedLogger('MinIOService');
 const S3_ENDPOINT = process.env.S3_ENDPOINT || 'http://localhost:9000';
 const S3_ACCESS_KEY = process.env.S3_ACCESS_KEY || 'devonz_admin';
 const S3_SECRET_KEY = process.env.S3_SECRET_KEY || 'devonz_storage_password';
-const S3_BUCKET = process.env.S3_BUCKET || 'devonz-imports';
 const S3_REGION = process.env.S3_REGION || 'us-east-1';
+
+function getBucketName() {
+  return process.env.S3_BUCKET || 'devonz-assets';
+}
 
 class MinIOService {
   private _client: S3Client;
@@ -39,61 +42,90 @@ class MinIOService {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       try {
-        await this._client.send(new HeadBucketCommand({ Bucket: S3_BUCKET }));
-        logger.info(`MinIO bucket ${S3_BUCKET} exists`);
+        const bucket = getBucketName();
+        await this._client.send(new HeadBucketCommand({ Bucket: bucket }));
+        logger.info(`MinIO bucket ${bucket} exists`);
       } catch (error: any) {
         if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
-          logger.info(`Creating MinIO bucket: ${S3_BUCKET}`);
-          await this._client.send(new CreateBucketCommand({ Bucket: S3_BUCKET }));
+          const bucket = getBucketName();
+          logger.info(`Creating MinIO bucket: ${bucket}`);
+          await this._client.send(new CreateBucketCommand({ Bucket: bucket }));
         } else {
           throw error;
         }
       }
 
-      logger.info(`MinIO service initialized for bucket: ${S3_BUCKET}`);
+      logger.info(`MinIO service initialized for bucket: ${getBucketName()}`);
     } catch (error) {
       logger.error('Failed to initialize MinIO service', error);
     }
   }
 
-  async uploadFile(path: string, content: Buffer | string, contentType?: string) {
+  async uploadFile(path: string, content: Buffer | string, contentType?: string, projectId?: string) {
     try {
+      const fullPath = projectId ? `projects/${projectId}/${path}` : path;
       const command = new PutObjectCommand({
-        Bucket: S3_BUCKET,
-        Key: path,
+        Bucket: getBucketName(),
+        Key: fullPath,
         Body: content,
         ContentType: contentType,
       });
 
       await this._client.send(command);
-      logger.debug(`File uploaded to MinIO: ${path}`);
+      logger.info(`Successfully uploaded file to MinIO: ${fullPath}`);
     } catch (error) {
       logger.error(`Failed to upload file to MinIO: ${path}`, error);
       throw error;
     }
   }
 
-  async deleteFolder(prefix: string) {
+  async getProjectFiles(projectId: string) {
     try {
+      const prefix = `projects/${projectId}/`;
       const listCommand = new ListObjectsV2Command({
-        Bucket: S3_BUCKET,
+        Bucket: getBucketName(),
         Prefix: prefix,
+      });
+
+      const response = await this._client.send(listCommand);
+
+      return (response.Contents || []).map((obj) => ({
+        key: obj.Key,
+        size: obj.Size,
+        lastModified: obj.LastModified,
+      }));
+    } catch (error) {
+      logger.error(`Failed to list project files for project: ${projectId}`, error);
+
+      return [];
+    }
+  }
+
+  async deleteFolder(prefix: string, projectId?: string) {
+    try {
+      const fullPrefix = projectId ? `projects/${projectId}/${prefix}` : prefix;
+      const listCommand = new ListObjectsV2Command({
+        Bucket: getBucketName(),
+        Prefix: fullPrefix,
       });
 
       const listResponse = await this._client.send(listCommand);
 
       if (listResponse.Contents && listResponse.Contents.length > 0) {
-        const deletePromises = listResponse.Contents.map((obj: any) => {
-          return this._client.send(
-            new DeleteObjectCommand({
-              Bucket: S3_BUCKET,
-              Key: obj.Key,
-            }),
-          );
+        // Map to DeleteObjects structure
+        const objectsToDelete = listResponse.Contents.map((obj) => ({ Key: obj.Key }));
+
+        const { DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
+        const deleteCommand = new DeleteObjectsCommand({
+          Bucket: getBucketName(),
+          Delete: {
+            Objects: objectsToDelete,
+            Quiet: true,
+          },
         });
 
-        await Promise.all(deletePromises);
-        logger.info(`Deleted folder from MinIO: ${prefix}`);
+        await this._client.send(deleteCommand);
+        logger.info(`Deleted ${objectsToDelete.length} items from MinIO: ${prefix}`);
       }
     } catch (error) {
       logger.error(`Failed to delete folder from MinIO: ${prefix}`, error);

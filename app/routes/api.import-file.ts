@@ -21,15 +21,16 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
+    const defaultProjectId = '00000000-0000-0000-0000-000000000000'; // Default legacy project
 
     // Phase 1: Store in MinIO
-    await minioService.uploadFile(path, buffer, file.type);
+    await minioService.uploadFile(path, buffer, file.type, defaultProjectId);
 
     // Phase 2: Index in RAG (only for text files)
     if (!isBinary) {
       const content = buffer.toString('utf-8');
       const ragService = RAGService.getInstance();
-      await ragService.indexFiles({ [path]: content });
+      await ragService.indexFiles(defaultProjectId, { [path]: content });
     }
 
     return json({ success: true });
