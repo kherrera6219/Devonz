@@ -77,4 +77,9 @@ export interface BoltState {
   // Workflow Status
   status: 'idle' | 'planning' | 'researching' | 'architecting' | 'qc' | 'complete' | 'error';
   error?: GraphError | string;
+
+  // Reflection Phase
+  reflectionFeedback?: string;
+  reflectionScore?: number;
+  planReflection?: string;
 }

@@ -90,7 +90,8 @@ const knowledgeQuery = tool(
   },
   {
     name: 'knowledgeQuery',
-    description: 'Query the unified knowledge engine combining vector search with graph context for comprehensive results.',
+    description:
+      'Query the unified knowledge engine combining vector search with graph context for comprehensive results.',
     schema: z.object({
       projectId: z.string().describe('Project ID to query'),
       query: z.string().describe('Natural language query'),

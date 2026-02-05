@@ -14,12 +14,7 @@ export abstract class BaseAgent {
    * @param retries Number of retries (default: 3)
    * @param fallback Optional fallback value if all retries fail
    */
-  protected async safeInvoke<T>(
-    chain: Runnable,
-    input: any,
-    retries: number = 3,
-    fallback?: T
-  ): Promise<T> {
+  protected async safeInvoke<T>(chain: Runnable, input: any, retries: number = 3, fallback?: T): Promise<T> {
     let attempt = 0;
 
     while (attempt < retries) {
@@ -32,8 +27,8 @@ export abstract class BaseAgent {
 
         // Check for fatal errors that shouldn't be retried (e.g. context length)
         if (error.message?.includes('context_length_exceeded')) {
-            logger.error(`Agent ${this.name} hit fatal context error`);
-            break;
+          logger.error(`Agent ${this.name} hit fatal context error`);
+          break;
         }
 
         if (attempt >= retries) {
@@ -43,7 +38,7 @@ export abstract class BaseAgent {
         }
 
         // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
+        await new Promise((resolve) => setTimeout(resolve, 1000 * Math.pow(2, attempt)));
       }
     }
 
@@ -55,17 +50,17 @@ export abstract class BaseAgent {
    * Creates a standard error state for the agent
    */
   protected createErrorState(state: BoltState, error: Error): Partial<BoltState> {
-      return {
-          status: 'error',
-          error: {
-              message: error.message,
-              agent: this.name,
-              timestamp: Date.now()
-          },
-          agentMessages: [
-              ...state.agentMessages,
-              MessageFactory.text(this.name as any, 'coordinator', `Error: ${error.message}`)
-          ]
-      };
+    return {
+      status: 'error',
+      error: {
+        message: error.message,
+        agent: this.name,
+        timestamp: Date.now(),
+      },
+      agentMessages: [
+        ...state.agentMessages,
+        MessageFactory.text(this.name as any, 'coordinator', `Error: ${error.message}`),
+      ],
+    };
   }
 }

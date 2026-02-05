@@ -1,15 +1,15 @@
 import { useState, useEffect, useMemo, lazy, Suspense, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import * as RadixDialog from '@radix-ui/react-dialog';
-import { classNames } from '~/utils/classNames';
 import { useFeatures } from '~/lib/hooks/useFeatures';
 import { useNotifications } from '~/lib/hooks/useNotifications';
 import { useConnectionStatus } from '~/lib/hooks/useConnectionStatus';
 import { tabConfigurationStore, resetTabConfiguration } from '~/lib/stores/settings';
 import { profileStore } from '~/lib/stores/profile';
 import type { TabType, Profile } from './types';
-import { TAB_LABELS, TAB_ICONS, DEFAULT_TAB_CONFIG } from './constants';
+import { TAB_LABELS, TAB_ICONS } from './constants';
 import { DialogTitle } from '~/components/ui/Dialog';
+import './ControlPanel.css';
 
 // Lazy load all tab components for better initial performance
 const ProfileTab = lazy(() => import('~/components/@settings/tabs/profile/ProfileTab'));
@@ -54,10 +54,10 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
   const tabConfiguration = useStore(tabConfigurationStore);
   const profile = useStore(profileStore) as Profile;
 
-  // Status hooks
-  const { hasNewFeatures, unviewedFeatures, acknowledgeAllFeatures } = useFeatures();
-  const { hasUnreadNotifications, unreadNotifications, markAllAsRead } = useNotifications();
-  const { hasConnectionIssues, currentIssue, acknowledgeIssue } = useConnectionStatus();
+  // Status hooks - only using the boolean flags for tab indicators
+  const { hasNewFeatures, acknowledgeAllFeatures } = useFeatures();
+  const { hasUnreadNotifications, markAllAsRead } = useNotifications();
+  const { hasConnectionIssues, acknowledgeIssue } = useConnectionStatus();
 
   // Add visibleTabs logic using useMemo with optimized calculations
   const visibleTabs = useMemo(() => {
@@ -139,26 +139,10 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
     }
   };
 
-  const getStatusMessage = (tabId: TabType): string => {
-    switch (tabId) {
-      case 'features':
-        return `${unviewedFeatures.length} new feature${unviewedFeatures.length === 1 ? '' : 's'} to explore`;
-      case 'notifications':
-        return `${unreadNotifications.length} unread notification${unreadNotifications.length === 1 ? '' : 's'}`;
-      case 'github':
-      case 'gitlab':
-      case 'supabase':
-      case 'vercel':
-      case 'netlify':
-        return currentIssue === 'disconnected'
-          ? 'Connection lost'
-          : currentIssue === 'high-latency'
-            ? 'High latency detected'
-            : 'Connection issues detected';
-      default:
-        return '';
-    }
-  };
+  /*
+   * Note: getStatusMessage was removed as unused. If needed in future,
+   * it would provide status messages for connection tabs like github, gitlab, etc.
+   */
 
   const handleTabClick = (tabId: TabType) => {
     setActiveTab(tabId);
@@ -190,27 +174,17 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
           <RadixDialog.Content
             aria-describedby={undefined}
             onEscapeKeyDown={handleClose}
-            className="dark relative z-[101] w-[1000px] h-[80vh] rounded-xl shadow-2xl border border-[#333] flex overflow-hidden"
-            style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
+            className="dark relative z-[101] w-[1000px] h-[80vh] rounded-xl shadow-2xl border border-[#333] flex overflow-hidden control-panel-dialog"
           >
             {/* Sidebar */}
-            <div
-              className="w-48 border-r border-[#333] flex flex-col"
-              style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)' }}
-            >
+            <div className="w-48 border-r border-[#333] flex flex-col control-panel-sidebar">
               {/* Header */}
-              <div
-                className="px-4 py-4 border-b border-[#333]"
-                style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)' }}
-              >
+              <div className="px-4 py-4 border-b border-[#333] control-panel-sidebar-header">
                 <h2 className="text-sm font-semibold text-white">Settings</h2>
               </div>
 
               {/* Nav Items */}
-              <nav
-                className="flex-1 overflow-y-auto py-1"
-                style={{ backgroundColor: 'var(--bolt-elements-background-depth-4)' }}
-              >
+              <nav className="flex-1 overflow-y-auto py-1 control-panel-sidebar-nav">
                 {visibleTabs.map((tab) => {
                   const IconComponent = TAB_ICONS[tab.id];
                   const hasUpdate = getTabUpdateStatus(tab.id);
@@ -220,11 +194,9 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     <button
                       key={tab.id}
                       onClick={() => handleTabClick(tab.id as TabType)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm"
-                      style={{
-                        backgroundColor: isActive ? 'var(--bolt-elements-borderColor)' : 'transparent',
-                        color: isActive ? '#fff' : '#9ca3af',
-                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm ${
+                        isActive ? 'control-panel-nav-item--active' : 'control-panel-nav-item'
+                      }`}
                     >
                       <IconComponent className="w-4 h-4 shrink-0" />
                       <span className="truncate">{TAB_LABELS[tab.id]}</span>
@@ -242,32 +214,24 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
 
             {/* Main Content */}
             {/* Main Content */}
-            <div
-              className="flex-1 flex flex-col min-w-0"
-              style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
-            >
+            <div className="flex-1 flex flex-col min-w-0 control-panel-main">
               {/* Content Header */}
-              <div
-                className="flex items-center justify-between px-6 py-4 border-b border-[#333]"
-                style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
-              >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#333] control-panel-header">
                 <DialogTitle className="text-sm font-semibold text-white">
                   {activeTab ? TAB_LABELS[activeTab] : 'Select a setting'}
                 </DialogTitle>
                 <button
                   onClick={handleClose}
-                  className="p-1.5 rounded hover:bg-[#333] transition-colors"
-                  style={{ backgroundColor: 'var(--bolt-elements-borderColor)' }}
+                  className="p-1.5 rounded hover:bg-[#333] transition-colors control-panel-close-btn"
+                  title="Close settings"
+                  aria-label="Close settings"
                 >
                   <div className="i-ph:x w-4 h-4 text-gray-400" />
                 </button>
               </div>
 
               {/* Tab Content */}
-              <div
-                className="flex-1 overflow-y-auto p-6"
-                style={{ backgroundColor: 'var(--bolt-elements-bg-depth-3)' }}
-              >
+              <div className="flex-1 overflow-y-auto p-6 control-panel-content">
                 {activeTab ? (
                   getTabComponent(activeTab)
                 ) : (

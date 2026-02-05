@@ -45,12 +45,13 @@ const runTestsTool = tool(
           failed: results.numFailedTests || 0,
           skipped: results.numPendingTests || 0,
           duration: results.testResults?.[0]?.perfStats?.runtime || 0,
-          failures: results.testResults
-            ?.filter((t: any) => t.status === 'failed')
-            .map((t: any) => ({
-              name: t.name,
-              message: t.message || 'Test failed',
-            })) || [],
+          failures:
+            results.testResults
+              ?.filter((t: any) => t.status === 'failed')
+              .map((t: any) => ({
+                name: t.name,
+                message: t.message || 'Test failed',
+              })) || [],
         };
       } catch {
         // If JSON parsing fails, return raw output

@@ -34,10 +34,18 @@ function convertBaseAgentTool(name: string, definition: any) {
   const schema = z.object(
     Object.entries(definition.parameters.properties || {}).reduce(
       (acc, [key, prop]: [string, any]) => {
-        let zodType = z.string();
+        // Determine the correct Zod type based on property type
+        let zodType: z.ZodTypeAny;
 
-        if (prop.type === 'number') zodType = z.number();
-        if (prop.type === 'boolean') zodType = z.boolean();
+        if (prop.type === 'number') {
+          zodType = z.number();
+        } else if (prop.type === 'boolean') {
+          zodType = z.boolean();
+        } else if (prop.type === 'array') {
+          zodType = z.array(z.any());
+        } else {
+          zodType = z.string();
+        }
 
         acc[key] = definition.parameters.required?.includes(key)
           ? zodType.describe(prop.description || '')
@@ -72,21 +80,26 @@ function convertBaseAgentTool(name: string, definition: any) {
 }
 
 // Convert and export base agent tools for LangChain
-export const baseAgentTools = Object.entries(agentToolDefinitions).reduce(
+export const baseAgentTools: Record<string, any> = Object.entries(agentToolDefinitions).reduce(
   (acc, [name, definition]) => {
     acc[name] = convertBaseAgentTool(name, definition);
 
     return acc;
   },
-  {} as Record<string, ReturnType<typeof tool>>,
+  {} as Record<string, any>,
 );
 
-// Combined tool registry - all tools available to agents
-export const agentTools = {
+/*
+ * Combined tool registry - all tools available to agents.
+ * Using Record<string, any> to avoid strict type conflicts between different tool sources.
+ */
+export const agentTools: Record<string, any> = {
   // Base agent tools (file, terminal, media generation, knowledge)
   ...baseAgentTools,
+
   // Enhanced test tools
   ...testTools,
+
   // Database tools (graph, vector, storage)
   ...databaseTools,
 };
@@ -126,8 +139,8 @@ export function getToolsForRole(role: keyof typeof toolCategories) {
   return Object.entries(agentTools)
     .filter(([name]) => allowedTools.includes(name))
     .reduce(
-      (acc, [name, t]) => {
-        acc[name] = t;
+      (acc, [name, toolDef]) => {
+        acc[name] = toolDef;
 
         return acc;
       },

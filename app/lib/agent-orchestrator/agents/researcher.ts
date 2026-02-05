@@ -20,7 +20,8 @@ export class ResearcherAgent extends BaseAgent {
       return;
     }
 
-    const googleApiKey = state.apiKeys?.Google || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    const googleApiKey =
+      state.apiKeys?.Google || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
     if (!this.model) {
       this.model = new ChatGoogleGenerativeAI({
@@ -44,66 +45,74 @@ export class ResearcherAgent extends BaseAgent {
     // This method is now secondary as the graph calls specialized methods.
     // However, if called directly, we'll default to tech research.
     try {
-        this.ensureModels(state);
-        return await this.runTechResearch(state);
+      this.ensureModels(state);
+      return await this.runTechResearch(state);
     } catch (error: any) {
-        return this.createErrorState(state, error);
+      return this.createErrorState(state, error);
     }
   }
 
   async runTechResearch(state: BoltState): Promise<Partial<BoltState>> {
     try {
-        this.ensureModels(state);
-        const query = state.researchQuery || '';
+      this.ensureModels(state);
+      const query = state.researchQuery || '';
 
-        const parser = new JsonOutputParser();
-        const prompt = PromptTemplate.fromTemplate(
-          `Perform a technology reality check for the following query.
+      const parser = new JsonOutputParser();
+      const prompt = PromptTemplate.fromTemplate(
+        `Perform a technology reality check for the following query.
           Query: {query}
           Identify latest stable versions, security advisories, and compatibility issues.
-          Return JSON: {{ "techStack": {{ "lib": "version" }}, "securityAdvisories": [], "compatibilityIssues": [] }}`
-        );
+          Return JSON: {{ "techStack": {{ "lib": "version" }}, "securityAdvisories": [], "compatibilityIssues": [] }}`,
+      );
 
-        const chain = prompt.pipe(this.model!).pipe(parser);
-        const techRes = await this.safeInvoke(chain, { query });
+      const chain = prompt.pipe(this.model!).pipe(parser);
+      const techRes = await this.safeInvoke(chain, { query });
 
-        return {
-            researchFindings: {
-                ...state.researchFindings,
-                ...techRes as any
-            },
-            currentAction: { type: 'tool', description: 'Tech stack research complete. Found ' + Object.keys((techRes as any).techStack).length + ' libraries.' }
-        };
+      return {
+        researchFindings: {
+          ...state.researchFindings,
+          ...(techRes as any),
+        },
+        currentAction: {
+          type: 'tool',
+          description:
+            'Tech stack research complete. Found ' + Object.keys((techRes as any).techStack).length + ' libraries.',
+        },
+      };
     } catch (error: any) {
-        return this.createErrorState(state, error);
+      return this.createErrorState(state, error);
     }
   }
 
   async runCompetencyResearch(state: BoltState): Promise<Partial<BoltState>> {
     try {
-        this.ensureModels(state);
-        const query = state.researchQuery || '';
+      this.ensureModels(state);
+      const query = state.researchQuery || '';
 
-        const parser = new JsonOutputParser();
-        const prompt = PromptTemplate.fromTemplate(
-          `Create a Project Competency Map for this request.
+      const parser = new JsonOutputParser();
+      const prompt = PromptTemplate.fromTemplate(
+        `Create a Project Competency Map for this request.
           Query: {query}
           Identify Skills (concrete standards), Standards (RFCs/OWASP), and Resources (links).
-          Return JSON: {{ "domains": [], "skills": [], "standards": [], "resources": [] }}`
-        );
+          Return JSON: {{ "domains": [], "skills": [], "standards": [], "resources": [] }}`,
+      );
 
-        const chain = prompt.pipe(this.model!).pipe(parser);
-        const competencyRes = await this.safeInvoke(chain, { query });
+      const chain = prompt.pipe(this.model!).pipe(parser);
+      const competencyRes = await this.safeInvoke(chain, { query });
 
-        return {
-            researchFindings: {
-                ...state.researchFindings,
-                projectCompetencyMap: competencyRes
-            } as any,
-            currentAction: { type: 'tool', description: 'Competency mapping complete. Identified ' + (competencyRes as any).skills.length + ' key standards.' }
-        };
+      return {
+        researchFindings: {
+          ...state.researchFindings,
+          projectCompetencyMap: competencyRes,
+        } as any,
+        currentAction: {
+          type: 'tool',
+          description:
+            'Competency mapping complete. Identified ' + (competencyRes as any).skills.length + ' key standards.',
+        },
+      };
     } catch (error: any) {
-        return this.createErrorState(state, error);
+      return this.createErrorState(state, error);
     }
   }
 }

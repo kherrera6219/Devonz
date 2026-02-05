@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import type { AgentMessage } from '../state/types';
 
@@ -9,7 +8,7 @@ export class MessageFactory {
     type: string,
     payload: any,
     context?: any,
-    options: Partial<AgentMessage> = {}
+    options: Partial<AgentMessage> = {},
   ): AgentMessage {
     return {
       id: uuidv4(),
@@ -39,6 +38,6 @@ export class MessageFactory {
   }
 
   static text(from: AgentMessage['from'], to: AgentMessage['to'], text: string): AgentMessage {
-      return this.create(from, to, 'TEXT_MESSAGE', { text }, {}, { requiresResponse: false });
+    return this.create(from, to, 'TEXT_MESSAGE', { text }, {}, { requiresResponse: false });
   }
 }

@@ -99,10 +99,7 @@ export async function loadHistory(): Promise<ProjectHistory> {
 /**
  * Record a completed task
  */
-export async function recordTask(
-  description: string,
-  success: boolean,
-): Promise<void> {
+export async function recordTask(description: string, success: boolean): Promise<void> {
   const history = await loadHistory();
   history.completedTasks.push({
     description,
@@ -139,9 +136,7 @@ export async function getPattern(key: string): Promise<string | undefined> {
 /**
  * Get recent successful tasks for context
  */
-export async function getRecentTasks(
-  limit: number = 5,
-): Promise<Array<{ description: string; timestamp: number }>> {
+export async function getRecentTasks(limit: number = 5): Promise<Array<{ description: string; timestamp: number }>> {
   const history = await loadHistory();
   return history.completedTasks
     .filter((t) => t.success)

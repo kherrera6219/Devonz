@@ -393,6 +393,9 @@ export const CombinedModelSelector = ({
           role="combobox"
           aria-expanded={isDropdownOpen}
           aria-haspopup="listbox"
+          aria-controls="model-selector-listbox"
+          aria-label="Select AI model and provider"
+          title="Select AI model and provider"
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -594,7 +597,8 @@ export const CombinedModelSelector = ({
               <div className="flex items-center gap-2 mt-2 px-1 py-1 rounded bg-purple-500/10 border border-purple-500/20">
                 <span className="i-ph:users-three-duotone text-purple-400 text-xs" />
                 <span className="text-[10px] font-medium text-purple-300">
-                  Multi-Agent Orchestration Active: {orchestratorSettings.coordinatorModel}/{orchestratorSettings.researcherModel}/{orchestratorSettings.architectModel}
+                  Multi-Agent Orchestration Active: {orchestratorSettings.coordinatorModel}/
+                  {orchestratorSettings.researcherModel}/{orchestratorSettings.architectModel}
                 </span>
                 <span className="ml-auto px-1 rounded bg-purple-500/20 text-[9px] text-purple-400 font-bold">
                   {orchestratorSettings.mode.toUpperCase()}
@@ -605,6 +609,9 @@ export const CombinedModelSelector = ({
 
           {/* Options List */}
           <div
+            role="listbox"
+            id="model-selector-listbox"
+            aria-label={`Select ${activeSection}`}
             className={classNames(
               'flex-1 overflow-y-auto',
               '[&::-webkit-scrollbar]:w-1.5',

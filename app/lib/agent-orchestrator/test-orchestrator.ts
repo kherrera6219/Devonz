@@ -1,4 +1,3 @@
-
 import * as dotenv from 'dotenv';
 import { createGraph } from './graph';
 import type { BoltState } from './state/types';
@@ -18,7 +17,7 @@ async function runTest() {
     qcIteration: 0,
     maxQcIterations: 3,
     messages: [],
-    agentMessages: []
+    agentMessages: [],
   };
 
   console.log('User Request:', initialState.userRequest);
@@ -32,7 +31,7 @@ async function runTest() {
 
     for await (const update of stream) {
       const nodeName = Object.keys(update)[0];
-      const stateUpdate = update[nodeName] as Partial<BoltState>;
+      const stateUpdate = (update as Record<string, Partial<BoltState>>)[nodeName];
 
       if (stateUpdate) {
         console.log(`\n[NODE: ${nodeName.toUpperCase()}]`);
@@ -55,7 +54,9 @@ async function runTest() {
         }
 
         if (stateUpdate.error) {
-          console.log(`> ERROR: ${typeof stateUpdate.error === 'object' ? JSON.stringify(stateUpdate.error, null, 2) : stateUpdate.error}`);
+          console.log(
+            `> ERROR: ${typeof stateUpdate.error === 'object' ? JSON.stringify(stateUpdate.error, null, 2) : stateUpdate.error}`,
+          );
         }
 
         if (stateUpdate.response) {

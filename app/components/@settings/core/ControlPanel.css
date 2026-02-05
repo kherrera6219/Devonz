@@ -1,0 +1,44 @@
+/* ControlPanel.tsx styles */
+/* Moving inline styles to external CSS file for better maintainability */
+
+.control-panel-dialog {
+  background-color: var(--bolt-elements-bg-depth-3);
+}
+
+.control-panel-sidebar {
+  background-color: var(--bolt-elements-background-depth-4);
+}
+
+.control-panel-sidebar-header {
+  background-color: var(--bolt-elements-background-depth-4);
+}
+
+.control-panel-sidebar-nav {
+  background-color: var(--bolt-elements-background-depth-4);
+}
+
+.control-panel-nav-item {
+  background-color: transparent;
+  color: #9ca3af;
+}
+
+.control-panel-nav-item--active {
+  background-color: var(--bolt-elements-borderColor);
+  color: #fff;
+}
+
+.control-panel-main {
+  background-color: var(--bolt-elements-bg-depth-3);
+}
+
+.control-panel-header {
+  background-color: var(--bolt-elements-bg-depth-3);
+}
+
+.control-panel-close-btn {
+  background-color: var(--bolt-elements-borderColor);
+}
+
+.control-panel-content {
+  background-color: var(--bolt-elements-bg-depth-3);
+}

@@ -59,10 +59,7 @@ export function addMessage(threadId: string, message: BaseMessage): void {
 /**
  * Get recent messages from short-term memory
  */
-export function getRecentMessages(
-  threadId: string,
-  limit: number = 10,
-): BaseMessage[] {
+export function getRecentMessages(threadId: string, limit: number = 10): BaseMessage[] {
   const memory = getShortTermMemory(threadId);
   return memory.messages.slice(-limit);
 }
@@ -70,11 +67,7 @@ export function getRecentMessages(
 /**
  * Update working context (temporary data for current task)
  */
-export function updateContext(
-  threadId: string,
-  key: string,
-  value: any,
-): void {
+export function updateContext(threadId: string, key: string, value: any): void {
   const memory = getShortTermMemory(threadId);
   memory.workingContext[key] = value;
   memory.lastUpdated = Date.now();
