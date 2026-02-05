@@ -77,16 +77,17 @@ const architectNode = async (state: BoltState) => {
   );
 };
 
-// Reflection Node - Self-critique after code generation
+// Reflection Node - Self-critique and dynamic re-planning
 const reflectionNode = async (state: BoltState) => {
   return safeNodeExecution(
     'reflection',
     async () => {
-      const res = await reflector.reflectOnCode(state);
+      // Use evaluateForReplan which sets needsReplan and replanSuggestion
+      const res = await reflector.evaluateForReplan(state);
 
       return res as Partial<BoltState>;
     },
-    { reflectionFeedback: 'Reflection skipped due to error' } as Partial<BoltState>,
+    { reflectionFeedback: 'Reflection skipped due to error', needsReplan: false } as Partial<BoltState>,
   );
 };
 
@@ -251,6 +252,21 @@ const checkQCPass = (state: BoltState) => {
   return 'finalize' as 'fix' | 'finalize';
 };
 
+/*
+ * Check if reflection indicates re-planning is needed.
+ * Routes back to coordinator for re-planning if score is low and iterations remain.
+ */
+const checkReplan = (state: BoltState) => {
+  // needsReplan is set by ReflectionAgent.evaluateForReplan()
+  if (state.needsReplan && (state.iterationCount || 0) < 3) {
+    console.log(`[REFLECTION] Re-planning triggered. Iteration: ${state.iterationCount || 0}`);
+
+    return 'replan' as 'replan' | 'complete';
+  }
+
+  return 'complete' as 'replan' | 'complete';
+};
+
 export function createGraph() {
   const workflow = new StateGraph<BoltState>({
     channels: {
@@ -268,6 +284,12 @@ export function createGraph() {
       maxQcIterations: { value: (a, b) => b, default: () => 3 },
       status: { value: (a, b) => b, default: () => 'idle' as const },
       error: { value: (a, b) => b, default: () => undefined },
+      // Reflection channels
+      reflectionFeedback: { value: (a, b) => b, default: () => undefined },
+      reflectionScore: { value: (a, b) => b, default: () => undefined },
+      needsReplan: { value: (a, b) => b, default: () => false },
+      replanSuggestion: { value: (a, b) => b, default: () => undefined },
+      iterationCount: { value: (a, b) => b, default: () => 0 },
     },
   });
 
@@ -286,6 +308,8 @@ export function createGraph() {
   workflow.addNode('qc_security', qcSecurityNode);
   // @ts-ignore
   workflow.addNode('qc_fix', qcFixNode);
+  // @ts-ignore
+  workflow.addNode('reflection', reflectionNode);
   // @ts-ignore
   workflow.addNode('finalize', finalizeNode);
 
@@ -311,11 +335,23 @@ export function createGraph() {
   // @ts-ignore
   workflow.addConditionalEdges('qc_security', checkQCPass, {
     fix: 'qc_fix',
-    finalize: 'finalize',
+    finalize: 'reflection', // Route to reflection before finalize
   });
 
   workflow.addEdge('qc_fix' as any, 'qc_structural' as any); // Loop back to structural QC
+
+  // Reflection conditional edge - route to coordinator for re-planning if needed
+  // @ts-ignore
+  workflow.addConditionalEdges('reflection', checkReplan, {
+    replan: 'coordinator',
+    complete: 'finalize',
+  });
+
   workflow.addEdge('finalize' as any, END as any);
 
+  /*
+   * Note: MemorySaver checkpointer removed due to CJS/ESM compatibility issues.
+   * TODO: Re-enable when @langchain/langgraph-checkpoint has ESM browser support.
+   */
   return workflow.compile();
 }

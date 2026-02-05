@@ -62,6 +62,13 @@ export default defineConfig((config) => {
         'node:util/types',
         'buffer',
         'node:buffer',
+        // LangChain packages must be external for SSR to avoid CJS/ESM issues
+        '@langchain/langgraph',
+        '@langchain/langgraph-checkpoint',
+        '@langchain/core',
+        '@langchain/openai',
+        '@langchain/anthropic',
+        '@langchain/google-genai',
       ],
     },
     plugins: [

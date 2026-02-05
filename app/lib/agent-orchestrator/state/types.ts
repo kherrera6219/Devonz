@@ -1,4 +1,4 @@
-import { BaseMessage } from '@langchain/core/messages';
+import type { BaseMessage } from '@langchain/core/messages';
 
 export interface AgentMessage {
   id: string;
@@ -82,4 +82,7 @@ export interface BoltState {
   reflectionFeedback?: string;
   reflectionScore?: number;
   planReflection?: string;
+  needsReplan?: boolean;
+  replanSuggestion?: string;
+  iterationCount?: number;
 }

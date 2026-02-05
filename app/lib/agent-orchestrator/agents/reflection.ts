@@ -140,4 +140,67 @@ Be concise and actionable.`;
 
     return 5; // Default score
   }
+
+  /**
+   * Determine if re-planning is needed based on reflection score
+   */
+  shouldTriggerReplan(state: BoltState): boolean {
+    const score = state.reflectionScore ?? 5;
+    const iteration = state.iterationCount ?? 0;
+    const maxIterations = 3; // Prevent infinite re-planning
+
+    // Trigger re-plan if score is low and we haven't exceeded max iterations
+    return score < 5 && iteration < maxIterations;
+  }
+
+  /**
+   * Evaluate code/plan and return re-planning state updates
+   */
+  async evaluateForReplan(state: BoltState): Promise<Partial<BoltState>> {
+    logger.info('Evaluating for re-planning...');
+
+    try {
+      // First run code reflection
+      const reflectionResult = await this.reflectOnCode(state);
+      const score = reflectionResult.reflectionScore ?? 5;
+
+      // Check if re-planning is needed
+      if (this.shouldTriggerReplan({ ...state, ...reflectionResult })) {
+        logger.info(`Re-planning triggered. Score: ${score}, Iteration: ${state.iterationCount ?? 0}`);
+
+        return {
+          ...reflectionResult,
+          needsReplan: true,
+          replanSuggestion: this.generateReplanSuggestion(reflectionResult.reflectionFeedback || ''),
+          status: 'planning', // Reset status to trigger re-planning
+        };
+      }
+
+      return {
+        ...reflectionResult,
+        needsReplan: false,
+      };
+    } catch (error: any) {
+      logger.error('Re-plan evaluation failed:', error);
+
+      return {
+        reflectionFeedback: `Re-plan evaluation failed: ${error.message}`,
+        needsReplan: false,
+      };
+    }
+  }
+
+  /**
+   * Generate a concise re-planning suggestion from reflection feedback
+   */
+  private generateReplanSuggestion(feedback: string): string {
+    // Extract critical issues from feedback
+    const criticalMatch = feedback.match(/critical issues?[:\s]*([\s\S]*?)(?=improvements?|quality score|$)/i);
+
+    if (criticalMatch) {
+      return `Critical issues found: ${criticalMatch[1].trim().slice(0, 500)}`;
+    }
+
+    return feedback.slice(0, 500);
+  }
 }

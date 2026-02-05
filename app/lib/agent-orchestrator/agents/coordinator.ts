@@ -4,6 +4,7 @@ import { MessageFactory } from '~/lib/agent-orchestrator/utils/message-factory';
 import { JsonOutputParser } from '@langchain/core/output_parsers';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { BaseAgent } from '~/lib/agent-orchestrator/agents/base';
+import { getToolDescriptions } from '~/lib/agent-orchestrator/tools';
 
 export class CoordinatorAgent extends BaseAgent {
   protected name = 'coordinator';
@@ -57,16 +58,28 @@ export class CoordinatorAgent extends BaseAgent {
 
   private async analyzeIntent(state: BoltState): Promise<Partial<BoltState>> {
     const parser = new JsonOutputParser();
+    const toolDocs = getToolDescriptions('coordinator');
+
+    // Check if this is a re-plan from reflection
+    const replanContext =
+      state.needsReplan && state.replanSuggestion
+        ? `\n\n## RE-PLANNING REQUIRED\nPrevious plan needs revision. Reflection feedback:\n${state.replanSuggestion}\n`
+        : '';
+
     const prompt = PromptTemplate.fromTemplate(
-      `You are the Coordinator Agent. Analyze this request and decompose it.
+      `You are the Coordinator Agent. Analyze this request and decompose it into actionable tasks.
 
       User Request: {request}
+      ${replanContext}
+
+      ## Available Tools (for task planning)
+      {tools}
 
       Return JSON with:
-      - intent: string
-      - needsResearch: boolean
-      - researchQuery: string (if needed)
-      - tasks: string[]
+      - intent: string (what the user wants to achieve)
+      - needsResearch: boolean (complex tech questions need research)
+      - researchQuery: string (if needsResearch is true)
+      - tasks: string[] (specific actionable tasks)
 
       DEFINITION OF DONE:
       - Research: Version pins + Competency Map.
@@ -83,6 +96,7 @@ export class CoordinatorAgent extends BaseAgent {
       chain,
       {
         request: state.userRequest,
+        tools: toolDocs,
         format_instructions: parser.getFormatInstructions(),
       },
       3,
@@ -105,6 +119,10 @@ export class CoordinatorAgent extends BaseAgent {
       plan: analysis.tasks,
       thought: `Query Analysis complete: Intent identified as "${analysis.intent}"`,
       currentAction: { type: 'plan', description: `Identified ${analysis.tasks.length} tasks for execution.` },
+      // Reset re-planning state after successful analysis
+      needsReplan: false,
+      replanSuggestion: undefined,
+      iterationCount: (state.iterationCount || 0) + 1,
       agentMessages: [
         ...state.agentMessages,
         MessageFactory.create('coordinator', 'coordinator', 'INTENT_ANALYSIS', analysis),
