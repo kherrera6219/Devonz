@@ -1,6 +1,6 @@
 # Devonz
 
-Devonz is an AI-powered development agent that helps you build full-stack applications through natural language conversation. Originally built upon [bolt.diy](https://github.com/stackblitz-labs/bolt.diy), Devonz focuses on speed, efficiency, and a streamlined development experience and have evolved the project into a powerful AI coding agent.
+Devonz is an AI-powered development agent that helps you build full-stack applications through natural language conversation. Built upon [bolt.diy](https://github.com/stackblitz-labs/bolt.diy), Devonz has evolved into a robust, multi-agent coding platform focused on speed, efficiency, and architectural intelligence.
 
 ![Devonz Screenshot](https://github.com/user-attachments/assets/e4c3067d-2539-4b5e-abab-d129d90b51dc)
 
@@ -14,7 +14,8 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | [Tech Stack](#tech-stack)               | Technologies used in the project   |
 | [Installation](#installation)           | Getting started guide              |
 | [Configuration](#configuration)         | Environment variables and settings |
-| [AI Providers](#supported-ai-providers) | Key supported AI providers         |
+| [AI Providers](#supported-ai-providers) | Supported AI models and providers  |
+| [Architecture](#architecture)           | Core services and multi-agent logic|
 | [Project Structure](#project-structure) | Codebase organization              |
 | [Available Scripts](#available-scripts) | Development and build commands     |
 | [Settings](#settings--features)         | App settings and features          |
@@ -29,7 +30,7 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | Feature                      | Description                                                                 |
 | ---------------------------- | --------------------------------------------------------------------------- |
 | Natural Language Building    | Describe what you want to build, and Devonz creates it                      |
-| **Multi-Agent Orchestration** | **LangGraph-powered system with Coordinator, Researcher, and Architect** |
+| **Multi-Agent Orchestration** | **LangGraph-powered system featuring Coordinator, Researcher, and Architect** |
 | Model Context Protocol (MCP) | Extend Devonz capabilities with MCP tools                                   |
 | Auto-Fix                     | Automatic error detection and fixing with terminal error detector           |
 | **Multi-Language Expert**    | Support for 25+ programming languages (Python, Go, Rust, C++, Java, etc.)   |
@@ -54,23 +55,6 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | Integrated Code Editor  | CodeMirror editor with advanced syntax highlighting    |
 | Terminal Access         | Full terminal access within the browser               |
 
-### Deployment Options
-
-| Platform | Description                          |
-| -------- | ------------------------------------ |
-| GitHub   | Push directly to GitHub repositories |
-| GitLab   | Deploy to GitLab projects            |
-| Netlify  | One-click deployment to Netlify      |
-| Vercel   | Deploy to Vercel with ease           |
-
-### Integrations
-
-| Integration      | Description                                                     |
-| ---------------- | --------------------------------------------------------------- |
-| Supabase         | Database and authentication API routes (requires configuration) |
-| Git              | Built-in Git support for version control                        |
-| Template Gallery | Pre-built templates for popular frameworks                      |
-
 ---
 
 ## Tech Stack
@@ -80,9 +64,8 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | Framework     | [Remix](https://remix.run/) + [Vite](https://vitejs.dev/) |
 | Language      | TypeScript                                                |
 | Database      | PostgreSQL (pgvector), Neo4j, Redis, MinIO                |
+| Orchestration | LangGraph, LangChain                                      |
 | Styling       | UnoCSS + Tailwind CSS                                     |
-| UI Components | Radix UI, Headless UI                                     |
-| Animation     | Framer Motion                                             |
 | AI SDK        | Vercel AI SDK                                             |
 | Editor        | CodeMirror                                                |
 | Terminal      | xterm.js                                                  |
@@ -101,23 +84,18 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 
 ### Quick Start
 
-> **Note**: The first load can take up to 2 minutes before you see the main chat interface. Please be patient while all dependencies are compiled.
-
 1. **Clone the Repository**:
-
    ```bash
-   git clone https://github.com/zebbern/Devonz.git
+   git clone https://github.com/kherrera6219/Devonz.git
    cd Devonz
    ```
 
 2. **Install Dependencies**:
-
    ```bash
    pnpm install
    ```
 
 3. **Start Development Server**:
-
    ```bash
    pnpm run dev
    ```
@@ -133,13 +111,12 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 Create a `.env.local` file in the project root:
 
 ```bash
-# AI Provider API Keys
+# Core AI Provider API Keys
 OPENAI_API_KEY=your_openai_key
 ANTHROPIC_API_KEY=your_anthropic_key
 GOOGLE_GENERATIVE_AI_API_KEY=your_google_key
-GROQ_API_KEY=your_groq_key
 
-# Local Provider URLs
+# Local Provider URLs (Optional)
 OLLAMA_BASE_URL=http://127.0.0.1:11434
 LMSTUDIO_BASE_URL=http://127.0.0.1:1234
 
@@ -148,14 +125,6 @@ GITHUB_ACCESS_TOKEN=your_github_token
 NETLIFY_AUTH_TOKEN=your_netlify_token
 VERCEL_ACCESS_TOKEN=your_vercel_token
 ```
-
-### In-App Configuration
-
-1. Click the **Settings icon** in the sidebar
-2. Navigate to **Providers** tab
-3. Configure your preferred AI providers:
-   - **Cloud Providers**: OpenAI, Anthropic, Google, Groq, OpenRouter, etc.
-   - **Local Providers**: Ollama, LM Studio, OpenAI-compatible endpoints
 
 ---
 
@@ -179,42 +148,41 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 
 ---
 
-## Architecture & Performance
+## Architecture
 
-Devonz leverages a sophisticated service-oriented architecture to ensure scalability and reliability:
+Devonz uses a specialized multi-agent architecture powered by **LangGraph** to coordinate complex coding tasks:
+
+### Agent Roles
+- **Coordinator**: Orchestrates the overall workflow, manages state transitions, and creates high-level implementation plans.
+- **Researcher**: Recursively analyzes the codebase using the Knowledge Graph and RAG to understand dependencies and patterns.
+- **Architect**: Generates precise code changes, validates file impacts, and ensures implementation consistency.
 
 ### Core Services
-- **OrchestratorService**: Manages the multi-agent workflow using LangGraph, coordinating the transition between planning, research, and building.
-- **ContextService**: A singleton Orchestrator that wisely selects relevant files, generates chat summaries, and queries RAG to optimize the context window.
-- **GraphService**: Uses Neo4j to maintain a live dependency graph, enabling deep codebase understanding and impact analysis.
-- **RAGService**: Powered by `pgvector` and LlamaIndex, this service handles semantic search over your codebase.
-- **KnowledgeService**: Handles parallel ingestion into both Vector Store and Knowledge Graph using high-performance batch operations.
+- **OrchestratorService**: Manages the LangGraph execution and real-time streaming to the UI.
+- **ContextService**: Optimizes the LLM context window by selecting relevant files and chat history.
+- **GraphService**: Maintains a live Neo4j dependency graph for architectural analysis.
+- **RAGService**: Provides semantic search capabilities over the project using LlamaIndex.
 
-### Stability Features
-- **Global Error Boundary**: A dedicated React Error Boundary catches unhandled errors to prevent white-screen crashes, offering a user-friendly recovery UI.
-- **Robust Error Handling**: Services allow errors to propagate correctly, ensuring that partial failures (like a DB being down) are handled gracefully by the fallback logic in `ContextService`.
+---
 
 ## Project Structure
 
 ```tree
 Devonz/
 ├── app/
-│   ├── components/         # React components
-│   │   ├── chat/           # Chat interface & Folder Import
-│   │   ├── workbench/      # Development workbench
-│   │   └── ui/             # Shared Design System
-│   ├── lib/                # Core libraries
+│   ├── components/         # React components (Chat, Workspace, UI)
+│   ├── lib/                # Core logic
 │   │   ├── agent/          # Agent prompts & multi-language types
 │   │   ├── agent-orchestrator/ # LangGraph multi-agent logic
 │   │   ├── services/       # RAG, Storage, & Agent Tool services
-│   │   ├── stores/         # State management
+│   │   ├── stores/         # Zustand state management
 │   │   └── utils/          # File & Context utilities
-│   ├── routes/             # Remix routes (Media Gen & RAG endpoints)
+│   ├── routes/             # Remix routes & API endpoints
 │   ├── styles/             # Global CSS & UnoCSS tokens
 │   └── types/              # Global TypeScript types
-├── database/               # Infrastructure (PostgreSQL, MinIO, Redis)
+├── database/               # Infrastructure (PostgreSQL, MinIO, Redis, Neo4j)
 ├── public/                 # Static assets & Generated Media
-├── scripts/                # Development & Clean scripts
+├── scripts/                # Development & Maintenance scripts
 └── supabase/               # Backend integrations
 ```
 
@@ -222,31 +190,13 @@ Devonz/
 
 ## Available Scripts
 
-### Development
-
-| Command            | Description               |
-| ------------------ | ------------------------- |
-| `pnpm run dev`     | Start development server  |
-| `pnpm run build`   | Build for production      |
-| `pnpm run start`   | Run production build      |
-| `pnpm run preview` | Build and preview locally |
-
-### Testing and Quality
-
 | Command              | Description              |
 | -------------------- | ------------------------ |
-| `pnpm test`          | Run tests                |
-| `pnpm test:watch`    | Run tests in watch mode  |
+| `pnpm run dev`       | Start development server  |
+| `pnpm test`          | Run full unit test suite |
 | `pnpm run typecheck` | TypeScript type checking |
 | `pnpm run lint`      | ESLint check             |
-| `pnpm run lint:fix`  | Auto-fix linting issues  |
-
-### Utilities
-
-| Command            | Description            |
-| ------------------ | ---------------------- |
-| `pnpm run clean`   | Clean build artifacts  |
-| `pnpm run prepare` | Set up husky git hooks |
+| `pnpm run clean`     | Clean build artifacts    |
 
 ---
 
@@ -257,96 +207,30 @@ Devonz/
 | Tab            | Description                              |
 | -------------- | ---------------------------------------- |
 | Profile        | User profile management                  |
-| Providers      | AI provider configuration (19 providers) |
-| Features       | Enable/disable features                  |
+| Providers      | AI provider configuration (Core: OpenAI, Anthropic, Google) |
+| Features       | Enable/disable advanced features         |
+| Orchestrator   | LangGraph agent settings and model mapping|
 | MCP            | Model Context Protocol tools             |
 | GitHub         | GitHub integration settings              |
-| GitLab         | GitLab integration settings              |
-| Netlify        | Netlify deployment settings              |
-| Vercel         | Vercel deployment settings               |
-| Supabase       | Database integration settings            |
-| Event Logs     | Application logs                         |
-| Data           | Import/export data                       |
-| Notifications  | Notification preferences                 |
-| Project Memory | Project context storage                  |
-| Settings       | General settings                         |
-
-### MCP (Model Context Protocol)
-
-Devonz supports MCP tools for extending AI capabilities:
-
-| Feature            | Description                                |
-| ------------------ | ------------------------------------------ |
-| Custom MCP Servers | Configure custom MCP servers               |
-| Specialized Tools  | Add specialized tools for your workflow    |
-| External Services  | Extend AI reasoning with external services |
-
----
-
-## Updating
-
-### Git-based Updates
-
-```bash
-# Save local changes
-git stash
-
-# Pull latest updates
-git pull
-
-# Update dependencies
-pnpm install
-
-# Restore local changes
-git stash pop
-```
-
-### Clean Install
-
-```bash
-# Remove dependencies
-rm -rf node_modules pnpm-lock.yaml
-
-# Clear cache
-pnpm store prune
-
-# Reinstall
-pnpm install
-```
+| Event Logs     | Application audit logs                   |
+| Project Memory | RAG and Graph database status            |
 
 ---
 
 ## Contributing
 
-We welcome contributions! Here's how to get started:
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
+We welcome contributions! Please fork the repository and open a Pull Request for any features or bug fixes.
 
 ---
 
 ## Acknowledgments
 
-| Credit                                                  | Description                        |
-| ------------------------------------------------------- | ---------------------------------- |
-| [bolt.diy](https://github.com/stackblitz-labs/bolt.diy) | Original project foundation        |
-| [StackBlitz WebContainers](https://webcontainers.io/)   | In-browser development environment |
-| [Vercel AI SDK](https://sdk.vercel.ai/)                 | AI capabilities                    |
-
----
-
-## Links
-
-| Link             | URL                                                                    |
-| ---------------- | ---------------------------------------------------------------------- |
-| Repository       | [https://github.com/zebbern/Devonz](https://github.com/zebbern/Devonz) |
-| Original Project | [bolt.diy](https://github.com/stackblitz-labs/bolt.diy)                |
+- **bolt.diy**: Original project foundation.
+- **StackBlitz WebContainers**: Powering the in-browser development environment.
+- **Vercel AI SDK**: Core AI integration.
 
 ---
 
 <div align="center">
-  <strong>Build anything with AI. Just describe what you want.</strong>
+  <strong>Build anything with AI. Precision coding, orchestrated.</strong>
 </div>
