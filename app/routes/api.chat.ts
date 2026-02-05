@@ -15,7 +15,6 @@ import type { DesignScheme } from '~/types/design-scheme';
 import { MCPService } from '~/lib/services/mcpService';
 import { StreamRecoveryManager } from '~/lib/.server/llm/stream-recovery';
 import {
-  getAgentToolSet,
   getAgentToolSetWithoutExecute,
   shouldUseAgentMode,
   getAgentSystemPrompt,
@@ -26,6 +25,7 @@ import {
   processAgentToolCall,
   isAgentToolName,
 } from '~/lib/services/agentChatIntegration';
+import { RAGService } from '~/lib/services/ragService';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -61,7 +61,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   });
 
   const { messages, files, promptId, contextOptimization, supabase, chatMode, designScheme, maxLLMSteps, agentMode } =
-    await request.json<{
+    (await request.json()) as {
       messages: Messages;
       files: any;
       promptId?: string;
@@ -78,7 +78,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
       };
       maxLLMSteps: number;
       agentMode?: boolean;
-    }>();
+    };
 
   // Determine if agent mode should be active for this request
   const useAgentMode = shouldUseAgentMode({ agentMode });
@@ -101,7 +101,10 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
   try {
     const mcpService = MCPService.getInstance();
-    const totalMessageContent = messages.reduce((acc, message) => acc + message.content, '');
+    const totalMessageContent = messages.reduce(
+      (acc: string, message: { content: string }) => acc + message.content,
+      '',
+    );
     logger.debug(`Total message length: ${totalMessageContent.split(' ').length}, words`);
 
     let lastChunk: string | undefined = undefined;
@@ -142,7 +145,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
           summary = await createSummary({
             messages: [...processedMessages],
-            env: context.cloudflare?.env,
+            env: (context as any).cloudflare?.env,
             apiKeys,
             providerSettings,
             promptId,
@@ -184,7 +187,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           console.log(`Messages count: ${processedMessages.length}`);
           filteredFiles = await selectContext({
             messages: [...processedMessages],
-            env: context.cloudflare?.env,
+            env: (context as any).cloudflare?.env,
             apiKeys,
             files,
             providerSettings,
@@ -227,6 +230,16 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           } satisfies ProgressAnnotation);
 
           // logger.debug('Code Files Selected');
+
+          // RAG Integration: If still missing context or large project, query RAG
+          if (contextOptimization) {
+            logger.debug('Querying RAG for additional context');
+
+            const lastMessage = processedMessages.at(-1)?.content || '';
+            const ragContext = await RAGService.getInstance().query(lastMessage);
+
+            summary = (summary || '') + '\n\nRelevant Code Snippets from RAG:\n' + ragContext.join('\n\n');
+          }
         }
 
         // Merge MCP tools with agent tools when agent mode is enabled
@@ -234,6 +247,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
         if (useAgentMode) {
           logger.info('🤖 Agent mode enabled - merging agent tools');
+
           const agentTools = getAgentToolSetWithoutExecute();
           const agentToolNames = Object.keys(agentTools);
           const mcpToolNames = Object.keys(mcpService.toolsWithoutExecute);
@@ -334,7 +348,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
             const result = await streamText({
               messages: [...processedMessages],
-              env: context.cloudflare?.env,
+              env: (context as any).cloudflare?.env,
               options,
               apiKeys,
               files,
@@ -375,7 +389,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
         const result = await streamText({
           messages: [...processedMessages],
-          env: context.cloudflare?.env,
+          env: (context as any).cloudflare?.env,
           options,
           apiKeys,
           files,

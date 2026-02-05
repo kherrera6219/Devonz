@@ -11,7 +11,6 @@
 import { webcontainer } from '~/lib/webcontainer';
 import { createScopedLogger } from '~/utils/logger';
 import { autoFixStore } from '~/lib/stores/autofix';
-import { getPreviewErrorHandler } from '~/utils/previewErrorHandler';
 import type {
   ToolExecutionResult,
   ReadFileParams,
@@ -30,7 +29,10 @@ import type {
   SearchCodeResult,
   SearchMatch,
   AgentToolDefinition,
+  ReadDocumentParams,
+  ReadDocumentResult,
 } from '~/lib/agent/types';
+import { parseDocument, isSupportedFormat, SUPPORTED_FORMATS } from '~/lib/services/documentParserService';
 
 const logger = createScopedLogger('AgentTools');
 
@@ -102,7 +104,7 @@ async function readFile(params: ReadFileParams): Promise<ToolExecutionResult<Rea
  * Creates parent directories if they don't exist.
  */
 async function writeFile(params: WriteFileParams): Promise<ToolExecutionResult<WriteFileResult>> {
-  const { path, content } = params;
+  const { path, content, encoding = 'utf-8' } = params;
 
   try {
     const container = await webcontainer;
@@ -124,10 +126,23 @@ async function writeFile(params: WriteFileParams): Promise<ToolExecutionResult<W
       await container.fs.mkdir(parentDir, { recursive: true });
     }
 
-    // Write the file
-    await container.fs.writeFile(path, content, 'utf-8');
+    // Handle encoding
+    if (encoding === 'base64') {
+      // Convert base64 to Uint8Array for binary write
+      const binaryString = atob(content);
+      const bytes = new Uint8Array(binaryString.length);
 
-    logger.info(`Wrote file: ${path}`, {
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      await container.fs.writeFile(path, bytes);
+    } else {
+      // Default utf-8 write
+      await container.fs.writeFile(path, content, 'utf-8');
+    }
+
+    logger.info(`Wrote file: ${path} (${encoding})`, {
       bytes: content.length,
       created: !fileExists,
     });
@@ -148,6 +163,128 @@ async function writeFile(params: WriteFileParams): Promise<ToolExecutionResult<W
       success: false,
       error: `Failed to write file '${path}': ${errorMessage}`,
     };
+  }
+}
+
+/**
+ * Generate Image Tool
+ * Generates an image using AI and saves it to the project.
+ */
+async function generateImage(params: {
+  prompt: string;
+  path: string;
+  size?: string;
+}): Promise<ToolExecutionResult<unknown>> {
+  const { prompt, path, size = '1024x1024' } = params;
+  logger.info(`Generating image: ${prompt}`);
+
+  try {
+    const response = await fetch('/api/agent/generate-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, size }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate image');
+    }
+
+    const { b64_json: b64Json } = await response.json();
+
+    // Save as binary
+    return await writeFile({
+      path,
+      content: b64Json,
+      encoding: 'base64',
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to generate image`, error);
+
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * Generate Audio Tool
+ * Generates audio from text using TTS and saves it to the project.
+ */
+async function generateAudio(params: {
+  text: string;
+  path: string;
+  voice?: string;
+}): Promise<ToolExecutionResult<unknown>> {
+  const { text, path, voice = 'alloy' } = params;
+  logger.info(`Generating audio from text: ${text.substring(0, 50)}...`);
+
+  try {
+    const response = await fetch('/api/agent/generate-audio', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate audio');
+    }
+
+    const { b64_json: b64Json } = await response.json();
+
+    // Save as binary
+    return await writeFile({
+      path,
+      content: b64Json,
+      encoding: 'base64',
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to generate audio`, error);
+
+    return { success: false, error: errorMessage };
+  }
+}
+
+/**
+ * Generate Document Tool (PDF)
+ * Creates a professional PDF document from agent-provided content.
+ */
+async function generateDocument(params: {
+  type: 'pdf';
+  content: string;
+  path: string;
+  title?: string;
+}): Promise<ToolExecutionResult<unknown>> {
+  const { content, path, title = 'Document' } = params;
+  logger.info(`Generating PDF document: ${path}`);
+
+  try {
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF();
+
+    // Professional formatting logic
+    doc.setFontSize(22);
+    doc.text(title, 20, 20);
+
+    doc.setFontSize(12);
+    const splitText = doc.splitTextToSize(content, 170);
+    doc.text(splitText, 20, 35);
+
+    // Get as base64
+    const b64 = doc.output('datauristring').split(',')[1];
+
+    // Save
+    return await writeFile({
+      path,
+      content: b64,
+      encoding: 'base64',
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to generate document`, error);
+
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -318,27 +455,32 @@ async function getErrors(params: GetErrorsParams): Promise<ToolExecutionResult<G
       }
     }
 
-    // Get errors from preview error handler
-    try {
-      const previewHandler = getPreviewErrorHandler();
-      const previewErrors = previewHandler.getErrors();
-
-      for (const err of previewErrors) {
-        if (!source || err.source === source) {
-          errors.push({
-            source: err.source || 'preview',
-            type: err.type || 'unknown',
-            message: err.message,
-            file: err.file,
-            line: err.line,
-            column: err.column,
-            content: err.content,
-          });
-        }
-      }
-    } catch {
-      // Preview handler may not be available
-    }
+    /*
+     * Get errors from preview error handler
+     * Note: PreviewErrorHandler currently doesn't expose a getErrors() method
+     * This functionality can be added when the handler interface is extended
+     *
+     * try {
+     *   const previewHandler = getPreviewErrorHandler();
+     *   const previewErrors = previewHandler.getErrors();
+     *
+     *   for (const err of previewErrors) {
+     *     if (!source || err.source === source) {
+     *       errors.push({
+     *         source: err.source || 'preview',
+     *         type: err.type || 'unknown',
+     *         message: err.message,
+     *         file: err.file,
+     *         line: err.line,
+     *         column: err.column,
+     *         content: err.content,
+     *       });
+     *     }
+     *   }
+     * } catch {
+     *   // Preview handler may not be available
+     * }
+     */
 
     logger.debug(`Retrieved errors`, { count: errors.length, source });
 
@@ -374,7 +516,34 @@ async function searchCode(params: SearchCodeParams): Promise<ToolExecutionResult
     let totalMatches = 0;
 
     // File extensions to search
-    const codeExtensions = ['.ts', '.tsx', '.js', '.jsx', '.json', '.css', '.html', '.md', '.yaml', '.yml'];
+    const codeExtensions = [
+      '.ts',
+      '.tsx',
+      '.js',
+      '.jsx',
+      '.json',
+      '.css',
+      '.scss',
+      '.html',
+      '.md',
+      '.yaml',
+      '.yml',
+      '.py',
+      '.go',
+      '.rs',
+      '.c',
+      '.cpp',
+      '.h',
+      '.hpp',
+      '.java',
+      '.kt',
+      '.php',
+      '.rb',
+      '.sh',
+      '.sql',
+      '.toml',
+      '.env',
+    ];
 
     // Directories to skip
     const skipDirs = ['node_modules', '.git', '.next', 'dist', 'build', '.cache'];
@@ -472,6 +641,75 @@ async function searchCode(params: SearchCodeParams): Promise<ToolExecutionResult
   }
 }
 
+/**
+ * Read Document Tool
+ * Reads and parses documents (PDF, DOCX, XLSX, MD, JSON, YAML) and extracts text content.
+ */
+async function readDocument(params: ReadDocumentParams): Promise<ToolExecutionResult<ReadDocumentResult>> {
+  const { path, sheet, maxPages } = params;
+
+  // Validate path
+  if (!path || typeof path !== 'string') {
+    return {
+      success: false,
+      error: 'Invalid path: path is required',
+    };
+  }
+
+  // Normalize path - ensure it starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+  // Check if format is supported
+  if (!isSupportedFormat(normalizedPath)) {
+    return {
+      success: false,
+      error: `Unsupported document format. Supported formats: ${SUPPORTED_FORMATS.join(', ')}`,
+    };
+  }
+
+  logger.info(`Reading document: ${normalizedPath}`);
+
+  try {
+    const container = await webcontainer;
+
+    // Read file as buffer for binary formats
+    const fileContent = await container.fs.readFile(normalizedPath);
+    const buffer = Buffer.from(fileContent);
+
+    // Parse document
+    const parsed = await parseDocument(buffer, normalizedPath, { sheet, maxPages });
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error || 'Failed to parse document',
+      };
+    }
+
+    logger.info(`Successfully parsed document: ${normalizedPath} (${parsed.metadata.format})`);
+
+    return {
+      success: true,
+      data: {
+        content: parsed.content,
+        path: normalizedPath,
+        format: parsed.metadata.format,
+        pages: parsed.metadata.pages,
+        sheets: parsed.metadata.sheets,
+        wordCount: parsed.metadata.wordCount,
+      },
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to read document: ${normalizedPath}`, error);
+
+    return {
+      success: false,
+      error: `Failed to read document: ${errorMessage}`,
+    };
+  }
+}
+
 /*
  * ============================================================================
  * Tool Definitions
@@ -505,7 +743,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: ['path'],
     },
-    execute: readFile,
+    execute: readFile as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 
   devonz_write_file: {
@@ -521,12 +759,94 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
         },
         content: {
           type: 'string',
-          description: 'The complete content to write to the file',
+          description: 'The content to write (text or base64 data)',
+        },
+        encoding: {
+          type: 'string',
+          enum: ['utf-8', 'base64'],
+          description: 'Content encoding (default: utf-8)',
         },
       },
       required: ['path', 'content'],
     },
-    execute: writeFile,
+    execute: writeFile as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+  },
+
+  devonz_generate_image: {
+    name: 'devonz_generate_image',
+    description:
+      'Generate an image using AI (DALL-E 3) and save it to the project. Use this for logos, UI assets, and illustrations.',
+    parameters: {
+      type: 'object',
+      properties: {
+        prompt: {
+          type: 'string',
+          description: 'Detailed description of the image to generate',
+        },
+        path: {
+          type: 'string',
+          description: 'Absolute path to save the image (e.g., "/public/logo.png")',
+        },
+        size: {
+          type: 'string',
+          enum: ['1024x1024', '1024x1792', '1792x1024'],
+          description: 'Image dimensions (default: 1024x1024)',
+        },
+      },
+      required: ['prompt', 'path'],
+    },
+    execute: generateImage as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+  },
+
+  devonz_generate_audio: {
+    name: 'devonz_generate_audio',
+    description:
+      'Generate high-quality audio from text using Text-to-Speech (TTS) and save it as an MP3 file. Use this for synthesized speech and voiceovers.',
+    parameters: {
+      type: 'object',
+      properties: {
+        text: {
+          type: 'string',
+          description: 'Text to convert to speech',
+        },
+        path: {
+          type: 'string',
+          description: 'Absolute path to save the MP3 (e.g., "/public/audio/welcome.mp3")',
+        },
+        voice: {
+          type: 'string',
+          enum: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'],
+          description: 'Voice style (default: alloy)',
+        },
+      },
+      required: ['text', 'path'],
+    },
+    execute: generateAudio as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+  },
+
+  devonz_generate_document: {
+    name: 'devonz_generate_document',
+    description:
+      'Create a professional PDF document from provided content. Use this for reports, manuals, or formatted documentation.',
+    parameters: {
+      type: 'object',
+      properties: {
+        title: {
+          type: 'string',
+          description: 'Title of the document',
+        },
+        content: {
+          type: 'string',
+          description: 'Main text content of the document',
+        },
+        path: {
+          type: 'string',
+          description: 'Absolute path to save the PDF (e.g., "/docs/manual.pdf")',
+        },
+      },
+      required: ['title', 'content', 'path'],
+    },
+    execute: generateDocument as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 
   devonz_list_directory: {
@@ -551,7 +871,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: [],
     },
-    execute: listDirectory,
+    execute: listDirectory as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 
   devonz_run_command: {
@@ -576,7 +896,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: ['command'],
     },
-    execute: runCommand,
+    execute: runCommand as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 
   devonz_get_errors: {
@@ -594,7 +914,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: [],
     },
-    execute: getErrors,
+    execute: getErrors as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 
   devonz_search_code: {
@@ -627,7 +947,32 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       },
       required: ['query'],
     },
-    execute: searchCode,
+    execute: searchCode as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+  },
+
+  devonz_read_document: {
+    name: 'devonz_read_document',
+    description:
+      'Read and parse document files (PDF, Word, Excel, Markdown, JSON, YAML). Extracts text content from binary formats for analysis. Supported formats: .pdf, .docx, .xlsx, .xls, .md, .json, .yaml, .yml, .txt, .csv',
+    parameters: {
+      type: 'object',
+      properties: {
+        path: {
+          type: 'string',
+          description: 'The path to the document file to read',
+        },
+        sheet: {
+          type: 'string',
+          description: 'For Excel files: specific sheet name to parse (default: all sheets)',
+        },
+        maxPages: {
+          type: 'number',
+          description: 'For PDF files: maximum number of pages to parse (default: all)',
+        },
+      },
+      required: ['path'],
+    },
+    execute: readDocument as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 };
 

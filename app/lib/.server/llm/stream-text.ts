@@ -11,6 +11,7 @@ import { createScopedLogger } from '~/utils/logger';
 import { createFilesContext, extractPropertiesFromMessage } from './utils';
 import { discussPrompt } from '~/lib/common/prompts/discuss-prompt';
 import type { DesignScheme } from '~/types/design-scheme';
+import { type LocalInfrastructure } from '~/lib/common/prompts/infrastructure';
 
 export type Messages = Message[];
 
@@ -83,6 +84,34 @@ export async function streamText(props: {
     chatMode,
     designScheme,
   } = props;
+
+  const localInfrastructure: LocalInfrastructure = {
+    postgres: process.env.DATABASE_URL
+      ? {
+          url: process.env.DATABASE_URL,
+          host: process.env.DB_HOST || 'localhost',
+          port: process.env.DB_PORT || '5432',
+          database: process.env.DB_NAME || 'devonz',
+          user: process.env.DB_USER || 'devonz_user',
+        }
+      : undefined,
+    s3: process.env.S3_ENDPOINT
+      ? {
+          endpoint: process.env.S3_ENDPOINT,
+          bucket: process.env.S3_BUCKET || 'devonz-bucket',
+          region: process.env.S3_REGION || 'us-east-1',
+          accessKey: process.env.S3_ACCESS_KEY || '',
+        }
+      : undefined,
+    redis: process.env.REDIS_URL
+      ? {
+          url: process.env.REDIS_URL,
+          host: process.env.REDIS_HOST || 'localhost',
+          port: process.env.REDIS_PORT || '6379',
+        }
+      : undefined,
+  };
+
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
   let processedMessages = messages.map((message) => {
@@ -163,7 +192,8 @@ export async function streamText(props: {
         hasSelectedProject: options?.supabaseConnection?.hasSelectedProject || false,
         credentials: options?.supabaseConnection?.credentials || undefined,
       },
-    }) ?? getSystemPrompt();
+      localInfrastructure,
+    }) ?? getSystemPrompt(WORK_DIR, options?.supabaseConnection, designScheme, localInfrastructure);
 
   if (chatMode === 'build' && contextFiles && contextOptimization) {
     const codeContext = createFilesContext(contextFiles, true);
@@ -229,7 +259,7 @@ export async function streamText(props: {
   for (const memoryPath of projectMemoryPaths) {
     const memoryFile = files?.[memoryPath];
 
-    if (memoryFile?.content && typeof memoryFile.content === 'string' && memoryFile.content.trim().length > 0) {
+    if (memoryFile?.type === 'file' && memoryFile.content && typeof memoryFile.content === 'string' && memoryFile.content.trim().length > 0) {
       projectMemoryContent = memoryFile.content;
       logger.info(`Loaded project memory from: ${memoryPath}`);
       break;
@@ -305,7 +335,7 @@ ${projectMemoryContent}
   // This ensures the AI uses agent tools instead of artifacts
   if (options?.agentMode) {
     logger.info('🤖 Agent Mode: Using agent-specific system prompt (replacing standard prompt)');
-    systemPrompt = AGENT_MODE_FULL_SYSTEM_PROMPT(WORK_DIR);
+    systemPrompt = AGENT_MODE_FULL_SYSTEM_PROMPT(WORK_DIR, localInfrastructure);
 
     // Add context files if available
     if (chatMode === 'build' && contextFiles && contextOptimization) {

@@ -6,28 +6,36 @@
  */
 
 import { WORK_DIR } from '~/utils/constants';
+import { getInfrastructurePrompt, type LocalInfrastructure } from '~/lib/common/prompts/infrastructure';
 
 /**
  * Complete Agent Mode System Prompt
  * This is a REPLACEMENT for the main system prompt, not an addition.
  * It includes WebContainer context but uses tools instead of artifacts.
  */
-export const AGENT_MODE_FULL_SYSTEM_PROMPT = (cwd: string = WORK_DIR) => `
+export const AGENT_MODE_FULL_SYSTEM_PROMPT = (cwd: string = WORK_DIR, localInfrastructure?: LocalInfrastructure) => `
 <identity>
   <role>Devonz Agent - Autonomous AI Coding Agent</role>
   <expertise>
-    - Full-stack web development (React, Vue, Node.js, TypeScript, Vite)
+    - devonz_generate_image: Create visual assets (logos, UI, mockups)
+    - devonz_generate_audio: Create synthesized speech and voiceovers
+    - devonz_generate_document: Create professional PDFs (reports, docs)
+
+    - Multi-language development (TypeScript, Python, Go, Rust, C++, Java, etc.)
+    - Full-stack web development (React, Vue, Node.js, Vite)
     - In-browser development via WebContainer runtime
-    - Autonomous file operations using agent tools
-    - Iterative development with error detection and correction
+    - Autonomous file operations and multi-language tool usage
+    - Iterative development with cross-language error detection
   </expertise>
   <communication_style>
     - Professional, concise, and action-oriented
     - You MUST use agent tools to modify files - NEVER output file content in text
     - You MUST execute commands autonomously using devonz_run_command
-    - You MUST explore codebase before making changes
   </communication_style>
+  <context>The year is 2025. You operate in a browser-based IDE with WebContainer.</context>
 </identity>
+
+${localInfrastructure ? getInfrastructurePrompt(localInfrastructure) : ''}
 
 <mandatory_rules>
 ## ⚠️ MANDATORY RULES - YOU MUST FOLLOW THESE WITHOUT EXCEPTION
@@ -183,8 +191,10 @@ You have up to 25 tool iterations before needing user input. Use them wisely.
  * Main agent system prompt that describes capabilities and workflow
  * (Legacy - kept for backwards compatibility, but AGENT_MODE_FULL_SYSTEM_PROMPT is preferred)
  */
-export const AGENT_SYSTEM_PROMPT = `
+export const AGENT_SYSTEM_PROMPT = (localInfrastructure?: LocalInfrastructure) => `
 You are an autonomous AI coding agent working in Devonz, a web-based development environment with a real WebContainer.
+
+${localInfrastructure ? getInfrastructurePrompt(localInfrastructure) : ''}
 
 ## ⚠️ CRITICAL: USE AGENT TOOLS, NOT ARTIFACTS
 
@@ -318,8 +328,10 @@ When you encounter errors:
 /**
  * Compact version of the agent prompt for when context is limited
  */
-export const AGENT_SYSTEM_PROMPT_COMPACT = `
+export const AGENT_SYSTEM_PROMPT_COMPACT = (localInfrastructure?: LocalInfrastructure) => `
 You are an autonomous AI coding agent. USE AGENT TOOLS, NOT ARTIFACTS.
+
+${localInfrastructure ? getInfrastructurePrompt(localInfrastructure) : ''}
 
 ⚠️ DO NOT use <boltAction> or <boltArtifact> tags. Call tools directly:
 - devonz_write_file: Create/modify files (call this, don't embed file content)
@@ -372,17 +384,18 @@ Focus on leaving the project in a stable, working state.
 export function getAgentSystemPrompt(options?: {
   compact?: boolean;
   hasErrors?: boolean;
-  nearIterationLimit?: boolean;
   iteration?: number;
   maxIterations?: number;
+  nearIterationLimit?: boolean;
+  localInfrastructure?: LocalInfrastructure;
 }): string {
   const parts: string[] = [];
 
   // Base prompt
   if (options?.compact) {
-    parts.push(AGENT_SYSTEM_PROMPT_COMPACT);
+    parts.push(AGENT_SYSTEM_PROMPT_COMPACT(options?.localInfrastructure));
   } else {
-    parts.push(AGENT_SYSTEM_PROMPT);
+    parts.push(AGENT_SYSTEM_PROMPT(options?.localInfrastructure));
   }
 
   // Add error context if there are errors

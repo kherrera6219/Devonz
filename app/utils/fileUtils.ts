@@ -2,23 +2,26 @@ import ignore from 'ignore';
 
 // Common patterns to ignore, similar to .gitignore
 export const IGNORE_PATTERNS = [
-  'node_modules/**',
-  '.git/**',
-  'dist/**',
-  'build/**',
-  '.next/**',
-  'coverage/**',
-  '.cache/**',
-  '.vscode/**',
-  '.idea/**',
+  'node_modules',
+  '.git',
+  'dist',
+  'build',
+  '.next',
+  '.remix',
+  '.cache',
+  '.vscode',
+  '.idea',
+  'coverage',
+  '.DS_Store',
+  'Thumbs.db',
+  'npm-debug.log*',
+  'yarn-debug.log*',
+  'yarn-error.log*',
   '**/*.log',
   '**/.DS_Store',
-  '**/npm-debug.log*',
-  '**/yarn-debug.log*',
-  '**/yarn-error.log*',
 ];
 
-export const MAX_FILES = 1000;
+export const MAX_FILES = 5000;
 export const ig = ignore().add(IGNORE_PATTERNS);
 
 export const generateId = () => Math.random().toString(36).substring(2, 15);

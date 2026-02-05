@@ -14,7 +14,19 @@ interface Logger {
   setLevel: (level: DebugLevel) => void;
 }
 
-let currentLevel: DebugLevel = import.meta.env.VITE_LOG_LEVEL || (import.meta.env.DEV ? 'debug' : 'info');
+const getLogLevel = (): DebugLevel => {
+  try {
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      return import.meta.env.VITE_LOG_LEVEL || (import.meta.env.DEV ? 'debug' : 'info');
+    }
+  } catch {
+    // Fallback if import.meta is not available
+  }
+
+  return 'info';
+};
+
+let currentLevel: DebugLevel = getLogLevel();
 
 export const logger: Logger = {
   trace: (...messages: any[]) => logWithDebugCapture('trace', undefined, messages),
@@ -37,8 +49,12 @@ export function createScopedLogger(scope: string): Logger {
 }
 
 function setLevel(level: DebugLevel) {
-  if ((level === 'trace' || level === 'debug') && import.meta.env.PROD) {
-    return;
+  try {
+    if ((level === 'trace' || level === 'debug') && import.meta.env && import.meta.env.PROD) {
+      return;
+    }
+  } catch {
+    // Fallback
   }
 
   currentLevel = level;

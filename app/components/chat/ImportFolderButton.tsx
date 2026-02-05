@@ -3,9 +3,16 @@ import type { Message } from 'ai';
 import { toast } from 'react-toastify';
 import { MAX_FILES, isBinaryFile, shouldIncludeFile } from '~/utils/fileUtils';
 import { createChatFromFolder } from '~/utils/folderImport';
-import { logStore } from '~/lib/stores/logs'; // Assuming logStore is imported from this location
+import { logStore } from '~/lib/stores/logs';
 import { Button } from '~/components/ui/Button';
 import { classNames } from '~/utils/classNames';
+import {
+  startImport,
+  setImportProgress,
+  setImportFile,
+  setImportStatus,
+  setImportError,
+} from '~/lib/stores/importStore';
 
 interface ImportFolderButtonProps {
   className?: string;
@@ -15,6 +22,7 @@ interface ImportFolderButtonProps {
 
 export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ className, style, importChat }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const allFiles = Array.from(e.target.files || []);
@@ -41,7 +49,7 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
         maxFiles: MAX_FILES,
       });
       toast.error(
-        `This folder contains ${filteredFiles.length.toLocaleString()} files. This product is not yet optimized for very large projects. Please select a folder with fewer than ${MAX_FILES.toLocaleString()} files.`,
+        `This folder contains ${filteredFiles.length.toLocaleString()} files. This product is optimized for projects up to ${MAX_FILES.toLocaleString()} files.`,
       );
 
       return;
@@ -49,37 +57,53 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
 
     const folderName = filteredFiles[0]?.webkitRelativePath.split('/')[0] || 'Unknown Folder';
     setIsLoading(true);
-
-    const loadingToast = toast.loading(`Importing ${folderName}...`);
+    startImport(folderName, filteredFiles.length);
 
     try {
-      const fileChecks = await Promise.all(
-        filteredFiles.map(async (file) => ({
-          file,
-          isBinary: await isBinaryFile(file),
-        })),
-      );
+      const textFiles: File[] = [];
+      const binaryFilePaths: string[] = [];
 
-      const textFiles = fileChecks.filter((f) => !f.isBinary).map((f) => f.file);
-      const binaryFilePaths = fileChecks
-        .filter((f) => f.isBinary)
-        .map((f) => f.file.webkitRelativePath.split('/').slice(1).join('/'));
+      // Phase 1 & 2: Storage and Indexing
+      setImportStatus('storing');
+
+      for (let i = 0; i < filteredFiles.length; i++) {
+        const file = filteredFiles[i];
+        const relativePath = file.webkitRelativePath.split('/').slice(1).join('/');
+        const isBinary = await isBinaryFile(file);
+
+        setImportFile(relativePath);
+        setImportProgress(((i + 1) / filteredFiles.length) * 80); // First 80% for server processing
+
+        // Send to server for MinIO and RAG
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('path', relativePath);
+        formData.append('isBinary', String(isBinary));
+
+        const response = await fetch('/api/import-file', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const result = await response.json();
+          throw new Error(result.error || 'Failed to process file on server');
+        }
+
+        if (isBinary) {
+          binaryFilePaths.push(relativePath);
+        } else {
+          textFiles.push(file);
+        }
+      }
 
       if (textFiles.length === 0) {
-        const error = new Error('No text files found');
-        logStore.logError('File import failed - no text files', error, { folderName });
-        toast.error('No text files found in the selected folder');
-
-        return;
+        throw new Error('No text files found in the selected folder');
       }
 
-      if (binaryFilePaths.length > 0) {
-        logStore.logWarning(`Skipping binary files during import`, {
-          folderName,
-          binaryCount: binaryFilePaths.length,
-        });
-        toast.info(`Skipping ${binaryFilePaths.length} binary files`);
-      }
+      // Phase 3: Workspace Sync
+      setImportStatus('syncing');
+      setImportProgress(90);
 
       const messages = await createChatFromFolder(textFiles, binaryFilePaths, folderName);
 
@@ -87,19 +111,23 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
         await importChat(folderName, [...messages]);
       }
 
-      logStore.logSystem('Folder imported successfully', {
+      setImportStatus('complete');
+      setImportProgress(100);
+
+      logStore.logSystem('Folder imported successfully with RAG indexing', {
         folderName,
         textFileCount: textFiles.length,
         binaryFileCount: binaryFilePaths.length,
       });
-      toast.success('Folder imported successfully');
+      toast.success('Folder imported and indexed successfully');
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setImportError(errorMessage);
       logStore.logError('Failed to import folder', error, { folderName });
       console.error('Failed to import folder:', error);
-      toast.error('Failed to import folder');
+      toast.error(`Failed to import folder: ${errorMessage}`);
     } finally {
       setIsLoading(false);
-      toast.dismiss(loadingToast);
       e.target.value = ''; // Reset file input
     }
   };
@@ -108,7 +136,7 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
     <>
       <input
         type="file"
-        id="folder-import"
+        ref={inputRef}
         className="hidden"
         webkitdirectory=""
         directory=""
@@ -117,8 +145,7 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
       />
       <Button
         onClick={() => {
-          const input = document.getElementById('folder-import');
-          input?.click();
+          inputRef.current?.click();
         }}
         title="Import Folder"
         variant="default"

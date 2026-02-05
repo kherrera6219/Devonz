@@ -83,16 +83,34 @@ export function useChatHistory() {
           const validSnapshot = snapshot || { chatIndex: '', files: {} }; // Ensure snapshot is not undefined
 
           const rewindId = searchParams.get('rewindTo');
-          const endingIdx = rewindId
-            ? storedMessages.messages.findIndex((m) => m.id === rewindId) + 1
-            : storedMessages.messages.length;
+          let filteredMessages = storedMessages.messages;
 
-          /*
-           * SKIP SNAPSHOT MODE: Always load full message history
-           * This avoids the "Bolt Restored your chat" message that requires manual "Revert" click
-           * and prevents jsh command not found errors since we don't intercept command execution
-           */
-          const filteredMessages = storedMessages.messages.slice(0, endingIdx);
+          if (rewindId) {
+            const endingIdx = storedMessages.messages.findIndex((m) => m.id === rewindId) + 1;
+
+            if (endingIdx > 0) {
+              filteredMessages = storedMessages.messages.slice(0, endingIdx);
+
+              // Persist the truncated history back to DB
+              await setMessages(
+                db,
+                internalChatId,
+                filteredMessages,
+                storedMessages.urlId,
+                storedMessages.description,
+                undefined,
+                storedMessages.metadata,
+              );
+
+              // Also clear the snapshot since it's now invalid (it's from a future state)
+              await setSnapshot(db, internalChatId, { chatIndex: rewindId, files: {} });
+
+              // Update URL to remove rewindTo param once processed
+              const newUrl = new URL(window.location.href);
+              newUrl.searchParams.delete('rewindTo');
+              window.history.replaceState({}, '', newUrl);
+            }
+          }
 
           // No archived messages needed when loading full history
           setArchivedMessages([]);
@@ -115,7 +133,7 @@ export function useChatHistory() {
           chatMetadata.set(storedMessages.metadata);
 
           // Sync versions from chat messages so they appear in the Versions panel
-          versionsStore.syncFromMessages(storedMessages.messages);
+          versionsStore.syncFromMessages(filteredMessages);
 
           setReady(true);
         })

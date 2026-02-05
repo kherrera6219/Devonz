@@ -4,6 +4,8 @@ import { BaseChat } from '~/components/chat/BaseChat';
 import { Chat } from '~/components/chat/Chat.client';
 import { Header } from '~/components/header/Header';
 
+import { ImportProgressBar } from '~/components/ui/ImportProgressBar';
+
 export const meta: MetaFunction = () => {
   return [
     { title: 'Devonz' },
@@ -24,6 +26,7 @@ export default function Index() {
     <div className="flex flex-col h-full w-full bg-bolt-elements-background-depth-1">
       <Header />
       <ClientOnly fallback={<BaseChat />}>{() => <Chat />}</ClientOnly>
+      <ImportProgressBar />
     </div>
   );
 }

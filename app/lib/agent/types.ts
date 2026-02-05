@@ -44,8 +44,11 @@ export interface WriteFileParams {
   /** File path relative to project root */
   path: string;
 
-  /** The complete file content to write */
+  /** The file content to write (text or base64 data) */
   content: string;
+
+  /** Optional content encoding (e.g., "utf-8", "base64"). Defaults to utf-8. */
+  encoding?: 'utf-8' | 'base64';
 }
 
 /**
@@ -204,6 +207,64 @@ export interface SearchCodeResult {
 }
 
 /**
+ * Read document tool parameters
+ */
+export interface ReadDocumentParams {
+  /** Document file path relative to project root */
+  path: string;
+
+  /** For Excel: which sheet to parse (default: all) */
+  sheet?: string;
+
+  /** For PDF: max pages to parse (default: all) */
+  maxPages?: number;
+}
+
+/**
+ * Read document tool result data
+ */
+export interface ReadDocumentResult {
+  /** Extracted text content */
+  content: string;
+  /** Original file path */
+  path: string;
+  /** Document format (pdf, docx, xlsx, etc.) */
+  format: string;
+  /** Number of pages (PDF) */
+  pages?: number;
+  /** Sheet names (Excel) */
+  sheets?: string[];
+  /** Word count */
+  wordCount?: number;
+}
+
+/**
+ * Index document tool parameters
+ */
+export interface IndexDocumentParams {
+  /** Document file path relative to project root */
+  path: string;
+
+  /** Optional custom content to index (if not provided, file will be read and parsed) */
+  content?: string;
+
+  /** Additional metadata to store with the document */
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Index document tool result data
+ */
+export interface IndexDocumentResult {
+  /** Whether indexing was successful */
+  indexed: boolean;
+  /** Document path that was indexed */
+  path: string;
+  /** Number of chunks created */
+  chunks?: number;
+}
+
+/**
  * Agent tool definition
  */
 export interface AgentToolDefinition<TParams = Record<string, unknown>, TResult = unknown> {
@@ -284,6 +345,9 @@ export type AgentStatus =
  * Tool call record
  */
 export interface ToolCallRecord {
+  /** Unique ID for this tool call */
+  id?: string;
+
   /** Tool name */
   name: string;
 
@@ -328,6 +392,9 @@ export interface AgentExecutionState {
   /** Session start time */
   sessionStartTime: number | null;
 
+  /** Session end time */
+  sessionEndTime?: number;
+
   /** Current task description */
   currentTask?: string;
 
@@ -342,6 +409,9 @@ export interface AgentExecutionState {
 
   /** Commands executed during this session */
   commandsExecuted: string[];
+
+  /** Pending approval request if waiting for approval */
+  pendingApproval?: ApprovalRequest;
 }
 
 /**
@@ -399,13 +469,13 @@ export interface AgentTaskResult {
  */
 export interface ApprovalRequest {
   /** Unique ID for this approval request */
-  id: string;
+  id?: string;
 
   /** Type of action requiring approval */
-  type: 'file_create' | 'file_modify' | 'command';
+  type?: 'file_create' | 'file_modify' | 'command';
 
   /** Description of the action */
-  description: string;
+  description?: string;
 
   /** Tool name */
   toolName: string;
@@ -414,7 +484,10 @@ export interface ApprovalRequest {
   params: Record<string, unknown>;
 
   /** Timestamp when approval was requested */
-  timestamp: number;
+  timestamp?: number;
+
+  /** Reason for approval request */
+  reason?: string;
 }
 
 /**

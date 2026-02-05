@@ -14,40 +14,52 @@ export default class OpenAIProvider extends BaseProvider {
 
   staticModels: ModelInfo[] = [
     /*
-     * Essential fallback models - only the most stable/reliable ones
-     * GPT-4o: 128k context, 4k standard output (64k with long output mode)
+     * Current OpenAI Models (February 2026)
+     * GPT-5.2: Latest flagship model (December 2025)
      */
-    { name: 'gpt-4o', label: 'GPT-4o', provider: 'OpenAI', maxTokenAllowed: 128000, maxCompletionTokens: 4096 },
-
-    // GPT-4o Mini: 128k context, cost-effective alternative
     {
-      name: 'gpt-4o-mini',
-      label: 'GPT-4o Mini',
+      name: 'gpt-5.2',
+      label: 'GPT-5.2',
+      provider: 'OpenAI',
+      maxTokenAllowed: 256000,
+      maxCompletionTokens: 32768,
+    },
+
+    // GPT-5: Standard reasoning model (August 2025)
+    {
+      name: 'gpt-5',
+      label: 'GPT-5',
       provider: 'OpenAI',
       maxTokenAllowed: 128000,
-      maxCompletionTokens: 4096,
+      maxCompletionTokens: 16384,
     },
 
-    // GPT-3.5-turbo: 16k context, fast and cost-effective
+    // GPT-5 Mini: Cost-effective version
     {
-      name: 'gpt-3.5-turbo',
-      label: 'GPT-3.5 Turbo',
-      provider: 'OpenAI',
-      maxTokenAllowed: 16000,
-      maxCompletionTokens: 4096,
-    },
-
-    // o1-preview: 128k context, 32k output limit (reasoning model)
-    {
-      name: 'o1-preview',
-      label: 'o1-preview',
+      name: 'gpt-5-mini',
+      label: 'GPT-5 Mini',
       provider: 'OpenAI',
       maxTokenAllowed: 128000,
-      maxCompletionTokens: 32000,
+      maxCompletionTokens: 8192,
     },
 
-    // o1-mini: 128k context, 65k output limit (reasoning model)
-    { name: 'o1-mini', label: 'o1-mini', provider: 'OpenAI', maxTokenAllowed: 128000, maxCompletionTokens: 65000 },
+    // GPT-4.1: Current stable model
+    {
+      name: 'gpt-4.1',
+      label: 'GPT-4.1',
+      provider: 'OpenAI',
+      maxTokenAllowed: 128000,
+      maxCompletionTokens: 16384,
+    },
+
+    // GPT-4.1 Mini: Lightweight version
+    {
+      name: 'gpt-4.1-mini',
+      label: 'GPT-4.1 Mini',
+      provider: 'OpenAI',
+      maxTokenAllowed: 128000,
+      maxCompletionTokens: 8192,
+    },
   ];
 
   async getDynamicModels(

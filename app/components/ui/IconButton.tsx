@@ -10,6 +10,7 @@ interface BaseIconButtonProps {
   disabledClassName?: string;
   title?: string;
   disabled?: boolean;
+  style?: React.CSSProperties;
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
@@ -37,6 +38,7 @@ export const IconButton = memo(
         disabledClassName,
         disabled = false,
         title,
+        style,
         onClick,
         children,
       }: IconButtonProps,
@@ -54,6 +56,7 @@ export const IconButton = memo(
           )}
           title={title}
           disabled={disabled}
+          style={style}
           onClick={(event) => {
             if (disabled) {
               return;

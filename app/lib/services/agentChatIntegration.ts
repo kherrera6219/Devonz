@@ -155,7 +155,7 @@ export function shouldUseAgentMode(requestOptions?: { agentMode?: boolean }): bo
  * Get the agent system prompt to append when agent mode is active
  */
 export function getAgentSystemPrompt(compact: boolean = false): string {
-  return compact ? AGENT_SYSTEM_PROMPT_COMPACT : AGENT_SYSTEM_PROMPT;
+  return compact ? AGENT_SYSTEM_PROMPT_COMPACT() : AGENT_SYSTEM_PROMPT();
 }
 
 /**

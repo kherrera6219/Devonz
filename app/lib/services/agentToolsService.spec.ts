@@ -6,7 +6,18 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { ToolExecutionResult } from '~/lib/agent/types';
+import type {
+  ReadFileResult,
+  WriteFileResult,
+  ListDirectoryResult,
+  RunCommandResult,
+  GetErrorsResult,
+  SearchCodeResult,
+} from '~/lib/agent/types';
+
+// Helper type for strongly-typed tool result assertions
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyData = any;
 
 // Mock functions need to be defined before vi.mock calls
 const mockReadFile = vi.fn();
@@ -106,8 +117,9 @@ describe('agentToolDefinitions', () => {
       const result = await readFileTool.execute({ path: '/src/test.ts' });
 
       expect(result.success).toBe(true);
-      expect(result.data?.content).toBe(mockContent);
-      expect(result.data?.lineCount).toBe(1);
+      const data = result.data as ReadFileResult;
+      expect(data?.content).toBe(mockContent);
+      expect(data?.lineCount).toBe(1);
     });
 
     it('should support line range reading', async () => {
@@ -121,8 +133,9 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.content).toBe('line2\nline3\nline4');
-      expect(result.data?.truncated).toBe(true);
+      const data = result.data as ReadFileResult;
+      expect(data?.content).toBe('line2\nline3\nline4');
+      expect(data?.truncated).toBe(true);
     });
 
     it('should return error for non-existent file', async () => {
@@ -160,9 +173,10 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.path).toBe('/src/new-file.ts');
-      expect(result.data?.bytesWritten).toBe(content.length);
-      expect(result.data?.created).toBe(true);
+      const data = result.data as WriteFileResult;
+      expect(data?.path).toBe('/src/new-file.ts');
+      expect(data?.bytesWritten).toBe(content.length);
+      expect(data?.created).toBe(true);
     });
 
     it('should create parent directories', async () => {
@@ -188,7 +202,7 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.created).toBe(false);
+      expect((result.data as WriteFileResult)?.created).toBe(false);
     });
 
     it('should return error on write failure', async () => {
