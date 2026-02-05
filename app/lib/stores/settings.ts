@@ -329,6 +329,7 @@ const SETTINGS_KEYS = {
   PROMPT_ID: 'promptId',
   DEVELOPER_MODE: 'isDeveloperMode',
   AUTO_SWITCH_TO_FILE: 'autoSwitchToFile',
+  ORCHESTRATOR_SETTINGS: 'devonz_orchestrator_settings',
 } as const;
 
 // Initialize settings from localStorage or defaults
@@ -359,6 +360,35 @@ const getInitialSettings = () => {
     promptId: isBrowser ? localStorage.getItem(SETTINGS_KEYS.PROMPT_ID) || 'default' : 'default',
     developerMode: getStoredBoolean(SETTINGS_KEYS.DEVELOPER_MODE, false),
     autoSwitchToFile: getStoredBoolean(SETTINGS_KEYS.AUTO_SWITCH_TO_FILE, false),
+    orchestrator: (() => {
+      if (!isBrowser) {
+        return {
+          enabled: false,
+          mode: 'fast' as 'fast' | 'hardened' | 'security-strict',
+          coordinatorModel: 'gpt-5.2',
+          researcherModel: 'gemini-3.0-flash',
+          architectModel: 'claude-4-opus',
+        };
+      }
+
+      const stored = localStorage.getItem(SETTINGS_KEYS.ORCHESTRATOR_SETTINGS);
+
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {
+          // Fallback to defaults
+        }
+      }
+
+      return {
+        enabled: false,
+        mode: 'fast' as 'fast' | 'hardened' | 'security-strict',
+        coordinatorModel: 'gpt-5.2',
+        researcherModel: 'gemini-3.0-flash',
+        architectModel: 'claude-4-opus',
+      };
+    })(),
   };
 };
 
@@ -371,6 +401,13 @@ export const enableContextOptimizationStore = atom<boolean>(initialSettings.cont
 export const isEventLogsEnabled = atom<boolean>(initialSettings.eventLogs);
 export const promptStore = atom<string>(initialSettings.promptId);
 export const autoSwitchToFileStore = atom<boolean>(initialSettings.autoSwitchToFile);
+export const orchestratorSettingsStore = atom<{
+  enabled: boolean;
+  mode: 'fast' | 'hardened' | 'security-strict';
+  coordinatorModel: string;
+  researcherModel: string;
+  architectModel: string;
+}>(initialSettings.orchestrator);
 
 // Helper functions to update settings with persistence
 export const updateLatestBranch = (enabled: boolean) => {
@@ -401,6 +438,19 @@ export const updateEventLogs = (enabled: boolean) => {
 export const updatePromptId = (id: string) => {
   promptStore.set(id);
   localStorage.setItem(SETTINGS_KEYS.PROMPT_ID, id);
+};
+
+export const updateOrchestratorSettings = (updates: Partial<{
+  enabled: boolean;
+  mode: 'fast' | 'hardened' | 'security-strict';
+  coordinatorModel: string;
+  researcherModel: string;
+  architectModel: string;
+}>) => {
+  const current = orchestratorSettingsStore.get();
+  const next = { ...current, ...updates };
+  orchestratorSettingsStore.set(next);
+  localStorage.setItem(SETTINGS_KEYS.ORCHESTRATOR_SETTINGS, JSON.stringify(next));
 };
 
 // Initialize tab configuration from localStorage or defaults

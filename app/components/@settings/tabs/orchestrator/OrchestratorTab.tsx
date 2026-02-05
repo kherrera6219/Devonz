@@ -1,26 +1,11 @@
-
 import React from 'react';
-import { useStore } from '@nanostores/react';
 import { Switch } from '~/components/ui/Switch';
 import { classNames } from '~/utils/classNames';
 
-// Mock store for now, in real impl create separate store
-import { atom } from 'nanostores';
-
-export const orchestratorSettings = atom({
-  enabled: false,
-  mode: 'fast' as 'fast' | 'hardened' | 'security-strict',
-  coordinatorModel: 'gpt-5.2',
-  researcherModel: 'gemini-3.0-flash',
-  architectModel: 'claude-4-opus',
-});
+import { useSettings } from '~/lib/hooks/useSettings';
 
 export default function OrchestratorTab() {
-  const settings = useStore(orchestratorSettings);
-
-  const updateSetting = (key: keyof typeof settings, value: any) => {
-    orchestratorSettings.set({ ...settings, [key]: value });
-  };
+  const { orchestratorSettings: settings, updateOrchestratorSettings: updateSetting } = useSettings();
 
   return (
     <div className="space-y-6">
@@ -33,7 +18,7 @@ export default function OrchestratorTab() {
         </div>
         <Switch
           checked={settings.enabled}
-          onCheckedChange={(checked) => updateSetting('enabled', checked)}
+          onCheckedChange={(checked) => updateSetting({ enabled: checked })}
         />
       </div>
 
@@ -49,7 +34,7 @@ export default function OrchestratorTab() {
                             ? "border-purple-500 bg-purple-50/10 ring-1 ring-purple-500"
                             : "border-gray-200 dark:border-gray-700 hover:border-purple-400"
                     )}
-                    onClick={() => updateSetting('mode', mode)}
+                    onClick={() => updateSetting({ mode: mode as 'fast' | 'hardened' | 'security-strict' })}
                 >
                     <div className="font-medium capitalize mb-1">{mode.replace('-', ' ')}</div>
                     <div className="text-xs text-gray-500">

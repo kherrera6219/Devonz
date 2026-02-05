@@ -15,10 +15,16 @@ const planNode = async (state: BoltState) => {
     const res = await coordinator.run(state);
     return res as Partial<BoltState>;
 };
-const researchNode = async (state: BoltState) => {
-    const res = await researcher.run(state);
+const researchTechNode = async (state: BoltState) => {
+    const res = await researcher.runTechResearch(state);
     return res as Partial<BoltState>;
 };
+
+const researchCompetencyNode = async (state: BoltState) => {
+    const res = await researcher.runCompetencyResearch(state);
+    return res as Partial<BoltState>;
+};
+
 const architectNode = async (state: BoltState) => {
     const res = await architect.run(state);
     return res as Partial<BoltState>;
@@ -57,7 +63,10 @@ const qcFixNode = async (state: BoltState) => {
 };
 
 const finalizeNode = async (state: BoltState) => {
-    return { status: 'complete' } as Partial<BoltState>;
+    return {
+        status: 'complete',
+        response: 'Orchestration complete. All agents have finished their tasks and the solution is ready.'
+    } as Partial<BoltState>;
 };
 
 // Edge Logic
@@ -106,7 +115,9 @@ export function createGraph() {
     // @ts-ignore
     workflow.addNode('coordinator', planNode);
     // @ts-ignore
-    workflow.addNode('researcher', researchNode);
+    workflow.addNode('research_tech', researchTechNode);
+    // @ts-ignore
+    workflow.addNode('research_competency', researchCompetencyNode);
     // @ts-ignore
     workflow.addNode('architect', architectNode);
     // @ts-ignore
@@ -120,6 +131,16 @@ export function createGraph() {
 
     // Set Entry
     workflow.addEdge(START as any, 'coordinator' as any);
+
+    // Conditional Edges
+    // @ts-ignore
+    workflow.addConditionalEdges('coordinator', shouldResearch, {
+        research: 'research_tech',
+        architect: 'architect'
+    });
+
+    workflow.addEdge('research_tech' as any, 'research_competency' as any);
+    workflow.addEdge('research_competency' as any, 'architect' as any);
 
     workflow.addEdge('qc_fix' as any, 'qc_structural' as any); // Loop back to structural QC
     workflow.addEdge('finalize' as any, END as any);

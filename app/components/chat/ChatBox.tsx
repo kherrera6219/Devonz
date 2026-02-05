@@ -3,6 +3,7 @@ import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
 import { PROVIDER_LIST } from '~/utils/constants';
 import { CombinedModelSelector } from '~/components/chat/CombinedModelSelector';
+import { useSettings } from '~/lib/hooks/useSettings';
 import FilePreview from './FilePreview';
 import { SendButton } from './SendButton.client';
 import { IconButton } from '~/components/ui/IconButton';
@@ -64,6 +65,8 @@ interface ChatBoxProps {
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   // Check if current provider has API key set
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
+  const { orchestratorSettings } = useSettings();
+
   return (
     <div
       className={classNames(
@@ -315,9 +318,16 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                   <span className="text-[9px] uppercase font-bold text-bolt-elements-textTertiary leading-tight cursor-inherit">
                     {props.provider?.name || 'AI'}
                   </span>
-                  <span className="text-[10px] font-medium text-bolt-elements-textPrimary leading-tight truncate max-w-[120px] cursor-inherit">
-                    {props.model}
-                  </span>
+                  <div className="flex items-center gap-1.5 leading-tight">
+                    <span className="text-[10px] font-medium text-bolt-elements-textPrimary truncate max-w-[120px] cursor-inherit">
+                      {props.model}
+                    </span>
+                    {orchestratorSettings.enabled && (
+                      <span className="text-[8px] font-black text-purple-400 uppercase tracking-tighter px-1 rounded bg-purple-500/10 border border-purple-500/20">
+                        Multi-Agent
+                      </span>
+                    )}
+                  </div>
                 </button>
               )}
             </div>

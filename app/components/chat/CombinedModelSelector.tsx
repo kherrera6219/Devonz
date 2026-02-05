@@ -3,6 +3,7 @@ import type { ModelInfo } from '~/lib/modules/llm/types';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import type { KeyboardEvent } from 'react';
 import { classNames } from '~/utils/classNames';
+import { useSettings } from '~/lib/hooks/useSettings';
 
 // Fuzzy search utilities (same as ModelSelector)
 const levenshteinDistance = (str1: string, str2: string): number => {
@@ -140,6 +141,7 @@ export const CombinedModelSelector = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const optionsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const { orchestratorSettings } = useSettings();
 
   // Debounce search query
   useEffect(() => {
@@ -429,6 +431,11 @@ export const CombinedModelSelector = ({
               <span className="i-ph:brain-duotone text-[#6b8bb8] text-lg flex-shrink-0" />
               <span className="text-sm text-bolt-elements-textPrimary truncate">
                 {selectedModel?.label || 'Select model'}
+                {orchestratorSettings.enabled && (
+                  <span className="ml-1.5 text-[10px] font-bold text-purple-400 uppercase tracking-tight">
+                    Multi-Agent
+                  </span>
+                )}
               </span>
             </div>
             <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -581,6 +588,17 @@ export const CombinedModelSelector = ({
               <div className="text-xs text-bolt-elements-textTertiary mt-2">
                 {currentList.length} {activeSection}
                 {currentList.length !== 1 ? 's' : ''} found
+              </div>
+            )}
+            {activeSection === 'model' && orchestratorSettings.enabled && (
+              <div className="flex items-center gap-2 mt-2 px-1 py-1 rounded bg-purple-500/10 border border-purple-500/20">
+                <span className="i-ph:users-three-duotone text-purple-400 text-xs" />
+                <span className="text-[10px] font-medium text-purple-300">
+                  Multi-Agent Orchestration Active: {orchestratorSettings.coordinatorModel}/{orchestratorSettings.researcherModel}/{orchestratorSettings.architectModel}
+                </span>
+                <span className="ml-auto px-1 rounded bg-purple-500/20 text-[9px] text-purple-400 font-bold">
+                  {orchestratorSettings.mode.toUpperCase()}
+                </span>
               </div>
             )}
           </div>

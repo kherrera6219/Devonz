@@ -8,100 +8,102 @@ import { BaseAgent } from '~/lib/agent-orchestrator/agents/base';
 
 export class ResearcherAgent extends BaseAgent {
   protected name = 'researcher';
-  private model: ChatGoogleGenerativeAI;
-  private searchModel: ChatGoogleGenerativeAI;
+  private model: ChatGoogleGenerativeAI | null = null;
+  private searchModel: ChatGoogleGenerativeAI | null = null;
 
   constructor() {
     super();
-    this.model = new ChatGoogleGenerativeAI({
-      model: 'gemini-3.0-flash',
-      maxOutputTokens: 8192,
-      temperature: 0.1,
-    });
+  }
 
-    // Model configuration for search
-    this.searchModel = new ChatGoogleGenerativeAI({
-       model: 'gemini-3.0-flash',
-       temperature: 0.1,
-    });
+  private ensureModels(state: BoltState) {
+    if (this.model && this.searchModel) {
+      return;
+    }
+
+    const apiKey = state.apiKeys?.Google || process.env.GOOGLE_API_KEY;
+
+    if (!this.model) {
+      this.model = new ChatGoogleGenerativeAI({
+        model: 'gemini-3.0-flash',
+        maxOutputTokens: 8192,
+        temperature: 0.1,
+        apiKey: apiKey,
+      });
+    }
+
+    if (!this.searchModel) {
+      this.searchModel = new ChatGoogleGenerativeAI({
+        model: 'gemini-3.0-flash',
+        temperature: 0.1,
+        apiKey: apiKey,
+      });
+    }
   }
 
   async run(state: BoltState): Promise<Partial<BoltState>> {
+    // This method is now secondary as the graph calls specialized methods.
+    // However, if called directly, we'll default to tech research.
     try {
-        const lastMsg = state.agentMessages[state.agentMessages.length - 1];
-
-        if (lastMsg && lastMsg.to === 'researcher' && lastMsg.type === 'RESEARCH_REQUEST') {
-            const query = lastMsg.payload.query;
-            return await this.conductResearch(query, state);
-        }
+        this.ensureModels(state);
+        return await this.runTechResearch(state);
     } catch (error: any) {
         return this.createErrorState(state, error);
     }
-
-    return {};
   }
 
-  private async conductResearch(query: string, state: BoltState): Promise<Partial<BoltState>> {
-    // 1. Tech Stack & Reality Check
-    const techParser = new JsonOutputParser();
-    const techPrompt = PromptTemplate.fromTemplate(
-      `Perform a technology reality check for the following query.
-      Query: {query}
+  async runTechResearch(state: BoltState): Promise<Partial<BoltState>> {
+    try {
+        this.ensureModels(state);
+        const query = state.researchQuery || '';
 
-      Identify:
-      1. Latest stable versions of relevant libraries.
-      2. Known security advisories or CVEs.
-      3. Compatibility issues.
+        const parser = new JsonOutputParser();
+        const prompt = PromptTemplate.fromTemplate(
+          `Perform a technology reality check for the following query.
+          Query: {query}
+          Identify latest stable versions, security advisories, and compatibility issues.
+          Return JSON: {{ "techStack": {{ "lib": "version" }}, "securityAdvisories": [], "compatibilityIssues": [] }}`
+        );
 
-      Return JSON:
-      {{
-         "techStack": {{ "lib": "version" }},
-         "securityAdvisories": [],
-         "compatibilityIssues": []
-      }}`
-    );
+        const chain = prompt.pipe(this.model!).pipe(parser);
+        const techRes = await this.safeInvoke(chain, { query });
 
-    // 2. Project Competency Map
-    const competencyParser = new JsonOutputParser();
-    const competencyPrompt = PromptTemplate.fromTemplate(
-      `Create a Project Competency Map for this request.
-      Query: {query}
+        return {
+            researchFindings: {
+                ...state.researchFindings,
+                ...techRes as any
+            },
+            currentAction: { type: 'tool', description: 'Tech stack research complete. Found ' + Object.keys((techRes as any).techStack).length + ' libraries.' }
+        };
+    } catch (error: any) {
+        return this.createErrorState(state, error);
+    }
+  }
 
-      STRICT OUTPUT CONTROLS:
-      1. "Skills": Max 5 items. These must be labels for concrete STANDARDS (e.g., "OAuth 2.0", "PCIDSS"), not generic advice.
-      2. "Standards": Specific RFCs, OWASP guides, or vendor docs.
-      3. "Certs": Max 3 items, ONLY if they map to the specific tech stack (e.g., "AWS Certified Security" for an AWS project).
-      4. "Resources": Max 8 links. Must be authoritative (Official Docs, RFCs).
+  async runCompetencyResearch(state: BoltState): Promise<Partial<BoltState>> {
+    try {
+        this.ensureModels(state);
+        const query = state.researchQuery || '';
 
-      Return JSON:
-      {{
-         "domains": ["Auth", "Frontend", "DB"],
-         "skills": [{{ "name": "OAuth 2.0", "impact": "High" }}],
-         "standards": [{{ "name": "OWASP Auth Cheat Sheet", "url": "..." }}],
-         "resources": [{{ "title": "...", "url": "..." }}]
-      }}`
-    );
+        const parser = new JsonOutputParser();
+        const prompt = PromptTemplate.fromTemplate(
+          `Create a Project Competency Map for this request.
+          Query: {query}
+          Identify Skills (concrete standards), Standards (RFCs/OWASP), and Resources (links).
+          Return JSON: {{ "domains": [], "skills": [], "standards": [], "resources": [] }}`
+        );
 
-    const techChain = techPrompt.pipe(this.model).pipe(techParser);
-    const competencyChain = competencyPrompt.pipe(this.model).pipe(competencyParser);
+        const chain = prompt.pipe(this.model!).pipe(parser);
+        const competencyRes = await this.safeInvoke(chain, { query });
 
-    const [techRes, competencyRes] = await Promise.all([
-        this.safeInvoke(techChain, { query }),
-        this.safeInvoke(competencyChain, { query })
-    ]);
-
-    const findings = {
-        ...techRes as any,
-        projectCompetencyMap: competencyRes
-    };
-
-    return {
-        status: 'architecting', // Pass batton back to coordinator/architect
-        researchFindings: findings,
-        agentMessages: [
-            ...state.agentMessages,
-            MessageFactory.result('researcher', 'RESEARCH_COMPLETE', findings)
-        ]
-    };
+        return {
+            researchFindings: {
+                ...state.researchFindings,
+                projectCompetencyMap: competencyRes
+            } as any,
+            currentAction: { type: 'tool', description: 'Competency mapping complete. Identified ' + (competencyRes as any).skills.length + ' key standards.' }
+        };
+    } catch (error: any) {
+        return this.createErrorState(state, error);
+    }
   }
 }

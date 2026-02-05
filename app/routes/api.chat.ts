@@ -131,6 +131,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
                      generateId(), // Conversation ID
                      dataStream,
                      messages,
+                     apiKeys,
                      streamRecovery
                  );
 

@@ -17,6 +17,8 @@ import {
   updateEventLogs,
   updatePromptId,
   updateAutoSwitchToFile,
+  orchestratorSettingsStore,
+  updateOrchestratorSettings,
 } from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
@@ -63,6 +65,22 @@ export interface UseSettingsReturn {
   autoSwitchToFile: boolean;
   setAutoSwitchToFile: (enabled: boolean) => void;
 
+  // Orchestrator settings
+  orchestratorSettings: {
+    enabled: boolean;
+    mode: 'fast' | 'hardened' | 'security-strict';
+    coordinatorModel: string;
+    researcherModel: string;
+    architectModel: string;
+  };
+  updateOrchestratorSettings: (updates: Partial<{
+    enabled: boolean;
+    mode: 'fast' | 'hardened' | 'security-strict';
+    coordinatorModel: string;
+    researcherModel: string;
+    architectModel: string;
+  }>) => void;
+
   // Tab configuration
   tabConfiguration: TabWindowConfig;
   resetTabConfiguration: () => void;
@@ -84,6 +102,7 @@ export function useSettings(): UseSettingsReturn {
   const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
   const contextOptimizationEnabled = useStore(enableContextOptimizationStore);
   const tabConfiguration = useStore(tabConfigurationStore);
+  const orchestratorSettings = useStore(orchestratorSettingsStore);
   const [settings, setSettings] = useState<Settings>(() => {
     const storedSettings = getLocalStorage('settings');
     return {
@@ -216,5 +235,7 @@ export function useSettings(): UseSettingsReturn {
     settings,
     tabConfiguration,
     resetTabConfiguration: resetTabConfig,
+    orchestratorSettings,
+    updateOrchestratorSettings,
   };
 }

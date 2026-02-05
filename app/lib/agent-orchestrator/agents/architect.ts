@@ -3,23 +3,35 @@ import { ChatAnthropic } from '@langchain/anthropic';
 import type { BoltState, AgentMessage } from '~/lib/agent-orchestrator/state/types';
 import { MessageFactory } from '~/lib/agent-orchestrator/utils/message-factory';
 import { PromptTemplate } from '@langchain/core/prompts';
+import { JsonOutputParser } from '@langchain/core/output_parsers';
 import { BaseAgent } from '~/lib/agent-orchestrator/agents/base';
 
 export class ArchitectAgent extends BaseAgent {
   protected name = 'architect';
-  private model: ChatAnthropic;
+  private model: ChatAnthropic | null = null;
 
   constructor() {
     super();
+  }
+
+  private ensureModel(state: BoltState) {
+    if (this.model) {
+      return;
+    }
+
+    const apiKey = state.apiKeys?.Anthropic || process.env.ANTHROPIC_API_KEY;
+
     this.model = new ChatAnthropic({
-      modelName: 'claude-4-opus', // Using latest requested opus model
+      modelName: 'claude-4-opus',
       temperature: 0.5,
       maxTokens: 4096,
+      anthropicApiKey: apiKey,
     });
   }
 
   async run(state: BoltState): Promise<Partial<BoltState>> {
     try {
+        this.ensureModel(state);
         const lastMsg = state.agentMessages.find(m => m.to === 'architect' && m.type === 'ARCHITECT_SPECS');
 
         if (state.status === 'architecting' && lastMsg) {
@@ -57,7 +69,7 @@ export class ArchitectAgent extends BaseAgent {
       `
     );
 
-    const chain = prompt.pipe(this.model);
+    const chain = prompt.pipe(this.model!).pipe(new JsonOutputParser());
 
     // Invoke LLM safely with retries
     const response = await this.safeInvoke<any>(chain, {
@@ -82,6 +94,7 @@ export class ArchitectAgent extends BaseAgent {
     return {
         status: 'qc',
         generatedArtifacts: artifacts,
+        thought: `Architecture complete: Generated ${artifacts.files.length} files. Moving to Quality Control.`,
         agentMessages: [
             ...state.agentMessages,
             MessageFactory.create('architect', 'coordinator', 'CODE_GENERATION_COMPLETE', artifacts)

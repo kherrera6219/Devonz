@@ -8,18 +8,29 @@ import { BaseAgent } from '~/lib/agent-orchestrator/agents/base';
 
 export class CoordinatorAgent extends BaseAgent {
   protected name = 'coordinator';
-  private model: ChatOpenAI;
+  private model: ChatOpenAI | null = null;
 
   constructor() {
     super();
+  }
+
+  private ensureModel(state: BoltState) {
+    if (this.model) {
+      return;
+    }
+
+    const apiKey = state.apiKeys?.OpenAI || process.env.OPENAI_API_KEY;
+
     this.model = new ChatOpenAI({
       modelName: 'gpt-5.2',
       temperature: 0.3,
+      openAIApiKey: apiKey,
     });
   }
 
   async run(state: BoltState): Promise<Partial<BoltState>> {
     try {
+        this.ensureModel(state);
         // If just starting, analyze intent
         if (state.status === 'idle' || !state.status) {
         return this.analyzeIntent(state);
@@ -67,7 +78,7 @@ export class CoordinatorAgent extends BaseAgent {
       {format_instructions}`
     );
 
-    const chain = prompt.pipe(this.model).pipe(parser);
+    const chain = prompt.pipe(this.model!).pipe(parser);
 
     // Explicitly define the shape of the parsed output
     const analysis = await this.safeInvoke(chain, {
@@ -88,6 +99,9 @@ export class CoordinatorAgent extends BaseAgent {
     const newState: Partial<BoltState> = {
       status: analysis.needsResearch ? 'researching' : 'architecting',
       researchQuery: analysis.researchQuery,
+      plan: analysis.tasks,
+      thought: `Query Analysis complete: Intent identified as "${analysis.intent}"`,
+      currentAction: { type: 'plan', description: `Identified ${analysis.tasks.length} tasks for execution.` },
       agentMessages: [
         ...state.agentMessages,
         MessageFactory.create('coordinator', 'coordinator', 'INTENT_ANALYSIS', analysis)
@@ -116,7 +130,7 @@ export class CoordinatorAgent extends BaseAgent {
       Return JSON specs for the Architect.`
     );
 
-    const chain = prompt.pipe(this.model).pipe(parser);
+    const chain = prompt.pipe(this.model!).pipe(parser);
     const specs = await this.safeInvoke(chain, {
         request: state.userRequest,
         research: JSON.stringify(state.researchFindings)
@@ -125,6 +139,8 @@ export class CoordinatorAgent extends BaseAgent {
     return {
         status: 'architecting',
         specifications: specs,
+        thought: 'Architectural specifications prepared based on research findings.',
+        currentAction: { type: 'plan', description: 'Generating architectural specifications...' },
         agentMessages: [
             ...state.agentMessages,
             MessageFactory.create('coordinator', 'architect', 'ARCHITECT_SPECS', specs)

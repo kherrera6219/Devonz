@@ -23,6 +23,7 @@ export class OrchestratorService {
     conversationId: string,
     dataStream: any, // stream-text DataStream
     existingMessages: any[],
+    apiKeys: Record<string, string>,
     streamRecovery?: any
   ) {
     // Initial State
@@ -30,6 +31,7 @@ export class OrchestratorService {
       userRequest,
       conversationId,
       messages: existingMessages,
+      apiKeys,
       status: 'planning',
       agentMessages: [],
     };
@@ -56,6 +58,43 @@ export class OrchestratorService {
                 const nodeName = Object.keys(event)[0];
                 const stateUpdate = event[nodeName];
 
+                // Stream thoughts as progress updates
+                if (stateUpdate?.thought) {
+                    dataStream.writeData({
+                        type: 'progress',
+                        label: nodeName,
+                        status: 'in-progress',
+                        message: stateUpdate.thought,
+                    });
+                }
+
+                // Stream tool actions
+                if (stateUpdate?.currentAction) {
+                    dataStream.writeData({
+                        type: 'progress',
+                        label: 'tool',
+                        status: 'in-progress',
+                        message: `${nodeName.toUpperCase()}: ${stateUpdate.currentAction.description}`,
+                        metadata: { tool: stateUpdate.currentAction.type }
+                    });
+                }
+
+                // Stream plan updates
+                if (stateUpdate?.plan) {
+                    dataStream.writeData({
+                        type: 'progress',
+                        label: 'plan',
+                        status: 'in-progress',
+                        message: `Updated Plan: ${stateUpdate.plan.length} steps identified`,
+                        metadata: { plan: stateUpdate.plan }
+                    });
+                }
+
+                // Stream actual response content to the text stream
+                if (stateUpdate?.response) {
+                    dataStream.writeText(stateUpdate.response);
+                }
+
                 let label = 'agent';
                 let message = `Processing: ${nodeName}`;
 
@@ -76,8 +115,8 @@ export class OrchestratorService {
                         status: 'failed',
                         message: `Agent Error: ${errMsg}`,
                     });
-                    // Depending on policy, we might want to stop or let the graph finish its error transition
-                } else {
+                } else if (!stateUpdate?.thought && !stateUpdate?.currentAction && !stateUpdate?.plan) {
+                    // Only send default progress if no specific update was sent
                     dataStream.writeData({
                         type: 'progress',
                         label,

@@ -25,6 +25,11 @@ export interface BoltState {
   // Communication
   messages: BaseMessage[];
   agentMessages: AgentMessage[];
+  apiKeys?: Record<string, string>;
+  thought?: string;
+  response?: string;
+  currentAction?: { type: string; description: string };
+  plan?: string[];
 
   // Context
   userRequest: string;
