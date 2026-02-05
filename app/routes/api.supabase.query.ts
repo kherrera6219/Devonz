@@ -1,9 +1,10 @@
 import { type ActionFunctionArgs } from '@remix-run/node';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('api.supabase.query');
 
-export async function action({ request }: ActionFunctionArgs) {
+export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
@@ -89,4 +90,4 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     );
   }
-}
+});

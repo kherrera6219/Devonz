@@ -1,10 +1,7 @@
 import { json, type ActionFunction } from '@remix-run/node';
+import { withSecurity } from '~/lib/security';
 
-export const action: ActionFunction = async ({ request }) => {
-  if (request.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, { status: 405 });
-  }
-
+export const action: ActionFunction = withSecurity(async ({ request: _request }) => {
   return json(
     {
       error: 'Updates must be performed manually in a server environment',
@@ -18,4 +15,4 @@ export const action: ActionFunction = async ({ request }) => {
     },
     { status: 400 },
   );
-};
+}, { allowedMethods: ['POST'] });

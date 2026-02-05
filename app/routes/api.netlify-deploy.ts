@@ -1,6 +1,7 @@
 import { type ActionFunctionArgs, json } from '@remix-run/node';
 import crypto from 'crypto';
 import type { NetlifySiteInfo } from '~/types/netlify';
+import { withSecurity } from '~/lib/security';
 
 interface DeployRequestBody {
   siteId?: string;
@@ -8,7 +9,7 @@ interface DeployRequestBody {
   chatId: string;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   try {
     const { siteId, files, token, chatId } = (await request.json()) as DeployRequestBody & { token: string };
 
@@ -226,4 +227,4 @@ export async function action({ request }: ActionFunctionArgs) {
     console.error('Deploy error:', error);
     return json({ error: 'Deployment failed' }, { status: 500 });
   }
-}
+});

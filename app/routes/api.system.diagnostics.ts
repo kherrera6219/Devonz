@@ -1,4 +1,5 @@
 import { json, type LoaderFunction, type LoaderFunctionArgs } from '@remix-run/node';
+import { withSecurity } from '~/lib/security';
 
 /**
  * Diagnostic API for troubleshooting connection issues
@@ -11,13 +12,14 @@ interface AppContext {
   };
 }
 
-export const loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs & { context: AppContext }) => {
-  // Get environment variables
-  const envVars = {
-    hasGithubToken: Boolean(process.env.GITHUB_ACCESS_TOKEN || context.env?.GITHUB_ACCESS_TOKEN),
-    hasNetlifyToken: Boolean(process.env.NETLIFY_TOKEN || context.env?.NETLIFY_TOKEN),
-    nodeEnv: process.env.NODE_ENV,
-  };
+export const loader: LoaderFunction = withSecurity(
+  async ({ request, context }: LoaderFunctionArgs & { context: AppContext }) => {
+    // Get environment variables
+    const envVars = {
+      hasGithubToken: Boolean(process.env.GITHUB_ACCESS_TOKEN || context.env?.GITHUB_ACCESS_TOKEN),
+      hasNetlifyToken: Boolean(process.env.NETLIFY_TOKEN || context.env?.NETLIFY_TOKEN),
+      nodeEnv: process.env.NODE_ENV,
+    };
 
   // Check cookies
   const cookieHeader = request.headers.get('Cookie') || '';
@@ -139,4 +141,4 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
       headers: corsStatus.headers,
     },
   );
-};
+});

@@ -1,10 +1,11 @@
 import { json, type ActionFunctionArgs } from '@remix-run/node';
 import { knowledgeService } from '~/lib/services/knowledgeService';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('api.knowledge');
 
-export async function action({ request }: ActionFunctionArgs) {
+export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   const url = new URL(request.url);
   const action = url.searchParams.get('action');
 
@@ -19,21 +20,25 @@ export async function action({ request }: ActionFunctionArgs) {
     switch (action) {
       case 'ingest': {
         const { files } = body; // Record<string, string>
+
         if (!files) {
           return json({ error: 'Missing files' }, { status: 400 });
         }
 
         await knowledgeService.ingestProject(projectId, files);
+
         return json({ success: true });
       }
 
       case 'query': {
         const { query, topK } = body;
+
         if (!query) {
           return json({ error: 'Missing query' }, { status: 400 });
         }
 
         const results = await knowledgeService.query(projectId, query, topK);
+
         return json({ results });
       }
 
@@ -49,4 +54,4 @@ export async function action({ request }: ActionFunctionArgs) {
     logger.error(`Knowledge API failed for action: ${action}`, error);
     return json({ error: String(error) }, { status: 500 });
   }
-}
+});

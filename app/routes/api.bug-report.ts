@@ -1,9 +1,7 @@
 import { json, type ActionFunctionArgs } from '@remix-run/node';
 import { Octokit } from '@octokit/rest';
 import { z } from 'zod';
-
-// Rate limiting store (in production, use Redis or similar)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+import { withSecurity } from '~/lib/security';
 
 // Input validation schema
 const bugReportSchema = z.object({
@@ -37,38 +35,6 @@ function sanitizeInput(input: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
     .replace(/\//g, '&#x2F;');
-}
-
-// Rate limiting check
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const key = ip;
-  const limit = rateLimitStore.get(key);
-
-  if (!limit || now > limit.resetTime) {
-    // Reset window (1 hour)
-    rateLimitStore.set(key, { count: 1, resetTime: now + 60 * 60 * 1000 });
-    return true;
-  }
-
-  if (limit.count >= 5) {
-    // Max 5 reports per hour per IP
-    return false;
-  }
-
-  limit.count += 1;
-  rateLimitStore.set(key, limit);
-
-  return true;
-}
-
-// Get client IP address
-function getClientIP(request: Request): string {
-  const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  const xForwardedFor = request.headers.get('x-forwarded-for');
-  const xRealIP = request.headers.get('x-real-ip');
-
-  return cfConnectingIP || xForwardedFor?.split(',')[0] || xRealIP || 'unknown';
 }
 
 // Basic spam detection
@@ -141,114 +107,104 @@ function formatIssueBody(data: z.infer<typeof bugReportSchema>): string {
   return body;
 }
 
-export async function action({ request, context }: ActionFunctionArgs) {
-  // Only allow POST requests
-  if (request.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, { status: 405 });
-  }
+export const action = withSecurity(
+  async ({ request, context }: ActionFunctionArgs) => {
+    try {
+      // Parse and validate request body
+      const formData = await request.formData();
+      const rawData: any = Object.fromEntries(formData.entries());
 
-  try {
-    // Rate limiting
-    const clientIP = getClientIP(request);
-
-    if (!checkRateLimit(clientIP)) {
-      return json({ error: 'Rate limit exceeded. Please wait before submitting another report.' }, { status: 429 });
-    }
-
-    // Parse and validate request body
-    const formData = await request.formData();
-    const rawData: any = Object.fromEntries(formData.entries());
-
-    // Parse environment info if provided
-    if (rawData.environmentInfo && typeof rawData.environmentInfo === 'string') {
-      try {
-        rawData.environmentInfo = JSON.parse(rawData.environmentInfo);
-      } catch {
-        rawData.environmentInfo = undefined;
-      }
-    }
-
-    // Convert boolean fields
-    rawData.includeEnvironmentInfo = rawData.includeEnvironmentInfo === 'true';
-
-    const validatedData = bugReportSchema.parse(rawData);
-
-    // Sanitize text inputs
-    const sanitizedData = {
-      ...validatedData,
-      title: sanitizeInput(validatedData.title),
-      description: sanitizeInput(validatedData.description),
-      stepsToReproduce: validatedData.stepsToReproduce ? sanitizeInput(validatedData.stepsToReproduce) : undefined,
-      expectedBehavior: validatedData.expectedBehavior ? sanitizeInput(validatedData.expectedBehavior) : undefined,
-    };
-
-    // Spam detection
-    if (isSpam(sanitizedData.title, sanitizedData.description)) {
-      return json(
-        { error: 'Your report was flagged as potential spam. Please contact support if this is an error.' },
-        { status: 400 },
-      );
-    }
-
-    // Get GitHub configuration
-    const githubToken =
-      (context?.cloudflare?.env as any)?.GITHUB_BUG_REPORT_TOKEN || process.env.GITHUB_BUG_REPORT_TOKEN;
-    const targetRepo =
-      (context?.cloudflare?.env as any)?.BUG_REPORT_REPO || process.env.BUG_REPORT_REPO || 'zebbern/Devonz';
-
-    if (!githubToken) {
-      console.error('GitHub bug report token not configured');
-      return json(
-        { error: 'Bug reporting is not properly configured. Please contact the administrators.' },
-        { status: 500 },
-      );
-    }
-
-    // Initialize GitHub client
-    const octokit = new Octokit({
-      auth: githubToken,
-      userAgent: 'devonz-bug-reporter',
-    });
-
-    // Create GitHub issue
-    const [owner, repo] = targetRepo.split('/');
-    const issue = await octokit.rest.issues.create({
-      owner,
-      repo,
-      title: sanitizedData.title,
-      body: formatIssueBody(sanitizedData),
-      labels: ['bug', 'user-reported'],
-    });
-
-    return json({
-      success: true,
-      issueNumber: issue.data.number,
-      issueUrl: issue.data.html_url,
-      message: 'Bug report submitted successfully!',
-    });
-  } catch (error) {
-    console.error('Error creating bug report:', error);
-
-    // Handle validation errors
-    if (error instanceof z.ZodError) {
-      return json({ error: 'Invalid input data', details: error.errors }, { status: 400 });
-    }
-
-    // Handle GitHub API errors
-    if (error && typeof error === 'object' && 'status' in error) {
-      if (error.status === 401) {
-        return json({ error: 'GitHub authentication failed. Please contact administrators.' }, { status: 500 });
+      // Parse environment info if provided
+      if (rawData.environmentInfo && typeof rawData.environmentInfo === 'string') {
+        try {
+          rawData.environmentInfo = JSON.parse(rawData.environmentInfo);
+        } catch {
+          rawData.environmentInfo = undefined;
+        }
       }
 
-      if (error.status === 403) {
-        return json({ error: 'GitHub rate limit reached. Please try again later.' }, { status: 503 });
+      // Convert boolean fields
+      rawData.includeEnvironmentInfo = rawData.includeEnvironmentInfo === 'true';
+
+      const validatedData = bugReportSchema.parse(rawData);
+
+      // Sanitize text inputs
+      const sanitizedData = {
+        ...validatedData,
+        title: sanitizeInput(validatedData.title),
+        description: sanitizeInput(validatedData.description),
+        stepsToReproduce: validatedData.stepsToReproduce ? sanitizeInput(validatedData.stepsToReproduce) : undefined,
+        expectedBehavior: validatedData.expectedBehavior ? sanitizeInput(validatedData.expectedBehavior) : undefined,
+      };
+
+      // Spam detection
+      if (isSpam(sanitizedData.title, sanitizedData.description)) {
+        return json(
+          { error: 'Your report was flagged as potential spam. Please contact support if this is an error.' },
+          { status: 400 },
+        );
       }
 
-      if (error.status === 404) {
-        return json({ error: 'Target repository not found. Please contact administrators.' }, { status: 500 });
+      // Get GitHub configuration
+      const githubToken = (context?.cloudflare?.env as any)?.GITHUB_BUG_REPORT_TOKEN || process.env.GITHUB_BUG_REPORT_TOKEN;
+      const targetRepo =
+        (context?.cloudflare?.env as any)?.BUG_REPORT_REPO || process.env.BUG_REPORT_REPO || 'zebbern/Devonz';
+
+      if (!githubToken) {
+        console.error('GitHub bug report token not configured');
+        return json(
+          { error: 'Bug reporting is not properly configured. Please contact the administrators.' },
+          { status: 500 },
+        );
       }
+
+      // Initialize GitHub client
+      const octokit = new Octokit({
+        auth: githubToken,
+        userAgent: 'devonz-bug-reporter',
+      });
+
+      // Create GitHub issue
+      const [owner, repo] = targetRepo.split('/');
+      const issue = await octokit.rest.issues.create({
+        owner,
+        repo,
+        title: sanitizedData.title,
+        body: formatIssueBody(sanitizedData),
+        labels: ['bug', 'user-reported'],
+      });
+
+      return json({
+        success: true,
+        issueNumber: issue.data.number,
+        issueUrl: issue.data.html_url,
+        message: 'Bug report submitted successfully!',
+      });
+    } catch (error) {
+      console.error('Error creating bug report:', error);
+
+      // Handle validation errors
+      if (error instanceof z.ZodError) {
+        return json({ error: 'Invalid input data', details: error.errors }, { status: 400 });
+      }
+
+      // Handle GitHub API errors
+      if (error && typeof error === 'object' && 'status' in error) {
+        if (error.status === 401) {
+          return json({ error: 'GitHub authentication failed. Please contact administrators.' }, { status: 500 });
+        }
+
+        if (error.status === 403) {
+          return json({ error: 'GitHub rate limit reached. Please try again later.' }, { status: 503 });
+        }
+
+        if (error.status === 404) {
+          return json({ error: 'Target repository not found. Please contact administrators.' }, { status: 500 });
+        }
+      }
+
+      return json({ error: 'Failed to submit bug report. Please try again later.' }, { status: 500 });
     }
-
-    return json({ error: 'Failed to submit bug report. Please try again later.' }, { status: 500 });
-  }
-}
+  },
+  { allowedMethods: ['POST'], rateLimit: true },
+);

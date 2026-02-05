@@ -1,8 +1,9 @@
 import { json } from '@remix-run/node';
 import { execSync } from 'child_process';
 import { existsSync } from 'fs';
+import { withSecurity } from '~/lib/security';
 
-export async function loader() {
+export const loader = withSecurity(async () => {
   try {
     // Check if we're in a git repository
     if (!existsSync('.git')) {
@@ -66,4 +67,4 @@ export async function loader() {
       { status: 500 },
     );
   }
-}
+});

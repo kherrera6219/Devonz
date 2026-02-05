@@ -25,9 +25,11 @@ import {
 } from '~/lib/services/agentChatIntegration';
 import { contextService } from '~/lib/services/contextService';
 
-export async function action(args: ActionFunctionArgs) {
+import { withSecurity } from '~/lib/security';
+
+export const action = withSecurity(async (args: ActionFunctionArgs) => {
   return chatAction(args);
-}
+});
 
 const logger = createScopedLogger('api.chat');
 

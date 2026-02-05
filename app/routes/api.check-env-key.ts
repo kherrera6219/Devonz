@@ -1,8 +1,9 @@
 import { type LoaderFunction, json } from '@remix-run/node';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { withSecurity } from '~/lib/security';
 
-export const loader: LoaderFunction = async ({ context, request }) => {
+export const loader: LoaderFunction = withSecurity(async ({ context, request }) => {
   const url = new URL(request.url);
   const provider = url.searchParams.get('provider');
 
@@ -38,4 +39,4 @@ export const loader: LoaderFunction = async ({ context, request }) => {
   );
 
   return json({ isSet });
-};
+});

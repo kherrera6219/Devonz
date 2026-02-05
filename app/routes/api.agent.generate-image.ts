@@ -1,13 +1,11 @@
 import { json, type ActionFunctionArgs } from '@remix-run/node';
 import OpenAI from 'openai';
 import { createScopedLogger } from '~/utils/logger';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('api.agent.generate-image');
 
-export async function action({ request }: ActionFunctionArgs) {
-  if (request.method !== 'POST') {
-    return json({ error: 'Method not allowed' }, { status: 405 });
-  }
+export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
 
   try {
     const { prompt, size = '1024x1024' } = await request.json();
@@ -43,4 +41,4 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return json({ error: errorMessage }, { status: 500 });
   }
-}
+}, { allowedMethods: ['POST'] });

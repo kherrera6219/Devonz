@@ -1,4 +1,5 @@
 import { json, type LoaderFunction, type LoaderFunctionArgs } from '@remix-run/node';
+import { withSecurity } from '~/lib/security';
 
 interface GitInfo {
   local: {
@@ -23,7 +24,6 @@ interface GitInfo {
   timestamp?: string;
 }
 
-// Define context type
 interface AppContext {
   env?: {
     GITHUB_ACCESS_TOKEN?: string;
@@ -47,7 +47,6 @@ interface GitHubGist {
   description: string;
 }
 
-// These values will be replaced at build time
 declare const __COMMIT_HASH: string;
 declare const __GIT_BRANCH: string;
 declare const __GIT_COMMIT_TIME: string;
@@ -56,15 +55,9 @@ declare const __GIT_EMAIL: string;
 declare const __GIT_REMOTE_URL: string;
 declare const __GIT_REPO_NAME: string;
 
-/*
- * Remove unused variable to fix linter error
- * declare const __GIT_REPO_URL: string;
- */
-
-export const loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs & { context: AppContext }) => {
+export const loader: LoaderFunction = withSecurity(async ({ request, context }: LoaderFunctionArgs & { context: AppContext }) => {
   console.log('Git info API called with URL:', request.url);
 
-  // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       headers: {
@@ -81,7 +74,6 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
   console.log('Git info action:', action);
 
   if (action === 'getUser' || action === 'getRepos' || action === 'getOrgs' || action === 'getActivity') {
-    // Use server-side token instead of client-side token
     const serverGithubToken = process.env.GITHUB_ACCESS_TOKEN || context.env?.GITHUB_ACCESS_TOKEN;
     const cookieToken = request.headers
       .get('Cookie')
@@ -89,19 +81,11 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
       .find((cookie) => cookie.trim().startsWith('githubToken='))
       ?.split('=')[1];
 
-    // Also check for token in Authorization header
     const authHeader = request.headers.get('Authorization');
     const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
-
     const token = serverGithubToken || headerToken || cookieToken;
 
-    console.log(
-      'Using GitHub token from:',
-      serverGithubToken ? 'server env' : headerToken ? 'auth header' : cookieToken ? 'cookie' : 'none',
-    );
-
     if (!token) {
-      console.error('No GitHub token available');
       return json(
         { error: 'No GitHub token available' },
         {
@@ -124,7 +108,6 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         if (!response.ok) {
-          console.error('GitHub user API error:', response.status);
           throw new Error(`GitHub API error: ${response.status}`);
         }
 
@@ -150,13 +133,11 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         if (!reposResponse.ok) {
-          console.error('GitHub repos API error:', reposResponse.status);
           throw new Error(`GitHub API error: ${reposResponse.status}`);
         }
 
         const repos = (await reposResponse.json()) as GitHubRepo[];
 
-        // Get user's gists
         const gistsResponse = await fetch('https://api.github.com/gists', {
           headers: {
             Accept: 'application/vnd.github.v3+json',
@@ -165,8 +146,6 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         const gists = gistsResponse.ok ? ((await gistsResponse.json()) as GitHubGist[]) : [];
-
-        // Calculate language statistics
         const languageStats: Record<string, number> = {};
         let totalStars = 0;
         let totalForks = 0;
@@ -178,31 +157,6 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
           if (repo.language && repo.language !== 'null') {
             languageStats[repo.language] = (languageStats[repo.language] || 0) + 1;
           }
-
-          /*
-           * Optionally fetch languages for each repo for more accurate stats
-           * This is commented out to avoid rate limiting
-           *
-           * if (repo.languages_url) {
-           *   try {
-           *     const langResponse = await fetch(repo.languages_url, {
-           *       headers: {
-           *         Accept: 'application/vnd.github.v3+json',
-           *         Authorization: `Bearer ${token}`,
-           *       },
-           *     });
-           *
-           *     if (langResponse.ok) {
-           *       const languages = await langResponse.json();
-           *       Object.keys(languages).forEach(lang => {
-           *         languageStats[lang] = (languageStats[lang] || 0) + languages[lang];
-           *       });
-           *     }
-           *   } catch (error) {
-           *     console.error(`Error fetching languages for ${repo.name}:`, error);
-           *   }
-           * }
-           */
         }
 
         return json(
@@ -233,7 +187,6 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         if (!response.ok) {
-          console.error('GitHub orgs API error:', response.status);
           throw new Error(`GitHub API error: ${response.status}`);
         }
 
@@ -258,7 +211,6 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
           ?.split('=')[1];
 
         if (!username) {
-          console.error('GitHub username not found in cookies');
           return json(
             { error: 'GitHub username not found in cookies' },
             {
@@ -279,7 +231,6 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
         });
 
         if (!response.ok) {
-          console.error('GitHub activity API error:', response.status);
           throw new Error(`GitHub API error: ${response.status}`);
         }
 
@@ -329,4 +280,4 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     },
   });
-};
+});

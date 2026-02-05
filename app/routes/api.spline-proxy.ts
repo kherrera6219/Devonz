@@ -18,9 +18,11 @@
  *   /api/spline-proxy?url=https://prod.spline.design/V2pT-fO5F255I0pA/scene.splinecode
  */
 
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
+import { withSecurity } from '~/lib/security';
 
 const SPLINE_CDN_BASE = 'https://prod.spline.design';
+// ... (rest of the content if I was using replace_file_content, but I'll use targetContent for precision)
 
 // Cache for scene data (simple in-memory cache)
 const sceneCache = new Map<string, { data: ArrayBuffer; timestamp: number; contentType: string }>();
@@ -78,7 +80,7 @@ function handleOptions(request: Request): Response {
 /**
  * Main loader - handles GET requests for Spline scene data
  */
-export async function loader({ request }: LoaderFunctionArgs): Promise<Response> {
+export const loader = withSecurity(async ({ request }: LoaderFunctionArgs): Promise<Response> => {
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {
     return handleOptions(request);
@@ -208,10 +210,10 @@ export async function loader({ request }: LoaderFunctionArgs): Promise<Response>
 /**
  * Handle OPTIONS requests for CORS preflight
  */
-export async function action({ request }: LoaderFunctionArgs): Promise<Response> {
+export const action = withSecurity(async ({ request }: ActionFunctionArgs): Promise<Response> => {
   if (request.method === 'OPTIONS') {
     return handleOptions(request);
   }
 
   return new Response('Method not allowed', { status: 405 });
-}
+});

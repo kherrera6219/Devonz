@@ -1,10 +1,11 @@
 import { json } from '@remix-run/node';
 import { createScopedLogger } from '~/utils/logger';
 import { MCPService } from '~/lib/services/mcpService';
+import { withSecurity } from '~/lib/security';
 
 const logger = createScopedLogger('api.mcp-check');
 
-export async function loader() {
+export const loader = withSecurity(async () => {
   try {
     const mcpService = MCPService.getInstance();
     const serverTools = await mcpService.checkServersAvailabilities();
@@ -14,4 +15,4 @@ export async function loader() {
     logger.error('Error checking MCP servers:', error);
     return json({ error: 'Failed to check MCP servers' }, { status: 500 });
   }
-}
+});

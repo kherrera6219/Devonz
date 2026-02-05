@@ -1,6 +1,7 @@
 import { json, type ActionFunctionArgs } from '@remix-run/node';
+import { withSecurity } from '~/lib/security';
 
-export async function action({ request }: ActionFunctionArgs) {
+export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   try {
     // Add proper type assertion for the request body
     const body = (await request.json()) as { projectId?: string; token?: string };
@@ -29,4 +30,4 @@ export async function action({ request }: ActionFunctionArgs) {
     console.error('Error fetching project API keys:', error);
     return json({ error: error instanceof Error ? error.message : 'Unknown error occurred' }, { status: 500 });
   }
-}
+});

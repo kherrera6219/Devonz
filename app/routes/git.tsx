@@ -10,9 +10,11 @@ export const meta: MetaFunction = () => {
   return [{ title: 'Devonz' }, { name: 'description', content: 'Talk with Devonz, an AI-powered development assistant' }];
 };
 
-export async function loader(args: LoaderFunctionArgs) {
+import { withSecurity } from '~/lib/security';
+
+export const loader = withSecurity(async (args: LoaderFunctionArgs) => {
   return json({ url: args.params.url });
-}
+});
 
 export default function Index() {
   return (

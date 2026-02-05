@@ -124,7 +124,8 @@ export class ContextService {
 
           if (summary) {
             try {
-              await redisService.set(cacheKey, summary, 3600); // Cache for 1 hour
+              const DEFAULT_TTL = 3600; // 1 hour
+              await redisService.set(cacheKey, summary, DEFAULT_TTL);
               logger.info('Saved summary to Redis cache');
             } catch (error) {
               logger.warn('Failed to cache summary', error);
@@ -136,8 +137,10 @@ export class ContextService {
             summary,
             chatId: messages.slice(-1)?.[0]?.id,
           } as ContextAnnotation);
+
         } catch (error) {
           logger.error('Failed to create summary', error);
+
           // Fallback: Proceed without summary rather than crashing
         }
       }
@@ -225,10 +228,12 @@ export class ContextService {
           const ragContext = await RAGService.getInstance().query(promptId || 'default', lastMessageContent);
 
           if (ragContext && ragContext.length > 0) {
+
             summary = (summary || '') + '\n\nRelevant Code Snippets from RAG:\n' + ragContext.join('\n\n');
           }
         } catch (error) {
           logger.error('RAG query failed', error);
+
           // Non-critical, continue without RAG context
         }
       }
