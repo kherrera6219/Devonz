@@ -503,16 +503,22 @@ describe('executeAgentTool', () => {
 });
 
 describe('getAgentToolNames', () => {
-  it('should return all 6 tool names', () => {
+  it('should return all 12 tool names', () => {
     const names = getAgentToolNames();
 
-    expect(names).toHaveLength(6);
+    expect(names).toHaveLength(12);
     expect(names).toContain('devonz_read_file');
     expect(names).toContain('devonz_write_file');
     expect(names).toContain('devonz_list_directory');
     expect(names).toContain('devonz_run_command');
     expect(names).toContain('devonz_get_errors');
     expect(names).toContain('devonz_search_code');
+    expect(names).toContain('devonz_generate_image');
+    expect(names).toContain('devonz_generate_audio');
+    expect(names).toContain('devonz_generate_document');
+    expect(names).toContain('devonz_read_document');
+    expect(names).toContain('devonz_knowledge_ingest');
+    expect(names).toContain('devonz_knowledge_query');
   });
 });
 

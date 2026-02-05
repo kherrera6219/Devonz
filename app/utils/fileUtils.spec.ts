@@ -4,17 +4,17 @@ import { isBinaryFile, shouldIncludeFile, generateId, MAX_FILES, IGNORE_PATTERNS
 describe('fileUtils', () => {
   describe('IGNORE_PATTERNS', () => {
     it('should include node_modules', () => {
-      expect(IGNORE_PATTERNS).toContain('node_modules/**');
+      expect(IGNORE_PATTERNS).toContain('node_modules');
     });
 
     it('should include .git', () => {
-      expect(IGNORE_PATTERNS).toContain('.git/**');
+      expect(IGNORE_PATTERNS).toContain('.git');
     });
 
     it('should include common build directories', () => {
-      expect(IGNORE_PATTERNS).toContain('dist/**');
-      expect(IGNORE_PATTERNS).toContain('build/**');
-      expect(IGNORE_PATTERNS).toContain('.next/**');
+      expect(IGNORE_PATTERNS).toContain('dist');
+      expect(IGNORE_PATTERNS).toContain('build');
+      expect(IGNORE_PATTERNS).toContain('.next');
     });
 
     it('should include log files', () => {
@@ -23,8 +23,8 @@ describe('fileUtils', () => {
   });
 
   describe('MAX_FILES', () => {
-    it('should be 1000', () => {
-      expect(MAX_FILES).toBe(1000);
+    it('should be 5000', () => {
+      expect(MAX_FILES).toBe(5000);
     });
   });
 
