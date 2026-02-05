@@ -168,18 +168,6 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 | OpenAI         | GPT-4o, GPT-4 Turbo, GPT-3.5     | Chat, Vision          |
 | Anthropic      | Claude 3.5 Sonnet, Claude 3 Opus | Chat, Vision          |
 | Google         | Gemini Pro, Gemini Ultra         | Chat, Vision          |
-| Groq           | LLaMA 3, Mixtral                 | Fast inference        |
-| OpenRouter     | 100+ models                      | Model aggregation     |
-| Mistral        | Mistral Large, Codestral         | Chat, Code            |
-| Cohere         | Command R+                       | Chat, RAG             |
-| Deepseek       | Deepseek Coder                   | Code generation       |
-| Amazon Bedrock | Claude, Titan                    | Enterprise            |
-| Together       | Open source models               | Chat, Code            |
-| Perplexity     | Online models                    | Web search            |
-| HuggingFace    | Open source models               | Community models      |
-| xAI            | Grok                             | Chat                  |
-| GitHub         | Copilot models                   | GitHub AI             |
-| Hyperbolic     | Various models                   | Specialized inference |
 | Moonshot       | Moonshot models                  | Chinese LLM           |
 
 ### Local Providers
