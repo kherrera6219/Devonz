@@ -22,17 +22,19 @@ describe('RAGService Validation', () => {
     const testFiles = {
       'test-file.ts': 'export const secret = "the magic word is bird";'
     };
-    const indexResult = await rag.indexFiles(testFiles);
+    const projectId = 'test-project-1';
+    const indexedCount = await rag.indexFiles(projectId, testFiles);
 
-    if (indexResult.indexedCount === 0) {
-      console.error('Indexing failed with error:', indexResult.error);
+    if (indexedCount === 0) {
+      console.error('Indexing failed or returned 0');
     }
 
-    expect(indexResult.indexedCount).toBe(1);
+    expect(indexedCount).toBe(1);
     console.log('Indexed 1 file.');
 
+
     // 3. Query
-    const results = await rag.query('What is the magic word?', 1);
+    const results = await rag.query(projectId, 'What is the magic word?', 1);
     expect(results.length).toBeGreaterThan(0);
     expect(results[0]).toContain('bird');
     console.log('Query successful, found content:', results[0]);

@@ -29,6 +29,7 @@ const CloudProvidersTab = lazy(() => import('~/components/@settings/tabs/provide
 const LocalProvidersTab = lazy(() => import('~/components/@settings/tabs/providers/local/LocalProvidersTab'));
 const McpTab = lazy(() => import('~/components/@settings/tabs/mcp/McpTab'));
 const ProjectMemoryTab = lazy(() => import('~/components/@settings/tabs/project-memory/ProjectMemoryTab'));
+const OrchestratorTab = lazy(() => import('~/components/@settings/tabs/orchestrator/OrchestratorTab'));
 
 // Loading fallback for lazy-loaded tabs
 const TabLoadingFallback = () => (
@@ -115,6 +116,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
       'event-logs': <EventLogsTab />,
       mcp: <McpTab />,
       'project-memory': <ProjectMemoryTab />,
+      orchestrator: <OrchestratorTab />,
     };
 
     return <Suspense fallback={<TabLoadingFallback />}>{tabComponents[tabId] || null}</Suspense>;

@@ -19,13 +19,14 @@ async function testRAG() {
     await rag.clearIndex();
 
     console.log('Step 2: Indexing test files...');
-    const result = await rag.indexFiles(testFiles);
-    console.log(`Indexed ${result.indexedCount} files.`);
+    const projectId = 'test-project-id';
+    const indexedCount = await rag.indexFiles(projectId, testFiles);
+    console.log(`Indexed ${indexedCount} files.`);
 
     console.log('Step 3: Performing a query...');
     const query = 'How do I add numbers?';
     console.log(`Query: "${query}"`);
-    const searchResults = await rag.query(query, 2);
+    const searchResults = await rag.query(projectId, query, 2);
 
     console.log('Results:');
     searchResults.forEach((res, i) => {

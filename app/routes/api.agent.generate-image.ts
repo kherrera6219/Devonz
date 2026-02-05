@@ -30,7 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
       response_format: 'b64_json',
     });
 
-    const imageData = response.data[0]?.b64_json;
+    const imageData = response.data?.[0]?.b64_json;
 
     if (!imageData) {
       throw new Error('No image data received from OpenAI');

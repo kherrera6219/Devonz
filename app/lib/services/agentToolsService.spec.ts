@@ -242,9 +242,9 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({ path: '/' });
 
       expect(result.success).toBe(true);
-      expect(result.data?.entries).toHaveLength(3);
-      expect(result.data?.entries[0]).toEqual({ name: '/src', isDirectory: true });
-      expect(result.data?.entries[1]).toEqual({ name: '/package.json', isDirectory: false });
+      expect((result.data as any)?.entries).toHaveLength(3);
+      expect((result.data as any)?.entries[0]).toEqual({ name: '/src', isDirectory: true });
+      expect((result.data as any)?.entries[1]).toEqual({ name: '/package.json', isDirectory: false });
     });
 
     it('should default to root path', async () => {
@@ -253,7 +253,7 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({});
 
       expect(result.success).toBe(true);
-      expect(result.data?.path).toBe('/');
+      expect((result.data as any)?.path).toBe('/');
     });
 
     it('should support recursive listing', async () => {
@@ -268,7 +268,7 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({ path: '/', recursive: true });
 
       expect(result.success).toBe(true);
-      expect(result.data?.entries.length).toBeGreaterThan(1);
+      expect((result.data as any)?.entries.length).toBeGreaterThan(1);
     });
 
     it('should skip node_modules and hidden directories', async () => {
@@ -320,8 +320,8 @@ describe('agentToolDefinitions', () => {
       const result = await runCommandTool.execute({ command: 'npm install' });
 
       expect(result.success).toBe(true);
-      expect(result.data?.exitCode).toBe(0);
-      expect(result.data?.stdout).toBe('Command output here');
+      expect((result.data as any)?.exitCode).toBe(0);
+      expect((result.data as any)?.stdout).toBe('Command output here');
     });
 
     it('should return error for failed command', async () => {
@@ -334,8 +334,8 @@ describe('agentToolDefinitions', () => {
       const result = await runCommandTool.execute({ command: 'npm run invalid' });
 
       expect(result.success).toBe(true); // Tool succeeded, command failed
-      expect(result.data?.exitCode).toBe(1);
-      expect(result.data?.stderr).toBe('Error: module not found');
+      expect((result.data as any)?.exitCode).toBe(1);
+      expect((result.data as any)?.stderr).toBe('Error: module not found');
     });
 
     it('should handle shell not ready', async () => {
@@ -375,8 +375,8 @@ describe('agentToolDefinitions', () => {
       const result = await getErrorsTool.execute({});
 
       expect(result.success).toBe(true);
-      expect(result.data?.hasErrors).toBe(false);
-      expect(result.data?.count).toBe(0);
+      expect((result.data as any)?.hasErrors).toBe(false);
+      expect((result.data as any)?.count).toBe(0);
     });
 
     it('should return errors from autofix store when present', async () => {
@@ -398,8 +398,8 @@ describe('agentToolDefinitions', () => {
       const result = await getErrorsTool.execute({ source: 'terminal' });
 
       expect(result.success).toBe(true);
-      expect(result.data?.hasErrors).toBe(true);
-      expect(result.data?.count).toBe(1);
+      expect((result.data as any)?.hasErrors).toBe(true);
+      expect((result.data as any)?.count).toBe(1);
     });
   });
 
@@ -424,8 +424,8 @@ describe('agentToolDefinitions', () => {
       const result = await searchCodeTool.execute({ query: 'React' });
 
       expect(result.success).toBe(true);
-      expect(result.data?.matchCount).toBeGreaterThan(0);
-      expect(result.data?.results[0].file).toContain('App.tsx');
+      expect((result.data as any)?.matchCount).toBeGreaterThan(0);
+      expect((result.data as any)?.results[0].file).toContain('App.tsx');
     });
 
     it('should respect maxResults limit', async () => {
@@ -438,7 +438,7 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.data?.matchCount).toBe(2);
+      expect((result.data as any)?.matchCount).toBe(2);
     });
 
     it('should return empty results for no matches', async () => {
@@ -448,7 +448,7 @@ describe('agentToolDefinitions', () => {
       const result = await searchCodeTool.execute({ query: 'nonexistent' });
 
       expect(result.success).toBe(true);
-      expect(result.data?.matchCount).toBe(0);
+      expect((result.data as any)?.matchCount).toBe(0);
     });
   });
 });
