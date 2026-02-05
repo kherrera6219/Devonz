@@ -134,9 +134,9 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 
 | Provider       | Models                           | Features              |
 | -------------- | -------------------------------- | --------------------- |
-| OpenAI         | GPT-4o, GPT-4 Turbo              | Chat, Vision, Tools   |
-| Anthropic      | Claude 3.5 Sonnet, Claude 3 Opus | Chat, Vision, Tools   |
-| Google         | Gemini 2.0 Flash, Gemini Pro     | Chat, Vision, Tools   |
+| OpenAI         | GPT-5.2                          | Chat, Vision, Tools   |
+| Anthropic      | Claude 4.5 Sonnet, 4.5 Opus      | Chat, Vision, Tools   |
+| Google         | Gemini 3.0 Flash, Gemini Pro     | Chat, Vision, Tools   |
 
 ### Local Providers
 
