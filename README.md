@@ -14,7 +14,7 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | [Tech Stack](#tech-stack)               | Technologies used in the project   |
 | [Installation](#installation)           | Getting started guide              |
 | [Configuration](#configuration)         | Environment variables and settings |
-| [AI Providers](#supported-ai-providers) | All 19 supported AI providers      |
+| [AI Providers](#supported-ai-providers) | Key supported AI providers         |
 | [Project Structure](#project-structure) | Codebase organization              |
 | [Available Scripts](#available-scripts) | Development and build commands     |
 | [Settings](#settings--features)         | App settings and features          |
@@ -29,7 +29,7 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | Feature                      | Description                                                                 |
 | ---------------------------- | --------------------------------------------------------------------------- |
 | Natural Language Building    | Describe what you want to build, and Devonz creates it                      |
-| Multi-Provider Support       | 19 AI providers including OpenAI, Anthropic, Google, Groq, Ollama, and more |
+| **Multi-Agent Orchestration** | **LangGraph-powered system with Coordinator, Researcher, and Architect** |
 | Model Context Protocol (MCP) | Extend Devonz capabilities with MCP tools                                   |
 | Auto-Fix                     | Automatic error detection and fixing with terminal error detector           |
 | **Multi-Language Expert**    | Support for 25+ programming languages (Python, Go, Rust, C++, Java, etc.)   |
@@ -165,10 +165,9 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 
 | Provider       | Models                           | Features              |
 | -------------- | -------------------------------- | --------------------- |
-| OpenAI         | GPT-4o, GPT-4 Turbo, GPT-3.5     | Chat, Vision          |
-| Anthropic      | Claude 3.5 Sonnet, Claude 3 Opus | Chat, Vision          |
-| Google         | Gemini Pro, Gemini Ultra         | Chat, Vision          |
-| Moonshot       | Moonshot models                  | Chinese LLM           |
+| OpenAI         | GPT-4o, GPT-4 Turbo              | Chat, Vision, Tools   |
+| Anthropic      | Claude 3.5 Sonnet, Claude 3 Opus | Chat, Vision, Tools   |
+| Google         | Gemini 2.0 Flash, Gemini Pro     | Chat, Vision, Tools   |
 
 ### Local Providers
 
@@ -185,10 +184,11 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 Devonz leverages a sophisticated service-oriented architecture to ensure scalability and reliability:
 
 ### Core Services
-- **ContextService**: A singleton Orchestrator that wisely selects relevant files, generates chat summaries, and queries RAG to optimize the context window sent to the LLM.
-- **GraphService**: Uses Neo4j to maintain a live dependency graph of your project, enabling the agent to understand file relationships and import hierarchies.
+- **OrchestratorService**: Manages the multi-agent workflow using LangGraph, coordinating the transition between planning, research, and building.
+- **ContextService**: A singleton Orchestrator that wisely selects relevant files, generates chat summaries, and queries RAG to optimize the context window.
+- **GraphService**: Uses Neo4j to maintain a live dependency graph, enabling deep codebase understanding and impact analysis.
 - **RAGService**: Powered by `pgvector` and LlamaIndex, this service handles semantic search over your codebase.
-- **KnowledgeService**: Handles the parallel ingestion of your project into both the Vector Store and the Knowledge Graph, utilizing batch operations for high performance.
+- **KnowledgeService**: Handles parallel ingestion into both Vector Store and Knowledge Graph using high-performance batch operations.
 
 ### Stability Features
 - **Global Error Boundary**: A dedicated React Error Boundary catches unhandled errors to prevent white-screen crashes, offering a user-friendly recovery UI.
@@ -205,6 +205,7 @@ Devonz/
 │   │   └── ui/             # Shared Design System
 │   ├── lib/                # Core libraries
 │   │   ├── agent/          # Agent prompts & multi-language types
+│   │   ├── agent-orchestrator/ # LangGraph multi-agent logic
 │   │   ├── services/       # RAG, Storage, & Agent Tool services
 │   │   ├── stores/         # State management
 │   │   └── utils/          # File & Context utilities
