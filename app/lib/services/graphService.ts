@@ -1,7 +1,4 @@
 import neo4j, { type Driver, type Session } from 'neo4j-driver';
-import { createScopedLogger } from '~/utils/logger';
-
-const logger = createScopedLogger('graph-service');
 
 const NEO4J_URI = process.env.NEO4J_URI || 'bolt://localhost:7687';
 const NEO4J_USER = process.env.NEO4J_USER || 'neo4j';
@@ -64,8 +61,31 @@ export class GraphService {
           { path, projectId, metadata, projectLabel }
         )
       );
-    } catch (error) {
-      logger.error(`Failed to add file node: ${path}`, error);
+    } finally {
+      await session.close();
+    }
+  }
+
+  async addFileNodesBatch(projectId: string, files: { path: string; metadata?: Record<string, any> }[]) {
+    if (files.length === 0) return;
+
+    const session = await this._getSession();
+    const projectLabel = this._getProjectLabel(projectId);
+
+    try {
+      await session.executeWrite((tx) =>
+        tx.run(
+          `
+          UNWIND $files as file
+          MERGE (f:File {path: file.path, projectId: $projectId})
+          SET f += coalesce(file.metadata, {})
+          WITH f
+          CALL apoc.create.addLabels(f, [$projectLabel]) YIELD node
+          return count(node)
+          `,
+          { files, projectId, projectLabel }
+        )
+      );
     } finally {
       await session.close();
     }
@@ -86,8 +106,35 @@ export class GraphService {
           { sourcePath, targetPath, projectId, type }
         )
       );
-    } catch (error) {
-      logger.error(`Failed to add dependency: ${sourcePath} -> ${targetPath}`, error);
+    } finally {
+      await session.close();
+    }
+  }
+
+  async addDependenciesBatch(
+    projectId: string,
+    dependencies: { sourcePath: string; targetPath: string; type?: string }[]
+  ) {
+    if (dependencies.length === 0) return;
+
+    const session = await this._getSession();
+
+    try {
+      // Set default type if missing
+      const processedDeps = dependencies.map((d) => ({ ...d, type: d.type || 'IMPORTS' }));
+
+      await session.executeWrite((tx) =>
+        tx.run(
+          `
+          UNWIND $dependencies as dep
+          MATCH (a:File {path: dep.sourcePath, projectId: $projectId})
+          MATCH (b:File {path: dep.targetPath, projectId: $projectId})
+          MERGE (a)-[r:DEPENDS_ON {type: dep.type, projectId: $projectId}]->(b)
+          RETURN count(r)
+          `,
+          { dependencies: processedDeps, projectId }
+        )
+      );
     } finally {
       await session.close();
     }
@@ -113,9 +160,6 @@ export class GraphService {
         relationship: record.get('r').type as string,
         target: record.get('m').properties as Record<string, any>,
       }));
-    } catch (error) {
-      logger.error(`Failed to get subgraph for project: ${projectId}`, error);
-      return [];
     } finally {
       await session.close();
     }

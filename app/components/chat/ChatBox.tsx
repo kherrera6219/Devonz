@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
 import { PROVIDER_LIST } from '~/utils/constants';
 import { CombinedModelSelector } from '~/components/chat/CombinedModelSelector';
-import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import FilePreview from './FilePreview';
 import { SendButton } from './SendButton.client';
 import { IconButton } from '~/components/ui/IconButton';
@@ -64,33 +63,7 @@ interface ChatBoxProps {
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   // Check if current provider has API key set
-  const hasApiKey = props.provider && props.apiKeys[props.provider.name];
-  const isLocalProvider = props.provider && LOCAL_PROVIDERS.includes(props.provider.name);
-  const [isEnvKeySet, setIsEnvKeySet] = useState(false);
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
-
-  // Check if API key is set via environment variable
-  const checkEnvApiKey = useCallback(async () => {
-    if (!props.provider?.name) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/check-env-key?provider=${encodeURIComponent(props.provider.name)}`);
-      const data = await response.json();
-      setIsEnvKeySet((data as { isSet: boolean }).isSet);
-    } catch (error) {
-      setIsEnvKeySet(false);
-    }
-  }, [props.provider?.name]);
-
-  useEffect(() => {
-    checkEnvApiKey();
-  }, [checkEnvApiKey]);
-
-  // API key is available if set via UI or environment variable
-  const hasApiKeyAvailable = hasApiKey || isEnvKeySet;
-
   return (
     <div
       className={classNames(
@@ -321,7 +294,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               </IconButton>
             )}
             {/* Model Selector Button with Dropdown */}
-            <div className="relative">
+            <div className="flex items-center ml-1">
               <IconButton
                 title="Select Model"
                 className={classNames('transition-all flex items-center gap-1', {
@@ -334,6 +307,19 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               >
                 <div className="i-ph:robot text-lg" />
               </IconButton>
+              {props.model && (
+                <button
+                  onClick={() => setIsModelSelectorOpen(true)}
+                  className="flex flex-col items-start ml-1.5 px-2 py-0.5 rounded-md bg-bolt-elements-item-backgroundDefault border border-bolt-elements-borderColor shadow-sm hover:bg-bolt-elements-item-backgroundActive transition-colors cursor-pointer"
+                >
+                  <span className="text-[9px] uppercase font-bold text-bolt-elements-textTertiary leading-tight cursor-inherit">
+                    {props.provider?.name || 'AI'}
+                  </span>
+                  <span className="text-[10px] font-medium text-bolt-elements-textPrimary leading-tight truncate max-w-[120px] cursor-inherit">
+                    {props.model}
+                  </span>
+                </button>
+              )}
             </div>
           </div>
           {props.input.length > 3 ? (

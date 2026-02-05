@@ -17,6 +17,7 @@ export class KnowledgeService {
     if (!KnowledgeService._instance) {
       KnowledgeService._instance = new KnowledgeService();
     }
+
     return KnowledgeService._instance;
   }
 
@@ -27,44 +28,56 @@ export class KnowledgeService {
     logger.info(`Starting ingestion for project: ${projectId} (${Object.keys(files).length} files)`);
 
     try {
-      // 1. MinIO Ingestion (Object Storage) & Base File Nodes
-      const uploadPromises = Object.entries(files).map(async ([path, content]) => {
-        await minioService.uploadFile(path, content, 'text/plain', projectId);
-        await graphService.addFileNode(projectId, path);
-      });
+      // 1. MinIO Ingestion (Object Storage)
+      const minioPromises = Object.entries(files).map(([path, content]) =>
+        minioService.uploadFile(path, content, 'text/plain', projectId),
+      );
 
-      await Promise.all(uploadPromises);
+      // 2. Graph Node Creation (Batch)
+      const fileNodes = Object.entries(files).map(([path]) => ({ path }));
+      const graphPromise = graphService.addFileNodesBatch(projectId, fileNodes);
 
-      // 2. RAG Indexing (Vector Storage)
-      await this._ragService.indexFiles(projectId, files);
+      // 3. RAG Indexing (Vector Storage)
+      const ragPromise = this._ragService.indexFiles(projectId, files);
+
+      // Wait for Node Creation & Storage
+      await Promise.all([...minioPromises, graphPromise, ragPromise]);
 
       /**
-       * 3. Dependency Extraction (Graph Storage)
-       * Basic dependency extraction: Look for 'import' statements
+       * 4. Dependency Extraction (Graph Storage - Batch)
+       * Use parallel processing for regex matching, then batch write to Graph
        */
-      for (const [path, content] of Object.entries(files)) {
-        const importRegex = /from\s+['"]((?:\.\/|\.\.\/)[^'"]+)['"]/g;
-        let match;
-        while ((match = importRegex.exec(content)) !== null) {
-          const rawTarget = match[1];
-          const resolvedTarget = this._resolvePath(path, rawTarget);
+      const dependencies: { sourcePath: string; targetPath: string }[] = [];
 
-          // Try to match the target with potential extensions
-          const potentialPaths = [
-            resolvedTarget,
-            `${resolvedTarget}.ts`,
-            `${resolvedTarget}.tsx`,
-            `${resolvedTarget}.js`,
-            `${resolvedTarget}.jsx`,
-          ];
+      await Promise.all(
+        Object.entries(files).map(async ([path, content]) => {
+          const importRegex = /from\s+['"]((?:\.\/|\.\.\/)[^'"]+)['"]/g;
+          let match;
+          while ((match = importRegex.exec(content)) !== null) {
+            const rawTarget = match[1];
+            const resolvedTarget = this._resolvePath(path, rawTarget);
 
-          for (const targetPath of potentialPaths) {
-            if (files[targetPath]) {
-              await graphService.addDependency(projectId, path, targetPath);
-              break;
+            // Try to match the target with potential extensions
+            const potentialPaths = [
+              resolvedTarget,
+              `${resolvedTarget}.ts`,
+              `${resolvedTarget}.tsx`,
+              `${resolvedTarget}.js`,
+              `${resolvedTarget}.jsx`,
+            ];
+
+            for (const targetPath of potentialPaths) {
+              if (files[targetPath]) {
+                dependencies.push({ sourcePath: path, targetPath });
+                break;
+              }
             }
           }
-        }
+        })
+      );
+
+      if (dependencies.length > 0) {
+        await graphService.addDependenciesBatch(projectId, dependencies);
       }
 
       logger.info(`Successfully ingested project: ${projectId}`);

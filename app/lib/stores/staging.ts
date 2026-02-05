@@ -800,46 +800,47 @@ export async function applyAcceptedChanges(webcontainer: {
 
   logger.info(`Applying ${accepted.length} accepted changes to WebContainer`);
 
-  for (const change of accepted) {
-    try {
-      /*
-       * Convert absolute path to relative path for WebContainer
-       * Paths like "/home/project/src/file.ts" -> "src/file.ts"
-       */
-      const relativePath = change.filePath.replace(/^\/home\/project\/?/, '');
+  const results = await Promise.all(
+    accepted.map(async (change) => {
+      try {
+        const relativePath = change.filePath.replace(/^\/home\/project\/?/, '');
 
-      if (change.type === 'delete') {
-        // Delete the file
-        await webcontainer.fs.rm(relativePath, { recursive: false });
-        logger.debug(`Deleted file: ${relativePath}`);
-      } else {
-        // Create directory if needed
-        const pathParts = relativePath.split('/');
-        const dir = pathParts.slice(0, -1).join('/');
+        if (change.type === 'delete') {
+          await webcontainer.fs.rm(relativePath, { recursive: false });
+          logger.debug(`Deleted file: ${relativePath}`);
+        } else {
+          const pathParts = relativePath.split('/');
+          const dir = pathParts.slice(0, -1).join('/');
 
-        if (dir) {
-          try {
-            await webcontainer.fs.mkdir(dir, { recursive: true });
-          } catch {
-            // Directory might already exist, that's fine
+          if (dir) {
+            try {
+              await webcontainer.fs.mkdir(dir, { recursive: true });
+            } catch {
+              // Directory might already exist
+            }
           }
+
+          await webcontainer.fs.writeFile(relativePath, change.newContent);
+          logger.debug(`Wrote file: ${relativePath}`);
         }
 
-        // Write the file
-        await webcontainer.fs.writeFile(relativePath, change.newContent);
-        logger.debug(`Wrote file: ${relativePath}`);
+        return { path: change.filePath, success: true };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        logger.error(`Failed to apply change: ${change.filePath}`, error);
+
+        return { path: change.filePath, success: false, error: errorMessage };
       }
+    }),
+  );
 
-      applied.push(change.filePath);
-
-      // Remove the change from staging now that it's applied
-      removeChange(change.filePath);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      failed.push({ path: change.filePath, error: errorMessage });
-      logger.error(`Failed to apply change: ${change.filePath}`, error);
-
-      // Don't remove failed changes - leave them for retry
+  for (const result of results) {
+    if (result.success) {
+      applied.push(result.path);
+      removeChange(result.path);
+    } else {
+      failed.push({ path: result.path, error: result.error || 'Unknown error' });
     }
   }
 

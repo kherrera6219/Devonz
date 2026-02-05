@@ -1,6 +1,14 @@
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/node';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import {
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useRouteError,
+  isRouteErrorResponse,
+} from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
@@ -115,6 +123,50 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  console.error(error);
+
+  let message = 'An unexpected error occurred';
+  let details = 'Please try reloading the page.';
+
+  if (isRouteErrorResponse(error)) {
+    message = `${error.status} ${error.statusText}`;
+    details = error.data;
+  } else if (error instanceof Error) {
+    message = 'Application Error';
+    details = error.message;
+  }
+
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+      <body className="bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary">
+        <div className="flex flex-col items-center justify-center h-screen w-full gap-4 p-4">
+          <div className="i-ph:warning-circle-bold text-6xl text-bolt-elements-icon-error" />
+          <h1 className="text-2xl font-bold">{message}</h1>
+          <p className="text-bolt-elements-textSecondary max-w-lg text-center font-mono text-sm bg-bolt-elements-background-depth-3 p-4 rounded border border-bolt-elements-borderColor">
+            {details}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text rounded hover:bg-bolt-elements-button-primary-backgroundHover transition-colors"
+            aria-label="Reload Application"
+          >
+            Reload Application
+          </button>
+        </div>
+        <Scripts />
+      </body>
+    </html>
+  );
+}
 
 export default function App() {
   const theme = useStore(themeStore);
