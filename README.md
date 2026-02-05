@@ -50,6 +50,7 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | In-Browser Development  | Full development environment powered by WebContainers |
 | Real-time Preview       | Instant preview of your applications                  |
 | **RAG-Powered Memory**  | Long-term project memory using pgvector and LlamaIndex |
+| **Knowledge Graph**     | Graph-based project understanding using Neo4j          |
 | Integrated Code Editor  | CodeMirror editor with advanced syntax highlighting    |
 | Terminal Access         | Full terminal access within the browser               |
 
@@ -78,6 +79,7 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | ------------- | --------------------------------------------------------- |
 | Framework     | [Remix](https://remix.run/) + [Vite](https://vitejs.dev/) |
 | Language      | TypeScript                                                |
+| Database      | PostgreSQL (pgvector), Neo4j, Redis, MinIO                |
 | Styling       | UnoCSS + Tailwind CSS                                     |
 | UI Components | Radix UI, Headless UI                                     |
 | Animation     | Framer Motion                                             |
@@ -190,6 +192,20 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 
 ---
 
+## Architecture & Performance
+
+Devonz leverages a sophisticated service-oriented architecture to ensure scalability and reliability:
+
+### Core Services
+- **ContextService**: A singleton Orchestrator that wisely selects relevant files, generates chat summaries, and queries RAG to optimize the context window sent to the LLM.
+- **GraphService**: Uses Neo4j to maintain a live dependency graph of your project, enabling the agent to understand file relationships and import hierarchies.
+- **RAGService**: Powered by `pgvector` and LlamaIndex, this service handles semantic search over your codebase.
+- **KnowledgeService**: Handles the parallel ingestion of your project into both the Vector Store and the Knowledge Graph, utilizing batch operations for high performance.
+
+### Stability Features
+- **Global Error Boundary**: A dedicated React Error Boundary catches unhandled errors to prevent white-screen crashes, offering a user-friendly recovery UI.
+- **Robust Error Handling**: Services allow errors to propagate correctly, ensuring that partial failures (like a DB being down) are handled gracefully by the fallback logic in `ContextService`.
+
 ## Project Structure
 
 ```tree
@@ -208,7 +224,6 @@ Devonz/
 │   ├── styles/             # Global CSS & UnoCSS tokens
 │   └── types/              # Global TypeScript types
 ├── database/               # Infrastructure (PostgreSQL, MinIO, Redis)
-├── docs/                   # Extended Documentation
 ├── public/                 # Static assets & Generated Media
 ├── scripts/                # Development & Clean scripts
 └── supabase/               # Backend integrations
