@@ -16,11 +16,6 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('rag-service');
 
-export interface IndexResult {
-  indexedCount: number;
-  error?: string;
-}
-
 /**
  * Service to handle Retrieval-Augmented Generation (RAG) using LlamaIndex and pgvector.
  */
@@ -90,37 +85,31 @@ export class RAGService {
     }
   }
 
-  async indexFiles(projectId: string, files: Record<string, string>): Promise<IndexResult> {
+  async indexFiles(projectId: string, files: Record<string, string>): Promise<number> {
     await this._initialize();
 
     if (!this._vectorStore) {
       throw new Error('Vector store not initialized');
     }
 
-    try {
-      const documents = Object.entries(files).map(([path, content]) => {
-        return new Document({
-          text: content,
-          metadata: { path, projectId },
-        });
+    const documents = Object.entries(files).map(([path, content]) => {
+      return new Document({
+        text: content,
+        metadata: { path, projectId },
       });
+    });
 
-      const storageContext = await storageContextFromDefaults({
-        vectorStore: this._vectorStore,
-      });
+    const storageContext = await storageContextFromDefaults({
+      vectorStore: this._vectorStore,
+    });
 
-      await VectorStoreIndex.fromDocuments(documents, {
-        storageContext,
-      });
+    await VectorStoreIndex.fromDocuments(documents, {
+      storageContext,
+    });
 
-      logger.info(`Successfully indexed ${documents.length} files`);
+    logger.info(`Successfully indexed ${documents.length} files`);
 
-      return { indexedCount: documents.length };
-    } catch (error) {
-      logger.error('Error during indexing', error);
-
-      return { indexedCount: 0, error: String(error) };
-    }
+    return documents.length;
   }
 
   async query(projectId: string, query: string, topK: number = 5): Promise<string[]> {
@@ -130,37 +119,31 @@ export class RAGService {
       throw new Error('Vector store not initialized');
     }
 
-    try {
-      const index = await VectorStoreIndex.fromVectorStore(this._vectorStore);
+    const index = await VectorStoreIndex.fromVectorStore(this._vectorStore);
 
-      // Filter by projectId
-      const retriever = index.asRetriever({
-        similarityTopK: topK,
-        filters: {
-          filters: [
-            {
-              key: 'projectId',
-              value: projectId,
-              operator: '==',
-            },
-          ],
-        },
-      } as any);
+    // Filter by projectId
+    const retriever = index.asRetriever({
+      similarityTopK: topK,
+      filters: {
+        filters: [
+          {
+            key: 'projectId',
+            value: projectId,
+            operator: '==',
+          },
+        ],
+      },
+    } as any);
 
-      const nodesWithScores = await retriever.retrieve({ query });
+    const nodesWithScores = await retriever.retrieve({ query });
 
-      return (nodesWithScores as NodeWithScore<Metadata>[]).map((result) => {
-        const node = result.node as BaseNode;
-        const path = node.metadata.path;
-        const content = node.getContent(MetadataMode.NONE);
+    return (nodesWithScores as NodeWithScore<Metadata>[]).map((result) => {
+      const node = result.node as BaseNode;
+      const path = node.metadata.path;
+      const content = node.getContent(MetadataMode.NONE);
 
-        return `File: ${path}\n---\n${content}\n---`;
-      });
-    } catch (error) {
-      logger.error('Error during RAG query', error);
-
-      return [];
-    }
+      return `File: ${path}\n---\n${content}\n---`;
+    });
   }
 
   async deleteProjectIndex(projectId: string) {
@@ -172,8 +155,9 @@ export class RAGService {
 
     try {
       await client.connect();
+
       // Only delete rows matching this project
-      await client.query('DELETE FROM project_embeddings WHERE metadata->>\'projectId\' = $1', [projectId]);
+      await client.query("DELETE FROM project_embeddings WHERE metadata->>'projectId' = $1", [projectId]);
       logger.info(`Cleared RAG index for project: ${projectId}`);
     } catch (error) {
       logger.error(`Error clearing index for project: ${projectId}`, error);

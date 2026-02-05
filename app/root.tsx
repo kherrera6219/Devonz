@@ -1,13 +1,7 @@
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/node';
 import {
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-  useRouteError,
-  isRouteErrorResponse,
+  Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, isRouteErrorResponse,
 } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
@@ -94,7 +88,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <ToastContainer
         closeButton={({ closeToast }) => {
           return (
-            <button className="Toastify__close-button" onClick={closeToast}>
+            <button className="Toastify__close-button" onClick={closeToast} aria-label="Close notification">
               <div className="i-ph:x text-lg" />
             </button>
           );

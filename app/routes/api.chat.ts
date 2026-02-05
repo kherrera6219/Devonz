@@ -6,10 +6,8 @@ import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
 import type { IProviderSetting } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
-import { getFilePaths, selectContext } from '~/lib/.server/llm/select-context';
-import type { ContextAnnotation, ProgressAnnotation } from '~/types/context';
-import { WORK_DIR } from '~/utils/constants';
-import { createSummary } from '~/lib/.server/llm/create-summary';
+import { getFilePaths } from '~/lib/.server/llm/select-context';
+import type { ProgressAnnotation } from '~/types/context';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 import type { DesignScheme } from '~/types/design-scheme';
 import { MCPService } from '~/lib/services/mcpService';
@@ -25,9 +23,7 @@ import {
   processAgentToolCall,
   isAgentToolName,
 } from '~/lib/services/agentChatIntegration';
-import { RAGService } from '~/lib/services/ragService';
-import { redisService } from '~/lib/services/redisService';
-import crypto from 'crypto';
+import { contextService } from '~/lib/services/contextService';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -133,135 +129,20 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         }
 
         if (filePaths.length > 0 && contextOptimization) {
-          logger.debug('Generating Chat Summary');
-          dataStream.writeData({
-            type: 'progress',
-            label: 'summary',
-            status: 'in-progress',
-            order: progressCounter++,
-            message: 'Analysing Request',
-          } satisfies ProgressAnnotation);
-
-          // Create or retrieve summary of the chat
-          const lastMessage = processedMessages.at(-1)?.content || '';
-          const cacheKey = `summary:${crypto.createHash('md5').update(lastMessage).digest('hex')}`;
-
-          summary = (await redisService.get(cacheKey)) ?? undefined;
-
-          if (summary) {
-            logger.info('Retrieved summary from Redis cache');
-            dataStream.writeMessageAnnotation({
-              type: 'chatSummary',
-              summary,
-              chatId: processedMessages.slice(-1)?.[0]?.id,
-            } as ContextAnnotation);
-          } else {
-            console.log(`Messages count: ${processedMessages.length}`);
-
-            summary = await createSummary({
-              messages: [...processedMessages],
-              env: (context as any).cloudflare?.env,
-              apiKeys,
-              providerSettings,
-              promptId,
-              contextOptimization,
-              onFinish(resp) {
-                if (resp.usage) {
-                  logger.debug('createSummary token usage', JSON.stringify(resp.usage));
-                  cumulativeUsage.completionTokens += resp.usage.completionTokens || 0;
-                  cumulativeUsage.promptTokens += resp.usage.promptTokens || 0;
-                  cumulativeUsage.totalTokens += resp.usage.totalTokens || 0;
-                }
-              },
-            });
-
-            if (summary) {
-              await redisService.set(cacheKey, summary, 3600); // Cache for 1 hour
-              logger.info('Saved summary to Redis cache');
-            }
-
-            dataStream.writeMessageAnnotation({
-              type: 'chatSummary',
-              summary,
-              chatId: processedMessages.slice(-1)?.[0]?.id,
-            } as ContextAnnotation);
-          }
-
-          dataStream.writeData({
-            type: 'progress',
-            label: 'summary',
-            status: 'complete',
-            order: progressCounter++,
-            message: 'Analysis Complete',
-          } satisfies ProgressAnnotation);
-
-          // Update context buffer
-          logger.debug('Updating Context Buffer');
-          dataStream.writeData({
-            type: 'progress',
-            label: 'context',
-            status: 'in-progress',
-            order: progressCounter++,
-            message: 'Determining Files to Read',
-          } satisfies ProgressAnnotation);
-
-          // Select context files
-          console.log(`Messages count: ${processedMessages.length}`);
-          filteredFiles = await selectContext({
+          const { summary: newSummary, filteredFiles: newFilteredFiles } = await contextService.prepareContext({
             messages: [...processedMessages],
-            env: (context as any).cloudflare?.env,
-            apiKeys,
             files,
-            providerSettings,
             promptId,
             contextOptimization,
-            summary,
-            onFinish(resp) {
-              if (resp.usage) {
-                logger.debug('selectContext token usage', JSON.stringify(resp.usage));
-                cumulativeUsage.completionTokens += resp.usage.completionTokens || 0;
-                cumulativeUsage.promptTokens += resp.usage.promptTokens || 0;
-                cumulativeUsage.totalTokens += resp.usage.totalTokens || 0;
-              }
-            },
+            apiKeys,
+            providerSettings,
+            context,
+            dataStream,
+            cumulativeUsage,
           });
 
-          if (filteredFiles) {
-            logger.debug(`files in context : ${JSON.stringify(Object.keys(filteredFiles))}`);
-          }
-
-          dataStream.writeMessageAnnotation({
-            type: 'codeContext',
-            files: Object.keys(filteredFiles).map((key) => {
-              let path = key;
-
-              if (path.startsWith(WORK_DIR)) {
-                path = path.replace(WORK_DIR, '');
-              }
-
-              return path;
-            }),
-          } as ContextAnnotation);
-
-          dataStream.writeData({
-            type: 'progress',
-            label: 'context',
-            status: 'complete',
-            order: progressCounter++,
-            message: 'Code Files Selected',
-          } satisfies ProgressAnnotation);
-
-          // logger.debug('Code Files Selected');
-
-          // RAG Integration: If still missing context or large project, query RAG
-          if (contextOptimization) {
-            logger.debug('Querying RAG for additional context');
-
-            const lastMessage = processedMessages.at(-1)?.content || '';
-            const ragContext = await RAGService.getInstance().query(lastMessage);
-
-            summary = (summary || '') + '\n\nRelevant Code Snippets from RAG:\n' + ragContext.join('\n\n');
-          }
+          summary = newSummary;
+          filteredFiles = newFilteredFiles;
         }
 
         // Merge MCP tools with agent tools when agent mode is enabled
