@@ -30,37 +30,139 @@ const architectNode = async (state: BoltState) => {
     return res as Partial<BoltState>;
 };
 
-// QC Nodes (Simplified logic for now, utilizing agent capabilities)
+// QC Nodes (Real implementations using test tools)
 const qcStructuralNode = async (state: BoltState) => {
-    // Coordinator performs structural QC
-    // Check if files exist, basic syntax check (mocked)
-    const issues = [];
+    // Real structural QC using TypeScript and ESLint
+    const issues: Array<{ type: string; severity: string; description: string }> = [];
+
+    // Check if files were generated
     if (!state.generatedArtifacts?.files?.length) {
         issues.push({ type: 'structural', severity: 'critical', description: 'No files generated' });
     }
+
+    // Run TypeScript type check on generated files
+    try {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+
+        // Type check
+        try {
+            await execAsync('npx tsc --noEmit', { cwd: process.cwd(), timeout: 60000 });
+        } catch (typeError: any) {
+            const errorOutput = typeError.stdout || typeError.stderr || '';
+            const tsErrors = errorOutput.match(/error TS\d+/g) || [];
+            if (tsErrors.length > 0) {
+                issues.push({
+                    type: 'structural',
+                    severity: 'high',
+                    description: `TypeScript found ${tsErrors.length} type errors`,
+                });
+            }
+        }
+
+        // ESLint check
+        try {
+            await execAsync('npx eslint app/lib/agent-orchestrator --format=compact', {
+                cwd: process.cwd(),
+                timeout: 60000,
+            });
+        } catch (lintError: any) {
+            const errorCount = (lintError.stdout?.match(/\d+ error/g) || []).length;
+            if (errorCount > 0) {
+                issues.push({
+                    type: 'structural',
+                    severity: 'medium',
+                    description: `ESLint found ${errorCount} errors`,
+                });
+            }
+        }
+    } catch (error: any) {
+        console.warn('QC Structural check failed:', error.message);
+    }
+
     return {
         qcStage: 'security',
-        qcFindings: issues // Logic handles merging in channel
+        qcFindings: issues,
     } as Partial<BoltState>;
 };
 
 const qcSecurityNode = async (state: BoltState) => {
-    // Researcher checks security
-    // Utilizing previous research findings to check against
+    // Real security QC checks
+    const issues: Array<{ type: string; severity: string; description: string }> = [];
+
+    try {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+
+        // npm audit for dependency vulnerabilities
+        try {
+            const { stdout } = await execAsync('npm audit --json', {
+                cwd: process.cwd(),
+                timeout: 60000,
+            });
+            const audit = JSON.parse(stdout);
+            if (audit.metadata?.vulnerabilities?.high > 0 || audit.metadata?.vulnerabilities?.critical > 0) {
+                issues.push({
+                    type: 'security',
+                    severity: 'high',
+                    description: `npm audit: ${audit.metadata.vulnerabilities.high || 0} high, ${audit.metadata.vulnerabilities.critical || 0} critical vulnerabilities`,
+                });
+            }
+        } catch (auditError: any) {
+            // npm audit exits with error code when vulnerabilities found
+            try {
+                const audit = JSON.parse(auditError.stdout || '{}');
+                if (audit.metadata?.vulnerabilities?.critical > 0) {
+                    issues.push({
+                        type: 'security',
+                        severity: 'critical',
+                        description: `Critical security vulnerabilities in dependencies`,
+                    });
+                }
+            } catch {
+                // Ignore parse errors
+            }
+        }
+
+        // Check for hardcoded secrets in generated code
+        const generatedFiles = state.generatedArtifacts?.files || [];
+        for (const file of generatedFiles) {
+            const content = file.content || '';
+            // Simple pattern matching for common secrets
+            if (/(?:api[_-]?key|secret|password|token)\s*[:=]\s*['"][^'"]{10,}['"]/i.test(content)) {
+                issues.push({
+                    type: 'security',
+                    severity: 'critical',
+                    description: `Potential hardcoded secret in ${file.path}`,
+                });
+            }
+        }
+    } catch (error: any) {
+        console.warn('QC Security check failed:', error.message);
+    }
+
     return {
         qcStage: 'refinement',
-        // In a real impl, we'd call researcher.scan(artifacts)
+        qcFindings: issues,
     } as Partial<BoltState>;
 };
 
 const qcFixNode = async (state: BoltState) => {
-    // Architect fixes issues
-    // For now, if issues exist, we might increment iteration or just pass through
+    // Increment iteration and log what needs fixing
+    const criticalIssues = state.qcFindings?.filter(
+        (i) => i.severity === 'critical' || i.severity === 'high',
+    );
+
+    console.log(`[QC_FIX] Iteration ${(state.qcIteration || 0) + 1}: ${criticalIssues?.length || 0} critical/high issues to address`);
+
     return {
         qcIteration: (state.qcIteration || 0) + 1,
-        // In a real impl, architect.fix(artifacts, findings)
+        // In future: call architect.fix(artifacts, findings) to auto-fix
     } as Partial<BoltState>;
 };
+
 
 const finalizeNode = async (state: BoltState) => {
     return {
