@@ -142,6 +142,18 @@ export function createGraph() {
     workflow.addEdge('research_tech' as any, 'research_competency' as any);
     workflow.addEdge('research_competency' as any, 'architect' as any);
 
+    // Architect leads to QC
+    workflow.addEdge('architect' as any, 'qc_structural' as any);
+
+    // QC Flow
+    workflow.addEdge('qc_structural' as any, 'qc_security' as any);
+
+    // @ts-ignore
+    workflow.addConditionalEdges('qc_security', checkQCPass, {
+        fix: 'qc_fix',
+        finalize: 'finalize'
+    });
+
     workflow.addEdge('qc_fix' as any, 'qc_structural' as any); // Loop back to structural QC
     workflow.addEdge('finalize' as any, END as any);
 

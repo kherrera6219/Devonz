@@ -1,5 +1,5 @@
-
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { ChatOpenAI } from '@langchain/openai';
 import type { BoltState, AgentMessage } from '~/lib/agent-orchestrator/state/types';
 import { MessageFactory } from '~/lib/agent-orchestrator/utils/message-factory';
 import { JsonOutputParser } from '@langchain/core/output_parsers';
@@ -8,8 +8,8 @@ import { BaseAgent } from '~/lib/agent-orchestrator/agents/base';
 
 export class ResearcherAgent extends BaseAgent {
   protected name = 'researcher';
-  private model: ChatGoogleGenerativeAI | null = null;
-  private searchModel: ChatGoogleGenerativeAI | null = null;
+  private model: any = null;
+  private searchModel: any = null;
 
   constructor() {
     super();
@@ -20,22 +20,22 @@ export class ResearcherAgent extends BaseAgent {
       return;
     }
 
-    const apiKey = state.apiKeys?.Google || process.env.GOOGLE_API_KEY;
+    const googleApiKey = state.apiKeys?.Google || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
     if (!this.model) {
       this.model = new ChatGoogleGenerativeAI({
-        model: 'gemini-3.0-flash',
+        model: 'gemini-3-flash-preview',
         maxOutputTokens: 8192,
         temperature: 0.1,
-        apiKey: apiKey,
+        apiKey: googleApiKey,
       });
     }
 
     if (!this.searchModel) {
       this.searchModel = new ChatGoogleGenerativeAI({
-        model: 'gemini-3.0-flash',
+        model: 'gemini-3-flash-preview',
         temperature: 0.1,
-        apiKey: apiKey,
+        apiKey: googleApiKey,
       });
     }
   }

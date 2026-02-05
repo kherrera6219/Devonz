@@ -21,9 +21,9 @@ export class CoordinatorAgent extends BaseAgent {
 
     const apiKey = state.apiKeys?.OpenAI || process.env.OPENAI_API_KEY;
 
+
     this.model = new ChatOpenAI({
-      modelName: 'gpt-5.2',
-      temperature: 0.3,
+      modelName: 'gpt-5',
       openAIApiKey: apiKey,
     });
   }

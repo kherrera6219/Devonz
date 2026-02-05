@@ -19,10 +19,10 @@ export class ArchitectAgent extends BaseAgent {
       return;
     }
 
-    const apiKey = state.apiKeys?.Anthropic || process.env.ANTHROPIC_API_KEY;
+    const apiKey = state.apiKeys?.Anthropic || process.env.ANTHROPIC_API_KEY || process.env.VITE_ANTHROPIC_API_KEY;
 
     this.model = new ChatAnthropic({
-      modelName: 'claude-4-opus',
+      modelName: 'claude-sonnet-4-5-20250929',
       temperature: 0.5,
       maxTokens: 4096,
       anthropicApiKey: apiKey,
