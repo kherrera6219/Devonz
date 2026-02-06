@@ -73,13 +73,15 @@ export interface UseSettingsReturn {
     researcherModel: string;
     architectModel: string;
   };
-  updateOrchestratorSettings: (updates: Partial<{
-    enabled: boolean;
-    mode: 'fast' | 'hardened' | 'security-strict';
-    coordinatorModel: string;
-    researcherModel: string;
-    architectModel: string;
-  }>) => void;
+  updateOrchestratorSettings: (
+    updates: Partial<{
+      enabled: boolean;
+      mode: 'fast' | 'hardened' | 'security-strict';
+      coordinatorModel: string;
+      researcherModel: string;
+      architectModel: string;
+    }>,
+  ) => void;
 
   // Tab configuration
   tabConfiguration: TabWindowConfig;

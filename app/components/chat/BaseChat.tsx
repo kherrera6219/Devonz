@@ -93,304 +93,305 @@ interface BaseChatProps {
   runUIState?: RunUIState;
 }
 
-export const BaseChat = memo(React.forwardRef<HTMLDivElement, BaseChatProps>(
-  (
-    {
-      textareaRef,
-      showChat = true,
-      chatStarted = false,
-      isStreaming = false,
-      onStreamingChange,
-      model,
-      setModel,
-      provider,
-      setProvider,
-      providerList,
-      input = '',
-      enhancingPrompt,
-      handleInputChange,
+export const BaseChat = memo(
+  React.forwardRef<HTMLDivElement, BaseChatProps>(
+    (
+      {
+        textareaRef,
+        showChat = true,
+        chatStarted = false,
+        isStreaming = false,
+        onStreamingChange,
+        model,
+        setModel,
+        provider,
+        setProvider,
+        providerList,
+        input = '',
+        enhancingPrompt,
+        handleInputChange,
 
-      // promptEnhanced,
-      enhancePrompt,
-      sendMessage,
-      handleStop,
-      importChat,
-      exportChat,
-      uploadedFiles = [],
-      setUploadedFiles,
-      imageDataList = [],
-      setImageDataList,
-      messages,
-      actionAlert,
-      clearAlert,
-      deployAlert,
-      clearDeployAlert,
-      supabaseAlert,
-      clearSupabaseAlert,
-      llmErrorAlert,
-      clearLlmErrorAlert,
-      data,
-      chatMode,
-      setChatMode,
-      append,
-      designScheme,
-      setDesignScheme,
-      selectedElement,
-      setSelectedElement,
-      addToolResult = () => {
-        throw new Error('addToolResult not implemented');
+        // promptEnhanced,
+        enhancePrompt,
+        sendMessage,
+        handleStop,
+        importChat,
+        exportChat,
+        uploadedFiles = [],
+        setUploadedFiles,
+        imageDataList = [],
+        setImageDataList,
+        messages,
+        actionAlert,
+        clearAlert,
+        deployAlert,
+        clearDeployAlert,
+        supabaseAlert,
+        clearSupabaseAlert,
+        llmErrorAlert,
+        clearLlmErrorAlert,
+        data,
+        chatMode,
+        setChatMode,
+        append,
+        designScheme,
+        setDesignScheme,
+        selectedElement,
+        setSelectedElement,
+        addToolResult = () => {
+          throw new Error('addToolResult not implemented');
+        },
+        runUIState,
       },
-      runUIState,
-    },
-    ref,
-  ) => {
-    const TEXTAREA_MAX_HEIGHT = useMemo(() => (chatStarted ? 400 : 200), [chatStarted]);
-    const [apiKeys, setApiKeys] = useState<Record<string, string>>(getApiKeysFromCookies());
-    const [modelList, setModelList] = useState<ModelInfo[]>([]);
-    const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
-    const [isListening, setIsListening] = useState(false);
-    const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
-    const [transcript, setTranscript] = useState('');
-    const [isModelLoading, setIsModelLoading] = useState<string | undefined>('all');
-    const [progressAnnotations, setProgressAnnotations] = useState<ProgressAnnotation[]>([]);
-    const expoUrl = useStore(expoUrlAtom);
-    const showWorkbench = useStore(workbenchStore.showWorkbench);
-    const workbenchWidth = useStore(workbenchStore.workbenchWidth);
-    const [qrModalOpen, setQrModalOpen] = useState(false);
-    const [isResizing, setIsResizing] = useState(false);
-    const [isExpertOpen, setIsExpertOpen] = useState(false);
+      ref,
+    ) => {
+      const TEXTAREA_MAX_HEIGHT = useMemo(() => (chatStarted ? 400 : 200), [chatStarted]);
+      const [apiKeys, setApiKeys] = useState<Record<string, string>>(getApiKeysFromCookies());
+      const [modelList, setModelList] = useState<ModelInfo[]>([]);
+      const [isModelSettingsCollapsed, setIsModelSettingsCollapsed] = useState(false);
+      const [isListening, setIsListening] = useState(false);
+      const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+      const [transcript, setTranscript] = useState('');
+      const [isModelLoading, setIsModelLoading] = useState<string | undefined>('all');
+      const [progressAnnotations, setProgressAnnotations] = useState<ProgressAnnotation[]>([]);
+      const expoUrl = useStore(expoUrlAtom);
+      const showWorkbench = useStore(workbenchStore.showWorkbench);
+      const workbenchWidth = useStore(workbenchStore.workbenchWidth);
+      const [qrModalOpen, setQrModalOpen] = useState(false);
+      const [isResizing, setIsResizing] = useState(false);
+      const [isExpertOpen, setIsExpertOpen] = useState(false);
 
-    const handleResize = useCallback(
-      (deltaX: number) => {
-        // Negative delta means dragging left (making workbench bigger)
-        const newWidth = workbenchWidth - deltaX;
-        workbenchStore.setWorkbenchWidth(newWidth);
-      },
-      [workbenchWidth],
-    );
+      const handleResize = useCallback(
+        (deltaX: number) => {
+          // Negative delta means dragging left (making workbench bigger)
+          const newWidth = workbenchWidth - deltaX;
+          workbenchStore.setWorkbenchWidth(newWidth);
+        },
+        [workbenchWidth],
+      );
 
-    useEffect(() => {
-      if (expoUrl) {
-        setQrModalOpen(true);
-      }
-    }, [expoUrl]);
-
-    useEffect(() => {
-      if (data) {
-        const progressList = data.filter(
-          (x) => typeof x === 'object' && (x as any).type === 'progress',
-        ) as ProgressAnnotation[];
-        setProgressAnnotations(progressList);
-      }
-    }, [data]);
-    useEffect(() => {
-      console.log(transcript);
-    }, [transcript]);
-
-    useEffect(() => {
-      onStreamingChange?.(isStreaming);
-    }, [isStreaming, onStreamingChange]);
-
-    useEffect(() => {
-      if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-          const transcript = Array.from(event.results)
-            .map((result) => result[0])
-            .map((result) => result.transcript)
-            .join('');
-
-          setTranscript(transcript);
-
-          if (handleInputChange) {
-            const syntheticEvent = {
-              target: { value: transcript },
-            } as React.ChangeEvent<HTMLTextAreaElement>;
-            handleInputChange(syntheticEvent);
-          }
-        };
-
-        recognition.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
-          setIsListening(false);
-        };
-
-        setRecognition(recognition);
-      }
-    }, []);
-
-    useEffect(() => {
-      if (typeof window !== 'undefined') {
-        let parsedApiKeys: Record<string, string> | undefined = {};
-
-        try {
-          parsedApiKeys = getApiKeysFromCookies();
-          setApiKeys(parsedApiKeys);
-        } catch (error) {
-          console.error('Error loading API keys from cookies:', error);
-          Cookies.remove('apiKeys');
+      useEffect(() => {
+        if (expoUrl) {
+          setQrModalOpen(true);
         }
+      }, [expoUrl]);
 
-        setIsModelLoading('all');
-        fetch('/api/models')
-          .then((response) => response.json())
-          .then((data) => {
-            const typedData = data as { modelList: ModelInfo[] };
-            setModelList(typedData.modelList);
-          })
-          .catch((error) => {
-            console.error('Error fetching model list:', error);
-          })
-          .finally(() => {
-            setIsModelLoading(undefined);
-          });
-      }
-    }, [providerList, provider]);
-
-    const onApiKeysChange = useCallback(
-      async (providerName: string, apiKey: string) => {
-        const newApiKeys = { ...apiKeys, [providerName]: apiKey };
-        setApiKeys(newApiKeys);
-        Cookies.set('apiKeys', JSON.stringify(newApiKeys));
-
-        setIsModelLoading(providerName);
-
-        let providerModels: ModelInfo[] = [];
-
-        try {
-          const response = await fetch(`/api/models/${encodeURIComponent(providerName)}`);
-          const data = await response.json();
-          providerModels = (data as { modelList: ModelInfo[] }).modelList;
-        } catch (error) {
-          console.error('Error loading dynamic models for:', providerName, error);
+      useEffect(() => {
+        if (data) {
+          const progressList = data.filter(
+            (x) => typeof x === 'object' && (x as any).type === 'progress',
+          ) as ProgressAnnotation[];
+          setProgressAnnotations(progressList);
         }
+      }, [data]);
+      useEffect(() => {
+        console.log(transcript);
+      }, [transcript]);
 
-        // Only update models for the specific provider
-        setModelList((prevModels) => {
-          const otherModels = prevModels.filter((model) => model.provider !== providerName);
-          return [...otherModels, ...providerModels];
-        });
-        setIsModelLoading(undefined);
-      },
-      [apiKeys],
-    );
+      useEffect(() => {
+        onStreamingChange?.(isStreaming);
+      }, [isStreaming, onStreamingChange]);
 
-    const startListening = useCallback(() => {
-      if (recognition) {
-        recognition.start();
-        setIsListening(true);
-      }
-    }, [recognition]);
+      useEffect(() => {
+        if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          const recognition = new SpeechRecognition();
+          recognition.continuous = true;
+          recognition.interimResults = true;
 
-    const stopListening = useCallback(() => {
-      if (recognition) {
-        recognition.stop();
-        setIsListening(false);
-      }
-    }, [recognition]);
+          recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+              .map((result) => result[0])
+              .map((result) => result.transcript)
+              .join('');
 
-    const handleSendMessage = useCallback(
-      (event: React.UIEvent, messageInput?: string) => {
-        if (sendMessage) {
-          sendMessage(event, messageInput);
-          setSelectedElement?.(null);
+            setTranscript(transcript);
 
-          if (recognition) {
-            recognition.abort(); // Stop current recognition
-            setTranscript(''); // Clear transcript
-            setIsListening(false);
-
-            // Clear the input by triggering handleInputChange with empty value
             if (handleInputChange) {
               const syntheticEvent = {
-                target: { value: '' },
+                target: { value: transcript },
               } as React.ChangeEvent<HTMLTextAreaElement>;
               handleInputChange(syntheticEvent);
             }
-          }
-        }
-      },
-      [sendMessage, setSelectedElement, recognition, handleInputChange],
-    );
-
-    const handleFileUpload = useCallback(() => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-
-      input.onchange = async (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-
-        if (file) {
-          const reader = new FileReader();
-
-          reader.onload = (e) => {
-            const base64Image = e.target?.result as string;
-            setUploadedFiles?.([...uploadedFiles, file]);
-            setImageDataList?.([...imageDataList, base64Image]);
           };
-          reader.readAsDataURL(file);
+
+          recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            setIsListening(false);
+          };
+
+          setRecognition(recognition);
         }
-      };
+      }, []);
 
-      input.click();
-    }, [uploadedFiles, imageDataList, setUploadedFiles, setImageDataList]);
+      useEffect(() => {
+        if (typeof window !== 'undefined') {
+          let parsedApiKeys: Record<string, string> | undefined = {};
 
-    const handlePaste = useCallback(
-      async (e: React.ClipboardEvent) => {
-        const items = e.clipboardData?.items;
-
-        if (!items) {
-          return;
-        }
-
-        for (const item of items) {
-          if (item.type.startsWith('image/')) {
-            e.preventDefault();
-
-            const file = item.getAsFile();
-
-            if (file) {
-              const reader = new FileReader();
-
-              reader.onload = (e) => {
-                const base64Image = e.target?.result as string;
-                setUploadedFiles?.([...uploadedFiles, file]);
-                setImageDataList?.([...imageDataList, base64Image]);
-              };
-              reader.readAsDataURL(file);
-            }
-
-            break;
+          try {
+            parsedApiKeys = getApiKeysFromCookies();
+            setApiKeys(parsedApiKeys);
+          } catch (error) {
+            console.error('Error loading API keys from cookies:', error);
+            Cookies.remove('apiKeys');
           }
-        }
-      },
-      [uploadedFiles, imageDataList, setUploadedFiles, setImageDataList],
-    );
 
-    const baseChat = (
-      <div
-        ref={ref}
-        className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
-        data-chat-visible={showChat}
-      >
-        <ClientOnly>{() => <Menu />}</ClientOnly>
-        <div className="flex flex-row w-full h-full overflow-hidden">
-          {/* Chat Panel - hidden when showChat is false and workbench is visible */}
-          {showChat && (
-            <div
-              className={classNames(styles.Chat, 'flex flex-col flex-grow min-w-[300px] h-full', {
-                'select-none': isResizing,
-                'overflow-hidden': chatStarted,
-                'overflow-y-auto': !chatStarted,
-              })}
-            >
-              {runUIState && (
-                 <RunHeader
+          setIsModelLoading('all');
+          fetch('/api/models')
+            .then((response) => response.json())
+            .then((data) => {
+              const typedData = data as { modelList: ModelInfo[] };
+              setModelList(typedData.modelList);
+            })
+            .catch((error) => {
+              console.error('Error fetching model list:', error);
+            })
+            .finally(() => {
+              setIsModelLoading(undefined);
+            });
+        }
+      }, [providerList, provider]);
+
+      const onApiKeysChange = useCallback(
+        async (providerName: string, apiKey: string) => {
+          const newApiKeys = { ...apiKeys, [providerName]: apiKey };
+          setApiKeys(newApiKeys);
+          Cookies.set('apiKeys', JSON.stringify(newApiKeys));
+
+          setIsModelLoading(providerName);
+
+          let providerModels: ModelInfo[] = [];
+
+          try {
+            const response = await fetch(`/api/models/${encodeURIComponent(providerName)}`);
+            const data = await response.json();
+            providerModels = (data as { modelList: ModelInfo[] }).modelList;
+          } catch (error) {
+            console.error('Error loading dynamic models for:', providerName, error);
+          }
+
+          // Only update models for the specific provider
+          setModelList((prevModels) => {
+            const otherModels = prevModels.filter((model) => model.provider !== providerName);
+            return [...otherModels, ...providerModels];
+          });
+          setIsModelLoading(undefined);
+        },
+        [apiKeys],
+      );
+
+      const startListening = useCallback(() => {
+        if (recognition) {
+          recognition.start();
+          setIsListening(true);
+        }
+      }, [recognition]);
+
+      const stopListening = useCallback(() => {
+        if (recognition) {
+          recognition.stop();
+          setIsListening(false);
+        }
+      }, [recognition]);
+
+      const handleSendMessage = useCallback(
+        (event: React.UIEvent, messageInput?: string) => {
+          if (sendMessage) {
+            sendMessage(event, messageInput);
+            setSelectedElement?.(null);
+
+            if (recognition) {
+              recognition.abort(); // Stop current recognition
+              setTranscript(''); // Clear transcript
+              setIsListening(false);
+
+              // Clear the input by triggering handleInputChange with empty value
+              if (handleInputChange) {
+                const syntheticEvent = {
+                  target: { value: '' },
+                } as React.ChangeEvent<HTMLTextAreaElement>;
+                handleInputChange(syntheticEvent);
+              }
+            }
+          }
+        },
+        [sendMessage, setSelectedElement, recognition, handleInputChange],
+      );
+
+      const handleFileUpload = useCallback(() => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+
+        input.onchange = async (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+
+          if (file) {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+              const base64Image = e.target?.result as string;
+              setUploadedFiles?.([...uploadedFiles, file]);
+              setImageDataList?.([...imageDataList, base64Image]);
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+
+        input.click();
+      }, [uploadedFiles, imageDataList, setUploadedFiles, setImageDataList]);
+
+      const handlePaste = useCallback(
+        async (e: React.ClipboardEvent) => {
+          const items = e.clipboardData?.items;
+
+          if (!items) {
+            return;
+          }
+
+          for (const item of items) {
+            if (item.type.startsWith('image/')) {
+              e.preventDefault();
+
+              const file = item.getAsFile();
+
+              if (file) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                  const base64Image = e.target?.result as string;
+                  setUploadedFiles?.([...uploadedFiles, file]);
+                  setImageDataList?.([...imageDataList, base64Image]);
+                };
+                reader.readAsDataURL(file);
+              }
+
+              break;
+            }
+          }
+        },
+        [uploadedFiles, imageDataList, setUploadedFiles, setImageDataList],
+      );
+
+      const baseChat = (
+        <div
+          ref={ref}
+          className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
+          data-chat-visible={showChat}
+        >
+          <ClientOnly>{() => <Menu />}</ClientOnly>
+          <div className="flex flex-row w-full h-full overflow-hidden">
+            {/* Chat Panel - hidden when showChat is false and workbench is visible */}
+            {showChat && (
+              <div
+                className={classNames(styles.Chat, 'flex flex-col flex-grow min-w-[300px] h-full', {
+                  'select-none': isResizing,
+                  'overflow-hidden': chatStarted,
+                  'overflow-y-auto': !chatStarted,
+                })}
+              >
+                {runUIState && (
+                  <RunHeader
                     progress={runUIState.progress}
                     stageLabel={runUIState.stageLabel}
                     activeAgents={runUIState.activeAgents}
@@ -398,219 +399,223 @@ export const BaseChat = memo(React.forwardRef<HTMLDivElement, BaseChatProps>(
                     stats={runUIState.stats}
                     onToggleExpert={() => setIsExpertOpen(!isExpertOpen)}
                     isExpertOpen={isExpertOpen}
-                 />
-              )}
-              {!chatStarted && (
-                <div id="intro" className="mt-[8vh] max-w-2xl mx-auto text-center px-4 lg:px-0 relative">
-                  {/* Liquid Metal 3D Text */}
-                  <div className="liquid-metal-container">
-                    <h1 className="liquid-metal-text">Devonz</h1>
-                  </div>
+                  />
+                )}
+                {!chatStarted && (
+                  <div id="intro" className="mt-[8vh] max-w-2xl mx-auto text-center px-4 lg:px-0 relative">
+                    {/* Liquid Metal 3D Text */}
+                    <div className="liquid-metal-container">
+                      <h1 className="liquid-metal-text">Devonz</h1>
+                    </div>
 
-                  {/* Subtitle below the 3D text */}
-                  <p className="text-base lg:text-lg text-[#8badd4] animate-fade-in animation-delay-200">
-                    Build anything with AI. Just describe what you want.
-                  </p>
-                </div>
-              )}
-              <StickToBottom
-                className={classNames('pt-6 px-2 sm:px-6 relative', {
-                  'h-full flex flex-col modern-scrollbar': chatStarted,
-                })}
-                resize="smooth"
-                initial="smooth"
-              >
-                <StickToBottom.Content className="flex flex-col gap-4 relative ">
-                  {runUIState && runUIState.statusLines.length > 0 && (
-                     <RunCard
+                    {/* Subtitle below the 3D text */}
+                    <p className="text-base lg:text-lg text-[#8badd4] animate-fade-in animation-delay-200">
+                      Build anything with AI. Just describe what you want.
+                    </p>
+                  </div>
+                )}
+                <StickToBottom
+                  className={classNames('pt-6 px-2 sm:px-6 relative', {
+                    'h-full flex flex-col modern-scrollbar': chatStarted,
+                  })}
+                  resize="smooth"
+                  initial="smooth"
+                >
+                  <StickToBottom.Content className="flex flex-col gap-4 relative ">
+                    {runUIState && runUIState.statusLines.length > 0 && (
+                      <RunCard
                         statusLines={runUIState.statusLines}
                         stages={runUIState.runStages}
                         lastQC={runUIState.stats.qcIssues}
-                     />
-                  )}
-                  <ClientOnly>
-                    {() => {
-                      return chatStarted ? (
-                        <Messages
-                          key="messages-component"
-                          className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
-                          messages={messages}
+                      />
+                    )}
+                    <ClientOnly>
+                      {() => {
+                        return chatStarted ? (
+                          <Messages
+                            key="messages-component"
+                            className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
+                            messages={messages}
+                            isStreaming={isStreaming}
+                            append={append}
+                            chatMode={chatMode}
+                            setChatMode={setChatMode}
+                            provider={provider}
+                            model={model}
+                            addToolResult={addToolResult}
+                          />
+                        ) : null;
+                      }}
+                    </ClientOnly>
+                    <ScrollToBottom />
+                  </StickToBottom.Content>
+                  <div
+                    className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-6', {
+                      'sticky bottom-2': chatStarted,
+                    })}
+                  >
+                    <div className="flex flex-col gap-2">
+                      {deployAlert && (
+                        <DeployChatAlert
+                          alert={deployAlert}
+                          clearAlert={() => clearDeployAlert?.()}
+                          postMessage={(message: string | undefined) => {
+                            sendMessage?.({} as any, message);
+                            clearSupabaseAlert?.();
+                          }}
+                        />
+                      )}
+                      {supabaseAlert && (
+                        <SupabaseChatAlert
+                          alert={supabaseAlert}
+                          clearAlert={() => clearSupabaseAlert?.()}
+                          postMessage={(message) => {
+                            sendMessage?.({} as any, message);
+                            clearSupabaseAlert?.();
+                          }}
+                        />
+                      )}
+                      {actionAlert && (
+                        <ChatAlert
+                          alert={actionAlert}
+                          clearAlert={() => clearAlert?.()}
+                          postMessage={(message) => {
+                            sendMessage?.({} as any, message);
+                            clearAlert?.();
+                          }}
+                        />
+                      )}
+                      {llmErrorAlert && (
+                        <LlmErrorAlert alert={llmErrorAlert} clearAlert={() => clearLlmErrorAlert?.()} />
+                      )}
+                      {/* Plan Approval Alert - shows when a plan is pending approval */}
+                      <PlanApprovalAlert
+                        postMessage={(message) => {
+                          sendMessage?.({} as any, message);
+                        }}
+                      />
+                    </div>
+                    {progressAnnotations && <ProgressCompilation data={progressAnnotations} />}
+
+                    {/* Action Buttons Row - Above ChatBox */}
+                    {!chatStarted && (
+                      <div className="flex justify-center gap-3 mb-4 max-w-chat mx-auto w-full">
+                        <LeftActionPanel importChat={importChat} />
+                      </div>
+                    )}
+
+                    {/* 3-Column Layout Wrapper */}
+                    <div className="flex items-center justify-center gap-4 lg:gap-6 w-full">
+                      {/* Center Column - ChatBox */}
+                      <div className="w-full max-w-chat">
+                        <ChatBox
+                          isModelSettingsCollapsed={isModelSettingsCollapsed}
+                          setIsModelSettingsCollapsed={setIsModelSettingsCollapsed}
+                          provider={provider}
+                          setProvider={setProvider}
+                          providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
+                          model={model}
+                          setModel={setModel}
+                          modelList={modelList}
+                          apiKeys={apiKeys}
+                          isModelLoading={isModelLoading}
+                          onApiKeysChange={onApiKeysChange}
+                          uploadedFiles={uploadedFiles}
+                          setUploadedFiles={setUploadedFiles}
+                          imageDataList={imageDataList}
+                          setImageDataList={setImageDataList}
+                          textareaRef={textareaRef}
+                          input={input}
+                          handleInputChange={handleInputChange}
+                          handlePaste={handlePaste}
+                          TEXTAREA_MIN_HEIGHT={TEXTAREA_MIN_HEIGHT}
+                          TEXTAREA_MAX_HEIGHT={TEXTAREA_MAX_HEIGHT}
                           isStreaming={isStreaming}
-                          append={append}
+                          handleStop={handleStop}
+                          handleSendMessage={handleSendMessage}
+                          enhancingPrompt={enhancingPrompt}
+                          enhancePrompt={enhancePrompt}
+                          isListening={isListening}
+                          startListening={startListening}
+                          stopListening={stopListening}
+                          chatStarted={chatStarted}
+                          exportChat={exportChat}
+                          qrModalOpen={qrModalOpen}
+                          setQrModalOpen={setQrModalOpen}
+                          handleFileUpload={handleFileUpload}
                           chatMode={chatMode}
                           setChatMode={setChatMode}
-                          provider={provider}
-                          model={model}
-                          addToolResult={addToolResult}
+                          designScheme={designScheme}
+                          setDesignScheme={setDesignScheme}
+                          selectedElement={selectedElement}
+                          setSelectedElement={setSelectedElement}
                         />
-                      ) : null;
-                    }}
-                  </ClientOnly>
-                  <ScrollToBottom />
-                </StickToBottom.Content>
-                <div
-                  className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-6', {
-                    'sticky bottom-2': chatStarted,
-                  })}
-                >
-                  <div className="flex flex-col gap-2">
-                    {deployAlert && (
-                      <DeployChatAlert
-                        alert={deployAlert}
-                        clearAlert={() => clearDeployAlert?.()}
-                        postMessage={(message: string | undefined) => {
-                          sendMessage?.({} as any, message);
-                          clearSupabaseAlert?.();
-                        }}
-                      />
+                      </div>
+                    </div>
+
+                    {/* Framework Icons Row - Below ChatBox */}
+                    {!chatStarted && (
+                      <div className="flex justify-center mt-4 max-w-chat mx-auto w-full">
+                        <RightIconPanel />
+                      </div>
                     )}
-                    {supabaseAlert && (
-                      <SupabaseChatAlert
-                        alert={supabaseAlert}
-                        clearAlert={() => clearSupabaseAlert?.()}
-                        postMessage={(message) => {
-                          sendMessage?.({} as any, message);
-                          clearSupabaseAlert?.();
-                        }}
-                      />
+
+                    {/* Example Prompts - Below Framework Icons */}
+                    {!chatStarted && (
+                      <div className="flex flex-col items-center gap-4 mt-4 max-w-chat mx-auto w-full">
+                        <ExamplePrompts
+                          sendMessage={(event, messageInput) => {
+                            if (isStreaming) {
+                              handleStop?.();
+                              return;
+                            }
+
+                            handleSendMessage?.(event, messageInput);
+                          }}
+                        />
+                      </div>
                     )}
-                    {actionAlert && (
-                      <ChatAlert
-                        alert={actionAlert}
-                        clearAlert={() => clearAlert?.()}
-                        postMessage={(message) => {
-                          sendMessage?.({} as any, message);
-                          clearAlert?.();
-                        }}
-                      />
-                    )}
-                    {llmErrorAlert && <LlmErrorAlert alert={llmErrorAlert} clearAlert={() => clearLlmErrorAlert?.()} />}
-                    {/* Plan Approval Alert - shows when a plan is pending approval */}
-                    <PlanApprovalAlert
-                      postMessage={(message) => {
-                        sendMessage?.({} as any, message);
-                      }}
-                    />
                   </div>
-                  {progressAnnotations && <ProgressCompilation data={progressAnnotations} />}
+                </StickToBottom>
+                {/* Recent Chats - Below Example Prompts */}
+                {!chatStarted && <ClientOnly>{() => <RecentChats maxItems={10} />}</ClientOnly>}
+              </div>
+            )}
 
-                  {/* Action Buttons Row - Above ChatBox */}
-                  {!chatStarted && (
-                    <div className="flex justify-center gap-3 mb-4 max-w-chat mx-auto w-full">
-                      <LeftActionPanel importChat={importChat} />
-                    </div>
-                  )}
-
-                  {/* 3-Column Layout Wrapper */}
-                  <div className="flex items-center justify-center gap-4 lg:gap-6 w-full">
-                    {/* Center Column - ChatBox */}
-                    <div className="w-full max-w-chat">
-                      <ChatBox
-                        isModelSettingsCollapsed={isModelSettingsCollapsed}
-                        setIsModelSettingsCollapsed={setIsModelSettingsCollapsed}
-                        provider={provider}
-                        setProvider={setProvider}
-                        providerList={providerList || (PROVIDER_LIST as ProviderInfo[])}
-                        model={model}
-                        setModel={setModel}
-                        modelList={modelList}
-                        apiKeys={apiKeys}
-                        isModelLoading={isModelLoading}
-                        onApiKeysChange={onApiKeysChange}
-                        uploadedFiles={uploadedFiles}
-                        setUploadedFiles={setUploadedFiles}
-                        imageDataList={imageDataList}
-                        setImageDataList={setImageDataList}
-                        textareaRef={textareaRef}
-                        input={input}
-                        handleInputChange={handleInputChange}
-                        handlePaste={handlePaste}
-                        TEXTAREA_MIN_HEIGHT={TEXTAREA_MIN_HEIGHT}
-                        TEXTAREA_MAX_HEIGHT={TEXTAREA_MAX_HEIGHT}
-                        isStreaming={isStreaming}
-                        handleStop={handleStop}
-                        handleSendMessage={handleSendMessage}
-                        enhancingPrompt={enhancingPrompt}
-                        enhancePrompt={enhancePrompt}
-                        isListening={isListening}
-                        startListening={startListening}
-                        stopListening={stopListening}
-                        chatStarted={chatStarted}
-                        exportChat={exportChat}
-                        qrModalOpen={qrModalOpen}
-                        setQrModalOpen={setQrModalOpen}
-                        handleFileUpload={handleFileUpload}
-                        chatMode={chatMode}
-                        setChatMode={setChatMode}
-                        designScheme={designScheme}
-                        setDesignScheme={setDesignScheme}
-                        selectedElement={selectedElement}
-                        setSelectedElement={setSelectedElement}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Framework Icons Row - Below ChatBox */}
-                  {!chatStarted && (
-                    <div className="flex justify-center mt-4 max-w-chat mx-auto w-full">
-                      <RightIconPanel />
-                    </div>
-                  )}
-
-                  {/* Example Prompts - Below Framework Icons */}
-                  {!chatStarted && (
-                    <div className="flex flex-col items-center gap-4 mt-4 max-w-chat mx-auto w-full">
-                      <ExamplePrompts
-                        sendMessage={(event, messageInput) => {
-                          if (isStreaming) {
-                            handleStop?.();
-                            return;
-                          }
-                          handleSendMessage?.(event, messageInput);
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </StickToBottom>
-              {/* Recent Chats - Below Example Prompts */}
-              {!chatStarted && <ClientOnly>{() => <RecentChats maxItems={10} />}</ClientOnly>}
-            </div>
-          )}
-
-          {/* Resize Handle - only show when workbench is visible and chat is shown */}
-          {chatStarted && showWorkbench && showChat && (
-            <ResizeHandle
-              onResize={handleResize}
-              onResizeStart={() => setIsResizing(true)}
-              onResizeEnd={() => setIsResizing(false)}
-            />
-          )}
-
-          {/* Workbench Panel */}
-          <ClientOnly>
-            {() => (
-              <Workbench
-                chatStarted={chatStarted}
-                isStreaming={isStreaming}
-                setSelectedElement={setSelectedElement}
-                width={showChat ? workbenchWidth : undefined}
-                fullWidth={!showChat}
+            {/* Resize Handle - only show when workbench is visible and chat is shown */}
+            {chatStarted && showWorkbench && showChat && (
+              <ResizeHandle
+                onResize={handleResize}
+                onResizeStart={() => setIsResizing(true)}
+                onResizeEnd={() => setIsResizing(false)}
               />
             )}
-          </ClientOnly>
-        </div>
-        <ExpertDrawer
-           isOpen={isExpertOpen}
-           onClose={() => setIsExpertOpen(false)}
-           events={runUIState?.events || []}
-           qcReport={runUIState?.lastQCReport}
-        />
-      </div>
-    );
 
-    return <Tooltip.Provider delayDuration={200}>{baseChat}</Tooltip.Provider>;
-  }),
+            {/* Workbench Panel */}
+            <ClientOnly>
+              {() => (
+                <Workbench
+                  chatStarted={chatStarted}
+                  isStreaming={isStreaming}
+                  setSelectedElement={setSelectedElement}
+                  width={showChat ? workbenchWidth : undefined}
+                  fullWidth={!showChat}
+                />
+              )}
+            </ClientOnly>
+          </div>
+          <ExpertDrawer
+            isOpen={isExpertOpen}
+            onClose={() => setIsExpertOpen(false)}
+            events={runUIState?.events || []}
+            qcReport={runUIState?.lastQCReport}
+          />
+        </div>
+      );
+
+      return <Tooltip.Provider delayDuration={200}>{baseChat}</Tooltip.Provider>;
+    },
+  ),
 );
 
 function ScrollToBottom() {

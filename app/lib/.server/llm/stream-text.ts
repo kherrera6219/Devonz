@@ -259,7 +259,12 @@ export async function streamText(props: {
   for (const memoryPath of projectMemoryPaths) {
     const memoryFile = files?.[memoryPath];
 
-    if (memoryFile?.type === 'file' && memoryFile.content && typeof memoryFile.content === 'string' && memoryFile.content.trim().length > 0) {
+    if (
+      memoryFile?.type === 'file' &&
+      memoryFile.content &&
+      typeof memoryFile.content === 'string' &&
+      memoryFile.content.trim().length > 0
+    ) {
       projectMemoryContent = memoryFile.content;
       logger.info(`Loaded project memory from: ${memoryPath}`);
       break;
@@ -331,8 +336,10 @@ ${projectMemoryContent}
     ),
   );
 
-  // AGENT MODE: Replace system prompt entirely when agent mode is enabled
-  // This ensures the AI uses agent tools instead of artifacts
+  /*
+   * AGENT MODE: Replace system prompt entirely when agent mode is enabled
+   * This ensures the AI uses agent tools instead of artifacts
+   */
   if (options?.agentMode) {
     logger.info('🤖 Agent Mode: Using agent-specific system prompt (replacing standard prompt)');
     systemPrompt = AGENT_MODE_FULL_SYSTEM_PROMPT(WORK_DIR, localInfrastructure);

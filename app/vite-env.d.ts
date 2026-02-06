@@ -17,4 +17,3 @@ declare interface CloudflareContext {
   cf?: IncomingRequestCfProperties;
   ctx?: ExecutionContext;
 }
-

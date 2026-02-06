@@ -1,5 +1,4 @@
-
-import type { EventLogEntry, RunState } from "../agent-orchestrator/types/mas-schemas";
+import type { EventLogEntry, RunState } from '~/lib/agent-orchestrator/types/mas-schemas';
 
 /**
  * Infrastructure Interfaces
@@ -8,9 +7,11 @@ import type { EventLogEntry, RunState } from "../agent-orchestrator/types/mas-sc
  * (Redis, Postgres, Object Storage) to decouple the agent logic from the storage implementation.
  */
 
-// ==========================================
-// 1. Event Bus (Redis Streams)
-// ==========================================
+/*
+ * ==========================================
+ * 1. Event Bus (Redis Streams)
+ * ==========================================
+ */
 
 export interface IEventBus {
   /**
@@ -30,9 +31,11 @@ export interface IEventBus {
   publishStatus(runId: string, status: any): Promise<void>;
 }
 
-// ==========================================
-// 2. State Store (Postgres / Checkpoints)
-// ==========================================
+/*
+ * ==========================================
+ * 2. State Store (Postgres / Checkpoints)
+ * ==========================================
+ */
 
 export interface IStateStore {
   /**
@@ -51,9 +54,11 @@ export interface IStateStore {
   createRun(runId: string, initialState: RunState): Promise<void>;
 }
 
-// ==========================================
-// 3. Artifact Store (Object Storage / S3)
-// ==========================================
+/*
+ * ==========================================
+ * 3. Artifact Store (Object Storage / S3)
+ * ==========================================
+ */
 
 export interface IArtifactStore {
   /**

@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => {
     session: vi.fn(() => session),
     close: vi.fn(),
   };
+
   return { run, session, driver };
 });
 
@@ -52,6 +53,7 @@ describe('GraphService', () => {
       await graphService.addFileNodesBatch('project-1', files);
 
       expect(mocks.session.executeWrite).toHaveBeenCalled();
+
       const callArgs = mocks.run.mock.calls[0];
       const query = callArgs[0] as string;
       const params = callArgs[1] as any;
@@ -74,6 +76,7 @@ describe('GraphService', () => {
       await graphService.addDependenciesBatch('project-1', deps);
 
       expect(mocks.session.executeWrite).toHaveBeenCalled();
+
       const callArgs = mocks.run.mock.calls[0];
       const query = callArgs[0] as string;
       const params = callArgs[1] as any;

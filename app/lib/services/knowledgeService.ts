@@ -53,6 +53,7 @@ export class KnowledgeService {
         Object.entries(files).map(async ([path, content]) => {
           const importRegex = /from\s+['"]((?:\.\/|\.\.\/)[^'"]+)['"]/g;
           let match;
+
           while ((match = importRegex.exec(content)) !== null) {
             const rawTarget = match[1];
             const resolvedTarget = this._resolvePath(path, rawTarget);
@@ -73,7 +74,7 @@ export class KnowledgeService {
               }
             }
           }
-        })
+        }),
       );
 
       if (dependencies.length > 0) {
@@ -97,7 +98,10 @@ export class KnowledgeService {
     const targetParts = targetPath.split('/');
 
     for (const part of targetParts) {
-      if (part === '.') continue;
+      if (part === '.') {
+        continue;
+      }
+
       if (part === '..') {
         sourceParts.pop();
       } else {
@@ -118,19 +122,25 @@ export class KnowledgeService {
       // 1. Vector Search
       const vectorResults = await this._ragService.query(projectId, query, topK);
 
-      // 2. Graph Enhancement (Lazy Graph RAG)
-      // Extract file paths from vector results and look for related nodes
+      /*
+       * 2. Graph Enhancement (Lazy Graph RAG)
+       * Extract file paths from vector results and look for related nodes
+       */
       const relatedFiles: string[] = [];
+
       for (const result of vectorResults) {
         const pathLine = result.split('\n')[0];
+
         if (pathLine.startsWith('File: ')) {
           const path = pathLine.substring(6);
           relatedFiles.push(path);
         }
       }
 
-      // TODO: Implement deeper graph-based context gathering here
-      // For now, we return the vector results as the baseline
+      /*
+       * TODO: Implement deeper graph-based context gathering here
+       * For now, we return the vector results as the baseline
+       */
 
       return vectorResults;
     } catch (error) {
@@ -152,6 +162,7 @@ export class KnowledgeService {
     try {
       await minioService.deleteFolder('', projectId);
       await this._ragService.deleteProjectIndex(projectId);
+
       // TODO: Implement global project node cleanup in graphService if needed
       logger.info(`Project ${projectId} deleted successfully`);
     } catch (error) {

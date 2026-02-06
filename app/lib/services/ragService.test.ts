@@ -20,7 +20,7 @@ describe('RAGService Validation', () => {
 
     // 2. Index
     const testFiles = {
-      'test-file.ts': 'export const secret = "the magic word is bird";'
+      'test-file.ts': 'export const secret = "the magic word is bird";',
     };
     const projectId = 'test-project-1';
     const indexedCount = await rag.indexFiles(projectId, testFiles);
@@ -31,7 +31,6 @@ describe('RAGService Validation', () => {
 
     expect(indexedCount).toBe(1);
     console.log('Indexed 1 file.');
-
 
     // 3. Query
     const results = await rag.query(projectId, 'What is the magic word?', 1);

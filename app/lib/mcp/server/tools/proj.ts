@@ -9,9 +9,11 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import type { ProjConfigResult, ProjDepsResult, ProjRoutesResult } from '~/lib/mcp/types';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * CONFIGURATION
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 const DEFAULT_CWD = process.cwd();
 
@@ -24,9 +26,11 @@ const CONFIG_FILES: Record<string, string> = {
   remix: 'remix.config.js',
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// GET CONFIG
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * GET CONFIG
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface GetConfigArgs {
   cwd?: string;
@@ -102,23 +106,23 @@ async function detectFramework(cwd: string): Promise<string> {
       return 'remix';
     }
 
-    if (deps['next']) {
+    if (deps.next) {
       return 'next';
     }
 
-    if (deps['vite']) {
+    if (deps.vite) {
       return 'vite';
     }
 
-    if (deps['react']) {
+    if (deps.react) {
       return 'react';
     }
 
-    if (deps['vue']) {
+    if (deps.vue) {
       return 'vue';
     }
 
-    if (deps['express']) {
+    if (deps.express) {
       return 'express';
     }
 
@@ -128,9 +132,11 @@ async function detectFramework(cwd: string): Promise<string> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// GET DEPENDENCIES
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * GET DEPENDENCIES
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface GetDepsArgs {
   cwd?: string;
@@ -146,7 +152,7 @@ export async function getDependencies(args: GetDepsArgs): Promise<ProjDepsResult
     const pkg = JSON.parse(await fs.readFile(path.join(cwd, 'package.json'), 'utf-8'));
 
     // Production dependencies
-    for (const [name, version] of Object.entries(pkg.dependencies || {} as Record<string, string>)) {
+    for (const [name, version] of Object.entries(pkg.dependencies || ({} as Record<string, string>))) {
       dependencies.push({
         name,
         version: version as string,
@@ -155,7 +161,7 @@ export async function getDependencies(args: GetDepsArgs): Promise<ProjDepsResult
     }
 
     // Dev dependencies
-    for (const [name, version] of Object.entries(pkg.devDependencies || {} as Record<string, string>)) {
+    for (const [name, version] of Object.entries(pkg.devDependencies || ({} as Record<string, string>))) {
       dependencies.push({
         name,
         version: version as string,
@@ -193,9 +199,11 @@ export async function getDependencies(args: GetDepsArgs): Promise<ProjDepsResult
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// GET ROUTES (Remix)
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * GET ROUTES (Remix)
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface GetRoutesArgs {
   cwd?: string;
@@ -217,11 +225,7 @@ export async function getRoutes(args: GetRoutesArgs): Promise<ProjRoutesResult> 
   return { routes };
 }
 
-async function scanRoutesDir(
-  dir: string,
-  prefix: string,
-  routes: ProjRoutesResult['routes'],
-): Promise<void> {
+async function scanRoutesDir(dir: string, prefix: string, routes: ProjRoutesResult['routes']): Promise<void> {
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true });
 

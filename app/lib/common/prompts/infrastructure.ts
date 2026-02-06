@@ -28,10 +28,12 @@ export function getInfrastructurePrompt(infra?: LocalInfrastructure) {
 
   let prompt = '\n<local_infrastructure>\n';
   prompt += '  You have access to the following local infrastructure services running on the host machine.\n';
-  prompt += '  When building applications, you can configure them to use these services for persistence, storage, and caching.\n\n';
+  prompt +=
+    '  When building applications, you can configure them to use these services for persistence, storage, and caching.\n\n';
 
   if (infra.postgres) {
-    prompt += stripIndents`
+    prompt +=
+      stripIndents`
       ### PostgreSQL Database
       - URL: ${infra.postgres.url} (Use this in .env)
       - Host: ${infra.postgres.host}
@@ -43,7 +45,8 @@ export function getInfrastructurePrompt(infra?: LocalInfrastructure) {
   }
 
   if (infra.s3) {
-    prompt += stripIndents`
+    prompt +=
+      stripIndents`
       ### Local Object Storage (MinIO / S3 Compatible)
       - Endpoint: ${infra.s3.endpoint}
       - Bucket: ${infra.s3.bucket}
@@ -55,7 +58,8 @@ export function getInfrastructurePrompt(infra?: LocalInfrastructure) {
   }
 
   if (infra.redis) {
-    prompt += stripIndents`
+    prompt +=
+      stripIndents`
       ### Redis Cache
       - URL: ${infra.redis.url}
       - Host: ${infra.redis.host}

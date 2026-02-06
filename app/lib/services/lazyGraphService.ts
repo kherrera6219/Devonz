@@ -1,4 +1,3 @@
-
 import { type RAGService } from './ragService';
 import { type GraphService } from './graphService';
 
@@ -23,6 +22,7 @@ export class LazyGraphService {
     if (!LazyGraphService._instance) {
       LazyGraphService._instance = new LazyGraphService(ragService, graphService);
     }
+
     return LazyGraphService._instance;
   }
 
@@ -34,22 +34,27 @@ export class LazyGraphService {
    * @param topK - Number of initial files to retrieve
    */
   async query(projectId: string, query: string, topK: number = 5): Promise<string> {
-
-    // 1. Vector Search (Primary Retrieval)
-    // RAGService returns strings like "File: path\n---\ncontent"
+    /*
+     * 1. Vector Search (Primary Retrieval)
+     * RAGService returns strings like "File: path\n---\ncontent"
+     */
     const rawSnippets = await this.ragService.query(projectId, query, topK);
 
     // Parse snippets to identify files
-    const primaryFiles: DocumentSnippet[] = rawSnippets.map(text => {
-      const match = text.match(/File: (.*?)\n/);
-      return {
-        path: match ? match[1].trim() : 'unknown',
-        content: text
-      };
-    }).filter(f => f.path !== 'unknown');
+    const primaryFiles: DocumentSnippet[] = rawSnippets
+      .map((text) => {
+        const match = text.match(/File: (.*?)\n/);
+        return {
+          path: match ? match[1].trim() : 'unknown',
+          content: text,
+        };
+      })
+      .filter((f) => f.path !== 'unknown');
 
-    // 2. Graph Enrichment (Lazy Expansion)
-    // For each primary file, find its direct neighbors (imports/used_by)
+    /*
+     * 2. Graph Enrichment (Lazy Expansion)
+     * For each primary file, find its direct neighbors (imports/used_by)
+     */
     const enrichedContextParts: string[] = [];
 
     for (const file of primaryFiles) {
@@ -58,14 +63,18 @@ export class LazyGraphService {
       try {
         // Find dependencies (What this file imports)
         const subgraph = await this.graphService.getProjectSubgraph(projectId, 100);
-        // Note: getProjectSubgraph gets *everything*. We really want specific neighbors.
-        // Since GraphService API is limited, we might filter client-side or stick to what we have.
-        // Real implementation would want: graphService.getNeighbors(file.path)
 
-        // For now, let's just append the context block.
-        // In a real V2, we'd add the graphService.getNeighbors method.
+        /*
+         * Note: getProjectSubgraph gets *everything*. We really want specific neighbors.
+         * Since GraphService API is limited, we might filter client-side or stick to what we have.
+         * Real implementation would want: graphService.getNeighbors(file.path)
+         */
+
+        /*
+         * For now, let's just append the context block.
+         * In a real V2, we'd add the graphService.getNeighbors method.
+         */
         contextBlock += `\n[Graph Status]: Enriched context active.\n`;
-
       } catch (e) {
         contextBlock += `\n[Graph Error]: Could not fetch neighbors.\n`;
       }

@@ -1,4 +1,3 @@
-
 /**
  * STRICT MULTI-AGENT SYSTEM SCHEMAS
  *
@@ -6,9 +5,11 @@
  * All agents and nodes must align with these types.
  */
 
-// ==========================================
-// 1. Core Run State (Source of Truth)
-// ==========================================
+/*
+ * ==========================================
+ * 1. Core Run State (Source of Truth)
+ * ==========================================
+ */
 
 export type RunMode = 'single' | '3agent_fast' | '3agent_hardened' | '3agent_strict';
 
@@ -89,9 +90,11 @@ export interface UserInputs {
   repoContextSnapshot?: string; // Reference/ID
 }
 
-// ==========================================
-// 2. Domain States
-// ==========================================
+/*
+ * ==========================================
+ * 2. Domain States
+ * ==========================================
+ */
 
 export interface PlanState {
   tasks: Array<{
@@ -124,9 +127,11 @@ export interface QCState {
   maxIterations: number;
 }
 
-// ==========================================
-// 3. Communication: Work Packets
-// ==========================================
+/*
+ * ==========================================
+ * 3. Communication: Work Packets
+ * ==========================================
+ */
 
 export interface WorkPacket {
   packetId: string;
@@ -161,9 +166,11 @@ export interface WorkPacket {
   };
 }
 
-// ==========================================
-// 4. Reporting Schemas
-// ==========================================
+/*
+ * ==========================================
+ * 4. Reporting Schemas
+ * ==========================================
+ */
 
 export interface QCIssue {
   issueId: string;
@@ -200,9 +207,11 @@ export interface PatchSet {
   filesTouched: string[];
 }
 
-// ==========================================
-// 5. Event Log (UI Streaming)
-// ==========================================
+/*
+ * ==========================================
+ * 5. Event Log (UI Streaming)
+ * ==========================================
+ */
 
 export interface EventLogEntry {
   eventId: string;

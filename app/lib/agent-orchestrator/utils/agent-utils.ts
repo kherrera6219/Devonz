@@ -84,19 +84,17 @@ export function createErrorState(agentName: string, state: RunState, error: Erro
     agent: agentName as any,
     summary: errorMessage,
     visibility: 'user',
-    details: { stack: error.stack }
+    details: { stack: error.stack },
   };
 
   return {
     status: {
       ...state.status,
       stageState: 'failed',
-      activeAgents: state.status.activeAgents.map(a =>
-        a.agentId === agentName ? { ...a, status: 'error' } : a
-      )
+      activeAgents: state.status.activeAgents.map((a) => (a.agentId === agentName ? { ...a, status: 'error' } : a)),
     },
     errors: [...(state.errors || []), errorMessage],
-    events: [errorEvent]
+    events: [errorEvent],
   };
 }
 

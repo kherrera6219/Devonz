@@ -22,6 +22,7 @@ import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { withSecurity } from '~/lib/security';
 
 const SPLINE_CDN_BASE = 'https://prod.spline.design';
+
 // ... (rest of the content if I was using replace_file_content, but I'll use targetContent for precision)
 
 // Cache for scene data (simple in-memory cache)

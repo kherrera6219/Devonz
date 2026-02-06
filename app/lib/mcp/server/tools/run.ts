@@ -7,25 +7,24 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import type {
-  RunLintResult,
-  RunTypecheckResult,
-  RunTestsResult,
-  RunBuildResult,
-} from '~/lib/mcp/types';
+import type { RunLintResult, RunTypecheckResult, RunTestsResult, RunBuildResult } from '~/lib/mcp/types';
 
 const execAsync = promisify(exec);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * CONFIGURATION
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 const DEFAULT_CWD = process.cwd();
 const COMMAND_TIMEOUT = 120000; // 2 minutes
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LINT
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * LINT
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface LintArgs {
   cwd?: string;
@@ -138,9 +137,11 @@ export async function lint(args: LintArgs): Promise<RunLintResult> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// TYPECHECK
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * TYPECHECK
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface TypecheckArgs {
   cwd?: string;
@@ -184,9 +185,11 @@ export async function typecheck(args: TypecheckArgs): Promise<RunTypecheckResult
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// TESTS
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * TESTS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface TestsArgs {
   cwd?: string;
@@ -238,9 +241,11 @@ export async function tests(args: TestsArgs): Promise<RunTestsResult> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// BUILD
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * BUILD
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface BuildArgs {
   cwd?: string;
@@ -288,9 +293,11 @@ export async function build(args: BuildArgs): Promise<RunBuildResult> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// INSTALL (GATED - REQUIRES APPROVAL)
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * INSTALL (GATED - REQUIRES APPROVAL)
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface InstallArgs {
   cwd?: string;
@@ -307,9 +314,7 @@ export async function install(args: InstallArgs): Promise<{
   const packages = args.packages?.join(' ') || '';
   const dev = args.dev ? '--save-dev' : '';
 
-  const command = packages
-    ? `npm install ${packages} ${dev}`.trim()
-    : 'npm install';
+  const command = packages ? `npm install ${packages} ${dev}`.trim() : 'npm install';
 
   try {
     await execAsync(command, { cwd, timeout: COMMAND_TIMEOUT * 2 });
@@ -327,9 +332,11 @@ export async function install(args: InstallArgs): Promise<{
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// FORMAT
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * FORMAT
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface FormatArgs {
   cwd?: string;

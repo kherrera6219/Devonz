@@ -30,6 +30,7 @@ export const setImportProgress = (progress: number) => {
 
 export const setImportFile = (fileName: string, total?: number) => {
   importStore.setKey('currentFile', fileName);
+
   if (total !== undefined) {
     importStore.setKey('totalFiles', total);
   }

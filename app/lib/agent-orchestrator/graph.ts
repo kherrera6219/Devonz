@@ -1,4 +1,3 @@
-
 import { StateGraph, END, START } from '@langchain/langgraph';
 import { MemorySaver } from '@langchain/langgraph-checkpoint';
 import type {
@@ -9,7 +8,7 @@ import type {
   ResearchState,
   ArtifactState,
   QCState,
-  EventLogEntry
+  EventLogEntry,
 } from './types/mas-schemas';
 
 // Placeholder or adapter imports for agents (Phase 19 will fully implement these)
@@ -50,10 +49,12 @@ const qc2Node = async (state: RunState): Promise<Partial<RunState>> => {
 };
 
 const fixNode = async (state: RunState): Promise<Partial<RunState>> => {
-  // Simple retry strategy: Use Architect to fix
-  // We re-use ArchitectAgent but arguably it should be aware of failures.
-  // For now, we trust Architect sees 'failed' tasks if we update them?
-  // Or we just rely on the loop.
+  /*
+   * Simple retry strategy: Use Architect to fix
+   * We re-use ArchitectAgent but arguably it should be aware of failures.
+   * For now, we trust Architect sees 'failed' tasks if we update them?
+   * Or we just rely on the loop.
+   */
   return await architect.run(state);
 };
 
@@ -62,20 +63,23 @@ const finalizeNode = async (state: RunState): Promise<Partial<RunState>> => {
   return {
     status: {
       ...state.status,
-      stage: 'COORD_POLISH_DELIVER'
-    }
+      stage: 'COORD_POLISH_DELIVER',
+    },
   };
 };
 
-// ==========================================
-// EDGE LOGIC
-// ==========================================
+/*
+ * ==========================================
+ * EDGE LOGIC
+ * ==========================================
+ */
 
 const checkResearchNeeded = (state: RunState) => {
   // Check if Coordinator set the stage to Research
   if (state.status.stage === 'RESEARCH_TECH_AND_SKILLS') {
     return 'research';
   }
+
   // Otherwise, skip to Architect
   return 'skipString';
 };
@@ -89,12 +93,15 @@ const checkQCPass = (state: RunState) => {
   if ((critical > 0 || high > 0) && currentIteration < maxIterations) {
     return 'fix';
   }
+
   return 'finalize';
 };
 
-// ==========================================
-// GRAPH CONSTRUCTION
-// ==========================================
+/*
+ * ==========================================
+ * GRAPH CONSTRUCTION
+ * ==========================================
+ */
 
 export function createGraph() {
   const workflow = new StateGraph<RunState>({
@@ -109,8 +116,8 @@ export function createGraph() {
         default: () => ({
           coordinator: { provider: 'openai', model: 'gpt-5' },
           researcher: { provider: 'google', model: 'gemini-3-flash-preview' },
-          architect: { provider: 'anthropic', model: 'claude-sonnet-4-5-20250929' }
-        })
+          architect: { provider: 'anthropic', model: 'claude-sonnet-4-5-20250929' },
+        }),
       },
       status: {
         value: (a, b) => ({ ...a, ...b }),
@@ -118,8 +125,8 @@ export function createGraph() {
           stage: 'COORD_PLAN' as StageId,
           stageState: 'running' as const,
           progress: { percent: 0, label: 'Initializing...' },
-          activeAgents: []
-        })
+          activeAgents: [],
+        }),
       },
       inputs: {
         value: (a, b) => b,
@@ -129,22 +136,41 @@ export function createGraph() {
           constraints: {
             language: 'typescript' as const,
             securityLevel: 'normal' as const,
-            testLevel: 'standard' as const
-          }
-        })
+            testLevel: 'standard' as const,
+          },
+        }),
       },
 
-      plan: { value: (a, b) => ({...a, ...b}), default: () => ({ tasks: [], acceptanceCriteria: [], constraints: [] } as PlanState) },
-      research: { value: (a, b) => ({...a, ...b}), default: () => ({ lastUpdated: new Date().toISOString() } as ResearchState) },
-      artifacts: { value: (a, b) => ({...a, ...b}), default: () => ({ currentFiles: {}, patches: [] } as ArtifactState) },
-      qc: { value: (a, b) => ({...a, ...b}), default: () => ({ issues: [], severityCounts: { critical: 0, high: 0, medium: 0, low: 0 }, pass: true, iteration: 0, maxIterations: 3 } as QCState) },
+      plan: {
+        value: (a, b) => ({ ...a, ...b }),
+        default: () => ({ tasks: [], acceptanceCriteria: [], constraints: [] }) as PlanState,
+      },
+      research: {
+        value: (a, b) => ({ ...a, ...b }),
+        default: () => ({ lastUpdated: new Date().toISOString() }) as ResearchState,
+      },
+      artifacts: {
+        value: (a, b) => ({ ...a, ...b }),
+        default: () => ({ currentFiles: {}, patches: [] }) as ArtifactState,
+      },
+      qc: {
+        value: (a, b) => ({ ...a, ...b }),
+        default: () =>
+          ({
+            issues: [],
+            severityCounts: { critical: 0, high: 0, medium: 0, low: 0 },
+            pass: true,
+            iteration: 0,
+            maxIterations: 3,
+          }) as QCState,
+      },
 
       events: { value: (a, b) => a.concat(b || []), default: () => [] as EventLogEntry[] },
 
       cost: { value: (a, b) => b, default: () => undefined },
-      warnings: { value: (a, b) => b ? [...(a || []), ...b] : a, default: () => [] as string[] },
-      errors: { value: (a, b) => b ? [...(a || []), ...b] : a, default: () => [] as string[] },
-    }
+      warnings: { value: (a, b) => (b ? [...(a || []), ...b] : a), default: () => [] as string[] },
+      errors: { value: (a, b) => (b ? [...(a || []), ...b] : a), default: () => [] as string[] },
+    },
   }) as any;
 
   // Add Nodes
@@ -159,12 +185,15 @@ export function createGraph() {
   // Set Entry
   workflow.addEdge(START, 'coordinator');
 
-  // Conditional Routing
-  // Coordinator -> Research OR Architect
+  /*
+   * Conditional Routing
+   * Coordinator -> Research OR Architect
+   */
   workflow.addConditionalEdges('coordinator', checkResearchNeeded, {
     research: 'researcher',
-    skipString: 'architect' // 'architect' was inferred but let's be explicit if needed
+    skipString: 'architect', // 'architect' was inferred but let's be explicit if needed
   });
+
   // Note: LangGraph addConditionalEdges map keys are the return values of the function
 
   // Simple Edges
@@ -175,7 +204,7 @@ export function createGraph() {
   // QC Logic
   workflow.addConditionalEdges('qc2', checkQCPass, {
     fix: 'fix',
-    finalize: 'finalize'
+    finalize: 'finalize',
   });
 
   workflow.addEdge('fix', 'qc1'); // Loop back

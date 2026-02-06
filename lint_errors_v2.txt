@@ -1,0 +1,124 @@
+
+> devonz@1.0.0 lint
+> eslint --cache --cache-location ./node_modules/.cache/eslint app
+
+
+C:\software\Devonz\app\components\@settings\tabs\providers\local\ProviderCard.tsx
+  5:10  error  'classNames' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\chat\Artifact.tsx
+  255:9  error  'stagingState' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\chat\BaseChat.tsx
+  22:8  error  'StarterTemplates' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\chat\ExpertDrawer.tsx
+  12:86  error  'qcReport' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\chat\RunCard.tsx
+  1:17  error  'useEffect' is defined but never used     @typescript-eslint/no-unused-vars
+  1:28  error  'useState' is defined but never used      @typescript-eslint/no-unused-vars
+  3:20  error  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+  3:34  error  'AlertOctagon' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\chat\RunHeader.tsx
+  2:18  error  'AnimatePresence' is defined but never used  @typescript-eslint/no-unused-vars
+  3:24  error  'Circle' is defined but never used           @typescript-eslint/no-unused-vars
+  3:32  error  'Clock' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\sidebar\Menu.client.tsx
+  74:9  error  'profile' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\workbench\StagedChangesPanel.tsx
+   5:23  error  'useNavigate' is defined but never used                  @typescript-eslint/no-unused-vars
+  37:3   error  'getEarliestPendingMessageId' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\workbench\Workbench.client.tsx
+  74:25  error  'setFileHistory' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\agent-orchestrator\agents\architect.ts
+  6:3  error  'PlanState' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\agent-orchestrator\agents\qc.ts
+  16:24  error  'state' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\agent-orchestrator\test-orchestrator-v2.ts
+   1:1   error    '../services/orchestratorService' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+   2:15  error    'AgentMessage' is defined but never used                                                                                                        @typescript-eslint/no-unused-vars
+  21:13  error    'text' is defined but never used. Allowed unused args must match /^_/u                                                                          @typescript-eslint/no-unused-vars
+  42:31  warning  Unexpected empty method 'updateActivity'                                                                                                        @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\agent-orchestrator\tools\index.ts
+  153:9  error  'tools' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\agent-orchestrator\tools\test-tools.ts
+  89:23  error  'stderr' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\agent-orchestrator\utils\message-factory.ts
+  2:1  error  '../state/types' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+
+C:\software\Devonz\app\lib\infra\index.ts
+  1:1  error  '../agent-orchestrator/types/mas-schemas' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+
+C:\software\Devonz\app\lib\mcp\server\tools\fs.ts
+  364:9  error  'hunkRegex' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\mcp\server\tools\run.ts
+  368:12  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\mcp\types.ts
+  32:1  error  Delete `ΓÅÄ`  prettier/prettier
+
+C:\software\Devonz\app\lib\services\agentToolsService.spec.ts
+  12:3  error  'ListDirectoryResult' is defined but never used  @typescript-eslint/no-unused-vars
+  13:3  error  'RunCommandResult' is defined but never used     @typescript-eslint/no-unused-vars
+  14:3  error  'GetErrorsResult' is defined but never used      @typescript-eslint/no-unused-vars
+  15:3  error  'SearchCodeResult' is defined but never used     @typescript-eslint/no-unused-vars
+  20:6  error  'AnyData' is defined but never used              @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\services\lazyGraphService.ts
+  13:11  error  Class Property name `ragService` must have one leading underscore(s)    @typescript-eslint/naming-convention
+  14:11  error  Class Property name `graphService` must have one leading underscore(s)  @typescript-eslint/naming-convention
+  65:15  error  'subgraph' is assigned a value but never used                           @typescript-eslint/no-unused-vars
+  78:16  error  'e' is defined but never used                                           @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\services\legacyAgentService.ts
+   38:11  error  Class Property name `state` must have one leading underscore(s)             @typescript-eslint/naming-convention
+   39:11  error  Class Property name `settings` must have one leading underscore(s)          @typescript-eslint/naming-convention
+   40:11  error  Class Property name `options` must have one leading underscore(s)           @typescript-eslint/naming-convention
+  177:11  error  Class Method name `checkNeedsApproval` must have one leading underscore(s)  @typescript-eslint/naming-convention
+  193:17  error  Class Method name `requestApproval` must have one leading underscore(s)     @typescript-eslint/naming-convention
+  273:11  error  Class Method name `notifyStatusChange` must have one leading underscore(s)  @typescript-eslint/naming-convention
+  314:35  error  A `require()` style import is forbidden                                     @typescript-eslint/no-require-imports
+
+C:\software\Devonz\app\lib\services\minioService.ts
+    4:3   error  'DeleteObjectCommand' is defined but never used                                                      @typescript-eslint/no-unused-vars
+  118:17  error  Variable name `DeleteObjectsCommand` must match one of the following formats: camelCase, UPPER_CASE  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\lib\services\orchestratorService.ts
+  5:18  error  Class Property name `instance` must have one leading underscore(s)  @typescript-eslint/naming-convention
+  6:11  error  Class Property name `graph` must have one leading underscore(s)     @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\lib\stores\importStore.ts
+  1:10  error  'atom' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\stores\logs.spec.ts
+  2:25  error  'LogEntry' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\routes\api.import-file.ts
+  2:8  error  'path' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\routes\api.vercel-domains.ts
+  27:11  error  'VercelDomain' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\utils\fileUtils.spec.ts
+  1:32  error  'vi' is defined but never used          @typescript-eslint/no-unused-vars
+  1:36  error  'beforeEach' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\utils\markdown.ts
+  6:15  error  'Node' is defined but never used    @typescript-eslint/no-unused-vars
+  6:21  error  'Parent' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 56 problems (55 errors, 1 warning)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

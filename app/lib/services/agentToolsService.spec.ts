@@ -16,7 +16,7 @@ import type {
 } from '~/lib/agent-orchestrator/shared/agent-types';
 
 // Helper type for strongly-typed tool result assertions
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 type AnyData = any;
 
 // Mock functions need to be defined before vi.mock calls
@@ -117,6 +117,7 @@ describe('agentToolDefinitions', () => {
       const result = await readFileTool.execute({ path: '/src/test.ts' });
 
       expect(result.success).toBe(true);
+
       const data = result.data as ReadFileResult;
       expect(data?.content).toBe(mockContent);
       expect(data?.lineCount).toBe(1);
@@ -133,6 +134,7 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
+
       const data = result.data as ReadFileResult;
       expect(data?.content).toBe('line2\nline3\nline4');
       expect(data?.truncated).toBe(true);
@@ -173,6 +175,7 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
+
       const data = result.data as WriteFileResult;
       expect(data?.path).toBe('/src/new-file.ts');
       expect(data?.bytesWritten).toBe(content.length);

@@ -12,6 +12,7 @@ const logger = createScopedLogger('DocumentParser');
 export interface ParsedDocument {
   /** Extracted text content */
   content: string;
+
   /** Document metadata */
   metadata: {
     format: string;
@@ -21,8 +22,10 @@ export interface ParsedDocument {
     wordCount?: number;
     parseTime?: number;
   };
+
   /** Whether parsing was successful */
   success: boolean;
+
   /** Error message if parsing failed */
   error?: string;
 }
@@ -30,8 +33,10 @@ export interface ParsedDocument {
 export interface ParseOptions {
   /** For Excel: which sheet to parse (default: all) */
   sheet?: string;
+
   /** For PDF: max pages to parse (default: all) */
   maxPages?: number;
+
   /** Include metadata in output */
   includeMetadata?: boolean;
 }
@@ -163,7 +168,6 @@ async function parsePDF(buffer: Buffer, path: string, options: ParseOptions): Pr
     success: true,
   };
 }
-
 
 /**
  * Parse DOCX document

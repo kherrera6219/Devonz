@@ -33,6 +33,7 @@ export class RedisService {
             logger.warn('Redis connection retry limit reached. Continuing without Redis.');
             return null;
           }
+
           return Math.min(times * 100, 3000);
         },
       });

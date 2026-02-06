@@ -60,26 +60,36 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     },
   });
 
-    const { messages, files, promptId, contextOptimization, supabase, chatMode, designScheme, maxLLMSteps, agentMode, orchestratorMode } =
-    (await request.json()) as {
-      messages: Messages;
-      files: any;
-      promptId?: string;
-      contextOptimization: boolean;
-      chatMode: 'discuss' | 'build';
-      designScheme?: DesignScheme;
-      supabase?: {
-        isConnected: boolean;
-        hasSelectedProject: boolean;
-        credentials?: {
-          anonKey?: string;
-          supabaseUrl?: string;
-        };
+  const {
+    messages,
+    files,
+    promptId,
+    contextOptimization,
+    supabase,
+    chatMode,
+    designScheme,
+    maxLLMSteps,
+    agentMode,
+    orchestratorMode,
+  } = (await request.json()) as {
+    messages: Messages;
+    files: any;
+    promptId?: string;
+    contextOptimization: boolean;
+    chatMode: 'discuss' | 'build';
+    designScheme?: DesignScheme;
+    supabase?: {
+      isConnected: boolean;
+      hasSelectedProject: boolean;
+      credentials?: {
+        anonKey?: string;
+        supabaseUrl?: string;
       };
-      maxLLMSteps: number;
-      agentMode?: boolean;
-      orchestratorMode?: boolean;
     };
+    maxLLMSteps: number;
+    agentMode?: boolean;
+    orchestratorMode?: boolean;
+  };
 
   // Determine if agent mode should be active for this request
   const useAgentMode = shouldUseAgentMode({ agentMode });
@@ -119,34 +129,36 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
         // Orchestrator Mode Hijack
         if (useOrchestrator) {
-             try {
-                 const messageMap = messages.filter(m => m.role === 'user').pop();
-                 const userQuery = messageMap?.content || '';
+          try {
+            const messageMap = messages.filter((m) => m.role === 'user').pop();
+            const userQuery = messageMap?.content || '';
 
-                 // Import dynamically to avoid circular issues if any, or just import at top
-                 const { orchestratorService } = await import('~/lib/services/orchestratorService');
+            // Import dynamically to avoid circular issues if any, or just import at top
+            const { orchestratorService } = await import('~/lib/services/orchestratorService');
 
-                 await orchestratorService.processRequest(
-                     userQuery,
-                     generateId(), // Conversation ID
-                     dataStream,
-                     messages,
-                     apiKeys,
-                     streamRecovery
-                 );
+            await orchestratorService.processRequest(
+              userQuery,
+              generateId(), // Conversation ID
+              dataStream,
+              messages,
+              apiKeys,
+              streamRecovery,
+            );
 
-                 streamRecovery.stop();
-                 return;
-             } catch (error) {
-                 logger.error('Orchestrator failed to initialize/run, falling back to standard chat:', error);
-                 dataStream.writeData({
-                     type: 'progress',
-                     label: 'system',
-                     status: 'failed',
-                     message: `Orchestrator Error: ${error instanceof Error ? error.message : String(error)}. Falling back to standard chat.`
-                 });
-                 // Fall through to standard logic...
-             }
+            streamRecovery.stop();
+
+            return;
+          } catch (error) {
+            logger.error('Orchestrator failed to initialize/run, falling back to standard chat:', error);
+            dataStream.writeData({
+              type: 'progress',
+              label: 'system',
+              status: 'failed',
+              message: `Orchestrator Error: ${error instanceof Error ? error.message : String(error)}. Falling back to standard chat.`,
+            });
+
+            // Fall through to standard logic...
+          }
         }
 
         const filePaths = getFilePaths(files || {});

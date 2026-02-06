@@ -113,6 +113,7 @@ export function getMemoryStats(): {
   totalMessages: number;
 } {
   let totalMessages = 0;
+
   for (const memory of memoryStore.values()) {
     totalMessages += memory.messages.length;
   }

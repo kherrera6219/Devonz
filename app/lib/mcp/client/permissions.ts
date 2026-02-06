@@ -7,9 +7,11 @@
 
 import type { AgentName, AgentRole, ToolPermission } from '~/lib/mcp/types';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// AGENT ROLE DEFINITIONS
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * AGENT ROLE DEFINITIONS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 /**
  * Coordinator (GPT-5.2) - Human-facing orchestrator
@@ -23,6 +25,7 @@ const coordinatorRole: AgentRole = {
     // Full read access
     'fs.read',
     'fs.search',
+
     // Write access (patch-based)
     'fs.patch',
     'fs.create',
@@ -35,14 +38,17 @@ const coordinatorRole: AgentRole = {
     'run.install', // Gated - requires approval
     'run.format',
     'run.devServer',
+
     // Security scans
     'sec.audit',
     'sec.scan',
     'sec.secrets',
+
     // Project intelligence
     'proj.config',
     'proj.deps',
     'proj.routes',
+
     // Diagnostics
     'diag.logs',
     'diag.errors',
@@ -61,16 +67,21 @@ const researcherRole: AgentRole = {
     // Read-only file access
     'fs.read',
     'fs.search',
+
     // Security scans (read-only output)
     'sec.audit',
     'sec.scan',
+
     // Project intelligence (read-only)
     'proj.config',
     'proj.deps',
     'proj.routes',
-    // NO: fs.patch, fs.create, fs.delete
-    // NO: run.* (cannot execute anything)
-    // NO: diag.* (not needed)
+
+    /*
+     * NO: fs.patch, fs.create, fs.delete
+     * NO: run.* (cannot execute anything)
+     * NO: diag.* (not needed)
+     */
   ],
 };
 
@@ -86,28 +97,37 @@ const architectRole: AgentRole = {
     // Read access
     'fs.read',
     'fs.search',
+
     // Patch production (Coordinator applies)
     'fs.patch',
+
     // Validation only (no build/install)
     'run.lint',
     'run.typecheck',
     'run.tests',
     'run.format',
+
     // Project intelligence
     'proj.config',
     'proj.deps',
     'proj.routes',
+
     // Diagnostics
     'diag.errors',
-    // NO: fs.create, fs.delete (dangerous)
-    // NO: run.build, run.install, run.devServer (Coordinator only)
-    // NO: sec.* (Researcher handles security)
+
+    /*
+     * NO: fs.create, fs.delete (dangerous)
+     * NO: run.build, run.install, run.devServer (Coordinator only)
+     * NO: sec.* (Researcher handles security)
+     */
   ],
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PERMISSION REGISTRY
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * PERMISSION REGISTRY
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 const agentRoles: Record<AgentName, AgentRole> = {
   coordinator: coordinatorRole,
@@ -118,10 +138,7 @@ const agentRoles: Record<AgentName, AgentRole> = {
 /**
  * Tools that require explicit user approval before execution
  */
-const gatedTools: ToolPermission[] = [
-  'fs.delete',
-  'run.install',
-];
+const gatedTools: ToolPermission[] = ['fs.delete', 'run.install'];
 
 /**
  * Tools that are completely blocked (safety net)
@@ -131,9 +148,11 @@ const blockedTools: string[] = [
   'run.shell', // Never allow raw shell access
 ];
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PERMISSION CHECK FUNCTIONS
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * PERMISSION CHECK FUNCTIONS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 /**
  * Check if an agent has permission to use a specific tool
@@ -207,9 +226,11 @@ export function validateToolCall(
   return { allowed: true };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// EXPORTS
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * EXPORTS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 export { agentRoles, gatedTools, blockedTools };
 export { coordinatorRole, researcherRole, architectRole };

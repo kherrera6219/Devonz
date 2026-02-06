@@ -137,7 +137,6 @@ export class ContextService {
             summary,
             chatId: messages.slice(-1)?.[0]?.id,
           } as ContextAnnotation);
-
         } catch (error) {
           logger.error('Failed to create summary', error);
 
@@ -187,9 +186,12 @@ export class ContextService {
         });
       } catch (error) {
         logger.error('Failed to select context files', error);
-        // Fallback: Use all files if selection fails? Or minimal set?
-        // Original logic didn't fallback, just threw or continued.
-        // We'll proceed with undefined filteredFiles which usually defaults to basic behavior.
+
+        /*
+         * Fallback: Use all files if selection fails? Or minimal set?
+         * Original logic didn't fallback, just threw or continued.
+         * We'll proceed with undefined filteredFiles which usually defaults to basic behavior.
+         */
       }
 
       if (filteredFiles) {
@@ -228,7 +230,6 @@ export class ContextService {
           const ragContext = await RAGService.getInstance().query(promptId || 'default', lastMessageContent);
 
           if (ragContext && ragContext.length > 0) {
-
             summary = (summary || '') + '\n\nRelevant Code Snippets from RAG:\n' + ragContext.join('\n\n');
           }
         } catch (error) {

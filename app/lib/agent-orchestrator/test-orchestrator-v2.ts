@@ -1,5 +1,6 @@
-import { OrchestratorService } from '../services/orchestratorService';
-import type { AgentMessage } from './state/types';
+import { OrchestratorService } from '~/lib/services/orchestratorService';
+
+// @ts-ignore - EventBus and State types are complex and being aligned
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
@@ -18,8 +19,8 @@ class MockDataStream {
     this.events.push(data);
   }
 
-  writeText(text: string) {
-    // console.log('Stream Text:', text);
+  writeText(_text: string) {
+    // console.log('Stream Text:', _text);
   }
 }
 
@@ -29,8 +30,8 @@ async function main() {
   const orchestrator = OrchestratorService.getInstance();
   const mockStream = new MockDataStream();
 
-  const userRequest = "Create a simple README file for a calculator app.";
-  const conversationId = "test-run-v2-" + Date.now();
+  const userRequest = 'Create a simple README file for a calculator app.';
+  const conversationId = 'test-run-v2-' + Date.now();
 
   try {
     await orchestrator.processRequest(
@@ -39,14 +40,14 @@ async function main() {
       mockStream,
       [], // No history
       {}, // No extra keys
-      { updateActivity: () => {} } // Mock stream recovery
+      { updateActivity: () => {} }, // Mock stream recovery
     );
 
     console.log('\n--- Run Completed ---');
     console.log('Total Events:', mockStream.events.length);
 
     // Verification Logic
-    const eventTypes = mockStream.events.map(e => e.type === 'event_log' ? e.payload.type : e.type);
+    const eventTypes = mockStream.events.map((e) => (e.type === 'event_log' ? e.payload.type : e.type));
     console.log('Event Sequence:', eventTypes);
 
     const hasRunStarted = eventTypes.includes('run_started');
@@ -58,7 +59,6 @@ async function main() {
       console.error('❌ Verification Failed: Missing critical events.');
       process.exit(1);
     }
-
   } catch (error) {
     console.error('Run failed:', error);
     process.exit(1);

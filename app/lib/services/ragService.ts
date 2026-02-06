@@ -21,8 +21,9 @@ const logger = createScopedLogger('rag-service');
  */
 export class RAGService {
   private static _instance: RAGService;
+
   // Typed as any because PGVectorStore is dynamically imported to avoid build issues
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   private _vectorStore?: any;
   private _isInitialized = false;
 

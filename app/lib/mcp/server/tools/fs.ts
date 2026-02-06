@@ -7,16 +7,13 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import type {
-  FsListTreeResult,
-  FsReadFileResult,
-  FsSearchResult,
-  FsApplyPatchResult,
-} from '~/lib/mcp/types';
+import type { FsListTreeResult, FsReadFileResult, FsSearchResult, FsApplyPatchResult } from '~/lib/mcp/types';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * CONFIGURATION
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 const DEFAULT_ROOT = process.cwd();
 const IGNORED_DIRS = ['node_modules', '.git', 'dist', 'build', '.next', '.cache'];
@@ -38,9 +35,11 @@ const LANG_MAP: Record<string, string> = {
   '.yml': 'yaml',
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// LIST TREE
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * LIST TREE
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface ListTreeArgs {
   root?: string;
@@ -112,9 +111,11 @@ export async function listTree(args: ListTreeArgs): Promise<FsListTreeResult> {
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// READ FILE
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * READ FILE
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface ReadFileArgs {
   path: string;
@@ -148,9 +149,11 @@ export async function readFile(args: ReadFileArgs): Promise<FsReadFileResult> {
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// READ FILES (BATCH)
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * READ FILES (BATCH)
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface ReadFilesArgs {
   paths: string[];
@@ -175,9 +178,11 @@ export async function readFiles(
   return { files: results, errors };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SEARCH
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * SEARCH
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface SearchArgs {
   query: string;
@@ -245,9 +250,11 @@ export async function search(args: SearchArgs): Promise<FsSearchResult> {
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// APPLY PATCH (THE MAIN WRITE METHOD)
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * APPLY PATCH (THE MAIN WRITE METHOD)
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface ApplyPatchArgs {
   patch: string; // Unified diff format
@@ -336,9 +343,11 @@ export async function applyPatch(args: ApplyPatchArgs): Promise<FsApplyPatchResu
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PATCH PARSING HELPERS
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * PATCH PARSING HELPERS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 interface Hunk {
   startOld: number;
@@ -427,6 +436,7 @@ function applyHunks(content: string, hunks: Hunk[]): string {
       } else if (line.startsWith(' ')) {
         newLines.push(line.substring(1));
       }
+
       // Skip lines starting with '-' (deletions)
     }
 

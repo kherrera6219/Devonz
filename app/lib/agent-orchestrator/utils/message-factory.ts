@@ -1,5 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
-import type { AgentMessage } from '../state/types';
+import type { AgentMessage } from '~/lib/agent-orchestrator/state/types';
 
 export class MessageFactory {
   static create(
@@ -11,7 +10,7 @@ export class MessageFactory {
     options: Partial<AgentMessage> = {},
   ): AgentMessage {
     return {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       from,
       to,
       type,

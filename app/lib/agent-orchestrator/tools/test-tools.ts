@@ -104,6 +104,7 @@ const runTypeCheckTool = tool(
         .filter((line: string) => line.includes('error TS'))
         .map((line: string) => {
           const match = line.match(/(.+)\((\d+),(\d+)\): error (TS\d+): (.+)/);
+
           if (match) {
             return {
               file: match[1],
@@ -113,6 +114,7 @@ const runTypeCheckTool = tool(
               message: match[5],
             };
           }
+
           return { raw: line };
         });
 

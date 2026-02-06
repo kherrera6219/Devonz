@@ -7,9 +7,11 @@
 
 import type { AgentName, AuditLogEntry, ToolCall, ToolResult } from '~/lib/mcp/types';
 
-// ═══════════════════════════════════════════════════════════════════════════
-// AUDIT LOG STORAGE
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * AUDIT LOG STORAGE
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 /**
  * In-memory audit log (for development)
@@ -18,9 +20,11 @@ import type { AgentName, AuditLogEntry, ToolCall, ToolResult } from '~/lib/mcp/t
 const auditLog: AuditLogEntry[] = [];
 const maxLogSize = 10000; // Rotate after this many entries
 
-// ═══════════════════════════════════════════════════════════════════════════
-// AUDIT FUNCTIONS
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * AUDIT FUNCTIONS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 /**
  * Generate unique audit ID
@@ -80,11 +84,7 @@ export function logToolCallStart(call: ToolCall): string {
 /**
  * Log a tool call completion
  */
-export function logToolCallEnd(
-  auditId: string,
-  result: ToolResult,
-  filesChanged?: string[],
-): void {
+export function logToolCallEnd(auditId: string, result: ToolResult, filesChanged?: string[]): void {
   const entry = auditLog.find((e) => e.id === auditId);
 
   if (entry) {
@@ -107,12 +107,7 @@ export function logToolCallEnd(
 /**
  * Log a denied tool call
  */
-export function logToolCallDenied(
-  agent: AgentName,
-  tool: string,
-  reason: string,
-  runId: string,
-): void {
+export function logToolCallDenied(agent: AgentName, tool: string, reason: string, runId: string): void {
   const entry: AuditLogEntry = {
     id: generateAuditId(),
     timestamp: Date.now(),
@@ -130,9 +125,11 @@ export function logToolCallDenied(
   console.warn(`[MCP Audit] DENIED: ${agent} → ${tool}`, { reason, runId });
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// QUERY FUNCTIONS
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * QUERY FUNCTIONS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 /**
  * Get audit entries for a specific run
@@ -192,9 +189,11 @@ export function clearAuditLog(): void {
   auditLog.length = 0;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// EXPORT FUNCTIONS
-// ═══════════════════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * EXPORT FUNCTIONS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
 
 /**
  * Export audit log as JSON (for external analysis)

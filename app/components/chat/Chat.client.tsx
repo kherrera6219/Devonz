@@ -113,7 +113,8 @@ export const ChatImpl = memo(
       (project) => project.id === supabaseConn.selectedProjectId,
     );
     const supabaseAlert = useStore(workbenchStore.supabaseAlert);
-    const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled, orchestratorSettings } = useSettings();
+    const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled, orchestratorSettings } =
+      useSettings();
     const [llmErrorAlert, setLlmErrorAlert] = useState<LlmErrorAlertType | undefined>(undefined);
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');
@@ -187,8 +188,10 @@ export const ChatImpl = memo(
 
         logger.debug('Finished streaming');
 
-        // Check if this was an auto-fix response
-        // Wait for terminal/preview to run the code, then check if errors cleared
+        /*
+         * Check if this was an auto-fix response
+         * Wait for terminal/preview to run the code, then check if errors cleared
+         */
         if (isAutoFixActive()) {
           const settings = autoFixStore.get().settings;
 
@@ -396,8 +399,10 @@ export const ChatImpl = memo(
         return;
       }
 
-      // Animate the intro element out before showing chat
-      // Only animate if the element exists to prevent framer-motion errors
+      /*
+       * Animate the intro element out before showing chat
+       * Only animate if the element exists to prevent framer-motion errors
+       */
       const introElement = document.querySelector('#intro');
 
       if (introElement) {
@@ -753,16 +758,20 @@ export const ChatImpl = memo(
         description={description}
         importChat={importChat}
         exportChat={exportChat}
-        messages={useMemo(() => messages.map((message, i) => {
-          if (message.role === 'user') {
-            return message;
-          }
+        messages={useMemo(
+          () =>
+            messages.map((message, i) => {
+              if (message.role === 'user') {
+                return message;
+              }
 
-          return {
-            ...message,
-            content: parsedMessages[i] || '',
-          };
-        }), [messages, parsedMessages])}
+              return {
+                ...message,
+                content: parsedMessages[i] || '',
+              };
+            }),
+          [messages, parsedMessages],
+        )}
         enhancePrompt={() => {
           enhancePrompt(
             input,

@@ -668,10 +668,12 @@ export class WorkbenchStore {
 
       this.#editorStore.updateFile(fullPath, data.action.content);
 
-      // CRITICAL: When staging is enabled, do NOT save to WebContainer here!
-      // The action-runner will stage the change, and WebContainer write happens on Accept.
-      // If we save here, the original content will be overwritten BEFORE staging captures it,
-      // causing Bug 1 (Reject All doesn't work) and Bug 2 (diff shows +0 -0).
+      /*
+       * CRITICAL: When staging is enabled, do NOT save to WebContainer here!
+       * The action-runner will stage the change, and WebContainer write happens on Accept.
+       * If we save here, the original content will be overwritten BEFORE staging captures it,
+       * causing Bug 1 (Reject All doesn't work) and Bug 2 (diff shows +0 -0).
+       */
       const stagingState = stagingStore.get();
       const isStagingEnabled = stagingState.settings.isEnabled;
 

@@ -5,7 +5,7 @@ import type {
   RunState,
   TechRealityReport,
   CompetencyMap,
-  EventLogEntry
+  EventLogEntry,
 } from '~/lib/agent-orchestrator/types/mas-schemas';
 import { safeInvoke, createErrorState } from '~/lib/agent-orchestrator/utils/agent-utils';
 
@@ -23,11 +23,13 @@ export class ResearcherAgent {
   private readonly _modelName = 'gemini-3-flash-preview';
 
   private _ensureModels(state: RunState) {
-    if (this._model) return;
+    if (this._model) {
+      return;
+    }
 
-    const googleApiKey = state.status?.activeAgents?.find(a => a.agentId === 'researcher')
+    const googleApiKey = state.status?.activeAgents?.find((a) => a.agentId === 'researcher')
       ? process.env.GOOGLE_API_KEY
-      : (process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY);
+      : process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
     this._model = new ChatGoogleGenerativeAI({
       model: this._modelName,
@@ -42,6 +44,7 @@ export class ResearcherAgent {
    */
   async run(state: RunState): Promise<Partial<RunState>> {
     this._ensureModels(state);
+
     // Default behavior if called generically: run tech research based on plan
     return await this.runTechResearch(state);
   }
@@ -78,15 +81,15 @@ export class ResearcherAgent {
           "securityAdvisories": [ {{ "issue": "...", "severity": "low|medium|high|critical", "recommendation": "..." }} ]
         }}
 
-        {format_instructions}`
+        {format_instructions}`,
       );
 
       const chain = prompt.pipe(this._model!).pipe(parser);
-      const report = await safeInvoke(this._name, chain, {
+      const report = (await safeInvoke(this._name, chain, {
         query,
         constraints,
-        format_instructions: parser.getFormatInstructions()
-      }) as TechRealityReport;
+        format_instructions: parser.getFormatInstructions(),
+      })) as TechRealityReport;
 
       // Event Log
       const newEvent: EventLogEntry = {
@@ -98,18 +101,17 @@ export class ResearcherAgent {
         agent: 'researcher',
         summary: `Tech Report: ${report.recommendedPins.length} pins, ${report.compatibilityWarnings.length} incompatibility warnings.`,
         visibility: 'expert',
-        details: report as any
+        details: report as any,
       };
 
       return {
         research: {
           ...state.research,
           techReality: report,
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
         },
-        events: [newEvent]
+        events: [newEvent],
       };
-
     } catch (error: any) {
       return createErrorState(this._name, state, error);
     }
@@ -121,6 +123,7 @@ export class ResearcherAgent {
   async runCompetencyResearch(state: RunState): Promise<Partial<RunState>> {
     try {
       this._ensureModels(state);
+
       const query = state.inputs.requestText || '';
 
       const parser = new JsonOutputParser();
@@ -143,14 +146,14 @@ export class ResearcherAgent {
           "learningResources": [ {{ "title": "...", "link": "...", "useFor": "..." }} ]
         }}
 
-        {format_instructions}`
+        {format_instructions}`,
       );
 
       const chain = prompt.pipe(this._model!).pipe(parser);
-      const map = await safeInvoke(this._name, chain, {
+      const map = (await safeInvoke(this._name, chain, {
         query,
-        format_instructions: parser.getFormatInstructions()
-      }) as CompetencyMap;
+        format_instructions: parser.getFormatInstructions(),
+      })) as CompetencyMap;
 
       const newEvent: EventLogEntry = {
         eventId: crypto.randomUUID(),
@@ -161,18 +164,17 @@ export class ResearcherAgent {
         agent: 'researcher',
         summary: `Competency Map: ${map.skills.length} skills identified.`,
         visibility: 'expert',
-        details: map as any
+        details: map as any,
       };
 
       return {
         research: {
           ...state.research,
           competencyMap: map,
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
         },
-        events: [newEvent]
+        events: [newEvent],
       };
-
     } catch (error: any) {
       return createErrorState(this._name, state, error);
     }

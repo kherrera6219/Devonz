@@ -1,5 +1,18 @@
 import type { TabType } from './types';
-import { User, Settings, Bell, Star, Database, Cloud, Laptop, Github, Wrench, List, BookOpen, Network } from 'lucide-react';
+import {
+  User,
+  Settings,
+  Bell,
+  Star,
+  Database,
+  Cloud,
+  Laptop,
+  Github,
+  Wrench,
+  List,
+  BookOpen,
+  Network,
+} from 'lucide-react';
 
 // GitLab icon component
 const GitLabIcon = () => (

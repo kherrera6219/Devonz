@@ -19,7 +19,9 @@ export class CoordinatorAgent {
   private readonly _modelName = 'gpt-5'; // System default
 
   private _ensureModel() {
-    if (this._model) return;
+    if (this._model) {
+      return;
+    }
 
     const apiKey = process.env.OPENAI_API_KEY;
 
@@ -41,9 +43,11 @@ export class CoordinatorAgent {
       return this._handlePlanning(state);
     }
 
-    // Future: Handle other stages like Finalize or re-planning triggers
-    // For now, only Planning is strictly owned by Coordinator in the 7-node flow
-    // (Other nodes are owned by Researcher/Architect/QC)
+    /*
+     * Future: Handle other stages like Finalize or re-planning triggers
+     * For now, only Planning is strictly owned by Coordinator in the 7-node flow
+     * (Other nodes are owned by Researcher/Architect/QC)
+     */
 
     return {};
   }
@@ -77,19 +81,19 @@ export class CoordinatorAgent {
         "constraints": string[]
       }}
 
-      {format_instructions}`
+      {format_instructions}`,
     );
 
     const chain = prompt.pipe(this._model!).pipe(parser);
 
     // Execute with retry
-    const analysis = await safeInvoke(
+    const analysis = (await safeInvoke(
       this._name,
       chain,
       {
         request: state.inputs.requestText || '',
         constraints: JSON.stringify(state.inputs.constraints || {}),
-        format_instructions: parser.getFormatInstructions()
+        format_instructions: parser.getFormatInstructions(),
       },
       3,
       {
@@ -97,15 +101,15 @@ export class CoordinatorAgent {
         needsResearch: true,
         plan: [{ id: 'error-fallback', description: 'Analyze failure', assignedTo: 'researcher', status: 'pending' }],
         acceptanceCriteria: [],
-        constraints: []
-      }
-    ) as any;
+        constraints: [],
+      },
+    )) as any;
 
     // Construct Plan State
     const planState: PlanState = {
       tasks: analysis.plan,
       acceptanceCriteria: analysis.acceptanceCriteria,
-      constraints: analysis.constraints || []
+      constraints: analysis.constraints || [],
     };
 
     // Construct Event Log
@@ -118,33 +122,40 @@ export class CoordinatorAgent {
         stage: 'COORD_PLAN',
         agent: 'coordinator',
         summary: `Plan Created: ${analysis.intent} (${analysis.plan.length} tasks)`,
-        visibility: 'user'
-      }
+        visibility: 'user',
+      },
     ];
 
-    // Decide Next Step & Create work packet implicitly by state transition
-    // In strict graph, we output state that triggers the next node.
-    // The "WorkPacket" concept is logical - here represented by the PlanState
-    // and the ResearchQuery if needed.
+    /*
+     * Decide Next Step & Create work packet implicitly by state transition
+     * In strict graph, we output state that triggers the next node.
+     * The "WorkPacket" concept is logical - here represented by the PlanState
+     * and the ResearchQuery if needed.
+     */
 
     // If research needed, output research query to state
-    const researchStateUpdate = analysis.needsResearch ? {
-      lastUpdated: new Date().toISOString(),
-      // We could add a specific query field to ResearchState if schema permits,
-      // or key off the plan. For now, let's assume Research Node reads the Plan.
-    } : {};
+    const researchStateUpdate = analysis.needsResearch
+      ? {
+          lastUpdated: new Date().toISOString(),
+
+          /*
+           * We could add a specific query field to ResearchState if schema permits,
+           * or key off the plan. For now, let's assume Research Node reads the Plan.
+           */
+        }
+      : {};
 
     return {
       plan: planState,
       research: {
-         ...state.research,
-         ...researchStateUpdate
+        ...state.research,
+        ...researchStateUpdate,
       },
       events: newEvents,
       status: {
         ...state.status,
-        stage: analysis.needsResearch ? 'RESEARCH_TECH_AND_SKILLS' : 'ARCH_BUILD'
-      }
+        stage: analysis.needsResearch ? 'RESEARCH_TECH_AND_SKILLS' : 'ARCH_BUILD',
+      },
     };
   }
 }

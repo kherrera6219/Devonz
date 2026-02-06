@@ -440,13 +440,15 @@ export const updatePromptId = (id: string) => {
   localStorage.setItem(SETTINGS_KEYS.PROMPT_ID, id);
 };
 
-export const updateOrchestratorSettings = (updates: Partial<{
-  enabled: boolean;
-  mode: 'fast' | 'hardened' | 'security-strict';
-  coordinatorModel: string;
-  researcherModel: string;
-  architectModel: string;
-}>) => {
+export const updateOrchestratorSettings = (
+  updates: Partial<{
+    enabled: boolean;
+    mode: 'fast' | 'hardened' | 'security-strict';
+    coordinatorModel: string;
+    researcherModel: string;
+    architectModel: string;
+  }>,
+) => {
   const current = orchestratorSettingsStore.get();
   const next = { ...current, ...updates };
   orchestratorSettingsStore.set(next);

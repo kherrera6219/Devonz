@@ -1,8 +1,5 @@
 import { ChatOpenAI } from '@langchain/openai';
-import type {
-  RunState,
-  EventLogEntry
-} from '~/lib/agent-orchestrator/types/mas-schemas';
+import type { RunState, EventLogEntry } from '~/lib/agent-orchestrator/types/mas-schemas';
 import { createErrorState } from '~/lib/agent-orchestrator/utils/agent-utils';
 
 /**
@@ -16,8 +13,11 @@ export class QCAgent {
   private readonly _name = 'qc';
   private _model: ChatOpenAI | null = null;
 
-  private _ensureModel(state: RunState) {
-    if (this._model) return;
+  private _ensureModel(_state: RunState) {
+    if (this._model) {
+      return;
+    }
+
     // Use OpenAI for QC (different from Architect/Researcher to get diversity)
     const apiKey = process.env.OPENAI_API_KEY;
     this._model = new ChatOpenAI({
@@ -40,9 +40,11 @@ export class QCAgent {
 
       // Deterministic Check first
       if (!hasPatches) {
-        // Did architect fail to produce?
-        // If we are here, Architect ran. If no patches, maybe it was a conceptual task?
-        // For now, warn but pass if plan says completed.
+        /*
+         * Did architect fail to produce?
+         * If we are here, Architect ran. If no patches, maybe it was a conceptual task?
+         * For now, warn but pass if plan says completed.
+         */
 
         const event: EventLogEntry = {
           eventId: crypto.randomUUID(),
@@ -52,17 +54,19 @@ export class QCAgent {
           stage: 'QC1_SYNTAX_STYLE',
           agent: 'qc',
           summary: 'QC1: No patches to verify. Proceeding.',
-          visibility: 'internal'
+          visibility: 'internal',
         };
 
         return {
           events: [event],
-          status: { ...state.status, stage: 'QC2_COMPLETENESS' }
+          status: { ...state.status, stage: 'QC2_COMPLETENESS' },
         };
       }
 
-      // In real implementation, we would try to apply patches to shadow fs
-      // check syntax. For now, we assume if they exist they are candidates.
+      /*
+       * In real implementation, we would try to apply patches to shadow fs
+       * check syntax. For now, we assume if they exist they are candidates.
+       */
 
       const event: EventLogEntry = {
         eventId: crypto.randomUUID(),
@@ -72,14 +76,13 @@ export class QCAgent {
         stage: 'QC1_SYNTAX_STYLE',
         agent: 'qc',
         summary: `QC1: Verified ${patches.length} patches structure.`,
-        visibility: 'expert'
+        visibility: 'expert',
       };
 
       return {
         events: [event],
-        status: { ...state.status, stage: 'QC2_COMPLETENESS' }
+        status: { ...state.status, stage: 'QC2_COMPLETENESS' },
       };
-
     } catch (error: any) {
       return createErrorState(this._name, state, error);
     }
@@ -90,17 +93,18 @@ export class QCAgent {
    * focus: Requirements, Logic, Completeness
    */
   async runCompletenessCheck(state: RunState): Promise<Partial<RunState>> {
-     try {
+    try {
       this._ensureModel(state);
 
       const tasks = state.plan?.tasks || [];
-      const pendingWork = tasks.filter(t => t.status !== 'complete' && t.status !== 'failed');
+      const pendingWork = tasks.filter((t) => t.status !== 'complete' && t.status !== 'failed');
 
       if (pendingWork.length > 0) {
-        // Loop back to Architect?
-        // Or if architect logic was "do all pending", then maybe we missed some?
-        // Depending on graph logic, if we return 'fix', graph might route us. Or 'architect'.
-
+        /*
+         * Loop back to Architect?
+         * Or if architect logic was "do all pending", then maybe we missed some?
+         * Depending on graph logic, if we return 'fix', graph might route us. Or 'architect'.
+         */
         // For Phase 19, we will assume pass if architect marked them done.
       }
 
@@ -112,35 +116,39 @@ export class QCAgent {
         stage: 'QC2_COMPLETENESS',
         agent: 'qc',
         summary: `QC2: All planned tasks reviewed.`,
-        visibility: 'user'
+        visibility: 'user',
       };
 
-      // We don't change stage to 'COMPLETE' here directly?
-      // The graph decides based on 'qc.reviews'.
-      // But graph logic says `workflow.addConditionalEdges('qc2', checkQCPass...`
-      // checkQCPass likely checks state.qc status?
-      // Let's update state.qc to passed.
+      /*
+       * We don't change stage to 'COMPLETE' here directly?
+       * The graph decides based on 'qc.reviews'.
+       * But graph logic says `workflow.addConditionalEdges('qc2', checkQCPass...`
+       * checkQCPass likely checks state.qc status?
+       * Let's update state.qc to passed.
+       */
 
       return {
         events: [event],
         qc: {
-            ...state.qc,
-            issues: [...(state.qc?.issues || []), {
-                issueId: crypto.randomUUID(),
-                stage: 'QC2_COMPLETENESS',
-                category: 'completeness',
-                severity: 'low',
-                file: '',
-                title: 'Automated Pass',
-                description: 'All tasks reviewed.',
-                recommendation: 'None',
-                fixStatus: 'fixed'
-            }],
-            pass: true
+          ...state.qc,
+          issues: [
+            ...(state.qc?.issues || []),
+            {
+              issueId: crypto.randomUUID(),
+              stage: 'QC2_COMPLETENESS',
+              category: 'completeness',
+              severity: 'low',
+              file: '',
+              title: 'Automated Pass',
+              description: 'All tasks reviewed.',
+              recommendation: 'None',
+              fixStatus: 'fixed',
+            },
+          ],
+          pass: true,
         },
-        status: { ...state.status, stage: 'FINALIZE' } // Hint to graph
+        status: { ...state.status, stage: 'FINALIZE' }, // Hint to graph
       };
-
     } catch (error: any) {
       return createErrorState(this._name, state, error);
     }

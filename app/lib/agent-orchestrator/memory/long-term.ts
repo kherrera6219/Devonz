@@ -54,8 +54,10 @@ export async function loadPreferences(): Promise<UserPreferences> {
 
   try {
     await ensureMemoryDir();
+
     const data = await fs.readFile(PREFERENCES_FILE, 'utf-8');
     preferencesCache = JSON.parse(data);
+
     return preferencesCache!;
   } catch {
     // Return defaults if file doesn't exist
@@ -83,8 +85,10 @@ export async function loadHistory(): Promise<ProjectHistory> {
 
   try {
     await ensureMemoryDir();
+
     const data = await fs.readFile(HISTORY_FILE, 'utf-8');
     historyCache = JSON.parse(data);
+
     return historyCache!;
   } catch {
     historyCache = {

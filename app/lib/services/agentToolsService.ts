@@ -140,7 +140,9 @@ async function writeFile(params: WriteFileParams): Promise<ToolExecutionResult<W
         await container.fs.writeFile(path, bytes);
       } catch (decodeError) {
         logger.error(`Failed to decode base64 content for ${path}`, decodeError);
-        throw new Error(`Invalid base64 content provided: ${decodeError instanceof Error ? decodeError.message : String(decodeError)}`);
+        throw new Error(
+          `Invalid base64 content provided: ${decodeError instanceof Error ? decodeError.message : String(decodeError)}`,
+        );
       }
     } else {
       // Default utf-8 write
@@ -273,6 +275,7 @@ async function generateDocument(params: {
     doc.text(title, 20, 20);
 
     doc.setFontSize(12);
+
     const splitText = doc.splitTextToSize(content, 170);
     doc.text(splitText, 20, 35);
 
@@ -605,7 +608,9 @@ async function searchCode(params: SearchCodeParams): Promise<ToolExecutionResult
               }
 
               const lineContent = lines[i];
-              const matchIndex = caseSensitive ? lineContent.indexOf(query) : lineContent.toLowerCase().indexOf(query.toLowerCase());
+              const matchIndex = caseSensitive
+                ? lineContent.indexOf(query)
+                : lineContent.toLowerCase().indexOf(query.toLowerCase());
 
               if (matchIndex !== -1) {
                 results.push({
@@ -722,7 +727,10 @@ async function readDocument(params: ReadDocumentParams): Promise<ToolExecutionRe
  * Knowledge Ingest Tool
  * Ingests a set of files into the unified knowledge engine.
  */
-async function knowledgeIngest(params: { projectId: string; files: Record<string, string> }): Promise<ToolExecutionResult<unknown>> {
+async function knowledgeIngest(params: {
+  projectId: string;
+  files: Record<string, string>;
+}): Promise<ToolExecutionResult<unknown>> {
   const { projectId, files } = params;
   logger.info(`Ingesting ${Object.keys(files).length} files for project: ${projectId}`);
 
@@ -742,6 +750,7 @@ async function knowledgeIngest(params: { projectId: string; files: Record<string
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Knowledge ingestion failed`, error);
+
     return { success: false, error: errorMessage };
   }
 }
@@ -750,7 +759,11 @@ async function knowledgeIngest(params: { projectId: string; files: Record<string
  * Knowledge Query Tool
  * Queries the unified knowledge engine for context.
  */
-async function knowledgeQuery(params: { projectId: string; query: string; topK?: number }): Promise<ToolExecutionResult<unknown>> {
+async function knowledgeQuery(params: {
+  projectId: string;
+  query: string;
+  topK?: number;
+}): Promise<ToolExecutionResult<unknown>> {
   const { projectId, query, topK = 5 } = params;
   logger.info(`Querying knowledge for project: ${projectId}`);
 
@@ -767,10 +780,12 @@ async function knowledgeQuery(params: { projectId: string; query: string; topK?:
     }
 
     const { results } = await response.json();
+
     return { success: true, data: { results } };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Knowledge query failed`, error);
+
     return { success: false, error: errorMessage };
   }
 }

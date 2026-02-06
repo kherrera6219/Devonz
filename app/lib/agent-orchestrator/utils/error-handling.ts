@@ -156,7 +156,9 @@ export function validateAgentState(state: any): { valid: boolean; errors: string
  * Sanitize user input to prevent injection
  */
 export function sanitizeInput(input: string): string {
-  if (typeof input !== 'string') return '';
+  if (typeof input !== 'string') {
+    return '';
+  }
 
   // Remove potential script injections
   return input

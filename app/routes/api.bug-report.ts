@@ -146,7 +146,8 @@ export const action = withSecurity(
       }
 
       // Get GitHub configuration
-      const githubToken = (context?.cloudflare?.env as any)?.GITHUB_BUG_REPORT_TOKEN || process.env.GITHUB_BUG_REPORT_TOKEN;
+      const githubToken =
+        (context?.cloudflare?.env as any)?.GITHUB_BUG_REPORT_TOKEN || process.env.GITHUB_BUG_REPORT_TOKEN;
       const targetRepo =
         (context?.cloudflare?.env as any)?.BUG_REPORT_REPO || process.env.BUG_REPORT_REPO || 'zebbern/Devonz';
 

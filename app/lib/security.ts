@@ -91,19 +91,21 @@ export function createSecurityHeaders() {
     // Enable XSS protection
     'X-XSS-Protection': '1; mode=block',
 
-    // Content Security Policy - restrict to same origin and trusted sources
-    // 'Content-Security-Policy': [
-    //   "default-src 'self'",
-    //   "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Allow inline scripts for React
-    //   "style-src 'self' 'unsafe-inline'", // Allow inline styles
-    //   "img-src 'self' data: https: blob:", // Allow images from same origin, data URLs, and HTTPS
-    //   "font-src 'self' data:", // Allow fonts from same origin and data URLs
-    //   "connect-src 'self' https://api.github.com https://api.netlify.com", // Allow connections to GitHub and Netlify APIs
-    //   "frame-src 'none'", // Prevent iframe embedding
-    //   "object-src 'none'", // Prevent object embedding
-    //   "base-uri 'self'",
-    //   "form-action 'self'",
-    // ].join('; '),
+    /*
+     * Content Security Policy - restrict to same origin and trusted sources
+     * 'Content-Security-Policy': [
+     *   "default-src 'self'",
+     *   "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Allow inline scripts for React
+     *   "style-src 'self' 'unsafe-inline'", // Allow inline styles
+     *   "img-src 'self' data: https: blob:", // Allow images from same origin, data URLs, and HTTPS
+     *   "font-src 'self' data:", // Allow fonts from same origin and data URLs
+     *   "connect-src 'self' https://api.github.com https://api.netlify.com", // Allow connections to GitHub and Netlify APIs
+     *   "frame-src 'none'", // Prevent iframe embedding
+     *   "object-src 'none'", // Prevent object embedding
+     *   "base-uri 'self'",
+     *   "form-action 'self'",
+     * ].join('; '),
+     */
 
     // Referrer Policy
     'Referrer-Policy': 'strict-origin-when-cross-origin',

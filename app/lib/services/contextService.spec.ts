@@ -112,6 +112,7 @@ describe('ContextService', () => {
       vi.mocked(selectContextModule.selectContext).mockResolvedValue({} as any);
 
       const mockQuery = vi.fn().mockResolvedValue(['rag snippet']);
+
       // Mock the singleton behavior properly
       const ragInstance = { query: mockQuery };
       vi.spyOn(RAGService, 'getInstance').mockReturnValue(ragInstance as any);

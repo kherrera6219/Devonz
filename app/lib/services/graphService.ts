@@ -29,6 +29,7 @@ export class GraphService {
     if (!GraphService._instance) {
       GraphService._instance = new GraphService();
     }
+
     return GraphService._instance;
   }
 
@@ -58,8 +59,8 @@ export class GraphService {
           CALL apoc.create.addLabels(f, [$projectLabel]) YIELD node
           return node
           `,
-          { path, projectId, metadata, projectLabel }
-        )
+          { path, projectId, metadata, projectLabel },
+        ),
       );
     } finally {
       await session.close();
@@ -67,7 +68,9 @@ export class GraphService {
   }
 
   async addFileNodesBatch(projectId: string, files: { path: string; metadata?: Record<string, any> }[]) {
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      return;
+    }
 
     const session = await this._getSession();
     const projectLabel = this._getProjectLabel(projectId);
@@ -83,8 +86,8 @@ export class GraphService {
           CALL apoc.create.addLabels(f, [$projectLabel]) YIELD node
           return count(node)
           `,
-          { files, projectId, projectLabel }
-        )
+          { files, projectId, projectLabel },
+        ),
       );
     } finally {
       await session.close();
@@ -103,8 +106,8 @@ export class GraphService {
           MERGE (a)-[r:DEPENDS_ON {type: $type, projectId: $projectId}]->(b)
           RETURN r
           `,
-          { sourcePath, targetPath, projectId, type }
-        )
+          { sourcePath, targetPath, projectId, type },
+        ),
       );
     } finally {
       await session.close();
@@ -113,9 +116,11 @@ export class GraphService {
 
   async addDependenciesBatch(
     projectId: string,
-    dependencies: { sourcePath: string; targetPath: string; type?: string }[]
+    dependencies: { sourcePath: string; targetPath: string; type?: string }[],
   ) {
-    if (dependencies.length === 0) return;
+    if (dependencies.length === 0) {
+      return;
+    }
 
     const session = await this._getSession();
 
@@ -132,8 +137,8 @@ export class GraphService {
           MERGE (a)-[r:DEPENDS_ON {type: dep.type, projectId: $projectId}]->(b)
           RETURN count(r)
           `,
-          { dependencies: processedDeps, projectId }
-        )
+          { dependencies: processedDeps, projectId },
+        ),
       );
     } finally {
       await session.close();
@@ -151,8 +156,8 @@ export class GraphService {
           MATCH (n:${projectLabel})-[r]->(m:${projectLabel})
           RETURN n, r, m LIMIT $limit
           `,
-          { limit: neo4j.int(limit) }
-        )
+          { limit: neo4j.int(limit) },
+        ),
       );
 
       return result.records.map((record) => ({
