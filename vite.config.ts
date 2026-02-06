@@ -63,7 +63,7 @@ export default defineConfig((config) => {
           global: true,
         },
         protocolImports: true,
-        exclude: ['child_process', 'fs', 'path', 'stream'],
+        exclude: ['child_process', 'fs', 'stream'],
       }),
       {
         name: 'buffer-polyfill',

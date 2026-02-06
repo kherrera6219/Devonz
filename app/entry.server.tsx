@@ -2,10 +2,7 @@ import type { AppLoadContext } from '@remix-run/node';
 import { RemixServer } from '@remix-run/react';
 import { isbot } from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
-import { renderHeadToString } from 'remix-island';
-import { Head } from './root';
-import { themeStore } from '~/lib/stores/theme';
-import { PassThrough, Transform } from 'node:stream';
+import { PassThrough } from 'node:stream';
 
 const ABORT_DELAY = 5_000;
 
@@ -28,21 +25,10 @@ export default async function handleRequest(
           console.log('[SSR] Processing shell ready...');
 
           const body = new PassThrough();
-          let head = '';
-          try {
-            head = renderHeadToString({ request, remixContext, Head });
-          } catch (e) {
-            console.error('[SSR] Failed to render head', e);
-          }
 
           responseHeaders.set('Content-Type', 'text/html');
           responseHeaders.set('Cross-Origin-Embedder-Policy', 'credentialless');
           responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
-
-          // Write the HTML shell
-          body.write(
-            `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
-          );
 
           resolve(
             new Response(body as unknown as ReadableStream, {
@@ -51,19 +37,7 @@ export default async function handleRequest(
             }),
           );
 
-          // Create a transform stream to append closing tags after React content
-          const appendClosingTags = new Transform({
-            transform(chunk, encoding, callback) {
-              callback(null, chunk);
-            },
-            flush(callback) {
-              this.push('</div></body></html>');
-              callback();
-            },
-          });
-
-          // Pipe React content through transform (which appends closing tags) to body
-          pipe(appendClosingTags).pipe(body);
+          pipe(body);
         },
         onShellError(error: unknown) {
           reject(error);

@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { vercelConnection } from '~/lib/stores/vercel';
-import { DeployButton } from '~/components/deploy/DeployButton';
-import { VercelDomainModal } from '~/components/deploy/VercelDomainModal';
 import { HeaderAvatar } from './HeaderAvatar.client';
 import { AutoFixStatus } from './AutoFixStatus.client';
 import { chatId } from '~/lib/persistence/useChatHistory';
+import React, { Suspense, lazy } from 'react';
+
+const DeployButton = lazy(() => import('~/components/deploy/DeployButton').then(m => ({ default: m.DeployButton })));
+const VercelDomainModal = lazy(() => import('~/components/deploy/VercelDomainModal').then(m => ({ default: m.VercelDomainModal })));
 
 interface HeaderActionButtonsProps {
   chatStarted: boolean;
@@ -71,13 +73,19 @@ export function HeaderActionButtons({ chatStarted: _chatStarted }: HeaderActionB
       )}
 
       {/* Deploy Button */}
-      {shouldShowButtons && <DeployButton />}
+      {shouldShowButtons && (
+        <Suspense fallback={<div className="w-20 h-8 bg-bolt-elements-background-depth-3 animate-pulse rounded-md" />}>
+          <DeployButton />
+        </Suspense>
+      )}
 
       {/* Avatar */}
       <HeaderAvatar />
 
       {/* Vercel Domain Modal */}
-      <VercelDomainModal isOpen={isVercelModalOpen} onClose={() => setIsVercelModalOpen(false)} />
+      <Suspense fallback={null}>
+        <VercelDomainModal isOpen={isVercelModalOpen} onClose={() => setIsVercelModalOpen(false)} />
+      </Suspense>
     </div>
   );
 }

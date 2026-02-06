@@ -4,7 +4,6 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, isRoute
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
-import { createHead } from 'remix-island';
 import { useEffect, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -63,15 +62,7 @@ const inlineThemeCode = stripIndents`
   }
 `;
 
-export const Head = createHead(() => (
-  <>
-    <meta charSet="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Meta />
-    <Links />
-    <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
-  </>
-));
+// Head is now integrated into Layout for standard Remix hydration
 
 function ClientOnly({ children, fallback }: { children: () => React.ReactNode; fallback: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -80,7 +71,11 @@ function ClientOnly({ children, fallback }: { children: () => React.ReactNode; f
     setMounted(true);
   }, []);
 
-  return mounted ? <>{children()}</> : <>{fallback}</>;
+  if (!mounted) {
+    return <>{fallback}</>;
+  }
+
+  return <>{children()}</>;
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -89,46 +84,55 @@ export function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     document.querySelector('html')?.setAttribute('data-theme', theme);
   }, [theme]);
+
   return (
-    <>
-
-      <ClientOnly
-        fallback={
-          <div className="h-full w-full bg-bolt-elements-background-depth-1 flex items-center justify-center text-white">
-            Loading Devonz... (SSR Fallback)
-          </div>
-        }
-      >
-        {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
-      </ClientOnly>
-      <ToastContainer
-        closeButton={({ closeToast }) => {
-          return (
-            <button className="Toastify__close-button" onClick={closeToast} aria-label="Close notification">
-              <div className="i-ph:x text-lg" />
-            </button>
-          );
-        }}
-        icon={({ type }) => {
-          switch (type) {
-            case 'success': {
-              return <div className="i-ph:check-bold text-bolt-elements-icon-success text-2xl" />;
-            }
-            case 'error': {
-              return <div className="i-ph:warning-circle-bold text-bolt-elements-icon-error text-2xl" />;
-            }
+    <html lang="en" data-theme={theme}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+        <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
+      </head>
+      <body>
+        <ClientOnly
+          fallback={
+            <div className="h-full w-full bg-bolt-elements-background-depth-1 flex items-center justify-center text-white">
+              Loading Devonz... (SSR Fallback)
+            </div>
           }
+        >
+          {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
+        </ClientOnly>
+        <ToastContainer
+          closeButton={({ closeToast }) => {
+            return (
+              <button className="Toastify__close-button" onClick={closeToast} aria-label="Close notification">
+                <div className="i-ph:x text-lg" />
+              </button>
+            );
+          }}
+          icon={({ type }) => {
+            switch (type) {
+              case 'success': {
+                return <div className="i-ph:check-bold text-bolt-elements-icon-success text-2xl" />;
+              }
+              case 'error': {
+                return <div className="i-ph:warning-circle-bold text-bolt-elements-icon-error text-2xl" />;
+              }
+            }
 
-          return undefined;
-        }}
-        position="bottom-right"
-        pauseOnFocusLoss
-        transition={toastAnimation}
-        autoClose={3000}
-      />
-      <ScrollRestoration />
-      <Scripts />
-    </>
+            return undefined;
+          }}
+          position="bottom-right"
+          pauseOnFocusLoss
+          transition={toastAnimation}
+          autoClose={3000}
+        />
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
   );
 }
 
@@ -150,31 +154,22 @@ export function ErrorBoundary() {
   }
 
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body className="bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary">
-        <div className="flex flex-col items-center justify-center h-screen w-full gap-4 p-4">
-          <div className="i-ph:warning-circle-bold text-6xl text-bolt-elements-icon-error" />
-          <h1 className="text-2xl font-bold">{message}</h1>
-          <p className="text-bolt-elements-textSecondary max-w-lg text-center font-mono text-sm bg-bolt-elements-background-depth-3 p-4 rounded border border-bolt-elements-borderColor">
-            {details}
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text rounded hover:bg-bolt-elements-button-primary-backgroundHover transition-colors"
-            aria-label="Reload Application"
-          >
-            Reload Application
-          </button>
-        </div>
-        <Scripts />
-      </body>
-    </html>
+    <Layout>
+      <div className="flex flex-col items-center justify-center h-screen w-full gap-4 p-4">
+        <div className="i-ph:warning-circle-bold text-6xl text-bolt-elements-icon-error" />
+        <h1 className="text-2xl font-bold">{message}</h1>
+        <p className="text-bolt-elements-textSecondary max-w-lg text-center font-mono text-sm bg-bolt-elements-background-depth-3 p-4 rounded border border-bolt-elements-borderColor">
+          {details}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text rounded hover:bg-bolt-elements-button-primary-backgroundHover transition-colors"
+          aria-label="Reload Application"
+        >
+          Reload Application
+        </button>
+      </div>
+    </Layout>
   );
 }
 

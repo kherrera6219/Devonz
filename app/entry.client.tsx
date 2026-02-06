@@ -17,14 +17,7 @@ if (typeof window !== 'undefined') {
 }
 
 startTransition(() => {
-  console.log('[Entry] Starting hydration...');
-
-  const rootElement = document.getElementById('root');
-
-  if (!rootElement) {
-    console.error('[Entry] Root element not found!');
-    return;
-  }
+  const rootElement = document;
 
   try {
     hydrateRoot(
@@ -38,7 +31,6 @@ startTransition(() => {
         },
       },
     );
-    console.log('[Entry] Hydration call successfully initiated.');
   } catch (error) {
     console.error('[Entry] Hydration failed to initiate:', error);
   }
