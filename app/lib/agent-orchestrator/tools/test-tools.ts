@@ -86,7 +86,7 @@ const runTypeCheckTool = tool(
       const args = strict ? '--strict' : '';
       const command = `npx tsc --noEmit ${args}`;
 
-      const { stdout, stderr: _stderr } = await execAsync(command, {
+      const { stdout } = await execAsync(command, {
         cwd: process.cwd(),
         timeout: 120000, // 2 minute timeout
       });

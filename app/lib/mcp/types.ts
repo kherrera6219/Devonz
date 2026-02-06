@@ -29,7 +29,6 @@ export type AgentRole = {
 export type ToolCategory = 'fs' | 'run' | 'sec' | 'proj' | 'diag';
 
 export type ToolPermission =
-
   // File System
   | 'fs.read'
   | 'fs.search'

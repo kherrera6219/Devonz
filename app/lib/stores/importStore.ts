@@ -1,4 +1,4 @@
-import { atom, map } from 'nanostores';
+import { map } from 'nanostores';
 
 export type ImportStatus = 'idle' | 'scanning' | 'storing' | 'indexing' | 'syncing' | 'complete' | 'error';
 

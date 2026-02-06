@@ -1,5 +1,4 @@
 import { json, type ActionFunctionArgs } from '@remix-run/node';
-import path from 'path';
 import { minioService } from '~/lib/services/minioService';
 import { RAGService } from '~/lib/services/ragService';
 import { createScopedLogger } from '~/utils/logger';

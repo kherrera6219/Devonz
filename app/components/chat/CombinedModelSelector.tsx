@@ -391,7 +391,7 @@ export const CombinedModelSelector = ({
           )}
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           role="combobox"
-          aria-expanded={isDropdownOpen}
+          aria-expanded={isDropdownOpen ? 'true' : 'false'}
           aria-haspopup="listbox"
           aria-controls="model-selector-listbox"
           aria-label="Select AI model and provider"
@@ -638,7 +638,7 @@ export const CombinedModelSelector = ({
                   ref={(el) => (optionsRef.current[index] = el)}
                   key={p.name}
                   role="option"
-                  aria-selected={provider?.name === p.name}
+                  aria-selected={provider?.name === p.name ? 'true' : 'false'}
                   className={classNames(
                     'px-4 py-3 cursor-pointer transition-all',
                     'flex items-center gap-3',
