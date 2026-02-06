@@ -49,7 +49,7 @@ export class QCAgent {
           runId: state.runId,
           timestamp: new Date().toISOString(),
           type: 'qc_review',
-          stage: 'QC1_SYNTAX_STYLE',
+          stage: 'QC1_SYNTAX_STYLE' as any,
           agent: 'qc',
           summary: 'QC1: No patches to verify. Proceeding.',
           visibility: 'internal'
@@ -57,7 +57,7 @@ export class QCAgent {
 
         return {
           events: [event],
-          status: { ...state.status, stage: 'QC2_COMPLETENESS' }
+          status: { ...state.status, stage: 'QC2_COMPLETENESS' as any }
         };
       }
 
@@ -108,8 +108,8 @@ export class QCAgent {
         eventId: crypto.randomUUID(),
         runId: state.runId,
         timestamp: new Date().toISOString(),
-        type: 'qc_review',
-        stage: 'QC2_COMPLETENESS',
+        type: 'qc_review' as any,
+        stage: 'QC2_COMPLETENESS' as any,
         agent: 'qc',
         summary: `QC2: All planned tasks reviewed.`,
         visibility: 'user'

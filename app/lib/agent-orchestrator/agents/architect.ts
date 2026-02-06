@@ -153,9 +153,8 @@ export class ArchitectAgent {
 
     return {
       artifacts: {
-        ...state.artifacts,
-        currentFiles: state.artifacts?.currentFiles || {},
-        patches: [...(state.artifacts?.patches || []), ...result.patches]
+        currentFiles: { /* In real system, would reflect fs */ },
+        patches: [...(state.artifacts?.patches || []), ...result.patches],
       },
       plan: {
         ...state.plan!,
@@ -164,8 +163,17 @@ export class ArchitectAgent {
       events: newEvents,
       status: {
         ...state.status,
-        stage: 'QC1_SYNTAX_STYLE'
+        stage: 'QC1_SYNTAX_STYLE',
+        stageState: 'queued',
+        progress: {
+            percent: 100,
+            label: 'Architecture Complete',
+            iteration: state.status?.progress?.iteration || 0 // Added nullish coalescing for safety
+        },
+        activeAgents: state.status?.activeAgents?.map(a => // Added optional chaining for safety
+            a.agentId === 'architect' ? { ...a, status: 'done' } : a
+        ) || [] // Default to empty array if activeAgents is undefined
       }
-    };
+    } as any;
   }
 }

@@ -222,6 +222,7 @@ export type EventType =
   | 'tool_called'
   | 'artifact_ready'
   | 'patch_applied'
+  | 'qc_review'
   | 'qc_issues_found'
   | 'qc_passed'
   | 'qc_failed'

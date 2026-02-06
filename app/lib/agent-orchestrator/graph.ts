@@ -113,7 +113,7 @@ export function createGraph() {
       warnings: { value: (a, b) => b ? [...(a || []), ...b] : a, default: () => [] },
       errors: { value: (a, b) => b ? [...(a || []), ...b] : a, default: () => [] },
     }
-  });
+  }) as any;
 
   // Add Nodes
   workflow.addNode('coordinator', coordinatorNode as any);
