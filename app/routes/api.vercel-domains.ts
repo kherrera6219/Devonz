@@ -24,7 +24,6 @@ interface DomainRequest {
   domain?: string;
 }
 
-
 /**
  * Get Vercel token from request
  */

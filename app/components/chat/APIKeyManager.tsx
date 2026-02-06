@@ -17,6 +17,10 @@ const providerEnvKeyStatusCache: Record<string, boolean> = {};
 const apiKeyMemoizeCache: { [k: string]: Record<string, string> } = {};
 
 export function getApiKeysFromCookies() {
+  if (typeof document === 'undefined') {
+    return {};
+  }
+
   const storedApiKeys = Cookies.get('apiKeys');
   let parsedKeys: Record<string, string> = {};
 
@@ -24,7 +28,12 @@ export function getApiKeysFromCookies() {
     parsedKeys = apiKeyMemoizeCache[storedApiKeys];
 
     if (!parsedKeys) {
-      parsedKeys = apiKeyMemoizeCache[storedApiKeys] = JSON.parse(storedApiKeys);
+      try {
+        parsedKeys = apiKeyMemoizeCache[storedApiKeys] = JSON.parse(storedApiKeys);
+      } catch (e) {
+        console.error('Failed to parse apiKeys cookie', e);
+        return {};
+      }
     }
   }
 
@@ -121,8 +130,8 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
               value={tempKey}
               placeholder="Enter API Key"
               onChange={(e) => setTempKey(e.target.value)}
-              className="w-[300px] px-3 py-1.5 text-sm rounded border border-bolt-elements-borderColor 
-                        bg-bolt-elements-prompt-background text-bolt-elements-textPrimary 
+              className="w-[300px] px-3 py-1.5 text-sm rounded border border-bolt-elements-borderColor
+                        bg-bolt-elements-prompt-background text-bolt-elements-textPrimary
                         focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus"
             />
             <IconButton

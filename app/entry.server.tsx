@@ -25,9 +25,15 @@ export default async function handleRequest(
       {
         [callbackName]: () => {
           shellRendered = true;
+          console.log('[SSR] Processing shell ready...');
 
           const body = new PassThrough();
-          const head = renderHeadToString({ request, remixContext, Head });
+          let head = '';
+          try {
+            head = renderHeadToString({ request, remixContext, Head });
+          } catch (e) {
+            console.error('[SSR] Failed to render head', e);
+          }
 
           responseHeaders.set('Content-Type', 'text/html');
           responseHeaders.set('Cross-Origin-Embedder-Policy', 'credentialless');

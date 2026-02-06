@@ -1,5 +1,5 @@
 import { RemixBrowser } from '@remix-run/react';
-import { startTransition } from 'react';
+import { startTransition, StrictMode } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 
 console.log('[Entry] Client entry point starting...');
@@ -27,9 +27,19 @@ startTransition(() => {
   }
 
   try {
-    hydrateRoot(rootElement, <RemixBrowser />);
-    console.log('[Entry] Hydration call completed successfully');
+    hydrateRoot(
+      rootElement,
+      <StrictMode>
+        <RemixBrowser />
+      </StrictMode>,
+      {
+        onRecoverableError: (error: any) => {
+          console.error('[Hydration] Recoverable error:', error);
+        },
+      },
+    );
+    console.log('[Entry] Hydration call successfully initiated.');
   } catch (error) {
-    console.error('[Entry] Hydration failed:', error);
+    console.error('[Entry] Hydration failed to initiate:', error);
   }
 });

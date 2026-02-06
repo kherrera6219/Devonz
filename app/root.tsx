@@ -5,10 +5,10 @@ import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
 import { createHead } from 'remix-island';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { ClientOnly } from 'remix-utils/client-only';
+// import { ClientOnly } from 'remix-utils/client-only';
 import { cssTransition, ToastContainer } from 'react-toastify';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
@@ -73,16 +73,32 @@ export const Head = createHead(() => (
   </>
 ));
 
+function ClientOnly({ children, fallback }: { children: () => React.ReactNode; fallback: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  return mounted ? <>{children()}</> : <>{fallback}</>;
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
 
   useEffect(() => {
     document.querySelector('html')?.setAttribute('data-theme', theme);
   }, [theme]);
-
   return (
     <>
-      <ClientOnly fallback={<div className="h-full w-full bg-bolt-elements-background-depth-1" />}>
+
+      <ClientOnly
+        fallback={
+          <div className="h-full w-full bg-bolt-elements-background-depth-1 flex items-center justify-center text-white">
+            Loading Devonz... (SSR Fallback)
+          </div>
+        }
+      >
         {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
       </ClientOnly>
       <ToastContainer

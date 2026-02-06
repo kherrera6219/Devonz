@@ -88,7 +88,6 @@ export const Menu = () => {
       .then(setList)
       .catch((error) => toast.error(error.message));
   }, []);
-
   const deleteChat = useCallback(
     async (id: string): Promise<void> => {
       if (!db) {

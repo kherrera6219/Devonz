@@ -114,8 +114,8 @@ class MinIOService {
         // Map to DeleteObjects structure
         const objectsToDelete = listResponse.Contents.map((obj) => ({ Key: obj.Key }));
 
-        const { DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
-        const deleteCommand = new DeleteObjectsCommand({
+        const { DeleteObjectsCommand: s3DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
+        const deleteCommand = new s3DeleteObjectsCommand({
           Bucket: getBucketName(),
           Delete: {
             Objects: objectsToDelete,
