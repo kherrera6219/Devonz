@@ -82,7 +82,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <ClientOnly>{() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}</ClientOnly>
+      <ClientOnly fallback={<div className="h-full w-full bg-bolt-elements-background-depth-1" />}>
+        {() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}
+      </ClientOnly>
       <ToastContainer
         closeButton={({ closeToast }) => {
           return (

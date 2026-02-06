@@ -79,12 +79,14 @@ export const Menu = () => {
   });
 
   const loadEntries = useCallback(() => {
-    if (db) {
-      getAll(db)
-        .then((list) => list.filter((item) => item.urlId && item.description))
-        .then(setList)
-        .catch((error) => toast.error(error.message));
+    if (!db) {
+      return;
     }
+
+    getAll(db)
+      .then((list) => list.filter((item) => item.urlId && item.description))
+      .then(setList)
+      .catch((error) => toast.error(error.message));
   }, []);
 
   const deleteChat = useCallback(
@@ -106,7 +108,7 @@ export const Menu = () => {
       await deleteById(db, id);
       console.log('Successfully deleted chat:', id);
     },
-    [db],
+    [],
   );
 
   const deleteItem = useCallback(
@@ -149,8 +151,8 @@ export const Menu = () => {
 
   const deleteSelectedItems = useCallback(
     async (itemsToDeleteIds: string[]) => {
-      if (!db || itemsToDeleteIds.length === 0) {
-        console.log('Bulk delete skipped: No DB or no items to delete.');
+      if (itemsToDeleteIds.length === 0) {
+        console.log('Bulk delete skipped: No items to delete.');
         return;
       }
 
@@ -198,7 +200,7 @@ export const Menu = () => {
         window.location.pathname = '/';
       }
     },
-    [deleteChat, loadEntries, db],
+    [deleteChat, loadEntries],
   );
 
   const closeDialog = () => {

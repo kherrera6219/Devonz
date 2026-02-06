@@ -7,7 +7,7 @@
 
 import { workbenchStore } from '~/lib/stores/workbench';
 import { setSnapshot } from './db';
-import { chatId, db } from './useChatHistory';
+import { chatId, dbStore } from './useChatHistory';
 import type { Snapshot } from './types';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -23,7 +23,7 @@ const logger = createScopedLogger('SnapshotUtils');
  */
 export async function takeGlobalSnapshot(chatIndex?: string, chatSummary?: string): Promise<void> {
   const currentChatId = chatId.get();
-  const database = db;
+  const database = dbStore.get();
 
   if (!currentChatId) {
     logger.warn('Cannot take snapshot: No chat ID available');

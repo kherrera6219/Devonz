@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import {
   chatId as chatIdStore,
   db,
+  dbStore,
   description as descriptionStore,
   getMessages,
   updateChatDescription,
@@ -64,6 +65,8 @@ export function useEditChatDescription({
   }, []);
 
   const fetchLatestDescription = useCallback(async () => {
+    const db = dbStore.get();
+
     if (!db || !chatId) {
       return initialDescription;
     }
@@ -118,6 +121,8 @@ export function useEditChatDescription({
       }
 
       try {
+        const db = dbStore.get();
+
         if (!db) {
           toast.error('Chat persistence is not available');
           return;
@@ -141,7 +146,7 @@ export function useEditChatDescription({
 
       toggleEditMode();
     },
-    [currentDescription, db, chatId, initialDescription, customChatId],
+    [currentDescription, chatId, initialDescription, customChatId, syncWithGlobalStore, toggleEditMode],
   );
 
   const handleKeyDown = useCallback(

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from '@remix-run/react';
 import { classNames } from '~/utils/classNames';
-import { db, getAll, type ChatHistoryItem } from '~/lib/persistence';
+import { dbStore, getAll, type ChatHistoryItem } from '~/lib/persistence';
 import { formatDistanceToNow } from 'date-fns';
 
 interface RecentChatsProps {
@@ -14,6 +14,8 @@ export const RecentChats: React.FC<RecentChatsProps> = ({ maxItems = 10 }) => {
   const [loading, setLoading] = useState(true);
 
   const loadChats = useCallback(async () => {
+    const db = dbStore.get();
+
     if (!db) {
       setLoading(false);
       return;
