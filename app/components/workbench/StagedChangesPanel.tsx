@@ -618,7 +618,7 @@ export const StagedChangesPanel = memo(() => {
 
   return (
     <Collapsible.Root open={isOpen} onOpenChange={setIsOpen}>
-      <div className="border-b border-bolt-elements-borderColor" style={{ background: '#0d1117' }}>
+      <div className="border-b border-bolt-elements-borderColor bg-[#0d1117]">
         {/* Header */}
         <Collapsible.Trigger asChild>
           <button className="w-full flex items-center justify-between px-4 py-3 bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3 transition-colors">
@@ -675,7 +675,7 @@ export const StagedChangesPanel = memo(() => {
             className="overflow-hidden"
           >
             {/* Change list */}
-            <div className="max-h-64 overflow-y-auto py-2 dark-scrollbar" style={{ scrollbarColor: '#444444 #131a24' }}>
+            <div className="max-h-64 overflow-y-auto py-2 dark-scrollbar">
               <ChangeGroup
                 title="New Files"
                 icon="i-ph:plus-circle"

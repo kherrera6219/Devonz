@@ -87,15 +87,11 @@ export const Artifact = memo(({ artifactId }: ArtifactProps) => {
 
   return (
     <>
-      <div
-        className="artifact border border-white/10 flex flex-col overflow-hidden rounded-xl w-full transition-all duration-150"
-        style={{ background: 'linear-gradient(180deg, #1a2332 0%, #131a24 100%)' }}
-      >
+      <div className="artifact border border-white/10 flex flex-col overflow-hidden rounded-xl w-full transition-all duration-150 bg-gradient-to-b from-[#1a2332] to-[#131a24]">
         {/* Header - Glossy dark style */}
         <button
-          className="flex items-center justify-between w-full px-4 py-3 hover:bg-white/5 transition-colors"
+          className="flex items-center justify-between w-full px-4 py-3 hover:bg-white/5 transition-colors bg-white/2"
           onClick={toggleActions}
-          style={{ background: 'rgba(255,255,255,0.02)' }}
         >
           <div className="flex items-center gap-2.5">
             <div className="i-ph:wrench-duotone text-blue-400 text-lg" />
@@ -342,11 +338,11 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   )}
                 >
                   {isComplete ? (
-                    <div className="i-ph:check-bold" style={{ fontSize: '10px' }} />
+                    <div className="i-ph:check-bold text-[10px]" />
                   ) : isRunning ? (
-                    <div className="i-svg-spinners:ring-resize text-white" style={{ fontSize: '10px' }} />
+                    <div className="i-svg-spinners:ring-resize text-white text-[10px]" />
                   ) : isFailed ? (
-                    <div className="i-ph:x-bold" style={{ fontSize: '10px' }} />
+                    <div className="i-ph:x-bold text-[10px]" />
                   ) : null}
                 </div>
 
@@ -385,7 +381,7 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                       isExpanded ? 'rotate-180' : '',
                     )}
                   >
-                    <div className="i-ph:caret-down" style={{ fontSize: '14px' }} />
+                    <div className="i-ph:caret-down text-[14px]" />
                   </div>
                 )}
               </button>

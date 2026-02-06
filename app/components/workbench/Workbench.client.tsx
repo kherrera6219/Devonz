@@ -156,7 +156,7 @@ export const Workbench = memo(
             'flex-grow': !!fullWidth,
             'flex-shrink-0': !fullWidth,
           })}
-          style={fullWidth ? undefined : { width: width || 'var(--workbench-width)' }}
+          style={fullWidth ? {} : ({ '--workbench-width-override': width ? `${width}px` : undefined } as any)}
         >
           <div
             className={classNames('h-full flex flex-col bg-bolt-elements-background-depth-2 overflow-hidden', {

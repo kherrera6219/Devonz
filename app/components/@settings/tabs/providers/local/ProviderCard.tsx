@@ -4,6 +4,7 @@ import { Card, CardContent } from '~/components/ui/Card';
 import { Link, Server, Monitor, Globe } from 'lucide-react';
 import type { IProviderConfig } from '~/types/model';
 import { PROVIDER_DESCRIPTIONS } from './types';
+import { classNames } from '~/utils/classNames';
 
 // Provider Card Component
 interface ProviderCardProps {
@@ -40,25 +41,26 @@ function ProviderCard({
 
   return (
     <Card
-      className="w-full transition-all duration-300 shadow-sm hover:shadow-md"
-      style={{
-        backgroundColor: '#0b0d13',
-        borderColor: provider.settings.enabled ? 'rgba(139, 92, 246, 0.3)' : '#333',
-      }}
+      className={classNames(
+        'w-full transition-all duration-300 shadow-sm hover:shadow-md',
+        'bg-[#0b0d13] border',
+        provider.settings.enabled ? 'border-[#8b5cf6]/30' : 'border-[#333]',
+      )}
     >
       <CardContent className="!p-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 flex-1">
             <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300"
-              style={{
-                backgroundColor: provider.settings.enabled ? 'rgba(139, 92, 246, 0.1)' : '#21262d',
-                boxShadow: provider.settings.enabled ? '0 0 0 1px rgba(139, 92, 246, 0.3)' : 'none',
-              }}
+              className={classNames(
+                'w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-all duration-300',
+                provider.settings.enabled ? 'bg-[#8b5cf6]/10 ring-1 ring-[#8b5cf6]/30' : 'bg-[#21262d]',
+              )}
             >
               <Icon
-                className="w-5 h-5 transition-all duration-300"
-                style={{ color: provider.settings.enabled ? '#a855f7' : '#6b7280' }}
+                className={classNames(
+                  'w-5 h-5 transition-all duration-300',
+                  provider.settings.enabled ? 'text-[#a855f7]' : 'text-gray-500',
+                )}
               />
             </div>
             <div className="flex-1 flex flex-col justify-center">
@@ -73,19 +75,18 @@ function ProviderCard({
               </p>
 
               {provider.settings.enabled && (
-                <div className="space-y-2">
+                <div className="space-y-2 mt-2">
                   <label className="text-sm font-medium text-white">API Endpoint</label>
                   {isEditing ? (
                     <input
                       type="text"
                       defaultValue={provider.settings.baseUrl}
                       placeholder={`Enter ${provider.name} base URL`}
-                      className="w-full px-4 py-3 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200 shadow-sm"
-                      style={{
-                        backgroundColor: '#21262d',
-                        borderColor: 'rgba(139, 92, 246, 0.3)',
-                        border: '1px solid rgba(139, 92, 246, 0.3)',
-                      }}
+                      className={classNames(
+                        'w-full px-4 py-3 rounded-lg text-sm text-white placeholder-gray-500',
+                        'bg-[#21262d] border border-[#8b5cf6]/30',
+                        'focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200 shadow-sm',
+                      )}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           onUpdateBaseUrl(e.currentTarget.value);
@@ -103,11 +104,10 @@ function ProviderCard({
                   ) : (
                     <button
                       onClick={onStartEditing}
-                      className="w-full px-4 py-3 rounded-lg text-sm hover:shadow-sm transition-all duration-200 text-left group"
-                      style={{
-                        backgroundColor: '#252525',
-                        border: '1px solid #333',
-                      }}
+                      className={classNames(
+                        'w-full px-4 py-3 rounded-lg text-sm transition-all duration-200 text-left group',
+                        'bg-[#252525] border border-[#333] hover:shadow-sm',
+                      )}
                     >
                       <div className="flex items-center gap-3 text-gray-400 group-hover:text-white">
                         <Link className="w-4 h-4 group-hover:text-purple-500 transition-colors" />
