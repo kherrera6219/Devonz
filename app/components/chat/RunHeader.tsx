@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Circle, Clock, AlertTriangle, Layers, RotateCw } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { CheckCircle2, AlertTriangle, Layers, RotateCw } from 'lucide-react';
 
 interface RunHeaderProps {
   progress: number; // 0-100

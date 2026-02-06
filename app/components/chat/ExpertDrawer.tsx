@@ -9,7 +9,7 @@ interface ExpertDrawerProps {
   qcReport?: any;
 }
 
-export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, events, qcReport }) => {
+export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, events, qcReport: _qcReport }) => {
   const [activeTab, setActiveTab] = useState<'timeline' | 'qc' | 'research' | 'changes'>('timeline');
 
   if (!isOpen) {
@@ -29,7 +29,7 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
           <Activity className="w-4 h-4 text-blue-500" />
           RUN DETAILS (EXPERT)
         </h2>
-        <button onClick={onClose} className="p-1 hover:bg-[#222] rounded text-gray-400">
+        <button onClick={onClose} className="p-1 hover:bg-[#222] rounded text-gray-400" title="Close">
           <X className="w-4 h-4" />
         </button>
       </div>

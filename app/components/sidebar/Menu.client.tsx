@@ -13,7 +13,6 @@ import { binDates } from './date-binning';
 import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { classNames } from '~/utils/classNames';
 import { useStore } from '@nanostores/react';
-import { profileStore } from '~/lib/stores/profile';
 import { sidebarStore } from '~/lib/stores/sidebar';
 
 const menuVariants = {
@@ -71,7 +70,6 @@ export const Menu = () => {
   const open = useStore(sidebarStore.open);
   const [dialogContent, setDialogContent] = useState<DialogContent>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const profile = useStore(profileStore);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
@@ -384,14 +382,12 @@ export const Menu = () => {
             <div className="font-medium text-bolt-elements-textSecondary">Your Chats</div>
             {selectionMode && (
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={selectAll}>
+                <Button {...({ variant: 'ghost', size: 'sm' } as any)} onClick={selectAll}>
                   {selectedItems.length === filteredList.length ? 'Deselect all' : 'Select all'}
                 </Button>
                 <Button
-                  variant="destructive"
-                  size="sm"
+                  {...({ variant: 'destructive', size: 'sm', disabled: selectedItems.length === 0 } as any)}
                   onClick={handleBulkDeleteClick}
-                  disabled={selectedItems.length === 0}
                 >
                   Delete selected
                 </Button>

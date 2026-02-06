@@ -5,7 +5,7 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
 import type { ActionState } from '~/lib/runtime/action-runner';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { stagingStore, getChangeForFile } from '~/lib/stores/staging';
+import { getChangeForFile } from '~/lib/stores/staging';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
 import { WORK_DIR } from '~/utils/constants';
@@ -23,10 +23,10 @@ const highlighterOptions = {
 };
 
 const codeHighlighter: HighlighterGeneric<BundledLanguage, BundledTheme> =
-  import.meta.hot?.data.codeHighlighter ?? (await createHighlighter(highlighterOptions));
+  (import.meta as any).hot?.data.codeHighlighter ?? (await createHighlighter(highlighterOptions));
 
-if (import.meta.hot) {
-  import.meta.hot.data.codeHighlighter = codeHighlighter;
+if ((import.meta as any).hot) {
+  (import.meta as any).hot.data.codeHighlighter = codeHighlighter;
 }
 
 interface ArtifactProps {
@@ -252,7 +252,6 @@ export function openArtifactInWorkbench(filePath: any) {
 
 const ActionList = memo(({ actions }: ActionListProps) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const stagingState = useStore(stagingStore);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>

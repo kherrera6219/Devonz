@@ -10,12 +10,12 @@ interface DocumentSnippet {
 
 export class LazyGraphService {
   private static _instance: LazyGraphService;
-  private ragService: RAGService;
-  private graphService: GraphService;
+  private _ragService: RAGService;
+  private _graphService: GraphService;
 
   private constructor(ragService: RAGService, graphService: GraphService) {
-    this.ragService = ragService;
-    this.graphService = graphService;
+    this._ragService = ragService;
+    this._graphService = graphService;
   }
 
   static getInstance(ragService: RAGService, graphService: GraphService): LazyGraphService {
@@ -38,7 +38,7 @@ export class LazyGraphService {
      * 1. Vector Search (Primary Retrieval)
      * RAGService returns strings like "File: path\n---\ncontent"
      */
-    const rawSnippets = await this.ragService.query(projectId, query, topK);
+    const rawSnippets = await this._ragService.query(projectId, query, topK);
 
     // Parse snippets to identify files
     const primaryFiles: DocumentSnippet[] = rawSnippets
@@ -62,7 +62,7 @@ export class LazyGraphService {
 
       try {
         // Find dependencies (What this file imports)
-        const subgraph = await this.graphService.getProjectSubgraph(projectId, 100);
+        await this._graphService.getProjectSubgraph(projectId, 100);
 
         /*
          * Note: getProjectSubgraph gets *everything*. We really want specific neighbors.
@@ -75,7 +75,7 @@ export class LazyGraphService {
          * In a real V2, we'd add the graphService.getNeighbors method.
          */
         contextBlock += `\n[Graph Status]: Enriched context active.\n`;
-      } catch (e) {
+      } catch {
         contextBlock += `\n[Graph Error]: Could not fetch neighbors.\n`;
       }
 

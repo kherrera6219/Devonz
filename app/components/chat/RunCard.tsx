@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, ChevronRight, AlertOctagon, FileCode } from 'lucide-react';
+import { Check, X, FileCode } from 'lucide-react';
 
 interface RunCardProps {
   statusLines: string[]; // 3 lines max
