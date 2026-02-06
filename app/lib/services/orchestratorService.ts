@@ -72,101 +72,48 @@ export class OrchestratorService {
                 const stateUpdate = event[nodeName];
 
                 // --------------------------------------------------------
-                // NEW: Handle Structured Event Log (Phase 20)
+                // NEW: Handle Structured Event Log (Phase 20a - Strict v1)
                 // --------------------------------------------------------
                 if (stateUpdate?.events && Array.isArray(stateUpdate.events)) {
                     for (const logEntry of stateUpdate.events) {
+                        // --------------------------------------------------------
+                        //  V1 STRICT MAPPING LOGIC
+                        // --------------------------------------------------------
 
-                        // Map EventLogEntry to UI DataStream
-                        // Types: 'agent_status', 'stage_completed', 'artifact_ready', 'error', 'qc_review', 'patch_applied'
+                        // A) Run lifecycle & Stage transitions
+                        if (logEntry.type === 'run_started') {
+                             dataStream.writeData({ type: 'event_log', payload: logEntry });
+                        }
 
-                        // 1. Agent Status / Thoughts
+                        if (logEntry.type === 'stage_started' || logEntry.type === 'stage_completed') {
+                             dataStream.writeData({ type: 'event_log', payload: logEntry });
+                        }
+
+                        // B) Iteration Tracking (Fix Loop)
+                        if (logEntry.type === 'iteration_started' || logEntry.type === 'iteration_completed') {
+                             dataStream.writeData({ type: 'event_log', payload: logEntry });
+                        }
+
+                        // C) Agent Status (Heartbeats & Thoughts)
                         if (logEntry.type === 'agent_status') {
-                            dataStream.writeData({
-                                type: 'progress',
-                                label: logEntry.agent, // e.g. 'coordinator', 'researcher'
-                                status: 'in-progress',
-                                message: logEntry.summary,
-                            });
+                             dataStream.writeData({ type: 'event_log', payload: logEntry });
                         }
 
-                        // 2. Stage Completion / Plans
-                        if (logEntry.type === 'stage_completed') {
-                            dataStream.writeData({
-                                type: 'progress',
-                                label: 'plan',
-                                status: 'completed',
-                                message: logEntry.summary,
-                                metadata: { stage: logEntry.stage }
-                            });
+                        // E) QC Events (Issues & Pass/Fail)
+                        if (logEntry.type === 'qc_issues_found' || logEntry.type === 'qc_passed' || logEntry.type === 'qc_failed' || logEntry.type === 'qc_review') {
+                             dataStream.writeData({ type: 'event_log', payload: logEntry });
                         }
 
-                        // 3. Artifacts (Tools)
-                        if (logEntry.type === 'artifact_ready') {
-                             dataStream.writeData({
-                                type: 'progress',
-                                label: 'tool',
-                                status: 'success',
-                                message: `Generated Artifact: ${logEntry.summary}`,
-                                metadata: { details: logEntry.details }
-                            });
+                        // F) Artifacts & Patches
+                        if (logEntry.type === 'patch_applied' || logEntry.type === 'artifact_ready') {
+                              dataStream.writeData({ type: 'event_log', payload: logEntry });
                         }
 
-                        // 4. QC Reviews
-                        if (logEntry.type === 'qc_review') {
-                            dataStream.writeData({
-                                type: 'progress',
-                                label: 'qc',
-                                status: 'in-progress',
-                                message: logEntry.summary
-                            });
-                        }
-
-                        // 5. Code Patches
-                        if (logEntry.type === 'patch_applied') {
-                             dataStream.writeData({
-                                type: 'progress',
-                                label: 'code',
-                                status: 'success',
-                                message: `Code Update: ${logEntry.summary}`,
-                                metadata: { details: logEntry.details }
-                            });
-                        }
-
-                        // 6. Errors
-                        if (logEntry.type === 'error') {
-                            dataStream.writeData({
-                                type: 'progress',
-                                label: 'error',
-                                status: 'failed',
-                                message: logEntry.summary,
-                                metadata: { stack: logEntry.details?.stack }
-                            });
+                        // Catch-all for warnings/errors
+                        if (logEntry.type === 'error' || logEntry.type === 'warning') {
+                               dataStream.writeData({ type: 'event_log', payload: logEntry });
                         }
                     }
-                }
-
-                // --------------------------------------------------------
-                // LEGACY FALLBACK (Keep for safety or mixed nodes)
-                // --------------------------------------------------------
-
-                // Stream thoughts as progress updates if no events found
-                // (Only if we didn't just process events, or maybe we do both?
-                //  Let's do both to be safe, but usually events cover it now)
-
-                if (stateUpdate?.thought && !stateUpdate?.events) {
-                    dataStream.writeData({
-                        type: 'progress',
-                        label: nodeName,
-                        status: 'in-progress',
-                        message: stateUpdate.thought,
-                    });
-                }
-
-                // Stream plan updates (Legacy)
-                if (stateUpdate?.plan && !stateUpdate?.events) {
-                     // If PlanState object is present but no event was logged (unlikely with new Coordinator)
-                     // leaving this just in case.
                 }
 
                 // Stream actual response content to the text stream

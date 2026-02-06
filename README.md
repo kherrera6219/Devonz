@@ -31,6 +31,8 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | ---------------------------- | --------------------------------------------------------------------------- |
 | Natural Language Building    | Describe what you want to build, and Devonz creates it                      |
 | **Multi-Agent Orchestration** | **LangGraph-powered system featuring Coordinator, Researcher, and Architect** |
+| **Advanced Event Streaming** | **Real-time transparency with granular event logs and progress tracking**   |
+| **Expert Mode UI**           | **Deep technical insights via the Expert Drawer (Timeline, QC, Changes)**    |
 | Model Context Protocol (MCP) | Extend Devonz capabilities with MCP tools                                   |
 | Auto-Fix                     | Automatic error detection and fixing with terminal error detector           |
 | **Multi-Language Expert**    | Support for 25+ programming languages (Python, Go, Rust, C++, Java, etc.)   |
@@ -155,10 +157,11 @@ Devonz uses a specialized multi-agent architecture powered by **LangGraph** to c
 ### Agent Roles
 - **Coordinator**: Orchestrates the overall workflow, manages state transitions, and creates high-level implementation plans.
 - **Researcher**: Recursively analyzes the codebase using the Knowledge Graph and RAG to understand dependencies and patterns.
-- **Architect**: Generates precise code changes, validates file impacts, and ensures implementation consistency.
+- **Architect/Executor**: Generates precise code changes, validates file impacts, and ensures implementation consistency.
+- **QC Agent**: Reviews code changes for critical issues (security, types, logic) before they are finalized.
 
 ### Core Services
-- **OrchestratorService**: Manages the LangGraph execution and real-time streaming to the UI.
+- **OrchestratorService**: Manages the LangGraph execution, utilizing a strict **v1 Event Bus** to stream detailed run lifecycle, stage transitions, and agent status events to the UI.
 - **ContextService**: Optimizes the LLM context window by selecting relevant files and chat history.
 - **GraphService**: Maintains a live Neo4j dependency graph for architectural analysis.
 - **RAGService**: Provides semantic search capabilities over the project using LlamaIndex.

@@ -2,7 +2,7 @@ import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from '@ai-sdk/react';
 import { useAnimate } from 'framer-motion';
-import { memo, useCallback, useEffect, useRef, useState, startTransition } from 'react';
+import { memo, useCallback, useEffect, useRef, useState, startTransition, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
 import { description, useChatHistory } from '~/lib/persistence';
@@ -40,6 +40,7 @@ import {
 } from '~/utils/previewErrorHandler';
 import { createAutoFixHandler, handleFixSuccess, isAutoFixActive } from '~/lib/services/autoFixService';
 import { autoFixStore, recordFixAttempt } from '~/lib/stores/autofix';
+import { processRunEvents } from '~/utils/eventProcessor';
 
 const logger = createScopedLogger('Chat');
 
@@ -212,6 +213,8 @@ export const ChatImpl = memo(
       initialMessages,
       initialInput: Cookies.get(PROMPT_COOKIE_KEY) || '',
     });
+
+    const runUIState = useMemo(() => processRunEvents(chatData), [chatData]);
 
     // Watch for pending messages from inspector panel
     useEffect(() => {
@@ -793,6 +796,7 @@ export const ChatImpl = memo(
         selectedElement={selectedElement}
         setSelectedElement={setSelectedElement}
         addToolResult={addToolResult}
+        runUIState={runUIState}
       />
     );
   },

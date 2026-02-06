@@ -226,6 +226,8 @@ export type EventType =
   | 'qc_issues_found'
   | 'qc_passed'
   | 'qc_failed'
+  | 'iteration_started'
+  | 'iteration_completed'
   | 'warning'
   | 'error'
   | 'run_completed';

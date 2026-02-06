@@ -38,6 +38,10 @@ import type { ElementInfo } from '~/components/workbench/Inspector';
 import LlmErrorAlert from './LLMApiAlert';
 import { ResizeHandle } from '~/components/ui/ResizeHandle';
 import { PlanApprovalAlert } from './PlanApprovalAlert';
+import { RunHeader } from './RunHeader';
+import { ExpertDrawer } from './ExpertDrawer';
+import { RunCard } from './RunCard';
+import type { RunUIState } from '~/utils/eventProcessor';
 
 const TEXTAREA_MIN_HEIGHT = 76;
 
@@ -86,6 +90,7 @@ interface BaseChatProps {
   selectedElement?: ElementInfo | null;
   setSelectedElement?: (element: ElementInfo | null) => void;
   addToolResult?: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
+  runUIState?: RunUIState;
 }
 
 export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
@@ -135,6 +140,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       addToolResult = () => {
         throw new Error('addToolResult not implemented');
       },
+      runUIState,
     },
     ref,
   ) => {
@@ -152,6 +158,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const workbenchWidth = useStore(workbenchStore.workbenchWidth);
     const [qrModalOpen, setQrModalOpen] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
+    const [isExpertOpen, setIsExpertOpen] = useState(false);
 
     const handleResize = useCallback(
       (deltaX: number) => {
@@ -382,6 +389,17 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 'overflow-y-auto': !chatStarted,
               })}
             >
+              {runUIState && (
+                 <RunHeader
+                    progress={runUIState.progress}
+                    stageLabel={runUIState.stageLabel}
+                    activeAgents={runUIState.activeAgents}
+                    iteration={runUIState.iteration}
+                    stats={runUIState.stats}
+                    onToggleExpert={() => setIsExpertOpen(!isExpertOpen)}
+                    isExpertOpen={isExpertOpen}
+                 />
+              )}
               {!chatStarted && (
                 <div id="intro" className="mt-[8vh] max-w-2xl mx-auto text-center px-4 lg:px-0 relative">
                   {/* Liquid Metal 3D Text */}
@@ -403,6 +421,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 initial="smooth"
               >
                 <StickToBottom.Content className="flex flex-col gap-4 relative ">
+                  {runUIState && runUIState.statusLines.length > 0 && (
+                     <RunCard
+                        statusLines={runUIState.statusLines}
+                        stages={runUIState.runStages}
+                        lastQC={runUIState.stats.qcIssues}
+                     />
+                  )}
                   <ClientOnly>
                     {() => {
                       return chatStarted ? (
@@ -575,6 +600,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             )}
           </ClientOnly>
         </div>
+        <ExpertDrawer
+           isOpen={isExpertOpen}
+           onClose={() => setIsExpertOpen(false)}
+           events={runUIState?.events || []}
+           qcReport={runUIState?.lastQCReport}
+        />
       </div>
     );
 
