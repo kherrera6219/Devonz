@@ -49,7 +49,7 @@ export class QCAgent {
           runId: state.runId,
           timestamp: new Date().toISOString(),
           type: 'qc_review',
-          stage: 'QC1_SYNTAX_STYLE' as any,
+          stage: 'QC1_SYNTAX_STYLE',
           agent: 'qc',
           summary: 'QC1: No patches to verify. Proceeding.',
           visibility: 'internal'
@@ -57,7 +57,7 @@ export class QCAgent {
 
         return {
           events: [event],
-          status: { ...state.status, stage: 'QC2_COMPLETENESS' as any }
+          status: { ...state.status, stage: 'QC2_COMPLETENESS' }
         };
       }
 
@@ -94,7 +94,7 @@ export class QCAgent {
       this._ensureModel(state);
 
       const tasks = state.plan?.tasks || [];
-      const pendingWork = tasks.filter(t => t.status !== 'completed' && t.status !== 'failed');
+      const pendingWork = tasks.filter(t => t.status !== 'complete' && t.status !== 'failed');
 
       if (pendingWork.length > 0) {
         // Loop back to Architect?
@@ -108,8 +108,8 @@ export class QCAgent {
         eventId: crypto.randomUUID(),
         runId: state.runId,
         timestamp: new Date().toISOString(),
-        type: 'qc_review' as any,
-        stage: 'QC2_COMPLETENESS' as any,
+        type: 'qc_review',
+        stage: 'QC2_COMPLETENESS',
         agent: 'qc',
         summary: `QC2: All planned tasks reviewed.`,
         visibility: 'user'
@@ -125,13 +125,18 @@ export class QCAgent {
         events: [event],
         qc: {
             ...state.qc,
-            reviews: [...(state.qc?.reviews || []), {
-                reviewId: crypto.randomUUID(),
+            issues: [...(state.qc?.issues || []), {
+                issueId: crypto.randomUUID(),
                 stage: 'QC2_COMPLETENESS',
-                pass: true,
-                comments: 'Automated Pass',
-                timestamp: new Date().toISOString()
-            }]
+                category: 'completeness',
+                severity: 'low',
+                file: '',
+                title: 'Automated Pass',
+                description: 'All tasks reviewed.',
+                recommendation: 'None',
+                fixStatus: 'fixed'
+            }],
+            pass: true
         },
         status: { ...state.status, stage: 'FINALIZE' } // Hint to graph
       };

@@ -1,6 +1,5 @@
-
 import { OrchestratorService } from '../services/orchestratorService';
-import { AgentMessage } from '../agent-orchestrator/types';
+import type { AgentMessage } from './state/types';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
@@ -27,7 +26,7 @@ class MockDataStream {
 async function main() {
   console.log('Starting V2 Orchestrator Verification Run...');
 
-  const orchestrator = new OrchestratorService();
+  const orchestrator = OrchestratorService.getInstance();
   const mockStream = new MockDataStream();
 
   const userRequest = "Create a simple README file for a calculator app.";

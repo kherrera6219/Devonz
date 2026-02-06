@@ -1,0 +1,70 @@
+
+> devonz@1.0.0 typecheck
+> tsc
+
+app/lib/agent-orchestrator/agents/qc.ts(53,11): error TS2322: Type '"qc"' is not assignable to type 'AgentId'.
+app/lib/agent-orchestrator/agents/qc.ts(73,9): error TS2322: Type '"qc"' is not assignable to type 'AgentId'.
+app/lib/agent-orchestrator/agents/qc.ts(80,36): error TS2322: Type '"QC2_COMPLETENESS"' is not assignable to type 'StageId'.
+app/lib/agent-orchestrator/agents/qc.ts(97,45): error TS2367: This comparison appears to be unintentional because the types '"complete" | "pending" | "in_progress"' and '"completed"' have no overlap.
+app/lib/agent-orchestrator/agents/qc.ts(97,73): error TS2367: This comparison appears to be unintentional because the types '"complete" | "pending" | "in_progress"' and '"failed"' have no overlap.
+app/lib/agent-orchestrator/agents/qc.ts(113,9): error TS2322: Type '"qc"' is not assignable to type 'AgentId'.
+app/lib/agent-orchestrator/agents/qc.ts(128,13): error TS2353: Object literal may only specify known properties, and 'reviews' does not exist in type 'QCState'.
+app/lib/agent-orchestrator/agents/qc.ts(128,37): error TS2339: Property 'reviews' does not exist on type 'QCState'.
+app/lib/agent-orchestrator/agents/qc.ts(136,36): error TS2322: Type '"FINALIZE"' is not assignable to type 'StageId'.
+app/lib/agent-orchestrator/graph.ts(104,35): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => string' is not assignable to type '() => RunMode'.
+      Type 'string' is not assignable to type 'RunMode'.
+        Type '() => { coordinator: string; researcher: string; architect: string; qc: string; }' is not assignable to type '() => { coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { provider: string; model: string; }; }'.
+          Call signature return types '{ coordinator: string; researcher: string; architect: string; qc: string; }' and '{ coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { provider: string; model: string; }; }' are incompatible.
+            The types of 'coordinator' are incompatible between these types.
+              Type 'string' is not assignable to type '{ provider: string; model: string; }'.
+                Type '() => { stage: string; activeAgents: never[]; stageState: string; }' is not assignable to type '() => RunStatus'.
+                  Property 'progress' is missing in type '{ stage: string; activeAgents: never[]; stageState: string; }' but required in type 'RunStatus'.
+                    Type '() => { requestText: string; conversationId: string; }' is not assignable to type '() => UserInputs'.
+                      Property 'constraints' is missing in type '{ requestText: string; conversationId: string; }' but required in type 'UserInputs'.
+app/lib/agent-orchestrator/graph.ts(105,42): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => string' is not assignable to type '() => RunMode'.
+      Type 'string' is not assignable to type 'RunMode'.
+        Type '() => { coordinator: string; researcher: string; architect: string; qc: string; }' is not assignable to type '() => { coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { provider: string; model: string; }; }'.
+          Call signature return types '{ coordinator: string; researcher: string; architect: string; qc: string; }' and '{ coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { provider: string; model: string; }; }' are incompatible.
+            The types of 'coordinator' are incompatible between these types.
+              Type 'string' is not assignable to type '{ provider: string; model: string; }'.
+                Type '() => { stage: string; activeAgents: never[]; stageState: string; }' is not assignable to type '() => RunStatus'.
+                  Property 'progress' is missing in type '{ stage: string; activeAgents: never[]; stageState: string; }' but required in type 'RunStatus'.
+                    Type '() => { requestText: string; conversationId: string; }' is not assignable to type '() => UserInputs'.
+                      Property 'constraints' is missing in type '{ requestText: string; conversationId: string; }' but required in type 'UserInputs'.
+app/lib/agent-orchestrator/graph.ts(106,52): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => string' is not assignable to type '() => RunMode'.
+      Type 'string' is not assignable to type 'RunMode'.
+        Type '() => { coordinator: string; researcher: string; architect: string; qc: string; }' is not assignable to type '() => { coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { provider: string; model: string; }; }'.
+          Call signature return types '{ coordinator: string; researcher: string; architect: string; qc: string; }' and '{ coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { provider: string; model: string; }; }' are incompatible.
+            The types of 'coordinator' are incompatible between these types.
+              Type 'string' is not assignable to type '{ provider: string; model: string; }'.
+                Type '() => { stage: string; activeAgents: never[]; stageState: string; }' is not assignable to type '() => RunStatus'.
+                  Property 'progress' is missing in type '{ stage: string; activeAgents: never[]; stageState: string; }' but required in type 'RunStatus'.
+                    Type '() => { requestText: string; conversationId: string; }' is not assignable to type '() => UserInputs'.
+                      Property 'constraints' is missing in type '{ requestText: string; conversationId: string; }' but required in type 'UserInputs'.
+app/lib/agent-orchestrator/graph.ts(107,37): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => string' is not assignable to type '() => RunMode'.
+      Type 'string' is not assignable to type 'RunMode'.
+        Type '() => { coordinator: string; researcher: string; architect: string; qc: string; }' is not assignable to type '() => { coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { provider: string; model: string; }; }'.
+          Call signature return types '{ coordinator: string; researcher: string; architect: string; qc: string; }' and '{ coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { provider: string; model: string; }; }' are incompatible.
+            The types of 'coordinator' are incompatible between these types.
+              Type 'string' is not assignable to type '{ provider: string; model: string; }'.
+                Type '() => { stage: string; activeAgents: never[]; stageState: string; }' is not assignable to type '() => RunStatus'.
+                  Property 'progress' is missing in type '{ stage: string; activeAgents: never[]; stageState: string; }' but required in type 'RunStatus'.
+                    Type '() => { requestText: string; conversationId: string; }' is not assignable to type '() => UserInputs'.
+                      Property 'constraints' is missing in type '{ requestText: string; conversationId: string; }' but required in type 'UserInputs'.
+app/lib/agent-orchestrator/test-orchestrator-v2.ts(3,30): error TS2307: Cannot find module '../agent-orchestrator/types' or its corresponding type declarations.
+app/lib/agent-orchestrator/test-orchestrator-v2.ts(30,24): error TS2673: Constructor of class 'OrchestratorService' is private and only accessible within the class declaration.
+app/utils/markdown.ts(132,17): error TS2345: Argument of type '(node: Node<Data>, index: number | undefined, parent: Parent<Node<Data>, Data>) => true | ["skip", number]' is not assignable to parameter of type 'BuildVisitor<Node, Test>'.
+  Types of parameters 'node' and 'node' are incompatible.
+    Type 'Node' is not assignable to type 'Node<Data>'.
+      Types of property 'data' are incompatible.
+        Type 'import("C:/software/Devonz/node_modules/rehype-raw/node_modules/@types/unist/index").Data | undefined' is not assignable to type 'import("C:/software/Devonz/node_modules/@types/unist/index").Data | undefined'.
+          Type 'import("C:/software/Devonz/node_modules/rehype-raw/node_modules/@types/unist/index").Data' is not assignable to type 'import("C:/software/Devonz/node_modules/@types/unist/index").Data'.
+            Index signature for type 'string' is missing in type 'Data'.

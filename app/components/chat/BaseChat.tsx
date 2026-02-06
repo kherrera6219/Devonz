@@ -93,7 +93,7 @@ interface BaseChatProps {
   runUIState?: RunUIState;
 }
 
-export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
+export const BaseChat = memo(React.forwardRef<HTMLDivElement, BaseChatProps>(
   (
     {
       textareaRef,

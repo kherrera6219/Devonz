@@ -3,6 +3,8 @@ import { StateGraph, END, START } from '@langchain/langgraph';
 import { MemorySaver } from '@langchain/langgraph-checkpoint';
 import type {
   RunState,
+  RunMode,
+  StageId,
   PlanState,
   ResearchState,
   ArtifactState,
@@ -101,21 +103,47 @@ export function createGraph() {
       conversationId: { value: (a, b) => b, default: () => '' },
       userId: { value: (a, b) => b, default: () => '' },
       createdAt: { value: (a, b) => b, default: () => new Date().toISOString() },
-      mode: { value: (a, b) => b, default: () => 'single' },
-      agentModels: { value: (a, b) => b, default: () => ({ coordinator: 'gpt-5', researcher: 'gemini-3-flash-preview', architect: 'claude-sonnet-4-5-20250929', qc: 'gpt-4o' }) },
-      status: { value: (a, b) => ({ ...a, ...b }), default: () => ({ stage: 'START', activeAgents: [], stageState: 'idle' }) },
-      inputs: { value: (a, b) => b, default: () => ({ requestText: '', conversationId: '' }) },
+      mode: { value: (a, b) => b, default: () => 'single' as RunMode },
+      agentModels: {
+        value: (a, b) => b,
+        default: () => ({
+          coordinator: { provider: 'openai', model: 'gpt-5' },
+          researcher: { provider: 'google', model: 'gemini-3-flash-preview' },
+          architect: { provider: 'anthropic', model: 'claude-sonnet-4-5-20250929' }
+        })
+      },
+      status: {
+        value: (a, b) => ({ ...a, ...b }),
+        default: () => ({
+          stage: 'COORD_PLAN' as StageId,
+          stageState: 'running' as const,
+          progress: { percent: 0, label: 'Initializing...' },
+          activeAgents: []
+        })
+      },
+      inputs: {
+        value: (a, b) => b,
+        default: () => ({
+          requestText: '',
+          conversationId: '',
+          constraints: {
+            language: 'typescript' as const,
+            securityLevel: 'normal' as const,
+            testLevel: 'standard' as const
+          }
+        })
+      },
 
-      plan: { value: (a, b) => ({...a, ...b}), default: () => ({} as PlanState) },
-      research: { value: (a, b) => ({...a, ...b}), default: () => ({} as ResearchState) },
-      artifacts: { value: (a, b) => ({...a, ...b}), default: () => ({} as ArtifactState) },
-      qc: { value: (a, b) => ({...a, ...b}), default: () => ({} as QCState) },
+      plan: { value: (a, b) => ({...a, ...b}), default: () => ({ tasks: [], acceptanceCriteria: [], constraints: [] } as PlanState) },
+      research: { value: (a, b) => ({...a, ...b}), default: () => ({ lastUpdated: new Date().toISOString() } as ResearchState) },
+      artifacts: { value: (a, b) => ({...a, ...b}), default: () => ({ currentFiles: {}, patches: [] } as ArtifactState) },
+      qc: { value: (a, b) => ({...a, ...b}), default: () => ({ issues: [], severityCounts: { critical: 0, high: 0, medium: 0, low: 0 }, pass: true, iteration: 0, maxIterations: 3 } as QCState) },
 
-      events: { value: (a, b) => a.concat(b || []), default: () => [] },
+      events: { value: (a, b) => a.concat(b || []), default: () => [] as EventLogEntry[] },
 
       cost: { value: (a, b) => b, default: () => undefined },
-      warnings: { value: (a, b) => b ? [...(a || []), ...b] : a, default: () => [] },
-      errors: { value: (a, b) => b ? [...(a || []), ...b] : a, default: () => [] },
+      warnings: { value: (a, b) => b ? [...(a || []), ...b] : a, default: () => [] as string[] },
+      errors: { value: (a, b) => b ? [...(a || []), ...b] : a, default: () => [] as string[] },
     }
   }) as any;
 

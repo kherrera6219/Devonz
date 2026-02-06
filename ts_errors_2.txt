@@ -1,0 +1,45 @@
+
+> devonz@1.0.0 typecheck
+> tsc
+
+app/lib/agent-orchestrator/agents/qc.ts(128,22): error TS2322: Type 'QCIssue | { issueId: `${string}-${string}-${string}-${string}-${string}`; stage: "QC2_COMPLETENESS"; category: string; severity: "low"; file: string; title: string; description: string; recommendation: string; fixStatus: "fixed"; }' is not assignable to type 'QCIssue'.
+  Type '{ issueId: `${string}-${string}-${string}-${string}-${string}`; stage: "QC2_COMPLETENESS"; category: string; severity: "low"; file: string; title: string; description: string; recommendation: string; fixStatus: "fixed"; }' is not assignable to type 'QCIssue'.
+    Types of property 'stage' are incompatible.
+      Type '"QC2_COMPLETENESS"' is not assignable to type '"QC1_SYNTAX_STYLE" | "QC2_SECURITY_PERF"'.
+app/lib/agent-orchestrator/agents/qc.ts(130,17): error TS2322: Type '"QC2_COMPLETENESS"' is not assignable to type '"QC1_SYNTAX_STYLE" | "QC2_SECURITY_PERF"'.
+app/lib/agent-orchestrator/graph.ts(104,35): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => string' is not assignable to type '() => RunMode'.
+      Type 'string' is not assignable to type 'RunMode'.
+        Type '() => { stage: string; stageState: string; progress: { percent: number; label: string; }; activeAgents: never[]; }' is not assignable to type '() => RunStatus'.
+          Call signature return types '{ stage: string; stageState: string; progress: { percent: number; label: string; }; activeAgents: never[]; }' and 'RunStatus' are incompatible.
+            The types of 'stage' are incompatible between these types.
+              Type 'string' is not assignable to type 'StageId'.
+                Type '() => { requestText: string; conversationId: string; constraints: { language: string; securityLevel: string; testLevel: string; }; }' is not assignable to type '() => UserInputs'.
+                  Call signature return types '{ requestText: string; conversationId: string; constraints: { language: string; securityLevel: string; testLevel: string; }; }' and 'UserInputs' are incompatible.
+                    The types of 'constraints.language' are incompatible between these types.
+                      Type 'string' is not assignable to type '"typescript" | "javascript" | "mixed"'.
+app/lib/agent-orchestrator/graph.ts(115,9): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => string' is not assignable to type '() => RunMode'.
+      Type 'string' is not assignable to type 'RunMode'.
+        Type '() => { stage: string; stageState: string; progress: { percent: number; label: string; }; activeAgents: never[]; }' is not assignable to type '() => RunStatus'.
+          Call signature return types '{ stage: string; stageState: string; progress: { percent: number; label: string; }; activeAgents: never[]; }' and 'RunStatus' are incompatible.
+            The types of 'stage' are incompatible between these types.
+              Type 'string' is not assignable to type 'StageId'.
+                Type '() => { requestText: string; conversationId: string; constraints: { language: string; securityLevel: string; testLevel: string; }; }' is not assignable to type '() => UserInputs'.
+                  Call signature return types '{ requestText: string; conversationId: string; constraints: { language: string; securityLevel: string; testLevel: string; }; }' and 'UserInputs' are incompatible.
+                    The types of 'constraints.language' are incompatible between these types.
+                      Type 'string' is not assignable to type '"typescript" | "javascript" | "mixed"'.
+app/lib/agent-orchestrator/graph.ts(124,9): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => string' is not assignable to type '() => RunMode'.
+      Type 'string' is not assignable to type 'RunMode'.
+        Type '() => { stage: string; stageState: string; progress: { percent: number; label: string; }; activeAgents: never[]; }' is not assignable to type '() => RunStatus'.
+          Call signature return types '{ stage: string; stageState: string; progress: { percent: number; label: string; }; activeAgents: never[]; }' and 'RunStatus' are incompatible.
+            The types of 'stage' are incompatible between these types.
+              Type 'string' is not assignable to type 'StageId'.
+                Type '() => { requestText: string; conversationId: string; constraints: { language: string; securityLevel: string; testLevel: string; }; }' is not assignable to type '() => UserInputs'.
+                  Call signature return types '{ requestText: string; conversationId: string; constraints: { language: string; securityLevel: string; testLevel: string; }; }' and 'UserInputs' are incompatible.
+                    The types of 'constraints.language' are incompatible between these types.
+                      Type 'string' is not assignable to type '"typescript" | "javascript" | "mixed"'.

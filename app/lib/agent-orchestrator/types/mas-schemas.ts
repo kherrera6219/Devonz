@@ -68,11 +68,13 @@ export type StageId =
   | 'ARCH_BUILD'
   | 'QC1_SYNTAX_STYLE'
   | 'QC2_SECURITY_PERF'
+  | 'QC2_COMPLETENESS'
   | 'ARCH_FIX'
   | 'COORD_POLISH_DELIVER'
+  | 'FINALIZE'
   | 'END';
 
-export type AgentId = 'coordinator' | 'researcher' | 'architect' | 'system';
+export type AgentId = 'coordinator' | 'researcher' | 'architect' | 'qc' | 'system';
 
 export interface UserInputs {
   requestText: string;
@@ -96,7 +98,7 @@ export interface PlanState {
     id: string;
     description: string;
     assignedTo: AgentId;
-    status: 'pending' | 'in_progress' | 'complete';
+    status: 'pending' | 'in_progress' | 'complete' | 'failed';
   }>;
   acceptanceCriteria: string[];
   constraints: string[];
@@ -165,7 +167,7 @@ export interface WorkPacket {
 
 export interface QCIssue {
   issueId: string;
-  stage: 'QC1_SYNTAX_STYLE' | 'QC2_SECURITY_PERF';
+  stage: 'QC1_SYNTAX_STYLE' | 'QC2_SECURITY_PERF' | 'QC2_COMPLETENESS';
   category: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
   file: string;

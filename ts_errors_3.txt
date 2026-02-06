@@ -1,0 +1,8 @@
+
+> devonz@1.0.0 typecheck
+> tsc
+
+app/lib/agent-orchestrator/graph.ts(105,35): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type '() => string' is not assignable to type '() => RunMode'.
+      Type 'string' is not assignable to type 'RunMode'.

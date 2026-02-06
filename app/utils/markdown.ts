@@ -129,7 +129,7 @@ const limitedMarkdownPlugin: Plugin = () => {
   return (tree, file) => {
     const contents = file.toString();
 
-    visit(tree, (node: Node, index, parent: Parent) => {
+    visit(tree, (node: any, index, parent: any) => {
       if (
         index == null ||
         ['paragraph', 'text', 'inlineCode', 'code', 'strong', 'emphasis'].includes(node.type) ||
