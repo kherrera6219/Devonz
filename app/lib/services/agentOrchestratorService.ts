@@ -6,7 +6,7 @@
  */
 
 import { createScopedLogger } from '~/utils/logger';
-import { AGENT_ITERATION_WARNING_PROMPT } from '~/lib/agent/prompts';
+import { AGENT_ITERATION_WARNING_PROMPT } from '~/lib/agent-orchestrator/prompts/base';
 import type {
   AgentExecutionState,
   AgentModeSettings,
@@ -14,8 +14,8 @@ import type {
   AgentStatus,
   ToolCallRecord,
   ApprovalRequest,
-} from '~/lib/agent/types';
-import { DEFAULT_AGENT_SETTINGS } from '~/lib/agent/types';
+} from '~/lib/agent-orchestrator/shared/agent-types';
+import { DEFAULT_AGENT_SETTINGS } from '~/lib/agent-orchestrator/shared/agent-types';
 
 const logger = createScopedLogger('AgentOrchestrator');
 

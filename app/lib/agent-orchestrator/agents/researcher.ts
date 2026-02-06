@@ -1,19 +1,21 @@
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { ChatOpenAI } from '@langchain/openai';
-import type { BoltState, AgentMessage } from '~/lib/agent-orchestrator/state/types';
+import type { BoltState } from '~/lib/agent-orchestrator/state/types';
 import { MessageFactory } from '~/lib/agent-orchestrator/utils/message-factory';
 import { JsonOutputParser } from '@langchain/core/output_parsers';
 import { PromptTemplate } from '@langchain/core/prompts';
-import { BaseAgent } from '~/lib/agent-orchestrator/agents/base';
+import { safeInvoke, createErrorState } from '~/lib/agent-orchestrator/utils/agent-utils';
 
-export class ResearcherAgent extends BaseAgent {
-  protected name = 'researcher';
+/**
+ * Researcher Agent (Internal)
+ *
+ * This agent performs technology research and competency mapping.
+ * It reports ONLY to the Coordinator, never directly to the user.
+ */
+export class ResearcherAgent {
+  private readonly name = 'researcher';
   private model: any = null;
   private searchModel: any = null;
-
-  constructor() {
-    super();
-  }
 
   private ensureModels(state: BoltState) {
     if (this.model && this.searchModel) {
@@ -48,7 +50,7 @@ export class ResearcherAgent extends BaseAgent {
       this.ensureModels(state);
       return await this.runTechResearch(state);
     } catch (error: any) {
-      return this.createErrorState(state, error);
+      return createErrorState(this.name, state, error);
     }
   }
 
@@ -66,7 +68,7 @@ export class ResearcherAgent extends BaseAgent {
       );
 
       const chain = prompt.pipe(this.model!).pipe(parser);
-      const techRes = await this.safeInvoke(chain, { query });
+      const techRes = await safeInvoke(this.name, chain, { query });
 
       return {
         researchFindings: {
@@ -80,7 +82,7 @@ export class ResearcherAgent extends BaseAgent {
         },
       };
     } catch (error: any) {
-      return this.createErrorState(state, error);
+      return createErrorState(this.name, state, error);
     }
   }
 
@@ -98,7 +100,7 @@ export class ResearcherAgent extends BaseAgent {
       );
 
       const chain = prompt.pipe(this.model!).pipe(parser);
-      const competencyRes = await this.safeInvoke(chain, { query });
+      const competencyRes = await safeInvoke(this.name, chain, { query });
 
       return {
         researchFindings: {
@@ -112,7 +114,7 @@ export class ResearcherAgent extends BaseAgent {
         },
       };
     } catch (error: any) {
-      return this.createErrorState(state, error);
+      return createErrorState(this.name, state, error);
     }
   }
 }

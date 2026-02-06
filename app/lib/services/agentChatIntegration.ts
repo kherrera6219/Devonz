@@ -9,7 +9,7 @@ import type { ToolSet, Message, DataStreamWriter } from 'ai';
 import { formatDataStreamPart, convertToCoreMessages } from 'ai';
 import { z } from 'zod';
 import { createScopedLogger } from '~/utils/logger';
-import { AGENT_SYSTEM_PROMPT, AGENT_SYSTEM_PROMPT_COMPACT } from '~/lib/agent/prompts';
+import { AGENT_SYSTEM_PROMPT, AGENT_SYSTEM_PROMPT_COMPACT } from '~/lib/agent-orchestrator/prompts/base';
 import {
   agentToolDefinitions,
   executeAgentTool,

@@ -75,7 +75,19 @@ export interface BoltState {
   maxQcIterations: number;
 
   // Workflow Status
-  status: 'idle' | 'planning' | 'researching' | 'architecting' | 'qc' | 'complete' | 'error';
+  status:
+    | 'idle'
+    | 'planning'
+    | 'awaiting_clarification'
+    | 'researching'
+    | 'architecting'
+    | 'qc'
+    | 'fixing'
+    | 'complete'
+    | 'delivered'
+    | 'error';
+  progressStage?: 'Understanding Request' | 'Research' | 'Build' | 'QC' | 'Fix' | 'Final';
+  acceptanceCriteria?: string[];
   error?: GraphError | string;
 
   // Reflection Phase

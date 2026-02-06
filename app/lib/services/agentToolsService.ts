@@ -31,7 +31,7 @@ import type {
   AgentToolDefinition,
   ReadDocumentParams,
   ReadDocumentResult,
-} from '~/lib/agent/types';
+} from '~/lib/agent-orchestrator/shared/agent-types';
 import { parseDocument, isSupportedFormat, SUPPORTED_FORMATS } from '~/lib/services/documentParserService';
 
 const logger = createScopedLogger('AgentTools');

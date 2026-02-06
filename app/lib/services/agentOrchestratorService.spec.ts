@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { AgentModeSettings, ToolCallRecord } from '~/lib/agent/types';
+import type { AgentModeSettings, ToolCallRecord } from '~/lib/agent-orchestrator/shared/agent-types';
 
 const mockExecuteAgentTool = vi.fn();
 const mockIsAgentTool = vi.fn();
@@ -28,7 +28,7 @@ vi.mock('~/utils/logger', () => ({
   }),
 }));
 
-vi.mock('~/lib/agent/prompts', () => ({
+vi.mock('~/lib/agent-orchestrator/prompts/base', () => ({
   getAgentSystemPrompt: vi.fn(() => 'System prompt'),
   AGENT_ITERATION_WARNING_PROMPT: 'Iteration warning',
 }));

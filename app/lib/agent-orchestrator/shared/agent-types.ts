@@ -1,6 +1,7 @@
 /**
- * Agent Tools Type Definitions
+ * Agent Types - Shared Type Definitions
  *
+ * Migrated from app/lib/agent/types.ts
  * Type definitions for the Devonz AI Agent Mode tools and execution.
  */
 
@@ -17,13 +18,8 @@ export interface ToolExecutionResult<T = unknown> {
  * Read file tool parameters
  */
 export interface ReadFileParams {
-  /** File path relative to project root */
   path: string;
-
-  /** Optional: Start reading from this line (1-indexed) */
   startLine?: number;
-
-  /** Optional: Stop reading at this line (inclusive) */
   endLine?: number;
 }
 
@@ -41,13 +37,8 @@ export interface ReadFileResult {
  * Write file tool parameters
  */
 export interface WriteFileParams {
-  /** File path relative to project root */
   path: string;
-
-  /** The file content to write (text or base64 data) */
   content: string;
-
-  /** Optional content encoding (e.g., "utf-8", "base64"). Defaults to utf-8. */
   encoding?: 'utf-8' | 'base64';
 }
 
@@ -64,13 +55,8 @@ export interface WriteFileResult {
  * List directory tool parameters
  */
 export interface ListDirectoryParams {
-  /** Directory path relative to project root (use "/" for root) */
   path?: string;
-
-  /** If true, list all files recursively. Default false. */
   recursive?: boolean;
-
-  /** Maximum depth for recursive listing. Default 3. */
   maxDepth?: number;
 }
 
@@ -97,13 +83,8 @@ export interface ListDirectoryResult {
  * Run command tool parameters
  */
 export interface RunCommandParams {
-  /** The shell command to execute */
   command: string;
-
-  /** Working directory for the command (relative to project root) */
   cwd?: string;
-
-  /** Timeout in milliseconds. Default 30000 (30 seconds). */
   timeout?: number;
 }
 
@@ -128,7 +109,6 @@ export type AgentErrorSource = 'terminal' | 'preview' | 'build' | 'all';
  * Get errors tool parameters
  */
 export interface GetErrorsParams {
-  /** Which error source to check. Default "all". */
   source?: AgentErrorSource;
 }
 
@@ -169,22 +149,11 @@ export interface GetErrorsResult {
  * Search code tool parameters
  */
 export interface SearchCodeParams {
-  /** Text or regex pattern to search for */
   query: string;
-
-  /** Directory path to search in. Default "/". */
   path?: string;
-
-  /** Maximum results to return. Default 50. */
   maxResults?: number;
-
-  /** Regex pattern to include only matching file paths */
   includePattern?: string;
-
-  /** Regex pattern to exclude matching file paths */
   excludePattern?: string;
-
-  /** If true, the search will be case-sensitive. Default false. */
   caseSensitive?: boolean;
 }
 
@@ -213,13 +182,8 @@ export interface SearchCodeResult {
  * Read document tool parameters
  */
 export interface ReadDocumentParams {
-  /** Document file path relative to project root */
   path: string;
-
-  /** For Excel: which sheet to parse (default: all) */
   sheet?: string;
-
-  /** For PDF: max pages to parse (default: all) */
   maxPages?: number;
 }
 
@@ -227,17 +191,11 @@ export interface ReadDocumentParams {
  * Read document tool result data
  */
 export interface ReadDocumentResult {
-  /** Extracted text content */
   content: string;
-  /** Original file path */
   path: string;
-  /** Document format (pdf, docx, xlsx, etc.) */
   format: string;
-  /** Number of pages (PDF) */
   pages?: number;
-  /** Sheet names (Excel) */
   sheets?: string[];
-  /** Word count */
   wordCount?: number;
 }
 
@@ -245,13 +203,8 @@ export interface ReadDocumentResult {
  * Index document tool parameters
  */
 export interface IndexDocumentParams {
-  /** Document file path relative to project root */
   path: string;
-
-  /** Optional custom content to index (if not provided, file will be read and parsed) */
   content?: string;
-
-  /** Additional metadata to store with the document */
   metadata?: Record<string, unknown>;
 }
 
@@ -259,11 +212,8 @@ export interface IndexDocumentParams {
  * Index document tool result data
  */
 export interface IndexDocumentResult {
-  /** Whether indexing was successful */
   indexed: boolean;
-  /** Document path that was indexed */
   path: string;
-  /** Number of chunks created */
   chunks?: number;
 }
 
@@ -271,13 +221,8 @@ export interface IndexDocumentResult {
  * Agent tool definition
  */
 export interface AgentToolDefinition<TParams = Record<string, unknown>, TResult = unknown> {
-  /** Tool name (devonz_* namespace) */
   name: string;
-
-  /** Human-readable description for LLM */
   description: string;
-
-  /** JSON Schema for parameters */
   parameters: {
     type: 'object';
     properties: Record<
@@ -291,8 +236,6 @@ export interface AgentToolDefinition<TParams = Record<string, unknown>, TResult 
     >;
     required: string[];
   };
-
-  /** Execute function */
   execute: (args: TParams) => Promise<ToolExecutionResult<TResult>>;
 }
 
@@ -305,19 +248,10 @@ export type AgentToolsMap = Record<string, AgentToolDefinition>;
  * Agent mode settings
  */
 export interface AgentModeSettings {
-  /** Whether agent mode is enabled */
   enabled: boolean;
-
-  /** Auto-approve file creation without confirmation */
   autoApproveFileCreation: boolean;
-
-  /** Auto-approve file modification without confirmation */
   autoApproveFileModification: boolean;
-
-  /** Auto-approve shell commands without confirmation */
   autoApproveCommands: boolean;
-
-  /** Maximum iterations before asking for user input */
   maxIterations: number;
 }
 
@@ -348,72 +282,45 @@ export type AgentStatus =
  * Tool call record
  */
 export interface ToolCallRecord {
-  /** Unique ID for this tool call */
   id?: string;
-
-  /** Tool name */
   name: string;
-
-  /** Tool parameters */
   params: Record<string, unknown>;
-
-  /** Tool result */
   result: ToolExecutionResult;
-
-  /** Timestamp */
   timestamp: number;
-
-  /** Duration in milliseconds */
   duration?: number;
+}
+
+/**
+ * Pending approval request
+ */
+export interface ApprovalRequest {
+  id?: string;
+  type?: 'file_create' | 'file_modify' | 'command';
+  description?: string;
+  toolName: string;
+  params: Record<string, unknown>;
+  timestamp?: number;
+  reason?: string;
 }
 
 /**
  * Agent execution state
  */
 export interface AgentExecutionState {
-  /** Current iteration count */
   iteration: number;
-
-  /** Maximum iterations allowed */
   maxIterations: number;
-
-  /** Current agent status */
   status: AgentStatus;
-
-  /** Whether agent is currently executing */
   isExecuting: boolean;
-
-  /** Last tool call made */
   lastToolCall?: ToolCallRecord;
-
-  /** All tool calls in this session */
   toolCalls: ToolCallRecord[];
-
-  /** Total tool calls count */
   totalToolCalls: number;
-
-  /** Session start time */
   sessionStartTime: number | null;
-
-  /** Session end time */
   sessionEndTime?: number;
-
-  /** Current task description */
   currentTask?: string;
-
-  /** Error message if status is 'error' */
   errorMessage?: string;
-
-  /** Files created during this session */
   filesCreated: string[];
-
-  /** Files modified during this session */
   filesModified: string[];
-
-  /** Commands executed during this session */
   commandsExecuted: string[];
-
-  /** Pending approval request if waiting for approval */
   pendingApproval?: ApprovalRequest;
 }
 
@@ -437,16 +344,9 @@ export const INITIAL_AGENT_STATE: AgentExecutionState = {
  * Agent task request
  */
 export interface AgentTaskRequest {
-  /** The user's task description */
   task: string;
-
-  /** Chat ID for the session */
   chatId: string;
-
-  /** Optional: Maximum iterations for this task */
   maxIterations?: number;
-
-  /** Optional: Settings overrides */
   settings?: Partial<AgentModeSettings>;
 }
 
@@ -454,64 +354,20 @@ export interface AgentTaskRequest {
  * Agent task result
  */
 export interface AgentTaskResult {
-  /** Whether the task completed successfully */
   success: boolean;
-
-  /** Summary of what was accomplished */
   summary: string;
-
-  /** Final execution state */
   state: AgentExecutionState;
-
-  /** Error message if failed */
   error?: string;
-}
-
-/**
- * Pending approval request
- */
-export interface ApprovalRequest {
-  /** Unique ID for this approval request */
-  id?: string;
-
-  /** Type of action requiring approval */
-  type?: 'file_create' | 'file_modify' | 'command';
-
-  /** Description of the action */
-  description?: string;
-
-  /** Tool name */
-  toolName: string;
-
-  /** Tool parameters */
-  params: Record<string, unknown>;
-
-  /** Timestamp when approval was requested */
-  timestamp?: number;
-
-  /** Reason for approval request */
-  reason?: string;
 }
 
 /**
  * Agent orchestrator options
  */
 export interface AgentOrchestratorOptions {
-  /** Maximum iterations before stopping */
   maxIterations?: number;
-
-  /** Callback when status changes */
   onStatusChange?: (status: AgentStatus) => void;
-
-  /** Callback when tool is executed */
   onToolExecuted?: (record: ToolCallRecord) => void;
-
-  /** Callback when iteration completes */
   onIterationComplete?: (iteration: number, state: AgentExecutionState) => void;
-
-  /** Callback when approval is needed */
   onApprovalNeeded?: (request: ApprovalRequest) => Promise<boolean>;
-
-  /** Whether to auto-approve all actions (for testing) */
   autoApproveAll?: boolean;
 }

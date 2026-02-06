@@ -13,7 +13,7 @@ import type {
   RunCommandResult,
   GetErrorsResult,
   SearchCodeResult,
-} from '~/lib/agent/types';
+} from '~/lib/agent-orchestrator/shared/agent-types';
 
 // Helper type for strongly-typed tool result assertions
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

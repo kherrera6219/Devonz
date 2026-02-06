@@ -1,17 +1,19 @@
 import { ChatAnthropic } from '@langchain/anthropic';
-import type { BoltState, AgentMessage } from '~/lib/agent-orchestrator/state/types';
+import type { BoltState } from '~/lib/agent-orchestrator/state/types';
 import { MessageFactory } from '~/lib/agent-orchestrator/utils/message-factory';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { JsonOutputParser } from '@langchain/core/output_parsers';
-import { BaseAgent } from '~/lib/agent-orchestrator/agents/base';
+import { safeInvoke, createErrorState } from '~/lib/agent-orchestrator/utils/agent-utils';
 
-export class ArchitectAgent extends BaseAgent {
-  protected name = 'architect';
+/**
+ * Architect Agent (Internal)
+ *
+ * This agent generates production-ready code based on specifications.
+ * It reports ONLY to the Coordinator, never directly to the user.
+ */
+export class ArchitectAgent {
+  private readonly name = 'architect';
   private model: ChatAnthropic | null = null;
-
-  constructor() {
-    super();
-  }
 
   private ensureModel(state: BoltState) {
     if (this.model) {
@@ -37,7 +39,7 @@ export class ArchitectAgent extends BaseAgent {
         return await this.generateCode(state);
       }
     } catch (error: any) {
-      return this.createErrorState(state, error);
+      return createErrorState(this.name, state, error);
     }
 
     return {};
@@ -71,7 +73,7 @@ export class ArchitectAgent extends BaseAgent {
     const chain = prompt.pipe(this.model!).pipe(new JsonOutputParser());
 
     // Invoke LLM safely with retries
-    const response = await this.safeInvoke<any>(chain, {
+    const response = await safeInvoke<any>(this.name, chain, {
       specs: JSON.stringify(specs),
       findings: JSON.stringify(findings),
       standards: JSON.stringify(findings?.projectCompetencyMap?.standards || []),

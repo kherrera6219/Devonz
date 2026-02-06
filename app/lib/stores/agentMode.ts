@@ -7,8 +7,8 @@
 
 import { map } from 'nanostores';
 import { createScopedLogger } from '~/utils/logger';
-import type { AgentModeSettings, AgentStatus, AgentExecutionState } from '~/lib/agent/types';
-import { DEFAULT_AGENT_SETTINGS } from '~/lib/agent/types';
+import type { AgentModeSettings, AgentStatus, AgentExecutionState } from '~/lib/agent-orchestrator/shared/agent-types';
+import { DEFAULT_AGENT_SETTINGS } from '~/lib/agent-orchestrator/shared/agent-types';
 
 const logger = createScopedLogger('AgentModeStore');
 
