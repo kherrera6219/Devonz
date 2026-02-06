@@ -30,7 +30,7 @@ const runTestsTool = tool(
       const testPattern = pattern ? `--testNamePattern="${pattern}"` : '';
       const command = `npx vitest ${args} ${testPattern} --reporter=json`.trim();
 
-      const { stdout, stderr } = await execAsync(command, {
+      const { stdout, stderr: _stderr } = await execAsync(command, {
         cwd: process.cwd(),
         timeout: 300000, // 5 minute timeout for tests
         maxBuffer: 1024 * 1024 * 50, // 50MB buffer for test output
@@ -58,7 +58,7 @@ const runTestsTool = tool(
         return {
           success: stdout.includes('passed') && !stdout.includes('failed'),
           output: stdout,
-          stderr,
+          stderr: _stderr,
         };
       }
     } catch (error: any) {
@@ -86,7 +86,7 @@ const runTypeCheckTool = tool(
       const args = strict ? '--strict' : '';
       const command = `npx tsc --noEmit ${args}`;
 
-      const { stdout, stderr } = await execAsync(command, {
+      const { stdout, stderr: _stderr } = await execAsync(command, {
         cwd: process.cwd(),
         timeout: 120000, // 2 minute timeout
       });

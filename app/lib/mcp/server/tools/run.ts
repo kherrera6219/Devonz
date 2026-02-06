@@ -365,7 +365,7 @@ export async function format(args: FormatArgs): Promise<{
       success: true,
       filesChanged,
     };
-  } catch (error: any) {
+  } catch (_error: any) {
     return {
       success: false,
       filesChanged: [],

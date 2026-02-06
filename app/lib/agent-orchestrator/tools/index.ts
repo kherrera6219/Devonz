@@ -149,9 +149,7 @@ export function getToolsForRole(role: keyof typeof toolCategories) {
 }
 
 // Create formatted tool list for agent prompts
-export function getToolDescriptions(role?: keyof typeof toolCategories): string {
-  const tools = role ? getToolsForRole(role) : agentTools;
-
+export function getToolDescriptions(_role?: keyof typeof toolCategories): string {
   const descriptions = [
     '**Available Tools:**',
     '',

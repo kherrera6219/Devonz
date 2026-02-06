@@ -361,7 +361,6 @@ interface Hunk {
 
 function parseHunks(chunk: string): Hunk[] {
   const hunks: Hunk[] = [];
-  const hunkRegex = /@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@/g;
   let match;
 
   const lines = chunk.split('\n');

@@ -6,18 +6,9 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type {
-  ReadFileResult,
-  WriteFileResult,
-  ListDirectoryResult,
-  RunCommandResult,
-  GetErrorsResult,
-  SearchCodeResult,
-} from '~/lib/agent-orchestrator/shared/agent-types';
+import type { ReadFileResult, WriteFileResult } from '~/lib/agent-orchestrator/shared/agent-types';
 
 // Helper type for strongly-typed tool result assertions
-
-type AnyData = any;
 
 // Mock functions need to be defined before vi.mock calls
 const mockReadFile = vi.fn();
