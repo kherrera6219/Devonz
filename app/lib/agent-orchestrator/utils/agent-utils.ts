@@ -6,8 +6,7 @@
  */
 
 import type { Runnable } from '@langchain/core/runnables';
-import type { BoltState, GraphError } from '~/lib/agent-orchestrator/state/types';
-import { MessageFactory } from '~/lib/agent-orchestrator/utils/message-factory';
+import type { RunState, EventLogEntry } from '~/lib/agent-orchestrator/types/mas-schemas';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('AgentUtils');
@@ -33,7 +32,6 @@ export async function safeInvoke<T>(
   while (attempt < retries) {
     try {
       const result = await chain.invoke(input);
-
       return result as T;
     } catch (error: any) {
       attempt++;
@@ -71,24 +69,34 @@ export async function safeInvoke<T>(
  * Creates a standard error state for an agent.
  *
  * @param agentName - Name of the agent that encountered the error
- * @param state - Current BoltState
+ * @param state - Current RunState
  * @param error - The error that occurred
  */
-export function createErrorState(agentName: string, state: BoltState, error: Error): Partial<BoltState> {
-  const graphError: GraphError = {
-    message: error.message,
-    agent: agentName,
-    timestamp: Date.now(),
-    stack: error.stack,
+export function createErrorState(agentName: string, state: RunState, error: Error): Partial<RunState> {
+  const errorMessage = `${agentName}: ${error.message}`;
+
+  const errorEvent: EventLogEntry = {
+    eventId: crypto.randomUUID(),
+    runId: state.runId,
+    timestamp: new Date().toISOString(),
+    type: 'error',
+    stage: state.status.stage,
+    agent: agentName as any,
+    summary: errorMessage,
+    visibility: 'user',
+    details: { stack: error.stack }
   };
 
   return {
-    status: 'error',
-    error: graphError,
-    agentMessages: [
-      ...state.agentMessages,
-      MessageFactory.text(agentName as any, 'coordinator', `Error: ${error.message}`),
-    ],
+    status: {
+      ...state.status,
+      stageState: 'failed',
+      activeAgents: state.status.activeAgents.map(a =>
+        a.agentId === agentName ? { ...a, status: 'error' } : a
+      )
+    },
+    errors: [...(state.errors || []), errorMessage],
+    events: [errorEvent]
   };
 }
 
