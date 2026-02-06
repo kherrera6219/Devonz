@@ -30,7 +30,7 @@ if ((import.meta as any).hot) {
 }
 
 interface ArtifactProps {
-  messageId: string;
+  _messageId: string;
   artifactId: string;
 }
 
@@ -43,7 +43,7 @@ export const Artifact = memo(({ artifactId }: ArtifactProps) => {
   const artifact = artifacts[artifactId];
 
   const actions = useStore(
-    computed(artifact.runner.actions, (actions) => {
+    computed(artifact.runner.actions, (actions: Record<string, ActionState>) => {
       // Filter out Supabase actions except for migrations
       return Object.values(actions).filter((action) => {
         // Exclude actions with type 'supabase' or actions that contain 'supabase' in their content

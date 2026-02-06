@@ -71,7 +71,7 @@ export const Workbench = memo(
   }: WorkspaceProps) => {
     renderLogger.trace('Workbench');
 
-    const [fileHistory, _setFileHistory] = useState<Record<string, FileHistory>>({});
+    const [fileHistory] = useState<Record<string, FileHistory>>({});
 
     // const modifiedFiles = Array.from(useStore(workbenchStore.unsavedFiles).keys());
 
@@ -172,6 +172,7 @@ export const Workbench = memo(
                     chatStore.setKey('showChat', !showChat);
                   }
                 }}
+                title={showChat ? 'Hide Chat' : 'Show Chat'}
               />
               <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
 

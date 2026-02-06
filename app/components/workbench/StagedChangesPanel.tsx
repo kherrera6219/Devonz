@@ -760,10 +760,8 @@ export const StagedChangesPanel = memo(() => {
               </span>
               <div className="flex items-center gap-2">
                 <Button
-                  variant="default"
-                  size="sm"
+                  {...({ variant: 'default', size: 'sm', disabled: isApplying } as any)}
                   onClick={handleTogglePreviewMode}
-                  disabled={isApplying}
                   className={classNames(
                     'disabled:opacity-50',
                     isPreviewMode
@@ -775,20 +773,16 @@ export const StagedChangesPanel = memo(() => {
                   {isPreviewMode ? 'Previewing' : 'Preview'}
                 </Button>
                 <Button
-                  variant="default"
-                  size="sm"
+                  {...({ variant: 'default', size: 'sm', disabled: isApplying } as any)}
                   onClick={handleRejectAll}
-                  disabled={isApplying}
                   className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
                 >
                   <span className="i-ph:x-circle mr-1.5" />
                   Reject All
                 </Button>
                 <Button
-                  variant="default"
-                  size="sm"
+                  {...({ variant: 'default', size: 'sm', disabled: isApplying } as any)}
                   onClick={handleAcceptAll}
-                  disabled={isApplying}
                   className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50"
                 >
                   {isApplying ? (
