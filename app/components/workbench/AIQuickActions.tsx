@@ -93,7 +93,7 @@ const quickActions: QuickAction[] = [
   },
   {
     id: 'rounded-corners',
-    icon: 'i-ph:rounded-square',
+    icon: 'i-ph:square-rounded',
     label: 'Round',
     description: 'Add rounded corners',
     generatePrompt: (element) => {
