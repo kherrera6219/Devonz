@@ -1,4 +1,5 @@
 import { StateGraph, END, START } from '@langchain/langgraph';
+import { MemorySaver } from '@langchain/langgraph-checkpoint';
 import type { BoltState } from './state/types';
 import { CoordinatorAgent } from './agents/coordinator';
 import { ResearcherAgent } from './agents/researcher';
@@ -349,9 +350,8 @@ export function createGraph() {
 
   workflow.addEdge('finalize' as any, END as any);
 
-  /*
-   * Note: MemorySaver checkpointer removed due to CJS/ESM compatibility issues.
-   * TODO: Re-enable when @langchain/langgraph-checkpoint has ESM browser support.
-   */
-  return workflow.compile();
+  // Initialize checkpointer
+  const checkpointer = new MemorySaver();
+
+  return workflow.compile({ checkpointer });
 }
