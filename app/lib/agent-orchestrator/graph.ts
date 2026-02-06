@@ -70,8 +70,12 @@ const finalizeNode = async (state: RunState): Promise<Partial<RunState>> => {
 // ==========================================
 
 const checkResearchNeeded = (state: RunState) => {
-  // Default to research for now
-  return 'research';
+  // Check if Coordinator set the stage to Research
+  if (state.status.stage === 'RESEARCH_TECH_AND_SKILLS') {
+    return 'research';
+  }
+  // Otherwise, skip to Architect
+  return 'skipString';
 };
 
 const checkQCPass = (state: RunState) => {
@@ -98,9 +102,9 @@ export function createGraph() {
       userId: { value: (a, b) => b, default: () => '' },
       createdAt: { value: (a, b) => b, default: () => new Date().toISOString() },
       mode: { value: (a, b) => b, default: () => 'single' },
-      agentModels: { value: (a, b) => b, default: () => ({} as any) }, // Init empty
-      status: { value: (a, b) => ({ ...a, ...b }), default: () => ({} as any) },
-      inputs: { value: (a, b) => b, default: () => ({} as any) },
+      agentModels: { value: (a, b) => b, default: () => ({ coordinator: 'gpt-5', researcher: 'gemini-3-flash-preview', architect: 'claude-sonnet-4-5-20250929', qc: 'gpt-4o' }) },
+      status: { value: (a, b) => ({ ...a, ...b }), default: () => ({ stage: 'START', activeAgents: [], stageState: 'idle' }) },
+      inputs: { value: (a, b) => b, default: () => ({ requestText: '', conversationId: '' }) },
 
       plan: { value: (a, b) => ({...a, ...b}), default: () => ({} as PlanState) },
       research: { value: (a, b) => ({...a, ...b}), default: () => ({} as ResearchState) },

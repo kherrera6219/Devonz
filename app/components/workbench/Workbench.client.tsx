@@ -36,7 +36,7 @@ interface WorkspaceProps {
   metadata?: {
     gitUrl?: string;
   };
-  updateChatMestaData?: (metadata: any) => void;
+  updateChatMestaData?: (metadata: Record<string, any>) => void;
   setSelectedElement?: (element: ElementInfo | null) => void;
 
   /** The width of the workbench panel in pixels */

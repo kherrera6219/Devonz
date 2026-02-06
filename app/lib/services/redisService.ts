@@ -95,6 +95,15 @@ export class RedisService {
   get isConnected(): boolean {
     return this._isConnected;
   }
+
+  async disconnect(): Promise<void> {
+    if (this._client) {
+      await this._client.quit();
+      this._isConnected = false;
+      this._client = null;
+      logger.info('Redis client disconnected');
+    }
+  }
 }
 
 export const redisService = RedisService.getInstance();

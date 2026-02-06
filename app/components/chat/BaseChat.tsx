@@ -3,7 +3,7 @@
  * Preventing TS checks with files presented in the video for a better presentation.
  */
 import type { JSONValue, Message } from 'ai';
-import React, { type RefCallback, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { type RefCallback, useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { Workbench } from '~/components/workbench/Workbench.client';
@@ -610,7 +610,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     );
 
     return <Tooltip.Provider delayDuration={200}>{baseChat}</Tooltip.Provider>;
-  },
+  }),
 );
 
 function ScrollToBottom() {

@@ -753,7 +753,7 @@ export const ChatImpl = memo(
         description={description}
         importChat={importChat}
         exportChat={exportChat}
-        messages={messages.map((message, i) => {
+        messages={useMemo(() => messages.map((message, i) => {
           if (message.role === 'user') {
             return message;
           }
@@ -762,7 +762,7 @@ export const ChatImpl = memo(
             ...message,
             content: parsedMessages[i] || '',
           };
-        })}
+        }), [messages, parsedMessages])}
         enhancePrompt={() => {
           enhancePrompt(
             input,

@@ -16,7 +16,7 @@ import {
   isAgentTool,
   getAgentToolNames,
 } from './agentToolsService';
-import { getAgentOrchestrator } from './agentOrchestratorService';
+import { getAgentOrchestrator } from './legacyAgentService';
 import { isAgentModeEnabled, getAgentModeSettings } from '~/lib/stores/agentMode';
 import {
   TOOL_EXECUTION_APPROVAL,

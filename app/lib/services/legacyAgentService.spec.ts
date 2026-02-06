@@ -39,7 +39,7 @@ import {
   resetAgentOrchestrator,
   isAgentModeAvailable,
   getAgentStatus,
-} from './agentOrchestratorService';
+} from './legacyAgentService';
 
 describe('AgentOrchestrator', () => {
   beforeEach(() => {
