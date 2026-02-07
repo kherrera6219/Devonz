@@ -134,14 +134,14 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 
 ### Cloud Providers
 
-| Provider       | Models                                   | Features              |
-| -------------- | ---------------------------------------- | --------------------- |
-| OpenAI         | GPT-5, GPT-4o                            | Chat, Vision, Tools   |
-| Anthropic      | Claude 3.5 Sonnet, 3.5 Opus              | Chat, Vision, Tools   |
-| Google         | Gemini 1.5 Pro, 1.5 Flash                | Chat, Vision, Tools   |
+| Provider       | Models                                         | Features              |
+| -------------- | ---------------------------------------------- | --------------------- |
+| OpenAI         | GPT-5.2, GPT-5                                 | Chat, Vision, Tools   |
+| Anthropic      | Claude 4.5 Opus, 4.5 Sonnet                    | Chat, Vision, Tools   |
+| Google         | Gemini 3.0 Pro, 3.0 Flash                      | Chat, Vision, Tools   |
 
 > [!NOTE]
-> Agent Orchestration defaults to **GPT-5** for Coordination, **Gemini 1.5 Flash** for Research, and **Claude 3.5 Sonnet** for Architectural tasks.
+> Agent Orchestration defaults to **GPT-5** for Coordination, **Gemini 3.0 Flash** for Research, and **Claude 4.5 Sonnet** for Architectural tasks.
 
 ### Local Providers
 
