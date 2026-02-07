@@ -141,7 +141,7 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 | Google         | Gemini 3.0 Pro, 3.0 Flash                      | Chat, Vision, Tools   |
 
 > [!NOTE]
-> Agent Orchestration defaults to **GPT-5.2** for Coordination, **Gemini 3.0 Flash** for Research, and **Claude 4.5 Opus** for Architectural tasks.
+> Agent Orchestration defaults to **GPT-5.2** for Coordination, **Gemini 3.0 Flash** for Research, and **Claude 4.6 Opus** for Architectural tasks.
 
 ### Local Providers
 

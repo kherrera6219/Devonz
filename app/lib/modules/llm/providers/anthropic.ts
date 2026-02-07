@@ -15,8 +15,17 @@ export default class AnthropicProvider extends BaseProvider {
   staticModels: ModelInfo[] = [
     /*
      * Current Claude Models (February 2026)
-     * Claude Opus 4.5: Flagship model (November 24, 2025)
+     * Claude Opus 4.6: Flagship model (February 5, 2026)
      */
+    {
+      name: 'claude-opus-4-6-20260205',
+      label: 'Claude Opus 4.6',
+      provider: 'Anthropic',
+      maxTokenAllowed: 1000000,
+      maxCompletionTokens: 128000,
+    },
+
+    // Claude Opus 4.5: Previous flagship (November 24, 2025)
     {
       name: 'claude-opus-4-5-20251124',
       label: 'Claude Opus 4.5',
