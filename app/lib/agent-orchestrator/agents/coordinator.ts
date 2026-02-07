@@ -16,7 +16,7 @@ import { safeInvoke } from '~/lib/agent-orchestrator/utils/agent-utils';
 export class CoordinatorAgent {
   private readonly _name = 'coordinator';
   private _model: ChatOpenAI | null = null;
-  private readonly _modelName = 'gpt-5'; // System default
+  private readonly _modelName = 'gpt-5.2'; // System default
 
   private _ensureModel() {
     if (this._model) {

@@ -15,7 +15,7 @@ import { safeInvoke, createErrorState } from '~/lib/agent-orchestrator/utils/age
 export class ArchitectAgent {
   private readonly _name = 'architect';
   private _model: ChatAnthropic | null = null;
-  private readonly _modelName = 'claude-sonnet-4-5-20250929';
+  private readonly _modelName = 'claude-opus-4-5-20251124';
 
   private _ensureModel(state: RunState) {
     if (this._model) {
