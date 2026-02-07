@@ -15,8 +15,12 @@ import { useGitHubDeploy } from '~/components/deploy/GitHubDeploy.client';
 import { useGitLabDeploy } from '~/components/deploy/GitLabDeploy.client';
 import React, { Suspense, lazy } from 'react';
 
-const GitHubDeploymentDialog = lazy(() => import('~/components/deploy/GitHubDeploymentDialog').then(m => ({ default: m.GitHubDeploymentDialog })));
-const GitLabDeploymentDialog = lazy(() => import('~/components/deploy/GitLabDeploymentDialog').then(m => ({ default: m.GitLabDeploymentDialog })));
+const GitHubDeploymentDialog = lazy(() =>
+  import('~/components/deploy/GitHubDeploymentDialog').then((m) => ({ default: m.GitHubDeploymentDialog })),
+);
+const GitLabDeploymentDialog = lazy(() =>
+  import('~/components/deploy/GitLabDeploymentDialog').then((m) => ({ default: m.GitLabDeploymentDialog })),
+);
 
 interface DeployButtonProps {
   onVercelDeploy?: () => Promise<void>;

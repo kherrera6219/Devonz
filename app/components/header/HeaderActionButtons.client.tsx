@@ -7,8 +7,10 @@ import { AutoFixStatus } from './AutoFixStatus.client';
 import { chatId } from '~/lib/persistence/useChatHistory';
 import React, { Suspense, lazy } from 'react';
 
-const DeployButton = lazy(() => import('~/components/deploy/DeployButton').then(m => ({ default: m.DeployButton })));
-const VercelDomainModal = lazy(() => import('~/components/deploy/VercelDomainModal').then(m => ({ default: m.VercelDomainModal })));
+const DeployButton = lazy(() => import('~/components/deploy/DeployButton').then((m) => ({ default: m.DeployButton })));
+const VercelDomainModal = lazy(() =>
+  import('~/components/deploy/VercelDomainModal').then((m) => ({ default: m.VercelDomainModal })),
+);
 
 interface HeaderActionButtonsProps {
   chatStarted: boolean;

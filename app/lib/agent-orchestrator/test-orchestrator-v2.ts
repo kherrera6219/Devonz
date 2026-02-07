@@ -40,7 +40,11 @@ async function main() {
       mockStream,
       [], // No history
       {}, // No extra keys
-      { updateActivity: () => {} }, // Mock stream recovery
+      {
+        updateActivity: () => {
+          /* intentional no-op for mock */
+        },
+      }, // Mock stream recovery
     );
 
     console.log('\n--- Run Completed ---');

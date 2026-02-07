@@ -1,0 +1,4 @@
+
+> devonz@1.0.0 lint
+> eslint --cache --cache-location ./node_modules/.cache/eslint app
+

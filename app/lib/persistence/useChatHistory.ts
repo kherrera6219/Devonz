@@ -75,6 +75,7 @@ export function useChatHistory() {
           logStore.logError('Chat persistence initialization failed', error as Error);
           toast.error('Chat persistence is unavailable');
           setReady(true);
+
           return;
         }
       }
@@ -92,6 +93,7 @@ export function useChatHistory() {
           if (!storedMessages || storedMessages.messages.length === 0) {
             navigate('/', { replace: true });
             setReady(true);
+
             return;
           }
 

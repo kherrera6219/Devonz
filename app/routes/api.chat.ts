@@ -6,6 +6,9 @@ import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
 import type { IProviderSetting } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('api.chat');
+
 import { getFilePaths } from '~/lib/.server/llm/select-context';
 import type { ProgressAnnotation } from '~/types/context';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
@@ -31,10 +34,12 @@ export const action = withSecurity(async (args: ActionFunctionArgs) => {
   return chatAction(args);
 });
 
-const logger = createScopedLogger('api.chat');
-
 function parseCookies(cookieHeader: string): Record<string, string> {
   const cookies: Record<string, string> = {};
+
+  if (!cookieHeader) {
+    return cookies;
+  }
 
   const items = cookieHeader.split(';').map((cookie) => cookie.trim());
 
@@ -42,13 +47,30 @@ function parseCookies(cookieHeader: string): Record<string, string> {
     const [name, ...rest] = item.split('=');
 
     if (name && rest) {
-      const decodedName = decodeURIComponent(name.trim());
-      const decodedValue = decodeURIComponent(rest.join('=').trim());
-      cookies[decodedName] = decodedValue;
+      try {
+        const decodedName = decodeURIComponent(name.trim());
+        const decodedValue = decodeURIComponent(rest.join('=').trim());
+        cookies[decodedName] = decodedValue;
+      } catch {
+        logger.warn('Failed to decode cookie:', item);
+      }
     }
   });
 
   return cookies;
+}
+
+function safeJsonParse<T>(jsonString: string | undefined, fallback: T): T {
+  if (!jsonString) {
+    return fallback;
+  }
+
+  try {
+    return JSON.parse(jsonString) as T;
+  } catch {
+    logger.warn('Failed to parse JSON:', jsonString.substring(0, 100));
+    return fallback;
+  }
 }
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
@@ -98,10 +120,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   const useOrchestrator = !!orchestratorMode;
 
   const cookieHeader = request.headers.get('Cookie');
-  const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
-  const providerSettings: Record<string, IProviderSetting> = JSON.parse(
-    parseCookies(cookieHeader || '').providers || '{}',
-  );
+  const cookies = parseCookies(cookieHeader || '');
+  const apiKeys = safeJsonParse(cookies.apiKeys, {} as Record<string, string>);
+  const providerSettings = safeJsonParse(cookies.providers, {} as Record<string, IProviderSetting>);
 
   const stream = new SwitchableStream();
 
@@ -115,11 +136,17 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
   try {
     const mcpService = MCPService.getInstance();
-    const totalMessageContent = messages.reduce(
-      (acc: string, message: { content: string }) => acc + message.content,
-      '',
-    );
-    logger.debug(`Total message length: ${totalMessageContent.split(' ').length}, words`);
+    const totalMessageContent = messages.reduce((acc: string, message: { content: any }) => {
+      const content =
+        typeof message.content === 'string'
+          ? message.content
+          : Array.isArray(message.content)
+            ? message.content.map((p) => ('text' in p ? p.text : '')).join('')
+            : '';
+      return acc + content;
+    }, '');
+
+    logger.debug(`Total message length: ${totalMessageContent.split(' ').length} words`);
 
     let lastChunk: string | undefined = undefined;
 

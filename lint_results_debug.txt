@@ -1,0 +1,24 @@
+
+> devonz@1.0.0 lint
+> eslint --cache --cache-location ./node_modules/.cache/eslint app
+
+
+C:\software\Devonz\app\components\workbench\Workbench.client.tsx
+  74:25  error  '_setFileHistory' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\entry.client.tsx
+  34:34  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  46:28  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\software\Devonz\app\lib\agent-orchestrator\test-orchestrator-v2.ts
+  43:31  warning  Unexpected empty method 'updateActivity'  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\mcp\types.ts
+  32:3  error  Expected line before comment  @blitz/lines-around-comment
+
+C:\software\Devonz\app\root.tsx
+  7:21  error  'useState' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 6 problems (5 errors, 1 warning)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

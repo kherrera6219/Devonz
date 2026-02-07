@@ -88,27 +88,24 @@ export const Menu = () => {
       .then(setList)
       .catch((error) => toast.error(error.message));
   }, []);
-  const deleteChat = useCallback(
-    async (id: string): Promise<void> => {
-      if (!db) {
-        throw new Error('Database not available');
-      }
+  const deleteChat = useCallback(async (id: string): Promise<void> => {
+    if (!db) {
+      throw new Error('Database not available');
+    }
 
-      // Delete chat snapshot from localStorage
-      try {
-        const snapshotKey = `snapshot:${id}`;
-        localStorage.removeItem(snapshotKey);
-        console.log('Removed snapshot for chat:', id);
-      } catch (snapshotError) {
-        console.error(`Error deleting snapshot for chat ${id}:`, snapshotError);
-      }
+    // Delete chat snapshot from localStorage
+    try {
+      const snapshotKey = `snapshot:${id}`;
+      localStorage.removeItem(snapshotKey);
+      console.log('Removed snapshot for chat:', id);
+    } catch (snapshotError) {
+      console.error(`Error deleting snapshot for chat ${id}:`, snapshotError);
+    }
 
-      // Delete the chat from the database
-      await deleteById(db, id);
-      console.log('Successfully deleted chat:', id);
-    },
-    [],
-  );
+    // Delete the chat from the database
+    await deleteById(db, id);
+    console.log('Successfully deleted chat:', id);
+  }, []);
 
   const deleteItem = useCallback(
     (event: React.UIEvent, item: ChatHistoryItem) => {

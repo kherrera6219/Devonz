@@ -9,7 +9,9 @@ interface ModelsResponse {
   providers: ProviderInfo[];
   defaultProvider: ProviderInfo;
 }
+import { createScopedLogger } from '~/utils/logger';
 
+const logger = createScopedLogger('api.models');
 let cachedProviders: ProviderInfo[] | null = null;
 let cachedDefaultProvider: ProviderInfo | null = null;
 
@@ -50,24 +52,31 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
 
   let modelList: ModelInfo[] = [];
 
-  if (params.provider) {
-    // Only update models for the specific provider
-    const provider = llmManager.getProvider(params.provider);
+  try {
+    if (params.provider) {
+      // Only update models for the specific provider
+      const provider = llmManager.getProvider(params.provider);
 
-    if (provider) {
-      modelList = await llmManager.getModelListFromProvider(provider, {
+      if (provider) {
+        modelList = await llmManager.getModelListFromProvider(provider, {
+          apiKeys: apiKeys as Record<string, string>,
+          providerSettings,
+          serverEnv: (context as any).cloudflare?.env,
+        });
+      }
+    } else {
+      // Update all models
+      modelList = await llmManager.updateModelList({
         apiKeys: apiKeys as Record<string, string>,
         providerSettings,
         serverEnv: (context as any).cloudflare?.env,
       });
     }
-  } else {
-    // Update all models
-    modelList = await llmManager.updateModelList({
-      apiKeys: apiKeys as Record<string, string>,
-      providerSettings,
-      serverEnv: (context as any).cloudflare?.env,
-    });
+  } catch (error) {
+    logger.error('Failed to update model list:', error);
+
+    // Return current/static list on error instead of crashing
+    modelList = llmManager.getStaticModelList();
   }
 
   return json<ModelsResponse>({

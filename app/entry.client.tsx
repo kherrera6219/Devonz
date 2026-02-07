@@ -16,6 +16,8 @@ if (typeof window !== 'undefined') {
   });
 }
 
+import { logStore } from '~/lib/stores/logs';
+
 startTransition(() => {
   const rootElement = document;
 
@@ -31,7 +33,6 @@ startTransition(() => {
 
           // Attempt to log to our internal store if possible
           try {
-            const { logStore } = require('~/lib/stores/logs');
             logStore.logError('Hydration recoverable error', error);
           } catch {
             // LogStore might not be available yet
@@ -43,7 +44,6 @@ startTransition(() => {
     console.error('[Entry] Hydration critical failure:', error);
 
     try {
-      const { logStore } = require('~/lib/stores/logs');
       logStore.logError('Hydration critical failure', error as Error);
     } catch {
       // LogStore might not be available yet

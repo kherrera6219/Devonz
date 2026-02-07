@@ -4,7 +4,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, isRoute
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ClientOnly } from 'remix-utils/client-only';
@@ -63,7 +63,6 @@ const inlineThemeCode = stripIndents`
 `;
 
 // Head is now integrated into Layout for standard Remix hydration
-
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
