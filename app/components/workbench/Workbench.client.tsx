@@ -48,16 +48,16 @@ interface WorkspaceProps {
 
 const viewTransition = { ease: cubicEasingFn };
 
-const sliderOptions: SliderOptions<WorkbenchViewType> = {
+const getSliderOptions = (t: any): SliderOptions<WorkbenchViewType> => ({
   left: {
     value: 'code',
-    text: 'Code',
+    text: t('workbench.code', 'Code'),
   },
   right: {
     value: 'preview',
-    text: 'Preview',
+    text: t('workbench.preview', 'Preview'),
   },
-};
+});
 
 export const Workbench = memo(
   ({
@@ -156,7 +156,7 @@ export const Workbench = memo(
             'flex-grow': !!fullWidth,
             'flex-shrink-0': !fullWidth,
           })}
-          style={fullWidth ? {} : ({ '--workbench-width-override': width ? `${width}px` : undefined } as any)}
+          style={fullWidth ? {} : ({ '--workbench-width-override': width ? `${width}px` : undefined } as React.CSSProperties)}
         >
           <div
             className={classNames('h-full flex flex-col bg-bolt-elements-background-depth-2 overflow-hidden', {
@@ -172,9 +172,9 @@ export const Workbench = memo(
                     chatStore.setKey('showChat', !showChat);
                   }
                 }}
-                title={showChat ? 'Hide Chat' : 'Show Chat'}
+                title={showChat ? t('chat.hide_chat', 'Hide Chat') : t('chat.show_chat', 'Show Chat')}
               />
-              <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
+              <Slider selected={selectedView} options={getSliderOptions(t)} setSelected={setSelectedView} />
 
               <div className="ml-auto" />
               {selectedView === 'code' && (
@@ -189,7 +189,7 @@ export const Workbench = memo(
                         disabled={isSyncing || streaming}
                         className="rounded-lg items-center justify-center [&:is(:disabled,.disabled)]:cursor-not-allowed [&:is(:disabled,.disabled)]:opacity-60 px-3 py-1.5 text-xs bg-bolt-elements-background-depth-3 text-bolt-elements-textPrimary border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-4 [&:not(:disabled,.disabled)]:hover:text-accent-400 outline-accent-500 flex gap-1.5 transition-colors"
                       >
-                        {isSyncing ? 'Syncing...' : 'Sync'}
+                        {isSyncing ? t('workbench.syncing', 'Syncing...') : t('workbench.sync', 'Sync')}
                         <span className={classNames('i-ph:caret-down transition-transform')} />
                       </DropdownMenu.Trigger>
                       <DropdownMenu.Portal>
@@ -214,7 +214,7 @@ export const Workbench = memo(
                           >
                             <div className="flex items-center gap-2">
                               {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
-                              <span>{isSyncing ? 'Syncing...' : 'Sync Files'}</span>
+                              <span>{isSyncing ? t('workbench.syncing', 'Syncing...') : t('workbench.sync_files', 'Sync Files')}</span>
                             </div>
                           </DropdownMenu.Item>
                         </DropdownMenu.Content>
@@ -231,7 +231,7 @@ export const Workbench = memo(
                       className="rounded-md items-center justify-center [&:is(:disabled,.disabled)]:cursor-not-allowed [&:is(:disabled,.disabled)]:opacity-60 px-3 py-1.5 text-xs bg-bolt-elements-background-depth-3 text-bolt-elements-textPrimary border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-4 [&:not(:disabled,.disabled)]:hover:text-accent-400 outline-accent-500 flex gap-1.7"
                     >
                       <div className="i-ph:terminal" />
-                      Toggle Terminal
+                      {t('workbench.toggle_terminal', 'Toggle Terminal')}
                     </button>
                   </div>
                 </div>

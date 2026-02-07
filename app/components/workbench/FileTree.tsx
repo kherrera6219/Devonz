@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { FileMap } from '~/lib/stores/files';
+import { useTranslation } from 'react-i18next';
 import { classNames } from '~/utils/classNames';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import * as ContextMenu from '@radix-ui/react-context-menu';
@@ -50,6 +51,7 @@ export const FileTree = memo(
     unsavedFiles,
     fileHistory = {},
   }: Props) => {
+    const { t } = useTranslation();
     renderLogger.trace('FileTree');
 
     const computedHiddenFiles = useMemo(() => [...DEFAULT_HIDDEN_FILES, ...(hiddenFiles ?? [])], [hiddenFiles]);
@@ -163,6 +165,7 @@ export const FileTree = memo(
                   onClick={() => {
                     onFileSelect?.(fileOrFolder.fullPath);
                   }}
+                  t={t}
                 />
               );
             }
@@ -182,6 +185,7 @@ export const FileTree = memo(
                   onClick={() => {
                     toggleCollapseState(fileOrFolder.fullPath);
                   }}
+                  t={t}
                 />
               );
             }
@@ -204,12 +208,14 @@ interface FolderProps {
   onCopyPath: () => void;
   onCopyRelativePath: () => void;
   onClick: () => void;
+  t: any;
 }
 
-interface FolderContextMenuProps {
+interface FileContextMenuProps {
   onCopyPath?: () => void;
   onCopyRelativePath?: () => void;
   children: ReactNode;
+  t: any;
 }
 
 function ContextMenuItem({ onSelect, children }: { onSelect?: () => void; children: ReactNode }) {
@@ -283,7 +289,8 @@ function FileContextMenu({
   onCopyRelativePath,
   fullPath,
   children,
-}: FolderContextMenuProps & { fullPath: string }) {
+  t,
+}: FileContextMenuProps & { fullPath: string }) {
   const [isCreatingFile, setIsCreatingFile] = useState(false);
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -356,9 +363,9 @@ function FileContextMenu({
     const success = await workbenchStore.createFile(newFilePath, '');
 
     if (success) {
-      toast.success('File created successfully');
+      toast.success(t('workbench.file_created', 'File created successfully'));
     } else {
-      toast.error('Failed to create file');
+      toast.error(t('workbench.file_create_failed', 'Failed to create file'));
     }
 
     setIsCreatingFile(false);
@@ -369,9 +376,9 @@ function FileContextMenu({
     const success = await workbenchStore.createFolder(newFolderPath);
 
     if (success) {
-      toast.success('Folder created successfully');
+      toast.success(t('workbench.folder_created', 'Folder created successfully'));
     } else {
-      toast.error('Failed to create folder');
+      toast.error(t('workbench.folder_create_failed', 'Failed to create folder'));
     }
 
     setIsCreatingFolder(false);
@@ -507,19 +514,19 @@ function FileContextMenu({
               <ContextMenuItem onSelect={() => setIsCreatingFile(true)}>
                 <div className="flex items-center gap-2">
                   <div className="i-ph:file-plus" />
-                  New File
+                  {t('workbench.new_file', 'New File')}
                 </div>
               </ContextMenuItem>
               <ContextMenuItem onSelect={() => setIsCreatingFolder(true)}>
                 <div className="flex items-center gap-2">
                   <div className="i-ph:folder-plus" />
-                  New Folder
+                  {t('workbench.new_folder', 'New Folder')}
                 </div>
               </ContextMenuItem>
             </ContextMenu.Group>
             <ContextMenu.Group className="p-1">
-              <ContextMenuItem onSelect={onCopyPath}>Copy path</ContextMenuItem>
-              <ContextMenuItem onSelect={onCopyRelativePath}>Copy relative path</ContextMenuItem>
+              <ContextMenuItem onSelect={onCopyPath}>{t('workbench.copy_path', 'Copy path')}</ContextMenuItem>
+              <ContextMenuItem onSelect={onCopyRelativePath}>{t('workbench.copy_relative_path', 'Copy relative path')}</ContextMenuItem>
             </ContextMenu.Group>
             {/* Add lock/unlock options for files and folders */}
             <ContextMenu.Group className="p-1 border-t-px border-solid border-bolt-elements-borderColor">
@@ -528,13 +535,13 @@ function FileContextMenu({
                   <ContextMenuItem onSelect={handleLockFile}>
                     <div className="flex items-center gap-2">
                       <div className="i-ph:lock-simple" />
-                      Lock File
+                      {t('workbench.lock_file', 'Lock File')}
                     </div>
                   </ContextMenuItem>
                   <ContextMenuItem onSelect={handleUnlockFile}>
                     <div className="flex items-center gap-2">
                       <div className="i-ph:lock-key-open" />
-                      Unlock File
+                      {t('workbench.unlock_file', 'Unlock File')}
                     </div>
                   </ContextMenuItem>
                 </>
@@ -543,13 +550,13 @@ function FileContextMenu({
                   <ContextMenuItem onSelect={handleLockFolder}>
                     <div className="flex items-center gap-2">
                       <div className="i-ph:lock-simple" />
-                      Lock Folder
+                      {t('workbench.lock_folder', 'Lock Folder')}
                     </div>
                   </ContextMenuItem>
                   <ContextMenuItem onSelect={handleUnlockFolder}>
                     <div className="flex items-center gap-2">
                       <div className="i-ph:lock-key-open" />
-                      Unlock Folder
+                      {t('workbench.unlock_folder', 'Unlock Folder')}
                     </div>
                   </ContextMenuItem>
                 </>
@@ -560,7 +567,7 @@ function FileContextMenu({
               <ContextMenuItem onSelect={handleDelete}>
                 <div className="flex items-center gap-2 text-red-500">
                   <div className="i-ph:trash" />
-                  Delete {isFolder ? 'Folder' : 'File'}
+                  {t('workbench.delete_item', 'Delete {{item}}', { item: isFolder ? t('common.folder', 'Folder') : t('common.file', 'File') })}
                 </div>
               </ContextMenuItem>
             </ContextMenu.Group>
@@ -587,12 +594,12 @@ function FileContextMenu({
   );
 }
 
-function Folder({ folder, collapsed, selected = false, onCopyPath, onCopyRelativePath, onClick }: FolderProps) {
+function Folder({ folder, collapsed, selected = false, onCopyPath, onCopyRelativePath, onClick, t }: FolderProps) {
   // Check if the folder is locked
   const { isLocked } = workbenchStore.isFolderLocked(folder.fullPath);
 
   return (
-    <FileContextMenu onCopyPath={onCopyPath} onCopyRelativePath={onCopyRelativePath} fullPath={folder.fullPath}>
+    <FileContextMenu onCopyPath={onCopyPath} onCopyRelativePath={onCopyRelativePath} fullPath={folder.fullPath} t={t}>
       <NodeButton
         className={classNames('group', {
           'bg-transparent text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive':
@@ -628,6 +635,7 @@ interface FileProps {
   onCopyPath: () => void;
   onCopyRelativePath: () => void;
   onClick: () => void;
+  t: any;
 }
 
 function File({
@@ -638,6 +646,7 @@ function File({
   selected,
   unsavedChanges = false,
   fileHistory = {},
+  t,
 }: FileProps) {
   const { depth, name, fullPath } = file;
 
@@ -684,7 +693,7 @@ function File({
   const showStats = additions > 0 || deletions > 0;
 
   return (
-    <FileContextMenu onCopyPath={onCopyPath} onCopyRelativePath={onCopyRelativePath} fullPath={fullPath}>
+    <FileContextMenu onCopyPath={onCopyPath} onCopyRelativePath={onCopyRelativePath} fullPath={fullPath} t={t}>
       <NodeButton
         className={classNames('group', {
           'bg-transparent hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-item-contentDefault':

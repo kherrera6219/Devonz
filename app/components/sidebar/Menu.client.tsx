@@ -119,7 +119,7 @@ export const Menu = () => {
 
       deleteChat(item.id)
         .then(() => {
-          toast.success('Chat deleted successfully', {
+          toast.success(t('sidebar.chat_deleted_success', 'Chat deleted successfully'), {
             position: 'bottom-right',
             autoClose: 3000,
           });
@@ -135,7 +135,7 @@ export const Menu = () => {
         })
         .catch((error) => {
           console.error('Failed to delete chat:', error);
-          toast.error('Failed to delete conversation', {
+          toast.error(t('sidebar.delete_failed', 'Failed to delete conversation'), {
             position: 'bottom-right',
             autoClose: 3000,
           });
@@ -178,11 +178,20 @@ export const Menu = () => {
 
       // Show appropriate toast message
       if (errors.length === 0) {
-        toast.success(`${deletedCount} chat${deletedCount === 1 ? '' : 's'} deleted successfully`);
+        toast.success(
+          t('sidebar.bulk_delete_success', '{{count}} chats deleted successfully', { count: deletedCount }),
+        );
       } else {
-        toast.warning(`Deleted ${deletedCount} of ${itemsToDeleteIds.length} chats. ${errors.length} failed.`, {
-          autoClose: 5000,
-        });
+        toast.warning(
+          t('sidebar.bulk_delete_partial', 'Deleted {{deleted}} of {{total}} chats. {{failed}} failed.', {
+            deleted: deletedCount,
+            total: itemsToDeleteIds.length,
+            failed: errors.length,
+          }),
+          {
+            autoClose: 5000,
+          },
+        );
       }
 
       // Reload the list after all deletions
@@ -225,14 +234,14 @@ export const Menu = () => {
 
   const handleBulkDeleteClick = useCallback(() => {
     if (selectedItems.length === 0) {
-      toast.info('Select at least one chat to delete');
+      toast.info(t('sidebar.select_at_least_one', 'Select at least one chat to delete'));
       return;
     }
 
     const selectedChats = list.filter((item) => selectedItems.includes(item.id));
 
     if (selectedChats.length === 0) {
-      toast.error('Could not find selected chats');
+      toast.error(t('sidebar.chats_not_found', 'Could not find selected chats'));
       return;
     }
 
@@ -383,13 +392,13 @@ export const Menu = () => {
             {selectionMode && (
               <div className="flex items-center gap-2">
                 <Button {...({ variant: 'ghost', size: 'sm' } as any)} onClick={selectAll}>
-                  {selectedItems.length === filteredList.length ? 'Deselect all' : 'Select all'}
+                  {selectedItems.length === filteredList.length ? t('common.deselect_all', 'Deselect all') : t('common.select_all', 'Select all')}
                 </Button>
                 <Button
                   {...({ variant: 'destructive', size: 'sm', disabled: selectedItems.length === 0 } as any)}
                   onClick={handleBulkDeleteClick}
                 >
-                  Delete selected
+                  {t('common.delete_selected', 'Delete selected')}
                 </Button>
               </div>
             )}
@@ -434,14 +443,18 @@ export const Menu = () => {
                       <DialogTitle className="text-gray-900 dark:text-white">{t('sidebar.delete_chat_title', 'Delete Chat?')}</DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>
-                          {t('sidebar.delete_chat_description', 'You are about to delete {{description}}', { description: dialogContent.item.description })}
+                          {t('sidebar.delete_chat_description', 'You are about to delete {{description}}', {
+                            description: dialogContent.item.description,
+                          })}
                         </p>
-                        <p className="mt-2">{t('sidebar.delete_confirmation', 'Are you sure you want to delete this chat?')}</p>
+                        <p className="mt-2">
+                          {t('sidebar.delete_confirmation', 'Are you sure you want to delete this chat?')}
+                        </p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
                       <DialogButton type="secondary" onClick={closeDialog}>
-                        Cancel
+                        {t('common.cancel', 'Cancel')}
                       </DialogButton>
                       <DialogButton
                         type="danger"
@@ -451,7 +464,7 @@ export const Menu = () => {
                           closeDialog();
                         }}
                       >
-                        Delete
+                        {t('common.delete', 'Delete')}
                       </DialogButton>
                     </div>
                   </>
@@ -459,11 +472,12 @@ export const Menu = () => {
                 {dialogContent?.type === 'bulkDelete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">Delete Selected Chats?</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">{t('sidebar.bulk_delete_title', 'Delete Selected Chats?')}</DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>
-                          You are about to delete {dialogContent.items.length}{' '}
-                          {dialogContent.items.length === 1 ? 'chat' : 'chats'}:
+                          {t('sidebar.bulk_delete_description', 'You are about to delete {{count}} chats:', {
+                            count: dialogContent.items.length,
+                          })}
                         </p>
                         <div className="mt-2 max-h-32 overflow-auto border border-gray-100 dark:border-gray-800 rounded-md bg-gray-50 dark:bg-gray-900 p-2">
                           <ul className="list-disc pl-5 space-y-1">
@@ -474,12 +488,12 @@ export const Menu = () => {
                             ))}
                           </ul>
                         </div>
-                        <p className="mt-3">Are you sure you want to delete these chats?</p>
+                        <p className="mt-3">{t('sidebar.bulk_delete_confirmation', 'Are you sure you want to delete these chats?')}</p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
                       <DialogButton type="secondary" onClick={closeDialog}>
-                        Cancel
+                        {t('common.cancel', 'Cancel')}
                       </DialogButton>
                       <DialogButton
                         type="danger"
@@ -494,7 +508,7 @@ export const Menu = () => {
                           closeDialog();
                         }}
                       >
-                        Delete
+                        {t('common.delete', 'Delete')}
                       </DialogButton>
                     </div>
                   </>

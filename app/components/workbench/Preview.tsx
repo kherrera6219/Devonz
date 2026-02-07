@@ -1,4 +1,5 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStore } from '@nanostores/react';
 import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -26,33 +27,103 @@ interface WindowSize {
   frameType?: 'mobile' | 'tablet' | 'laptop' | 'desktop';
 }
 
-const WINDOW_SIZES: WindowSize[] = [
-  { name: 'iPhone SE', width: 375, height: 667, icon: 'i-ph:device-mobile', hasFrame: true, frameType: 'mobile' },
-  { name: 'iPhone 12/13', width: 390, height: 844, icon: 'i-ph:device-mobile', hasFrame: true, frameType: 'mobile' },
+const getWindowSizes = (t: any): WindowSize[] => [
   {
-    name: 'iPhone 12/13 Pro Max',
+    name: t('preview.device.iphone_se', 'iPhone SE'),
+    width: 375,
+    height: 667,
+    icon: 'i-ph:device-mobile',
+    hasFrame: true,
+    frameType: 'mobile',
+  },
+  {
+    name: t('preview.device.iphone_12_13', 'iPhone 12/13'),
+    width: 390,
+    height: 844,
+    icon: 'i-ph:device-mobile',
+    hasFrame: true,
+    frameType: 'mobile',
+  },
+  {
+    name: t('preview.device.iphone_12_13_pro_max', 'iPhone 12/13 Pro Max'),
     width: 428,
     height: 926,
     icon: 'i-ph:device-mobile',
     hasFrame: true,
     frameType: 'mobile',
   },
-  { name: 'iPad Mini', width: 768, height: 1024, icon: 'i-ph:device-tablet', hasFrame: true, frameType: 'tablet' },
-  { name: 'iPad Air', width: 820, height: 1180, icon: 'i-ph:device-tablet', hasFrame: true, frameType: 'tablet' },
-  { name: 'iPad Pro 11"', width: 834, height: 1194, icon: 'i-ph:device-tablet', hasFrame: true, frameType: 'tablet' },
   {
-    name: 'iPad Pro 12.9"',
+    name: t('preview.device.ipad_mini', 'iPad Mini'),
+    width: 768,
+    height: 1024,
+    icon: 'i-ph:device-tablet',
+    hasFrame: true,
+    frameType: 'tablet',
+  },
+  {
+    name: t('preview.device.ipad_air', 'iPad Air'),
+    width: 820,
+    height: 1180,
+    icon: 'i-ph:device-tablet',
+    hasFrame: true,
+    frameType: 'tablet',
+  },
+  {
+    name: t('preview.device.ipad_pro_11', 'iPad Pro 11"'),
+    width: 834,
+    height: 1194,
+    icon: 'i-ph:device-tablet',
+    hasFrame: true,
+    frameType: 'tablet',
+  },
+  {
+    name: t('preview.device.ipad_pro_12_9', 'iPad Pro 12.9"'),
     width: 1024,
     height: 1366,
     icon: 'i-ph:device-tablet',
     hasFrame: true,
     frameType: 'tablet',
   },
-  { name: 'Small Laptop', width: 1280, height: 800, icon: 'i-ph:laptop', hasFrame: true, frameType: 'laptop' },
-  { name: 'Laptop', width: 1366, height: 768, icon: 'i-ph:laptop', hasFrame: true, frameType: 'laptop' },
-  { name: 'Large Laptop', width: 1440, height: 900, icon: 'i-ph:laptop', hasFrame: true, frameType: 'laptop' },
-  { name: 'Desktop', width: 1920, height: 1080, icon: 'i-ph:monitor', hasFrame: true, frameType: 'desktop' },
-  { name: '4K Display', width: 3840, height: 2160, icon: 'i-ph:monitor', hasFrame: true, frameType: 'desktop' },
+  {
+    name: t('preview.device.small_laptop', 'Small Laptop'),
+    width: 1280,
+    height: 800,
+    icon: 'i-ph:laptop',
+    hasFrame: true,
+    frameType: 'laptop',
+  },
+  {
+    name: t('preview.device.laptop', 'Laptop'),
+    width: 1366,
+    height: 768,
+    icon: 'i-ph:laptop',
+    hasFrame: true,
+    frameType: 'laptop',
+  },
+  {
+    name: t('preview.device.large_laptop', 'Large Laptop'),
+    width: 1440,
+    height: 900,
+    icon: 'i-ph:laptop',
+    hasFrame: true,
+    frameType: 'laptop',
+  },
+  {
+    name: t('preview.device.desktop', 'Desktop'),
+    width: 1920,
+    height: 1080,
+    icon: 'i-ph:monitor',
+    hasFrame: true,
+    frameType: 'desktop',
+  },
+  {
+    name: t('preview.device.4k_display', '4K Display'),
+    width: 3840,
+    height: 2160,
+    icon: 'i-ph:monitor',
+    hasFrame: true,
+    frameType: 'desktop',
+  },
 ];
 
 // Global screenshot request callbacks map
@@ -174,6 +245,7 @@ function generateFallbackScreenshot(width: number, height: number): string {
 }
 
 export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
+  const { t } = useTranslation();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -233,8 +305,9 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
   // Reduce scaling factor to make resizing less sensitive
   const SCALING_FACTOR = 1;
 
+  const windowSizes = useMemo(() => getWindowSizes(t), [t]);
   const [isWindowSizeDropdownOpen, setIsWindowSizeDropdownOpen] = useState(false);
-  const [selectedWindowSize, setSelectedWindowSize] = useState<WindowSize>(WINDOW_SIZES[0]);
+  const [selectedWindowSize, setSelectedWindowSize] = useState<WindowSize>(windowSizes[0]);
   const [isLandscape, setIsLandscape] = useState(false);
   const [showDeviceFrame, setShowDeviceFrame] = useState(true);
   const [showDeviceFrameInPreview, setShowDeviceFrameInPreview] = useState(false);
@@ -662,11 +735,11 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                   overflow: hidden;
                   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                 }
-                
+
                 .device-container {
                   position: relative;
                 }
-                
+
                 .device-name {
                   position: absolute;
                   top: -30px;
@@ -676,7 +749,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                   font-size: 14px;
                   color: #333;
                 }
-                
+
                 .device-frame {
                   position: relative;
                   border-radius: ${frameRadius};
@@ -685,7 +758,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
                   overflow: hidden;
                 }
-                
+
                 /* Notch */
                 .device-frame:before {
                   content: '';
@@ -699,7 +772,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                   border-radius: 4px;
                   z-index: 2;
                 }
-                
+
                 /* Home button */
                 .device-frame:after {
                   content: '';
@@ -713,7 +786,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
                   border-radius: 50%;
                   z-index: 2;
                 }
-                
+
                 iframe {
                   border: none;
                   width: ${width}px;
@@ -1365,7 +1438,7 @@ Add these rules to style the elements as specified. The !important flags ensure 
                 <div className="absolute right-0 top-full mt-2 z-50 min-w-[240px] max-h-[400px] overflow-y-auto bg-white dark:bg-black rounded-xl shadow-2xl border border-[#E5E7EB] dark:border-[rgba(255,255,255,0.1)] overflow-hidden">
                   <div className="p-3 border-b border-[#E5E7EB] dark:border-[rgba(255,255,255,0.1)]">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-[#111827] dark:text-gray-300">Window Options</span>
+                      <span className="text-sm font-medium text-[#111827] dark:text-gray-300">{t('preview.window_options', 'Window Options')}</span>
                     </div>
                     <div className="flex flex-col gap-2">
                       <button
@@ -1374,7 +1447,7 @@ Add these rules to style the elements as specified. The !important flags ensure 
                           openInNewTab();
                         }}
                       >
-                        <span>Open in new tab</span>
+                        <span>{t('preview.open_new_tab', 'Open in new tab')}</span>
                         <div className="i-ph:arrow-square-out h-5 w-4" />
                       </button>
                       <button
@@ -1405,15 +1478,16 @@ Add these rules to style the elements as specified. The !important flags ensure 
                           );
                         }}
                       >
-                        <span>Open in new window</span>
+                        <span>{t('preview.open_new_window', 'Open in new window')}</span>
                         <div className="i-ph:browser h-5 w-4" />
                       </button>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-bolt-elements-textTertiary">Show Device Frame</span>
+                        <span className="text-xs text-bolt-elements-textTertiary">{t('preview.show_frame', 'Show Device Frame')}</span>
                         <button
                           className={`w-10 h-5 rounded-full transition-colors duration-200 ${
                             showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
                           } relative`}
+                          title={showDeviceFrame ? t('preview.hide_frame', 'Hide Device Frame') : t('preview.show_frame', 'Show Device Frame')}
                           onClick={(e) => {
                             e.stopPropagation();
                             setShowDeviceFrame(!showDeviceFrame);
@@ -1427,11 +1501,12 @@ Add these rules to style the elements as specified. The !important flags ensure 
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-bolt-elements-textTertiary">Landscape Mode</span>
+                        <span className="text-xs text-bolt-elements-textTertiary">{t('preview.landscape_mode', 'Landscape Mode')}</span>
                         <button
                           className={`w-10 h-5 rounded-full transition-colors duration-200 ${
                             isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
                           } relative`}
+                          title={isLandscape ? t('preview.portrait_mode', 'Portrait Mode') : t('preview.landscape_mode', 'Landscape Mode')}
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsLandscape(!isLandscape);
@@ -1446,7 +1521,7 @@ Add these rules to style the elements as specified. The !important flags ensure 
                       </div>
                     </div>
                   </div>
-                  {WINDOW_SIZES.map((size) => (
+                  {windowSizes.map((size) => (
                     <button
                       key={size.name}
                       className="w-full px-4 py-3.5 text-left text-[#111827] dark:text-gray-300 text-sm whitespace-nowrap flex items-center gap-3 group hover:bg-[#F5EEFF] dark:hover:bg-gray-900 bg-white dark:bg-black"

@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/react';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Panel, type ImperativePanelHandle } from 'react-resizable-panels';
 import { IconButton } from '~/components/ui/IconButton';
 import { shortcutEventEmitter } from '~/lib/hooks';
@@ -16,6 +17,7 @@ const MAX_TERMINALS = 3;
 export const DEFAULT_TERMINAL_SIZE = 25;
 
 export const TerminalTabs = memo(() => {
+  const { t } = useTranslation();
   const showTerminal = useStore(workbenchStore.showTerminal);
   const theme = useStore(themeStore);
 
@@ -156,7 +158,7 @@ export const TerminalTabs = memo(() => {
                       onClick={() => setActiveTerminal(index)}
                     >
                       <div className="i-ph:terminal-window-duotone text-lg" />
-                      Terminal
+                      {t('workbench.terminal', 'Terminal')}
                     </button>
                   ) : (
                     <React.Fragment>
@@ -174,9 +176,10 @@ export const TerminalTabs = memo(() => {
                         onClick={() => setActiveTerminal(index)}
                       >
                         <div className="i-ph:terminal-window-duotone text-lg" />
-                        Terminal {terminalCount > 1 && index}
+                        {t('workbench.terminal_with_index', 'Terminal {{index}}', { index: terminalCount > 1 ? index : '' })}
                         <button
                           className="bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary hover:bg-transparent rounded"
+                          title={t('common.close', 'Close')}
                           onClick={(e) => {
                             e.stopPropagation();
                             closeTerminal(index);
@@ -190,10 +193,12 @@ export const TerminalTabs = memo(() => {
                 </React.Fragment>
               );
             })}
-            {terminalCount < MAX_TERMINALS && <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} />}
-            <IconButton
+            {terminalCount < MAX_TERMINALS && (
+              <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} title={t('workbench.add_terminal', 'Add Terminal')} />
+            )}
+             <IconButton
               icon="i-ph:arrow-clockwise"
-              title="Reset Terminal"
+              title={t('workbench.reset_terminal', 'Reset Terminal')}
               size="md"
               onClick={() => {
                 const ref = terminalRefs.current.get(activeTerminal);
@@ -211,10 +216,10 @@ export const TerminalTabs = memo(() => {
                 }
               }}
             />
-            <IconButton
+             <IconButton
               className="ml-auto"
               icon="i-ph:caret-down"
-              title="Close"
+              title={t('common.close', 'Close')}
               size="md"
               onClick={() => workbenchStore.toggleTerminal(false)}
             />

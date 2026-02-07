@@ -24,7 +24,8 @@ type IconButtonWithChildrenProps = {
   children: string | JSX.Element | JSX.Element[];
 } & BaseIconButtonProps;
 
-type IconButtonProps = IconButtonWithoutChildrenProps | IconButtonWithChildrenProps;
+type IconButtonProps = (IconButtonWithoutChildrenProps | IconButtonWithChildrenProps) &
+  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'title' | 'children' | 'style'>;
 
 // Componente IconButton com suporte a refs
 export const IconButton = memo(
@@ -41,6 +42,7 @@ export const IconButton = memo(
         style,
         onClick,
         children,
+        ...props
       }: IconButtonProps,
       ref: ForwardedRef<HTMLButtonElement>,
     ) => {
@@ -48,7 +50,7 @@ export const IconButton = memo(
         <button
           ref={ref}
           className={classNames(
-            'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed focus:outline-none',
+            'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-textPrimary rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed focus:outline-none transition-colors duration-200',
             {
               [classNames('opacity-30', disabledClassName)]: disabled,
             },
@@ -64,6 +66,7 @@ export const IconButton = memo(
 
             onClick?.(event);
           }}
+          {...(props as any)}
         >
           {children ? children : <div className={classNames(icon, getIconSize(size), iconClassName)}></div>}
         </button>
