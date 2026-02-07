@@ -369,7 +369,7 @@ export const Menu = () => {
                     ? 'bg-accent-500 text-white border border-accent-600'
                     : 'bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-4 border border-bolt-elements-borderColor',
                 )}
-                aria-label={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
+                aria-label={selectionMode ? t('sidebar.exit_selection_mode', 'Exit selection mode') : t('sidebar.enter_selection_mode', 'Enter selection mode')}
               >
                 <span className={selectionMode ? 'i-ph:x h-4 w-4' : 'i-ph:check-square h-4 w-4'} />
               </button>

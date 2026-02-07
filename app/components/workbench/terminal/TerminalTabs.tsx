@@ -1,5 +1,6 @@
 import { useStore } from '@nanostores/react';
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import * as React from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Panel, type ImperativePanelHandle } from 'react-resizable-panels';
 import { IconButton } from '~/components/ui/IconButton';
@@ -133,11 +134,8 @@ export const TerminalTabs = memo(() => {
       }}
     >
       <div className="h-full">
-        <div className="h-full flex flex-col" style={{ background: 'var(--bolt-elements-bg-depth-1)' }}>
-          <div
-            className="flex items-center border-y border-bolt-elements-borderColor gap-1.5 min-h-[34px] p-2"
-            style={{ background: 'var(--bolt-elements-bg-depth-1)' }}
-          >
+        <div className="h-full flex flex-col bg-bolt-elements-bg-depth-1">
+          <div className="flex items-center border-y border-bolt-elements-borderColor gap-1.5 min-h-[34px] p-2 bg-bolt-elements-bg-depth-1">
             {Array.from({ length: terminalCount + 1 }, (_, index) => {
               const isActive = activeTerminal === index;
 
@@ -149,12 +147,12 @@ export const TerminalTabs = memo(() => {
                       className={classNames(
                         'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
                         {
-                          'bg-bolt-elements-terminals-buttonBackground hover:text-bolt-elements-textPrimary': isActive,
+                          'bg-bolt-elements-terminals-buttonBackground text-cyan-400 hover:text-bolt-elements-textPrimary':
+                            isActive,
                           'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
                             !isActive,
                         },
                       )}
-                      style={isActive ? { color: '#22D3EE' } : undefined}
                       onClick={() => setActiveTerminal(index)}
                     >
                       <div className="i-ph:terminal-window-duotone text-lg" />
@@ -167,16 +165,17 @@ export const TerminalTabs = memo(() => {
                         className={classNames(
                           'flex items-center text-sm cursor-pointer gap-1.5 px-3 py-2 h-full whitespace-nowrap rounded-full',
                           {
-                            'bg-bolt-elements-terminals-buttonBackground': isActive,
+                            'bg-bolt-elements-terminals-buttonBackground text-cyan-400': isActive,
                             'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-terminals-buttonBackground':
                               !isActive,
                           },
                         )}
-                        style={isActive ? { color: '#22D3EE' } : undefined}
                         onClick={() => setActiveTerminal(index)}
                       >
                         <div className="i-ph:terminal-window-duotone text-lg" />
-                        {t('workbench.terminal_with_index', 'Terminal {{index}}', { index: terminalCount > 1 ? index : '' })}
+                        {t('workbench.terminal_with_index', 'Terminal {{index}}', {
+                          index: terminalCount > 1 ? index : '',
+                        })}
                         <button
                           className="bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary hover:bg-transparent rounded"
                           title={t('common.close', 'Close')}
@@ -194,9 +193,14 @@ export const TerminalTabs = memo(() => {
               );
             })}
             {terminalCount < MAX_TERMINALS && (
-              <IconButton icon="i-ph:plus" size="md" onClick={addTerminal} title={t('workbench.add_terminal', 'Add Terminal')} />
+              <IconButton
+                icon="i-ph:plus"
+                size="md"
+                onClick={addTerminal}
+                title={t('workbench.add_terminal', 'Add Terminal')}
+              />
             )}
-             <IconButton
+            <IconButton
               icon="i-ph:arrow-clockwise"
               title={t('workbench.reset_terminal', 'Reset Terminal')}
               size="md"
@@ -216,7 +220,7 @@ export const TerminalTabs = memo(() => {
                 }
               }}
             />
-             <IconButton
+            <IconButton
               className="ml-auto"
               icon="i-ph:caret-down"
               title={t('common.close', 'Close')}

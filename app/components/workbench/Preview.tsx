@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { classNames } from '~/utils/classNames';
 import { useStore } from '@nanostores/react';
 import { IconButton } from '~/components/ui/IconButton';
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -1437,12 +1438,13 @@ Add these rules to style the elements as specified. The !important flags ensure 
                 <div className="fixed inset-0 z-50" onClick={() => setIsWindowSizeDropdownOpen(false)} />
                 <div className="absolute right-0 top-full mt-2 z-50 min-w-[240px] max-h-[400px] overflow-y-auto bg-white dark:bg-black rounded-xl shadow-2xl border border-[#E5E7EB] dark:border-[rgba(255,255,255,0.1)] overflow-hidden">
                   <div className="p-3 border-b border-[#E5E7EB] dark:border-[rgba(255,255,255,0.1)]">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-[#111827] dark:text-gray-300">{t('preview.window_options', 'Window Options')}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="i-ph:frame-corners h-4 w-4" />
+                      <span className="text-sm font-medium">{t('preview.window_options', 'Window Options')}</span>
                     </div>
                     <div className="flex flex-col gap-2">
                       <button
-                        className={`flex w-full justify-between items-center text-start bg-transparent text-xs text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary`}
+                        className="flex w-full justify-between items-center text-start bg-transparent text-xs text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary"
                         onClick={() => {
                           openInNewTab();
                         }}
@@ -1451,7 +1453,7 @@ Add these rules to style the elements as specified. The !important flags ensure 
                         <div className="i-ph:arrow-square-out h-5 w-4" />
                       </button>
                       <button
-                        className={`flex w-full justify-between items-center text-start bg-transparent text-xs text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary`}
+                        className="flex w-full justify-between items-center text-start bg-transparent text-xs text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary"
                         onClick={() => {
                           if (!activePreview?.baseUrl) {
                             console.warn('[Preview] No active preview available');
@@ -1482,40 +1484,56 @@ Add these rules to style the elements as specified. The !important flags ensure 
                         <div className="i-ph:browser h-5 w-4" />
                       </button>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-bolt-elements-textTertiary">{t('preview.show_frame', 'Show Device Frame')}</span>
+                        <span className="text-xs text-bolt-elements-textTertiary">
+                          {t('preview.show_frame', 'Show Device Frame')}
+                        </span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
-                            showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                          } relative`}
-                          title={showDeviceFrame ? t('preview.hide_frame', 'Hide Device Frame') : t('preview.show_frame', 'Show Device Frame')}
+                          className={classNames(
+                            'w-10 h-5 rounded-full transition-colors duration-200 relative',
+                            showDeviceFrame ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700',
+                          )}
+                          title={
+                            showDeviceFrame
+                              ? t('preview.hide_frame', 'Hide Device Frame')
+                              : t('preview.show_frame', 'Show Device Frame')
+                          }
                           onClick={(e) => {
                             e.stopPropagation();
                             setShowDeviceFrame(!showDeviceFrame);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                              showDeviceFrame ? 'transform translate-x-5' : ''
-                            }`}
+                            className={classNames(
+                              'absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200',
+                              { 'transform translate-x-5': showDeviceFrame },
+                            )}
                           />
                         </button>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-bolt-elements-textTertiary">{t('preview.landscape_mode', 'Landscape Mode')}</span>
+                        <span className="text-xs text-bolt-elements-textTertiary">
+                          {t('preview.landscape_mode', 'Landscape Mode')}
+                        </span>
                         <button
-                          className={`w-10 h-5 rounded-full transition-colors duration-200 ${
-                            isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700'
-                          } relative`}
-                          title={isLandscape ? t('preview.portrait_mode', 'Portrait Mode') : t('preview.landscape_mode', 'Landscape Mode')}
+                          className={classNames(
+                            'w-10 h-5 rounded-full transition-colors duration-200 relative',
+                            isLandscape ? 'bg-[#6D28D9]' : 'bg-gray-300 dark:bg-gray-700',
+                          )}
+                          title={
+                            isLandscape
+                              ? t('preview.portrait_mode', 'Portrait Mode')
+                              : t('preview.landscape_mode', 'Landscape Mode')
+                          }
                           onClick={(e) => {
                             e.stopPropagation();
                             setIsLandscape(!isLandscape);
                           }}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                              isLandscape ? 'transform translate-x-5' : ''
-                            }`}
+                            className={classNames(
+                              'absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200',
+                              { 'transform translate-x-5': isLandscape },
+                            )}
                           />
                         </button>
                       </div>
