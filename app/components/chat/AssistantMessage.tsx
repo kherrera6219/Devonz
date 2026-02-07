@@ -130,14 +130,14 @@ export const AssistantMessage = memo(
                     <h2 className="border border-bolt-elements-borderColor rounded-md p4">
                       {t('chat.summary', 'Summary')}
                     </h2>
-                    <div style={{ zoom: 0.7 }} className="overflow-y-auto m4">
+                    <div className="overflow-y-auto m4 [zoom:0.7]">
                       <Markdown>{chatSummary}</Markdown>
                     </div>
                   </div>
                   {codeContext && (
                     <div className="code-context flex flex-col p4 border border-bolt-elements-borderColor rounded-md">
                       <h2>{t('chat.context', 'Context')}</h2>
-                      <div className="flex gap-4 mt-4 bolt" style={{ zoom: 0.6 }}>
+                      <div className="flex gap-4 mt-4 bolt [zoom:0.6]">
                         {codeContext.map((x) => {
                           const normalized = normalizedFilePath(x);
                           return (

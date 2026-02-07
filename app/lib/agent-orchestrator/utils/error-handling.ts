@@ -129,7 +129,7 @@ export function withTimeout<T>(fn: () => Promise<T>, timeoutMs: number, fallback
 /**
  * Input validation for agent state
  */
-export function validateAgentState(state: any): { valid: boolean; errors: string[] } {
+export function validateAgentState(state: Record<string, any>): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   if (!state) {
@@ -138,7 +138,7 @@ export function validateAgentState(state: any): { valid: boolean; errors: string
     return { valid: false, errors };
   }
 
-  if (typeof state.userRequest !== 'string' && state.userRequest !== undefined) {
+  if (state.userRequest !== undefined && typeof state.userRequest !== 'string') {
     errors.push('userRequest must be a string');
   }
 
@@ -172,7 +172,7 @@ export function sanitizeInput(input: string): string {
 /**
  * Log and report agent errors for debugging
  */
-export function reportAgentError(nodeName: string, error: any, context?: any): void {
+export function reportAgentError(nodeName: string, error: Error | any, context?: any): void {
   const errorReport = {
     node: nodeName,
     message: error.message || String(error),

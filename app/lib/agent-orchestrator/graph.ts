@@ -9,7 +9,10 @@ import type {
   ArtifactState,
   QCState,
   EventLogEntry,
+  RunStatus,
+  UserInputs,
 } from './types/mas-schemas';
+import { safeNodeExecution } from './utils/error-handling';
 
 // Placeholder or adapter imports for agents (Phase 19 will fully implement these)
 import { CoordinatorAgent } from './agents/coordinator';
@@ -29,33 +32,39 @@ const architect = new ArchitectAgent();
 const qc = new QCAgent();
 
 const coordinatorNode = async (state: RunState): Promise<Partial<RunState>> => {
-  return await coordinator.run(state);
+  return await safeNodeExecution('coordinator', () => coordinator.run(state), {
+    status: { ...state.status, stageState: 'failed' },
+  });
 };
 
 const researchNode = async (state: RunState): Promise<Partial<RunState>> => {
-  return await researcher.run(state);
+  return await safeNodeExecution('researcher', () => researcher.run(state), {
+    status: { ...state.status, stageState: 'failed' },
+  });
 };
 
 const architectNode = async (state: RunState): Promise<Partial<RunState>> => {
-  return await architect.run(state);
+  return await safeNodeExecution('architect', () => architect.run(state), {
+    status: { ...state.status, stageState: 'failed' },
+  });
 };
 
 const qc1Node = async (state: RunState): Promise<Partial<RunState>> => {
-  return await qc.runSyntaxCheck(state);
+  return await safeNodeExecution('qc1_syntax', () => qc.runSyntaxCheck(state), {
+    status: { ...state.status, stageState: 'failed' },
+  });
 };
 
 const qc2Node = async (state: RunState): Promise<Partial<RunState>> => {
-  return await qc.runCompletenessCheck(state);
+  return await safeNodeExecution('qc2_completeness', () => qc.runCompletenessCheck(state), {
+    status: { ...state.status, stageState: 'failed' },
+  });
 };
 
 const fixNode = async (state: RunState): Promise<Partial<RunState>> => {
-  /*
-   * Simple retry strategy: Use Architect to fix
-   * We re-use ArchitectAgent but arguably it should be aware of failures.
-   * For now, we trust Architect sees 'failed' tasks if we update them?
-   * Or we just rely on the loop.
-   */
-  return await architect.run(state);
+  return await safeNodeExecution('architect_fix', () => architect.run(state), {
+    status: { ...state.status, stageState: 'failed' },
+  });
 };
 
 const finalizeNode = async (state: RunState): Promise<Partial<RunState>> => {
@@ -106,13 +115,13 @@ const checkQCPass = (state: RunState) => {
 export function createGraph() {
   const workflow = new StateGraph<RunState>({
     channels: {
-      runId: { value: (a, b) => b, default: () => '' },
-      conversationId: { value: (a, b) => b, default: () => '' },
-      userId: { value: (a, b) => b, default: () => '' },
-      createdAt: { value: (a, b) => b, default: () => new Date().toISOString() },
-      mode: { value: (a, b) => b, default: () => 'single' as RunMode },
+      runId: { value: (_: string, b: string) => b, default: () => '' },
+      conversationId: { value: (_: string, b: string) => b, default: () => '' },
+      userId: { value: (_: string, b: string) => b, default: () => '' },
+      createdAt: { value: (_: string, b: string) => b, default: () => new Date().toISOString() },
+      mode: { value: (_: string, b: RunMode) => b, default: () => 'single' as RunMode },
       agentModels: {
-        value: (a, b) => b,
+        value: (_: any, b: any) => b,
         default: () => ({
           coordinator: { provider: 'openai', model: 'gpt-5' },
           researcher: { provider: 'google', model: 'gemini-3-flash-preview' },
@@ -120,7 +129,7 @@ export function createGraph() {
         }),
       },
       status: {
-        value: (a, b) => ({ ...a, ...b }),
+        value: (a: RunStatus, b: Partial<RunStatus>) => ({ ...a, ...b }),
         default: () => ({
           stage: 'COORD_PLAN' as StageId,
           stageState: 'running' as const,
@@ -129,7 +138,7 @@ export function createGraph() {
         }),
       },
       inputs: {
-        value: (a, b) => b,
+        value: (_: UserInputs, b: UserInputs) => b,
         default: () => ({
           requestText: '',
           conversationId: '',
@@ -142,19 +151,23 @@ export function createGraph() {
       },
 
       plan: {
-        value: (a, b) => ({ ...a, ...b }),
+        value: (a: PlanState, b: Partial<PlanState>) => ({ ...a, ...b }),
         default: () => ({ tasks: [], acceptanceCriteria: [], constraints: [] }) as PlanState,
       },
       research: {
-        value: (a, b) => ({ ...a, ...b }),
+        value: (a: ResearchState, b: Partial<ResearchState>) => ({ ...a, ...b }),
         default: () => ({ lastUpdated: new Date().toISOString() }) as ResearchState,
       },
       artifacts: {
-        value: (a, b) => ({ ...a, ...b }),
+        value: (a: ArtifactState, b: Partial<ArtifactState>) => ({ ...a, ...b }),
         default: () => ({ currentFiles: {}, patches: [] }) as ArtifactState,
       },
       qc: {
-        value: (a, b) => ({ ...a, ...b }),
+        value: (a: QCState, b: Partial<QCState>) =>
+          ({
+            ...a,
+            ...b,
+          }) as QCState,
         default: () =>
           ({
             issues: [],
@@ -165,22 +178,22 @@ export function createGraph() {
           }) as QCState,
       },
 
-      events: { value: (a, b) => a.concat(b || []), default: () => [] as EventLogEntry[] },
+      events: { value: (a: EventLogEntry[], b: EventLogEntry[]) => a.concat(b || []), default: () => [] as EventLogEntry[] },
 
-      cost: { value: (a, b) => b, default: () => undefined },
-      warnings: { value: (a, b) => (b ? [...(a || []), ...b] : a), default: () => [] as string[] },
-      errors: { value: (a, b) => (b ? [...(a || []), ...b] : a), default: () => [] as string[] },
+      cost: { value: (_: any, b: any) => b, default: () => undefined },
+      warnings: { value: (a: string[], b: string[]) => (b ? [...(a || []), ...b] : a), default: () => [] as string[] },
+      errors: { value: (a: string[], b: string[]) => (b ? [...(a || []), ...b] : a), default: () => [] as string[] },
     },
-  }) as any;
+  });
 
   // Add Nodes
-  workflow.addNode('coordinator', coordinatorNode as any);
-  workflow.addNode('researcher', researchNode as any);
-  workflow.addNode('architect', architectNode as any);
-  workflow.addNode('qc1', qc1Node as any);
-  workflow.addNode('qc2', qc2Node as any);
-  workflow.addNode('fix', fixNode as any);
-  workflow.addNode('finalize', finalizeNode as any);
+  workflow.addNode('coordinator', coordinatorNode);
+  workflow.addNode('researcher', researchNode);
+  workflow.addNode('architect', architectNode);
+  workflow.addNode('qc1', qc1Node);
+  workflow.addNode('qc2', qc2Node);
+  workflow.addNode('fix', fixNode);
+  workflow.addNode('finalize', finalizeNode);
 
   // Set Entry
   workflow.addEdge(START, 'coordinator');

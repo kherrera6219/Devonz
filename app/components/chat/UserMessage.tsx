@@ -72,8 +72,7 @@ export function UserMessage({ content, parts }: UserMessageProps) {
                   key={index}
                   src={`data:${item.mimeType};base64,${item.data}`}
                   alt={`${t('common.image', 'Image')} ${index + 1}`}
-                  className="max-w-full h-auto rounded-lg border border-bolt-elements-borderColor"
-                  style={{ maxHeight: '256px', objectFit: 'contain' }}
+                  className="max-w-full h-auto rounded-lg border border-bolt-elements-borderColor max-h-[256px] object-contain"
                 />
               ))}
             </div>

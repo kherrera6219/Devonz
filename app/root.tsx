@@ -87,14 +87,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <DndProvider backend={HTML5Backend}>{children}</DndProvider>
         </I18nextProvider>
         <ToastContainer
-          closeButton={({ closeToast }) => {
+          closeButton={({ closeToast }: { closeToast: (e: React.MouseEvent) => void }) => {
             return (
               <button className="Toastify__close-button" onClick={closeToast} aria-label="Close notification">
                 <div className="i-ph:x text-lg" />
               </button>
             );
           }}
-          icon={({ type }) => {
+          icon={({ type }: { type: string }) => {
             switch (type) {
               case 'success': {
                 return <div className="i-ph:check-bold text-bolt-elements-icon-success text-2xl" />;

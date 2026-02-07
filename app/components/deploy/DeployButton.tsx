@@ -171,6 +171,7 @@ export const DeployButton = ({
                   width="24"
                   crossOrigin="anonymous"
                   src="https://cdn.simpleicons.org/netlify"
+                  alt="Netlify"
                 />
                 <span className="mx-auto">
                   {!netlifyConn.user ? 'No Netlify Account Connected' : 'Deploy to Netlify'}
@@ -254,7 +255,7 @@ export const DeployButton = ({
                   width="24"
                   crossOrigin="anonymous"
                   src="https://cdn.simpleicons.org/cloudflare"
-                  alt="cloudflare"
+                  alt="Cloudflare"
                 />
                 <span className="mx-auto">Deploy to Cloudflare (Coming Soon)</span>
               </DropdownMenu.Item>

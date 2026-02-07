@@ -240,7 +240,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
         },
       });
     } catch (error: unknown) {
-      console.log(error);
+      logger.error('LLM Call Generation Error:', error);
 
       const errorResponse = {
         error: true,

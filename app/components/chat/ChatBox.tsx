@@ -68,6 +68,7 @@ interface ChatBoxProps {
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   const { t } = useTranslation();
+
   // Check if current provider has API key set
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
   const { orchestratorSettings } = useSettings();
@@ -78,11 +79,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         'relative p-4 rounded-xl w-full max-w-chat mx-auto z-prompt',
         'border border-[#3d5a7f]/40',
         'shadow-xl shadow-[#1e3a5f]/20',
+        'bg-[linear-gradient(145deg,rgba(30,58,95,0.15),rgba(26,26,26,0.95))] backdrop-blur-[24px]',
       )}
-      style={{
-        background: 'linear-gradient(145deg, rgba(30, 58, 95, 0.15), rgba(26, 26, 26, 0.95))',
-        backdropFilter: 'blur(24px)',
-      }}
     >
       {/* Model Selector Modal/Popout */}
       <DialogRoot open={isModelSelectorOpen} onOpenChange={setIsModelSelectorOpen}>

@@ -222,9 +222,15 @@ export function DataTab() {
     <div className="max-w-4xl mx-auto">
       {/* Hidden file inputs - wrapped to avoid affecting spacing */}
       <div className="hidden">
-        <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileInputChange} />
-        <input ref={apiKeyFileInputRef} type="file" accept=".json" onChange={handleAPIKeyFileInputChange} />
-        <input ref={chatFileInputRef} type="file" accept=".json" onChange={handleChatFileInputChange} />
+        <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileInputChange} aria-label="Import Settings" />
+        <input
+          ref={apiKeyFileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleAPIKeyFileInputChange}
+          aria-label="Import API Keys"
+        />
+        <input ref={chatFileInputRef} type="file" accept=".json" onChange={handleChatFileInputChange} aria-label="Import Chats" />
       </div>
 
       {/* Tab Navigation */}
@@ -233,12 +239,12 @@ export function DataTab() {
           <button
             key={tab.id}
             onClick={() => setActiveSection(tab.id)}
-            className="px-4 py-2 text-sm font-medium rounded-t-lg transition-colors"
-            style={{
-              backgroundColor: activeSection === tab.id ? '#21262d' : 'transparent',
-              color: activeSection === tab.id ? '#fff' : '#9ca3af',
-              borderBottom: activeSection === tab.id ? '2px solid #a855f7' : '2px solid transparent',
-            }}
+            className={classNames(
+              'px-4 py-2 text-sm font-medium rounded-t-lg transition-colors border-b-2',
+              activeSection === tab.id
+                ? 'bg-bolt-elements-background-depth-2 text-white border-accent-500'
+                : 'bg-transparent text-bolt-elements-textSecondary border-transparent hover:text-white',
+            )}
           >
             {tab.label}
           </button>

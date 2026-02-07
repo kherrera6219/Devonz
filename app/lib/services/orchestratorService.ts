@@ -1,9 +1,13 @@
 import { createGraph } from '~/lib/agent-orchestrator/graph';
 import type { RunState } from '~/lib/agent-orchestrator/types/mas-schemas';
+import { createScopedLogger } from '~/utils/logger';
+import type { CompiledGraph } from '@langchain/langgraph';
+
+const logger = createScopedLogger('OrchestratorService');
 
 export class OrchestratorService {
   private static _instance: OrchestratorService;
-  private _graph: any; // StateGraph compiled workflow
+  private _graph: CompiledGraph<RunState, Partial<RunState>>;
 
   private constructor() {
     this._graph = createGraph();
@@ -20,10 +24,10 @@ export class OrchestratorService {
   async processRequest(
     userRequest: string,
     conversationId: string,
-    dataStream: any, // stream-text DataStream
+    dataStream: { writeData: (data: any) => void; writeText: (text: string) => void },
     existingMessages: any[],
     apiKeys: Record<string, string>,
-    streamRecovery?: any,
+    streamRecovery?: { updateActivity: () => void },
   ) {
     // Initial State (RunState)
     const initialState: Partial<RunState> = {
@@ -151,10 +155,9 @@ export class OrchestratorService {
         }
       })();
 
-      // Race the graph execution against the timeout
       await Promise.race([graphPromise, timeoutPromise]);
     } catch (error: any) {
-      console.error('Orchestrator Error:', error);
+      logger.error('Orchestrator Execution Error:', error);
 
       // Report system-level errors to the UI
       dataStream.writeData({
