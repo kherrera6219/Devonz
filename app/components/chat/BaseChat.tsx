@@ -151,7 +151,7 @@ export const BaseChat = memo(
       const [isListening, setIsListening] = useState(false);
       const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
       const [transcript, setTranscript] = useState('');
-      const [isModelLoading, setIsModelLoading] = useState<string | undefined>('all');
+      const [isModelLoading, setIsModelLoading] = useState<string | undefined>(undefined);
       const [progressAnnotations, setProgressAnnotations] = useState<ProgressAnnotation[]>([]);
       const expoUrl = useStore(expoUrlAtom);
       const showWorkbench = useStore(workbenchStore.showWorkbench);
@@ -235,17 +235,23 @@ export const BaseChat = memo(
             Cookies.remove('apiKeys');
           }
 
+          console.log('[BaseChat] Fetching model list...');
           setIsModelLoading('all');
           fetch('/api/models')
-            .then((response) => response.json())
+            .then((response) => {
+              console.log('[BaseChat] Model list response received:', response.status);
+              return response.json();
+            })
             .then((data) => {
               const typedData = data as { modelList: ModelInfo[] };
+              console.log('[BaseChat] Model list loaded, count:', typedData.modelList?.length);
               setModelList(typedData.modelList);
             })
             .catch((error) => {
-              console.error('Error fetching model list:', error);
+              console.error('[BaseChat] Error fetching model list:', error);
             })
             .finally(() => {
+              console.log('[BaseChat] Model loading complete');
               setIsModelLoading(undefined);
             });
         }

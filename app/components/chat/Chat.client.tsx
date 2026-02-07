@@ -54,17 +54,14 @@ export function Chat() {
   }, [initialMessages]);
 
   return (
-    <>
-      {ready && (
-        <ChatImpl
-          description={title}
-          initialMessages={initialMessages}
-          exportChat={exportChat}
-          storeMessageHistory={storeMessageHistory}
-          importChat={importChat}
-        />
-      )}
-    </>
+    <ChatImpl
+      ready={ready}
+      description={title}
+      initialMessages={initialMessages}
+      exportChat={exportChat}
+      storeMessageHistory={storeMessageHistory}
+      importChat={importChat}
+    />
   );
 }
 
@@ -87,6 +84,7 @@ const processSampledMessages = createSampler(
 );
 
 interface ChatProps {
+  ready: boolean;
   initialMessages: Message[];
   storeMessageHistory: (messages: Message[]) => Promise<void>;
   importChat: (description: string, messages: Message[]) => Promise<void>;
@@ -95,7 +93,7 @@ interface ChatProps {
 }
 
 export const ChatImpl = memo(
-  ({ description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
+  ({ ready, description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
     useShortcuts();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -216,6 +214,29 @@ export const ChatImpl = memo(
       initialMessages,
       initialInput: Cookies.get(PROMPT_COOKIE_KEY) || '',
     });
+
+    useEffect(() => {
+      console.log('[ChatImpl] State update:', {
+        ready,
+        chatStarted,
+        messagesCount: messages.length,
+        isLoading,
+        fakeLoading,
+      });
+    }, [ready, chatStarted, messages.length, isLoading, fakeLoading]);
+
+    useEffect(() => {
+      if (ready && initialMessages.length > 0 && messages.length === 0) {
+        console.log('[ChatImpl] History loaded, syncing messages');
+        setMessages(initialMessages);
+      }
+    }, [ready, initialMessages, setMessages, messages.length]);
+
+    useEffect(() => {
+      if (ready && initialMessages.length > 0 && !chatStarted) {
+        setChatStarted(true);
+      }
+    }, [ready, initialMessages, chatStarted]);
 
     const runUIState = useMemo(() => processRunEvents(chatData), [chatData]);
 

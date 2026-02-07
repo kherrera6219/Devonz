@@ -28,10 +28,25 @@ startTransition(() => {
       {
         onRecoverableError: (error: any) => {
           console.error('[Hydration] Recoverable error:', error);
+
+          // Attempt to log to our internal store if possible
+          try {
+            const { logStore } = require('~/lib/stores/logs');
+            logStore.logError('Hydration recoverable error', error);
+          } catch {
+            // LogStore might not be available yet
+          }
         },
       },
     );
   } catch (error) {
-    console.error('[Entry] Hydration failed to initiate:', error);
+    console.error('[Entry] Hydration critical failure:', error);
+
+    try {
+      const { logStore } = require('~/lib/stores/logs');
+      logStore.logError('Hydration critical failure', error as Error);
+    } catch {
+      // LogStore might not be available yet
+    }
   }
 });

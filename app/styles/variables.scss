@@ -107,7 +107,6 @@
 }
 
 /* Color Tokens Dark Theme - Blink.new Inspired */
-:root,
 :root[data-theme='dark'] {
   --bolt-elements-borderColor: rgba(255, 255, 255, 0.08);
   --bolt-elements-borderColorActive: theme('colors.accent.500');
@@ -140,7 +139,7 @@
 
   --bolt-elements-item-contentDefault: rgba(255, 255, 255, 0.5);
   --bolt-elements-item-contentActive: #e6edf3;
-  --bolt-elements-item-contentAccent: #06B6D4;
+  --bolt-elements-item-contentAccent: #06b6d4;
   --bolt-elements-item-contentDanger: #f87171;
   --bolt-elements-item-backgroundDefault: rgba(255, 255, 255, 0);
   --bolt-elements-item-backgroundActive: rgba(255, 255, 255, 0.08);
