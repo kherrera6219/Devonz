@@ -1,6 +1,0 @@
-
-> devonz@1.0.0 typecheck
-> tsc
-
-app/lib/services/orchestratorService.ts(80,31): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ coordinator?: Partial<RunState> | undefined; researcher?: Partial<RunState> | undefined; architect?: Partial<RunState> | undefined; qc1?: Partial<...> | undefined; qc2?: Partial<...> | undefined; fix?: Partial<...> | undefined; finalize?: Partial<...> | undefined; }'.
-  No index signature with a parameter of type 'string' was found on type '{ coordinator?: Partial<RunState> | undefined; researcher?: Partial<RunState> | undefined; architect?: Partial<RunState> | undefined; qc1?: Partial<...> | undefined; qc2?: Partial<...> | undefined; fix?: Partial<...> | undefined; finalize?: Partial<...> | undefined; }'.
