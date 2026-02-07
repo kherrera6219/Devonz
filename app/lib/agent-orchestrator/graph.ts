@@ -112,16 +112,19 @@ const checkQCPass = (state: RunState) => {
  * ==========================================
  */
 
+export type GraphNodeName = 'coordinator' | 'researcher' | 'architect' | 'qc1' | 'qc2' | 'fix' | 'finalize';
+
 export function createGraph() {
-  const workflow: any = new StateGraph<RunState>({
+  // Build Graph
+  const workflow = new StateGraph<RunState>({
     channels: {
-      runId: { value: (_: string, b: string) => b, default: () => '' },
-      conversationId: { value: (_: string, b: string) => b, default: () => '' },
-      userId: { value: (_: string, b: string) => b, default: () => '' },
-      createdAt: { value: (_: string, b: string) => b, default: () => new Date().toISOString() },
-      mode: { value: (_: string, b: RunMode) => b, default: () => 'single' as RunMode },
+      runId: { value: (a: string | undefined, b: string) => b ?? a, default: () => '' },
+      conversationId: { value: (a: string | undefined, b: string) => b ?? a, default: () => '' },
+      userId: { value: (a: string | undefined, b: string) => b ?? a, default: () => '' },
+      createdAt: { value: (a: string | undefined, b: string) => b ?? a, default: () => new Date().toISOString() },
+      mode: { value: (a: RunMode | undefined, b: RunMode) => b ?? a, default: () => 'single' as RunMode },
       agentModels: {
-        value: (_: any, b: any) => b,
+        value: (a: any, b: any) => b ?? a,
         default: () => ({
           coordinator: { provider: 'openai', model: 'gpt-5' },
           researcher: { provider: 'google', model: 'gemini-3-flash-preview' },
@@ -129,7 +132,7 @@ export function createGraph() {
         }),
       },
       status: {
-        value: (a: RunStatus, b: Partial<RunStatus>) => ({ ...a, ...b }),
+        value: (a: RunStatus | undefined, b: Partial<RunStatus>) => ({ ...(a || {}), ...b }) as RunStatus,
         default: () => ({
           stage: 'COORD_PLAN' as StageId,
           stageState: 'running' as const,
@@ -138,7 +141,7 @@ export function createGraph() {
         }),
       },
       inputs: {
-        value: (_: UserInputs, b: UserInputs) => b,
+        value: (a: UserInputs | undefined, b: UserInputs) => b ?? a,
         default: () => ({
           requestText: '',
           conversationId: '',
@@ -151,21 +154,21 @@ export function createGraph() {
       },
 
       plan: {
-        value: (a: PlanState, b: Partial<PlanState>) => ({ ...a, ...b }),
+        value: (a: PlanState | undefined, b: Partial<PlanState>) => ({ ...(a || {}), ...b }) as PlanState,
         default: () => ({ tasks: [], acceptanceCriteria: [], constraints: [] }) as PlanState,
       },
       research: {
-        value: (a: ResearchState, b: Partial<ResearchState>) => ({ ...a, ...b }),
+        value: (a: ResearchState | undefined, b: Partial<ResearchState>) => ({ ...(a || {}), ...b }) as ResearchState,
         default: () => ({ lastUpdated: new Date().toISOString() }) as ResearchState,
       },
       artifacts: {
-        value: (a: ArtifactState, b: Partial<ArtifactState>) => ({ ...a, ...b }),
+        value: (a: ArtifactState | undefined, b: Partial<ArtifactState>) => ({ ...(a || {}), ...b }) as ArtifactState,
         default: () => ({ currentFiles: {}, patches: [] }) as ArtifactState,
       },
       qc: {
-        value: (a: QCState, b: Partial<QCState>) =>
+        value: (a: QCState | undefined, b: Partial<QCState>) =>
           ({
-            ...a,
+            ...(a || {}),
             ...b,
           }) as QCState,
         default: () =>
@@ -179,11 +182,11 @@ export function createGraph() {
       },
 
       events: {
-        value: (a: EventLogEntry[], b: EventLogEntry[] | undefined) => a.concat(b || []),
+        value: (a: EventLogEntry[] | undefined, b: EventLogEntry[] | undefined) => (a || []).concat(b || []),
         default: () => [] as EventLogEntry[],
       },
 
-      cost: { value: (_: any, b: any) => b, default: () => undefined },
+      cost: { value: (a: any, b: any) => b ?? a, default: () => undefined },
       warnings: {
         value: (a: string[] | undefined, b: string[] | undefined) => [...(a || []), ...(b || [])],
         default: () => [] as string[],
@@ -193,44 +196,28 @@ export function createGraph() {
         default: () => [] as string[],
       },
     },
-  });
-
-  // Add Nodes
-  workflow.addNode('coordinator', coordinatorNode);
-  workflow.addNode('researcher', researchNode);
-  workflow.addNode('architect', architectNode);
-  workflow.addNode('qc1', qc1Node);
-  workflow.addNode('qc2', qc2Node);
-  workflow.addNode('fix', fixNode);
-  workflow.addNode('finalize', finalizeNode);
-
-  // Set Entry
-  workflow.addEdge(START, 'coordinator');
-
-  /*
-   * Conditional Routing
-   * Coordinator -> Research OR Architect
-   */
-  workflow.addConditionalEdges('coordinator', checkResearchNeeded, {
-    research: 'researcher',
-    skipString: 'architect', // 'architect' was inferred but let's be explicit if needed
-  });
-
-  // Note: LangGraph addConditionalEdges map keys are the return values of the function
-
-  // Simple Edges
-  workflow.addEdge('researcher', 'architect');
-  workflow.addEdge('architect', 'qc1');
-  workflow.addEdge('qc1', 'qc2');
-
-  // QC Logic
-  workflow.addConditionalEdges('qc2', checkQCPass, {
-    fix: 'fix',
-    finalize: 'finalize',
-  });
-
-  workflow.addEdge('fix', 'qc1'); // Loop back
-  workflow.addEdge('finalize', END);
+  })
+    .addNode('coordinator', coordinatorNode)
+    .addNode('researcher', researchNode)
+    .addNode('architect', architectNode)
+    .addNode('qc1', qc1Node)
+    .addNode('qc2', qc2Node)
+    .addNode('fix', fixNode)
+    .addNode('finalize', finalizeNode)
+    .addEdge(START, 'coordinator')
+    .addConditionalEdges('coordinator', checkResearchNeeded, {
+      research: 'researcher',
+      skipString: 'architect',
+    })
+    .addEdge('researcher', 'architect')
+    .addEdge('architect', 'qc1')
+    .addEdge('qc1', 'qc2')
+    .addConditionalEdges('qc2', checkQCPass, {
+      fix: 'fix',
+      finalize: 'finalize',
+    })
+    .addEdge('fix', 'qc1')
+    .addEdge('finalize', END);
 
   // Checkpointer
   const checkpointer = new MemorySaver();

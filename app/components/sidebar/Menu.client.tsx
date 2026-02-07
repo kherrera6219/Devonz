@@ -335,9 +335,8 @@ export const Menu = () => {
         initial="closed"
         animate={open ? 'open' : 'closed'}
         variants={menuVariants}
-        style={{ width: '340px' }}
         className={classNames(
-          'flex selection-accent flex-col side-menu fixed top-0 h-full rounded-r-2xl',
+          'flex selection-accent flex-col side-menu fixed top-0 h-full rounded-r-2xl w-[340px]',
           'bg-bolt-elements-background-depth-1 border-r border-bolt-elements-borderColor',
           'shadow-xl backdrop-blur-sm text-sm',
           isSettingsOpen ? 'z-40' : 'z-sidebar',
@@ -395,13 +394,15 @@ export const Menu = () => {
             <div className="font-medium text-bolt-elements-textSecondary">{t('sidebar.your_chats', 'Your Chats')}</div>
             {selectionMode && (
               <div className="flex items-center gap-2">
-                <Button {...({ variant: 'ghost', size: 'sm' } as any)} onClick={selectAll}>
+                <Button variant="ghost" size="sm" onClick={selectAll}>
                   {selectedItems.length === filteredList.length
                     ? t('common.deselect_all', 'Deselect all')
                     : t('common.select_all', 'Select all')}
                 </Button>
                 <Button
-                  {...({ variant: 'destructive', size: 'sm', disabled: selectedItems.length === 0 } as any)}
+                  variant="destructive"
+                  size="sm"
+                  disabled={selectedItems.length === 0}
                   onClick={handleBulkDeleteClick}
                 >
                   {t('common.delete_selected', 'Delete selected')}

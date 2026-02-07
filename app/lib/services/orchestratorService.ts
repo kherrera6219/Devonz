@@ -1,4 +1,5 @@
-import { createGraph } from '~/lib/agent-orchestrator/graph';
+import type { CompiledGraph } from '@langchain/langgraph';
+import { createGraph, type GraphNodeName } from '~/lib/agent-orchestrator/graph';
 import type { RunState } from '~/lib/agent-orchestrator/types/mas-schemas';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -6,7 +7,7 @@ const logger = createScopedLogger('OrchestratorService');
 
 export class OrchestratorService {
   private static _instance: OrchestratorService;
-  private _graph: any;
+  private _graph: ReturnType<typeof createGraph>;
 
   private constructor() {
     this._graph = createGraph();
@@ -76,8 +77,8 @@ export class OrchestratorService {
           }
 
           // event matches { nodeName: { ...stateUpdates } }
-          const nodeName = Object.keys(event)[0];
-          const stateUpdate = event[nodeName];
+          const nodeName = Object.keys(event)[0] as GraphNodeName;
+          const stateUpdate = event[nodeName] as Partial<RunState> | undefined;
 
           /*
            * --------------------------------------------------------
@@ -143,7 +144,8 @@ export class OrchestratorService {
 
           // Check for generic errors in the state update (not in events)
           if (stateUpdate?.error && !stateUpdate?.events) {
-            const errMsg = typeof stateUpdate.error === 'string' ? stateUpdate.error : stateUpdate.error.message;
+            const errorObj = stateUpdate.error;
+            const errMsg = typeof errorObj === 'string' ? errorObj : (errorObj as any).message || 'Unknown Error';
             dataStream.writeData({
               type: 'progress',
               label: 'error',

@@ -66,7 +66,7 @@ export const IconButton = memo(
 
             onClick?.(event);
           }}
-          {...(props as any)}
+          {...props}
         >
           {children ? children : <div className={classNames(icon, getIconSize(size), iconClassName)}></div>}
         </button>

@@ -42,6 +42,10 @@ export interface RunState {
   cost?: { totalTokens: number; estimatedCost: number };
   warnings?: string[];
   errors?: string[];
+
+  // Dynamic Content (Optional adapters for legacy/simple flows)
+  response?: string;
+  error?: string | Error | { message: string };
 }
 
 export interface RunStatus {
