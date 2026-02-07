@@ -134,11 +134,14 @@ VERCEL_ACCESS_TOKEN=your_vercel_token
 
 ### Cloud Providers
 
-| Provider       | Models                           | Features              |
-| -------------- | -------------------------------- | --------------------- |
-| OpenAI         | GPT-5.2                          | Chat, Vision, Tools   |
-| Anthropic      | Claude 4.5 Sonnet, 4.5 Opus      | Chat, Vision, Tools   |
-| Google         | Gemini 3.0 Flash, Gemini Pro     | Chat, Vision, Tools   |
+| Provider       | Models                                   | Features              |
+| -------------- | ---------------------------------------- | --------------------- |
+| OpenAI         | GPT-5, GPT-4o                            | Chat, Vision, Tools   |
+| Anthropic      | Claude 3.5 Sonnet, 3.5 Opus              | Chat, Vision, Tools   |
+| Google         | Gemini 1.5 Pro, 1.5 Flash                | Chat, Vision, Tools   |
+
+> [!NOTE]
+> Agent Orchestration defaults to **GPT-5** for Coordination, **Gemini 1.5 Flash** for Research, and **Claude 3.5 Sonnet** for Architectural tasks.
 
 ### Local Providers
 
@@ -165,6 +168,7 @@ Devonz uses a specialized multi-agent architecture powered by **LangGraph** to c
 - **ContextService**: Optimizes the LLM context window by selecting relevant files and chat history.
 - **GraphService**: Maintains a live Neo4j dependency graph for architectural analysis.
 - **RAGService**: Provides semantic search capabilities over the project using LlamaIndex.
+- **Standardized Shell**: Uses a centralized `root.tsx` document shell for consistent hydration and optimized SSR/client transitions.
 
 ---
 

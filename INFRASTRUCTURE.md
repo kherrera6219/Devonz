@@ -53,13 +53,13 @@ In-memory data store for performance optimization and real-time synchronization.
 
 - **Caching**: Accelerates file system operations and API responses.
 - **State Management**: Handles session data and real-time terminal synchronization.
-- **Agent Orchestration**: Manages task queuing and state persistence for the multi-agent system.
+- **Agent Orchestration**: **Critical for managing task queuing, state persistence, and inter-agent communication messages via the LangGraph checkpointer.**
 
 ---
 
 ## 🕸️ Neo4j Graph Database
 
-The graph database stores the relationships between files, dependencies, and code symbols, enabling advanced code navigation and impact analysis.
+The graph database stores the relationships between files, dependencies, and code symbols, enabling advanced code navigation and impact analysis for the **Multi-Agent System (MAS)**.
 
 - **Endpoint**: `localhost:7474` (Browser UI), `localhost:7687` (Bolt)
 - **Feature**: Knowledge Graph for dependency tracking.
