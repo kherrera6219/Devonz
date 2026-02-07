@@ -1,6 +1,6 @@
 import { RemixBrowser } from '@remix-run/react';
 import { startTransition, StrictMode } from 'react';
-import { hydrateRoot } from 'react-dom/client';
+import { hydrateRoot, createRoot } from 'react-dom/client';
 
 console.log('[Entry] Client entry point starting...');
 
@@ -32,6 +32,17 @@ startTransition(() => {
       },
     );
   } catch (error) {
-    console.error('[Entry] Hydration failed to initiate:', error);
+    console.error('[Entry] Hydration failed, falling back to client render:', error);
+
+    // If hydration fails, fall back to full client-side render
+    const body = document.body;
+    body.innerHTML = '<div id="root"></div>';
+    const root = createRoot(document.getElementById('root')!);
+
+    root.render(
+      <StrictMode>
+        <RemixBrowser />
+      </StrictMode>,
+    );
   }
 });

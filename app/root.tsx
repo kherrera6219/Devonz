@@ -66,10 +66,32 @@ const inlineThemeCode = stripIndents`
 
 function ClientOnly({ children, fallback }: { children: () => React.ReactNode; fallback: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setMounted(true);
+    try {
+      setMounted(true);
+    } catch (e) {
+      console.error('[ClientOnly] Failed to mount:', e);
+      setError(e instanceof Error ? e.message : 'Unknown error');
+    }
   }, []);
+
+  if (error) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary">
+        <div className="text-center">
+          <p>Failed to initialize application</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text rounded"
+          >
+            Reload
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!mounted) {
     return <>{fallback}</>;
@@ -97,8 +119,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <ClientOnly
           fallback={
-            <div className="h-full w-full bg-bolt-elements-background-depth-1 flex items-center justify-center text-white">
-              Loading Devonz... (SSR Fallback)
+            <div className="h-full w-full bg-bolt-elements-background-depth-1 flex items-center justify-center text-bolt-elements-textPrimary">
+              <div className="text-center">
+                <div className="text-lg font-medium">Loading Devonz...</div>
+              </div>
             </div>
           }
         >
@@ -203,9 +227,5 @@ export default function App() {
       });
   }, []);
 
-  return (
-    <Layout>
-      <Outlet />
-    </Layout>
-  );
+  return <Outlet />;
 }

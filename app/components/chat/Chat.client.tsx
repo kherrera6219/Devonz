@@ -53,18 +53,22 @@ export function Chat() {
     workbenchStore.setReloadedMessages(initialMessages.map((m) => m.id));
   }, [initialMessages]);
 
+  if (!ready) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full w-full">
+        <div className="i-svg-spinners:90-ring-with-bg text-4xl text-bolt-elements-textSecondary" />
+      </div>
+    );
+  }
+
   return (
-    <>
-      {ready && (
-        <ChatImpl
-          description={title}
-          initialMessages={initialMessages}
-          exportChat={exportChat}
-          storeMessageHistory={storeMessageHistory}
-          importChat={importChat}
-        />
-      )}
-    </>
+    <ChatImpl
+      description={title}
+      initialMessages={initialMessages}
+      exportChat={exportChat}
+      storeMessageHistory={storeMessageHistory}
+      importChat={importChat}
+    />
   );
 }
 
