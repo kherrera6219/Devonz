@@ -1,10 +1,8 @@
-/*
- * @ts-nocheck
- * Preventing TS checks with files presented in the video for a better presentation.
- */
 import type { JSONValue, Message } from 'ai';
-import React, { type RefCallback, useCallback, useEffect, useMemo, useState, memo } from 'react';
+import * as React from 'react';
+import { type RefCallback, useCallback, useEffect, useMemo, useState, memo } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
+import { useTranslation } from 'react-i18next';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
@@ -97,6 +95,8 @@ export const BaseChat = memo(
     (
       {
         textareaRef,
+        messageRef: _messageRef,
+        scrollRef: _scrollRef,
         showChat = true,
         chatStarted = false,
         isStreaming = false,
@@ -141,9 +141,10 @@ export const BaseChat = memo(
           throw new Error('addToolResult not implemented');
         },
         runUIState,
-      },
-      ref,
+      }: BaseChatProps,
+      ref: React.ForwardedRef<HTMLDivElement>,
     ) => {
+      const { t } = useTranslation();
       const TEXTAREA_MAX_HEIGHT = useMemo(() => (chatStarted ? 400 : 200), [chatStarted]);
       const [apiKeys, setApiKeys] = useState<Record<string, string>>(getApiKeysFromCookies());
       const [modelList, setModelList] = useState<ModelInfo[]>([]);
@@ -178,7 +179,7 @@ export const BaseChat = memo(
       useEffect(() => {
         if (data) {
           const progressList = data.filter(
-            (x) => typeof x === 'object' && (x as any).type === 'progress',
+            (x: any) => typeof x === 'object' && x?.type === 'progress',
           ) as ProgressAnnotation[];
           setProgressAnnotations(progressList);
         }
@@ -410,12 +411,12 @@ export const BaseChat = memo(
                   <div id="intro" className="mt-[8vh] max-w-2xl mx-auto text-center px-4 lg:px-0 relative">
                     {/* Liquid Metal 3D Text */}
                     <div className="liquid-metal-container">
-                      <h1 className="liquid-metal-text">Devonz</h1>
+                      <h1 className="liquid-metal-text">{t('header.devonz', 'Devonz')}</h1>
                     </div>
 
                     {/* Subtitle below the 3D text */}
                     <p className="text-base lg:text-lg text-[#8badd4] animate-fade-in animation-delay-200">
-                      Build anything with AI. Just describe what you want.
+                      {t('chat.intro_subtitle', 'Build anything with AI. Just describe what you want.')}
                     </p>
                   </div>
                 )}

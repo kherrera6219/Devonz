@@ -1,5 +1,7 @@
 import type { Message } from 'ai';
-import { Fragment } from 'react';
+import * as React from 'react';
+import { Fragment, forwardRef, type ForwardedRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { classNames } from '~/utils/classNames';
 import { AssistantMessage } from './AssistantMessage';
 import { UserMessage } from './UserMessage';
@@ -7,8 +9,6 @@ import { useLocation, useNavigate } from '@remix-run/react';
 import { db, chatId } from '~/lib/persistence/useChatHistory';
 import { forkChat } from '~/lib/persistence/db';
 import { toast } from 'react-toastify';
-import { forwardRef } from 'react';
-import type { ForwardedRef } from 'react';
 import type { ProviderInfo } from '~/types/model';
 
 interface MessagesProps {
@@ -25,7 +25,8 @@ interface MessagesProps {
 }
 
 export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
-  (props: MessagesProps, ref: ForwardedRef<HTMLDivElement> | undefined) => {
+  (props: MessagesProps, ref: ForwardedRef<HTMLDivElement>) => {
+    const { t } = useTranslation();
     const { id, isStreaming = false, messages = [] } = props;
     const location = useLocation();
     const navigate = useNavigate();
@@ -39,14 +40,14 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
     const handleFork = async (messageId: string) => {
       try {
         if (!db || !chatId.get()) {
-          toast.error('Chat persistence is not available');
+          toast.error(t('chat.persistence_unavailable', 'Chat persistence is not available'));
           return;
         }
 
         const urlId = await forkChat(db, chatId.get()!, messageId);
         navigate(`/chat/${urlId}`);
       } catch (error) {
-        toast.error('Failed to fork chat: ' + (error as Error).message);
+        toast.error(t('chat.fork_failed', 'Failed to fork chat: {{error}}', { error: (error as Error).message }));
       }
     };
 

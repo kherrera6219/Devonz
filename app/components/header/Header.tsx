@@ -5,10 +5,13 @@ import { sidebarStore } from '~/lib/stores/sidebar';
 import { classNames } from '~/utils/classNames';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
+import { useTranslation } from 'react-i18next';
 
 export function Header() {
+  const { t } = useTranslation();
   const chat = useStore(chatStore);
   const sidebarOpen = useStore(sidebarStore.open);
+  const showChat = chat.showChat;
 
   return (
     <header
@@ -22,6 +25,7 @@ export function Header() {
           <div
             className="i-ph:sidebar-simple text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
             onClick={() => sidebarStore.toggle()}
+            title={sidebarOpen ? '' : t('header.show_sidebar', 'Show Sidebar')}
           />
         )}
       </div>
@@ -32,7 +36,20 @@ export function Header() {
           </span>
           <ClientOnly>
             {() => (
-              <div className="">
+              <div className="flex items-center gap-3">
+                <div
+                  className={classNames(
+                    'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors cursor-pointer',
+                    {
+                      'i-ph:chat-circle-dots-fill': showChat,
+                      'i-ph:chat-circle-dots': !showChat,
+                    },
+                  )}
+                  onClick={() => {
+                    chatStore.setKey('showChat', !showChat);
+                  }}
+                  title={showChat ? t('header.hide_chat', 'Hide Chat') : t('header.show_chat', 'Show Chat')}
+                />
                 <HeaderActionButtons chatStarted={chat.started} />
               </div>
             )}

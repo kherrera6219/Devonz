@@ -1,4 +1,6 @@
+import * as React from 'react';
 import { memo, Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Markdown } from './Markdown';
 import type { JSONValue } from 'ai';
 import Popover from '~/components/ui/Popover';
@@ -74,6 +76,8 @@ export const AssistantMessage = memo(
     parts,
     addToolResult,
   }: AssistantMessageProps) => {
+    const { t } = useTranslation();
+
     const filteredAnnotations = (annotations?.filter(
       (annotation: JSONValue) =>
         annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),
@@ -107,9 +111,11 @@ export const AssistantMessage = memo(
         {/* Assistant Header - Blink style */}
         <div className="flex items-center gap-2 mb-3">
           <div className="w-6 h-6 rounded-full bg-bolt-elements-bg-depth-3 border border-bolt-elements-borderColor flex items-center justify-center">
-            <span className="text-xs font-bold text-bolt-elements-textPrimary">D</span>
+            <span className="text-xs font-bold text-bolt-elements-textPrimary">
+              {t('common.devonz', 'Devonz').charAt(0)}
+            </span>
           </div>
-          <span className="text-sm font-medium text-bolt-elements-textSecondary">Devonz</span>
+          <span className="text-sm font-medium text-bolt-elements-textSecondary">{t('common.devonz', 'Devonz')}</span>
           {(codeContext || chatSummary) && (
             <Popover
               side="right"
@@ -121,14 +127,16 @@ export const AssistantMessage = memo(
               {chatSummary && (
                 <div className="max-w-chat">
                   <div className="summary max-h-96 flex flex-col">
-                    <h2 className="border border-bolt-elements-borderColor rounded-md p4">Summary</h2>
+                    <h2 className="border border-bolt-elements-borderColor rounded-md p4">
+                      {t('chat.summary', 'Summary')}
+                    </h2>
                     <div style={{ zoom: 0.7 }} className="overflow-y-auto m4">
                       <Markdown>{chatSummary}</Markdown>
                     </div>
                   </div>
                   {codeContext && (
                     <div className="code-context flex flex-col p4 border border-bolt-elements-borderColor rounded-md">
-                      <h2>Context</h2>
+                      <h2>{t('chat.context', 'Context')}</h2>
                       <div className="flex gap-4 mt-4 bolt" style={{ zoom: 0.6 }}>
                         {codeContext.map((x) => {
                           const normalized = normalizedFilePath(x);
@@ -157,27 +165,31 @@ export const AssistantMessage = memo(
           )}
           <div className="flex-1" />
           {usage && (
-            <div className="text-xs text-bolt-elements-textTertiary">{usage.totalTokens.toLocaleString()} tokens</div>
+            <div className="text-xs text-bolt-elements-textTertiary">
+              {usage.totalTokens.toLocaleString()} {t('chat.tokens', 'tokens')}
+            </div>
           )}
           {(onRewind || onFork) && messageId && (
             <div className="flex gap-1.5">
               {onRewind && (
-                <WithTooltip tooltip="Revert to this message">
+                <WithTooltip tooltip={t('chat.revert', 'Revert to this message')}>
                   <button
                     type="button"
                     onClick={() => onRewind(messageId)}
                     key="i-ph:arrow-u-up-left"
-                    title="Revert to this message"
-                    aria-label="Revert to this message"
+                    title={t('chat.revert', 'Revert to this message')}
+                    aria-label={t('chat.revert', 'Revert to this message')}
                     className="i-ph:arrow-u-up-left text-lg text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary transition-colors cursor-pointer p-0.5"
                   />
                 </WithTooltip>
               )}
               {onFork && (
-                <WithTooltip tooltip="Fork chat from this message">
+                <WithTooltip tooltip={t('chat.fork', 'Fork chat from this message')}>
                   <button
                     onClick={() => onFork(messageId)}
                     key="i-ph:git-fork"
+                    title={t('chat.fork', 'Fork chat from this message')}
+                    aria-label={t('chat.fork', 'Fork chat from this message')}
                     className="i-ph:git-fork text-lg text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary transition-colors"
                   />
                 </WithTooltip>

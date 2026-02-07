@@ -9,6 +9,8 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ClientOnly } from 'remix-utils/client-only';
 import { cssTransition, ToastContainer } from 'react-toastify';
+import { I18nextProvider } from 'react-i18next';
+import './lib/i18n/config';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
@@ -81,7 +83,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
       </head>
       <body>
-        <DndProvider backend={HTML5Backend}>{children}</DndProvider>
+        <I18nextProvider i18n={(window as any).i18next || undefined}>
+          <DndProvider backend={HTML5Backend}>{children}</DndProvider>
+        </I18nextProvider>
         <ToastContainer
           closeButton={({ closeToast }) => {
             return (

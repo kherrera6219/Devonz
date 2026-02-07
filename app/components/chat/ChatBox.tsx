@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { classNames } from '~/utils/classNames';
 import { PROVIDER_LIST } from '~/utils/constants';
@@ -13,18 +14,21 @@ import { SupabaseConnection } from './SupabaseConnection';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import { Dialog, DialogRoot, DialogTitle, DialogDescription } from '~/components/ui/Dialog';
 import styles from './BaseChat.module.scss';
-import type { ProviderInfo } from '~/types/model';
 import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { McpTools } from './MCPTools';
 
+import { useTranslation } from 'react-i18next';
+import type { ProviderInfo } from '~/types/model';
+import type { ModelInfo } from '~/lib/modules/llm/types';
+
 interface ChatBoxProps {
   isModelSettingsCollapsed: boolean;
   setIsModelSettingsCollapsed: (collapsed: boolean) => void;
-  provider: any;
-  providerList: any[];
-  modelList: any[];
+  provider: ProviderInfo | undefined;
+  providerList: ProviderInfo[];
+  modelList: ModelInfo[];
   apiKeys: Record<string, string>;
   isModelLoading: string | undefined;
   onApiKeysChange: (providerName: string, apiKey: string) => void;
@@ -63,6 +67,7 @@ interface ChatBoxProps {
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = (props) => {
+  const { t } = useTranslation();
   // Check if current provider has API key set
   const [isModelSelectorOpen, setIsModelSelectorOpen] = useState(false);
   const { orchestratorSettings } = useSettings();
@@ -87,9 +92,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           onBackdrop={() => setIsModelSelectorOpen(false)}
         >
           {/* Visually hidden title and description for accessibility */}
-          <DialogTitle className="sr-only">Select AI Model and Provider</DialogTitle>
+          <DialogTitle className="sr-only">{t('chat.select_model_title', 'Select AI Model and Provider')}</DialogTitle>
           <DialogDescription className="sr-only">
-            Choose an AI provider and model for your chat session
+            {t('chat.select_model_desc', 'Choose an AI provider and model for your chat session')}
           </DialogDescription>
           <CombinedModelSelector
             key={props.provider?.name + ':' + props.modelList.length}
@@ -137,9 +142,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
       <FilePreview
         files={props.uploadedFiles}
         imageDataList={props.imageDataList}
-        onRemove={(index) => {
-          props.setUploadedFiles?.(props.uploadedFiles.filter((_, i) => i !== index));
-          props.setImageDataList?.(props.imageDataList.filter((_, i) => i !== index));
+        onRemove={(index: number) => {
+          props.setUploadedFiles?.(props.uploadedFiles.filter((_: File, i: number) => i !== index));
+          props.setImageDataList?.(props.imageDataList.filter((_: string, i: number) => i !== index));
         }}
       />
       {props.selectedElement && (
@@ -148,13 +153,13 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             <code className="bg-accent-500 rounded-4px px-1.5 py-1 mr-0.5 text-white">
               {props?.selectedElement?.tagName}
             </code>
-            selected for inspection
+            {t('chat.selected_for_inspection', 'selected for inspection')}
           </div>
           <button
             className="bg-transparent text-accent-500 pointer-auto"
             onClick={() => props.setSelectedElement?.(null)}
           >
-            Clear
+            {t('chat.clear', 'Clear')}
           </button>
         </div>
       )}
@@ -228,7 +233,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             minHeight: props.TEXTAREA_MIN_HEIGHT,
             maxHeight: props.TEXTAREA_MAX_HEIGHT,
           }}
-          placeholder={props.chatMode === 'build' ? 'Ask Devonz to build...' : 'What would you like to discuss?'}
+          placeholder={props.chatMode === 'build' ? t('chat.ask_build', 'Ask Devonz to build...') : t('chat.ask_discuss', 'What would you like to discuss?')}
           translate="no"
         />
         <ClientOnly>
@@ -254,16 +259,16 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
             <McpTools />
-            <IconButton title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
+            <IconButton title={t('chat.upload_file', 'Upload file')} className="transition-all" onClick={() => props.handleFileUpload()}>
               <div className="i-ph:paperclip text-xl"></div>
             </IconButton>
             <IconButton
-              title="Enhance prompt"
+              title={t('chat.enhance_prompt', 'Enhance prompt')}
               disabled={props.input.length === 0 || props.enhancingPrompt}
               className={classNames('transition-all', props.enhancingPrompt ? 'opacity-100' : '')}
               onClick={() => {
                 props.enhancePrompt?.();
-                toast.success('Prompt enhanced!');
+                toast.success(t('chat.prompt_enhanced', 'Prompt enhanced!'));
               }}
             >
               {props.enhancingPrompt ? (
@@ -281,7 +286,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             />
             {props.chatStarted && (
               <IconButton
-                title="Discuss"
+                title={t('chat.discuss', 'Discuss')}
                 className={classNames(
                   'transition-all flex items-center gap-1 px-1.5',
                   props.chatMode === 'discuss'
@@ -293,13 +298,13 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 }}
               >
                 <div className={`i-ph:chats text-xl`} />
-                {props.chatMode === 'discuss' ? <span>Discuss</span> : <span />}
+                {props.chatMode === 'discuss' ? <span>{t('chat.discuss', 'Discuss')}</span> : <span />}
               </IconButton>
             )}
             {/* Model Selector Button with Dropdown */}
             <div className="flex items-center ml-1">
               <IconButton
-                title="Select Model"
+                title={t('chat.select_model', 'Select Model')}
                 className={classNames('transition-all flex items-center gap-1', {
                   'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent': isModelSelectorOpen,
                   'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
@@ -316,7 +321,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                   className="flex flex-col items-start ml-1.5 px-2 py-0.5 rounded-md bg-bolt-elements-item-backgroundDefault border border-bolt-elements-borderColor shadow-sm hover:bg-bolt-elements-item-backgroundActive transition-colors cursor-pointer"
                 >
                   <span className="text-[9px] uppercase font-bold text-bolt-elements-textTertiary leading-tight cursor-inherit">
-                    {props.provider?.name || 'AI'}
+                    {props.provider?.name || t('common.ai', 'AI')}
                   </span>
                   <div className="flex items-center gap-1.5 leading-tight">
                     <span className="text-[10px] font-medium text-bolt-elements-textPrimary truncate max-w-[120px] cursor-inherit">
@@ -324,7 +329,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                     </span>
                     {orchestratorSettings.enabled && (
                       <span className="text-[8px] font-black text-purple-400 uppercase tracking-tighter px-1 rounded bg-purple-500/10 border border-purple-500/20">
-                        Multi-Agent
+                        {t('chat.multi_agent', 'Multi-Agent')}
                       </span>
                     )}
                   </div>
@@ -333,10 +338,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             </div>
           </div>
           {props.input.length > 3 ? (
-            <div className="text-xs text-bolt-elements-textTertiary">
-              Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> +{' '}
-              <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> a new line
-            </div>
+            <div className="text-xs text-bolt-elements-textTertiary" dangerouslySetInnerHTML={{
+              __html: t('chat.shift_return_new_line', 'Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> + <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for a new line')
+            }} />
           ) : null}
           <SupabaseConnection />
           <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />

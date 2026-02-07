@@ -1,7 +1,5 @@
-/*
- * @ts-nocheck
- * Preventing TS checks with files presented in the video for a better presentation.
- */
+import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
 import { Markdown } from './Markdown';
 import { useStore } from '@nanostores/react';
@@ -23,6 +21,7 @@ interface UserMessageProps {
 }
 
 export function UserMessage({ content, parts }: UserMessageProps) {
+  const { t } = useTranslation();
   const profile = useStore(profileStore);
 
   // Extract images from parts - look for file parts with image mime types
@@ -41,11 +40,11 @@ export function UserMessage({ content, parts }: UserMessageProps) {
           {profile?.avatar || profile?.username ? (
             <div className="flex items-center gap-2">
               <span className="text-bolt-elements-textSecondary text-sm">
-                {profile?.username ? profile.username : 'You'}
+                {profile?.username ? profile.username : t('common.you', 'You')}
               </span>
               <img
                 src={profile.avatar}
-                alt={profile?.username || 'User'}
+                alt={profile?.username || t('common.user', 'User')}
                 className="w-6 h-6 object-cover rounded-full ring-1 ring-bolt-elements-borderColor"
                 loading="eager"
                 decoding="sync"
@@ -53,7 +52,7 @@ export function UserMessage({ content, parts }: UserMessageProps) {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-bolt-elements-textSecondary text-sm">You</span>
+              <span className="text-bolt-elements-textSecondary text-sm">{t('common.you', 'You')}</span>
               <div className="w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center">
                 <div className="i-ph:user text-accent-400 text-sm" />
               </div>
@@ -72,7 +71,7 @@ export function UserMessage({ content, parts }: UserMessageProps) {
                 <img
                   key={index}
                   src={`data:${item.mimeType};base64,${item.data}`}
-                  alt={`Image ${index + 1}`}
+                  alt={`${t('common.image', 'Image')} ${index + 1}`}
                   className="max-w-full h-auto rounded-lg border border-bolt-elements-borderColor"
                   style={{ maxHeight: '256px', objectFit: 'contain' }}
                 />
@@ -91,10 +90,12 @@ export function UserMessage({ content, parts }: UserMessageProps) {
       <div className="flex items-center gap-2">
         {profile?.avatar ? (
           <>
-            <span className="text-bolt-elements-textSecondary text-sm">{profile?.username || 'You'}</span>
+            <span className="text-bolt-elements-textSecondary text-sm">
+              {profile?.username || t('common.you', 'You')}
+            </span>
             <img
               src={profile.avatar}
-              alt={profile?.username || 'User'}
+              alt={profile?.username || t('common.user', 'User')}
               className="w-6 h-6 object-cover rounded-full ring-1 ring-bolt-elements-borderColor"
               loading="eager"
               decoding="sync"
@@ -102,7 +103,7 @@ export function UserMessage({ content, parts }: UserMessageProps) {
           </>
         ) : (
           <>
-            <span className="text-bolt-elements-textSecondary text-sm">You</span>
+            <span className="text-bolt-elements-textSecondary text-sm">{t('common.you', 'You')}</span>
             <div className="w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center">
               <div className="i-ph:user text-accent-400 text-sm" />
             </div>
@@ -116,7 +117,7 @@ export function UserMessage({ content, parts }: UserMessageProps) {
               <div key={index} className="relative rounded-lg border border-bolt-elements-borderColor overflow-hidden">
                 <img
                   src={`data:${item.mimeType};base64,${item.data}`}
-                  alt={`Image ${index + 1}`}
+                  alt={`${t('common.image', 'Image')} ${index + 1}`}
                   className="h-16 w-16 object-cover"
                 />
               </div>

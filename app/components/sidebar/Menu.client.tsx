@@ -14,6 +14,7 @@ import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { classNames } from '~/utils/classNames';
 import { useStore } from '@nanostores/react';
 import { sidebarStore } from '~/lib/stores/sidebar';
+import { useTranslation } from 'react-i18next';
 
 const menuVariants = {
   closed: {
@@ -64,6 +65,7 @@ function CurrentDateTime() {
 }
 
 export const Menu = () => {
+  const { t } = useTranslation();
   const { duplicateCurrentChat, exportChat } = useChatHistory();
   const menuRef = useRef<HTMLDivElement>(null);
   const [list, setList] = useState<ChatHistoryItem[]>([]);
@@ -333,7 +335,7 @@ export const Menu = () => {
         )}
       >
         <div className="h-12 flex items-center justify-between px-4 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2/80 rounded-tr-2xl">
-          <span className="text-bolt-elements-textPrimary font-semibold text-lg">Devonz</span>
+          <span className="text-bolt-elements-textPrimary font-semibold text-lg">{t('header.devonz', 'Devonz')}</span>
           <div className="flex items-center gap-2">
             <SettingsButton onClick={handleSettingsClick} />
             <ThemeSwitch />
@@ -348,7 +350,7 @@ export const Menu = () => {
                 className="flex-1 flex gap-2 items-center bg-accent-500/20 text-accent-400 hover:bg-accent-500/30 rounded-lg px-4 py-2.5 transition-colors border border-accent-500/30"
               >
                 <span className="inline-block i-ph:plus-circle h-4 w-4" />
-                <span className="text-sm font-medium">Start new chat</span>
+                <span className="text-sm font-medium">{t('sidebar.start_new_chat', 'Start new chat')}</span>
               </a>
               <button
                 onClick={toggleSelectionMode}
@@ -370,14 +372,14 @@ export const Menu = () => {
               <input
                 className="w-full bg-bolt-elements-background-depth-3 relative pl-9 pr-3 py-2.5 rounded-lg focus:outline-none focus:ring-1 focus:ring-accent-500/50 text-sm text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary border border-bolt-elements-borderColor"
                 type="search"
-                placeholder="Search chats..."
+                placeholder={t('sidebar.search_chats', 'Search chats...')}
                 onChange={handleSearchChange}
-                aria-label="Search chats"
+                aria-label={t('sidebar.search_chats', 'Search chats')}
               />
             </div>
           </div>
           <div className="flex items-center justify-between text-sm px-4 py-2">
-            <div className="font-medium text-bolt-elements-textSecondary">Your Chats</div>
+            <div className="font-medium text-bolt-elements-textSecondary">{t('sidebar.your_chats', 'Your Chats')}</div>
             {selectionMode && (
               <div className="flex items-center gap-2">
                 <Button {...({ variant: 'ghost', size: 'sm' } as any)} onClick={selectAll}>
@@ -395,7 +397,7 @@ export const Menu = () => {
           <div className="flex-1 overflow-auto px-3 pb-3 modern-scrollbar">
             {filteredList.length === 0 && (
               <div className="px-4 text-bolt-elements-textTertiary text-sm">
-                {list.length === 0 ? 'No previous conversations' : 'No matches found'}
+                {list.length === 0 ? t('sidebar.no_previous_conversations', 'No previous conversations') : t('sidebar.no_matches_found', 'No matches found')}
               </div>
             )}
             <DialogRoot open={dialogContent !== null}>
@@ -429,15 +431,12 @@ export const Menu = () => {
                 {dialogContent?.type === 'delete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">Delete Chat?</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">{t('sidebar.delete_chat_title', 'Delete Chat?')}</DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>
-                          You are about to delete{' '}
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {dialogContent.item.description}
-                          </span>
+                          {t('sidebar.delete_chat_description', 'You are about to delete {{description}}', { description: dialogContent.item.description })}
                         </p>
-                        <p className="mt-2">Are you sure you want to delete this chat?</p>
+                        <p className="mt-2">{t('sidebar.delete_confirmation', 'Are you sure you want to delete this chat?')}</p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
