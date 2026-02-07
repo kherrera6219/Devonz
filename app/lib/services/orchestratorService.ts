@@ -1,13 +1,12 @@
 import { createGraph } from '~/lib/agent-orchestrator/graph';
 import type { RunState } from '~/lib/agent-orchestrator/types/mas-schemas';
 import { createScopedLogger } from '~/utils/logger';
-import type { CompiledGraph } from '@langchain/langgraph';
 
 const logger = createScopedLogger('OrchestratorService');
 
 export class OrchestratorService {
   private static _instance: OrchestratorService;
-  private _graph: CompiledGraph<RunState, Partial<RunState>>;
+  private _graph: any;
 
   private constructor() {
     this._graph = createGraph();
@@ -24,7 +23,7 @@ export class OrchestratorService {
   async processRequest(
     userRequest: string,
     conversationId: string,
-    dataStream: { writeData: (data: any) => void; writeText: (text: string) => void },
+    dataStream: { writeData: (data: any) => void; writeText?: (text: string) => void },
     existingMessages: any[],
     apiKeys: Record<string, string>,
     streamRecovery?: { updateActivity: () => void },
@@ -138,7 +137,7 @@ export class OrchestratorService {
            * Stream actual response content to the text stream
            * This is still how the final "message" to the user is delivered
            */
-          if (stateUpdate?.response) {
+          if (stateUpdate?.response && dataStream.writeText) {
             dataStream.writeText(stateUpdate.response);
           }
 

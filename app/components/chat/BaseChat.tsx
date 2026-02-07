@@ -625,6 +625,7 @@ export const BaseChat = memo(
 );
 
 function ScrollToBottom() {
+  const { t } = useTranslation();
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 
   return (

@@ -29,6 +29,7 @@ import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportCh
 import { useChatHistory } from '~/lib/persistence';
 import { streamingState } from '~/lib/stores/streaming';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { useTranslation } from 'react-i18next';
 
 interface WorkspaceProps {
   chatStarted?: boolean;
@@ -69,6 +70,7 @@ export const Workbench = memo(
     width,
     fullWidth,
   }: WorkspaceProps) => {
+    const { t } = useTranslation();
     renderLogger.trace('Workbench');
 
     const [fileHistory] = useState<Record<string, FileHistory>>({});
@@ -156,7 +158,9 @@ export const Workbench = memo(
             'flex-grow': !!fullWidth,
             'flex-shrink-0': !fullWidth,
           })}
-          style={fullWidth ? {} : ({ '--workbench-width-override': width ? `${width}px` : undefined } as React.CSSProperties)}
+          style={
+            fullWidth ? {} : ({ '--workbench-width-override': width ? `${width}px` : undefined } as React.CSSProperties)
+          }
         >
           <div
             className={classNames('h-full flex flex-col bg-bolt-elements-background-depth-2 overflow-hidden', {
@@ -214,7 +218,11 @@ export const Workbench = memo(
                           >
                             <div className="flex items-center gap-2">
                               {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
-                              <span>{isSyncing ? t('workbench.syncing', 'Syncing...') : t('workbench.sync_files', 'Sync Files')}</span>
+                              <span>
+                                {isSyncing
+                                  ? t('workbench.syncing', 'Syncing...')
+                                  : t('workbench.sync_files', 'Sync Files')}
+                              </span>
                             </div>
                           </DropdownMenu.Item>
                         </DropdownMenu.Content>

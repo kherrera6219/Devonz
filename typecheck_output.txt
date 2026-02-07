@@ -1,0 +1,27 @@
+
+> devonz@1.0.0 typecheck
+> tsc
+
+app/lib/agent-orchestrator/graph.ts(208,27): error TS2345: Argument of type '"coordinator"' is not assignable to parameter of type '"__start__" | "__end__"'.
+app/lib/agent-orchestrator/graph.ts(214,32): error TS2345: Argument of type '"coordinator"' is not assignable to parameter of type '"__start__"'.
+app/lib/agent-orchestrator/graph.ts(222,20): error TS2345: Argument of type '"researcher"' is not assignable to parameter of type '"__start__" | "__start__"[]'.
+app/lib/agent-orchestrator/graph.ts(223,20): error TS2345: Argument of type '"architect"' is not assignable to parameter of type '"__start__" | "__start__"[]'.
+app/lib/agent-orchestrator/graph.ts(224,20): error TS2345: Argument of type '"qc1"' is not assignable to parameter of type '"__start__" | "__start__"[]'.
+app/lib/agent-orchestrator/graph.ts(227,32): error TS2345: Argument of type '"qc2"' is not assignable to parameter of type '"__start__"'.
+app/lib/agent-orchestrator/graph.ts(232,20): error TS2345: Argument of type '"fix"' is not assignable to parameter of type '"__start__" | "__start__"[]'.
+app/lib/agent-orchestrator/graph.ts(233,20): error TS2345: Argument of type '"finalize"' is not assignable to parameter of type '"__start__" | "__start__"[]'.
+app/lib/services/orchestratorService.ts(10,33): error TS2344: Type 'RunState' does not satisfy the constraint 'string'.
+app/lib/services/orchestratorService.ts(13,5): error TS2322: Type 'CompiledStateGraph<{ runId: string; conversationId: string; userId: string; createdAt: string; mode: RunMode; agentModels: { coordinator: { provider: string; model: string; }; researcher: { provider: string; model: string; }; architect: { ...; }; }; ... 9 more ...; errors?: string[] | undefined; }, ... 7 more ..., u...' is not assignable to type 'CompiledGraph<RunState, Partial<RunState>, any, Record<string, any>, any, any, unknown, unknown, any>'.
+  Types of property '"~NodeType"' are incompatible.
+    Type 'string' is not assignable to type 'RunState'.
+app/root.tsx(90,23): error TS2322: Type '({ closeToast }: { closeToast: (e: React.MouseEvent) => void; }) => JSX.Element' is not assignable to type 'boolean | ((props: CloseButtonProps) => ReactNode) | ReactElement<CloseButtonProps, string | JSXElementConstructor<any>> | undefined'.
+  Type '({ closeToast }: { closeToast: (e: React.MouseEvent) => void; }) => JSX.Element' is not assignable to type '(props: CloseButtonProps) => ReactNode'.
+    Types of parameters '__0' and 'props' are incompatible.
+      Type 'CloseButtonProps' is not assignable to type '{ closeToast: (e: MouseEvent<Element, MouseEvent>) => void; }'.
+        Types of property 'closeToast' are incompatible.
+          Type '(e: MouseEvent<HTMLElement, MouseEvent>) => void' is not assignable to type '(e: MouseEvent<Element, MouseEvent>) => void'.
+            Types of parameters 'e' and 'e' are incompatible.
+              Type 'MouseEvent<Element, MouseEvent>' is not assignable to type 'MouseEvent<HTMLElement, MouseEvent>'.
+                Type 'Element' is missing the following properties from type 'HTMLElement': accessKey, accessKeyLabel, autocapitalize, autocorrect, and 129 more.
+app/routes/api.chat.ts(169,15): error TS2345: Argument of type 'DataStreamWriter' is not assignable to parameter of type '{ writeData: (data: any) => void; writeText: (text: string) => void; }'.
+  Property 'writeText' is missing in type 'DataStreamWriter' but required in type '{ writeData: (data: any) => void; writeText: (text: string) => void; }'.

@@ -222,7 +222,13 @@ export function DataTab() {
     <div className="max-w-4xl mx-auto">
       {/* Hidden file inputs - wrapped to avoid affecting spacing */}
       <div className="hidden">
-        <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileInputChange} aria-label="Import Settings" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleFileInputChange}
+          aria-label="Import Settings"
+        />
         <input
           ref={apiKeyFileInputRef}
           type="file"
@@ -230,7 +236,13 @@ export function DataTab() {
           onChange={handleAPIKeyFileInputChange}
           aria-label="Import API Keys"
         />
-        <input ref={chatFileInputRef} type="file" accept=".json" onChange={handleChatFileInputChange} aria-label="Import Chats" />
+        <input
+          ref={chatFileInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleChatFileInputChange}
+          aria-label="Import Chats"
+        />
       </div>
 
       {/* Tab Navigation */}

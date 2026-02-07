@@ -369,7 +369,11 @@ export const Menu = () => {
                     ? 'bg-accent-500 text-white border border-accent-600'
                     : 'bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-4 border border-bolt-elements-borderColor',
                 )}
-                aria-label={selectionMode ? t('sidebar.exit_selection_mode', 'Exit selection mode') : t('sidebar.enter_selection_mode', 'Enter selection mode')}
+                aria-label={
+                  selectionMode
+                    ? t('sidebar.exit_selection_mode', 'Exit selection mode')
+                    : t('sidebar.enter_selection_mode', 'Enter selection mode')
+                }
               >
                 <span className={selectionMode ? 'i-ph:x h-4 w-4' : 'i-ph:check-square h-4 w-4'} />
               </button>
@@ -392,7 +396,9 @@ export const Menu = () => {
             {selectionMode && (
               <div className="flex items-center gap-2">
                 <Button {...({ variant: 'ghost', size: 'sm' } as any)} onClick={selectAll}>
-                  {selectedItems.length === filteredList.length ? t('common.deselect_all', 'Deselect all') : t('common.select_all', 'Select all')}
+                  {selectedItems.length === filteredList.length
+                    ? t('common.deselect_all', 'Deselect all')
+                    : t('common.select_all', 'Select all')}
                 </Button>
                 <Button
                   {...({ variant: 'destructive', size: 'sm', disabled: selectedItems.length === 0 } as any)}
@@ -406,7 +412,9 @@ export const Menu = () => {
           <div className="flex-1 overflow-auto px-3 pb-3 modern-scrollbar">
             {filteredList.length === 0 && (
               <div className="px-4 text-bolt-elements-textTertiary text-sm">
-                {list.length === 0 ? t('sidebar.no_previous_conversations', 'No previous conversations') : t('sidebar.no_matches_found', 'No matches found')}
+                {list.length === 0
+                  ? t('sidebar.no_previous_conversations', 'No previous conversations')
+                  : t('sidebar.no_matches_found', 'No matches found')}
               </div>
             )}
             <DialogRoot open={dialogContent !== null}>
@@ -440,7 +448,9 @@ export const Menu = () => {
                 {dialogContent?.type === 'delete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">{t('sidebar.delete_chat_title', 'Delete Chat?')}</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">
+                        {t('sidebar.delete_chat_title', 'Delete Chat?')}
+                      </DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>
                           {t('sidebar.delete_chat_description', 'You are about to delete {{description}}', {
@@ -472,7 +482,9 @@ export const Menu = () => {
                 {dialogContent?.type === 'bulkDelete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">{t('sidebar.bulk_delete_title', 'Delete Selected Chats?')}</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">
+                        {t('sidebar.bulk_delete_title', 'Delete Selected Chats?')}
+                      </DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>
                           {t('sidebar.bulk_delete_description', 'You are about to delete {{count}} chats:', {
@@ -488,7 +500,9 @@ export const Menu = () => {
                             ))}
                           </ul>
                         </div>
-                        <p className="mt-3">{t('sidebar.bulk_delete_confirmation', 'Are you sure you want to delete these chats?')}</p>
+                        <p className="mt-3">
+                          {t('sidebar.bulk_delete_confirmation', 'Are you sure you want to delete these chats?')}
+                        </p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">

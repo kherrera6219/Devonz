@@ -526,7 +526,9 @@ function FileContextMenu({
             </ContextMenu.Group>
             <ContextMenu.Group className="p-1">
               <ContextMenuItem onSelect={onCopyPath}>{t('workbench.copy_path', 'Copy path')}</ContextMenuItem>
-              <ContextMenuItem onSelect={onCopyRelativePath}>{t('workbench.copy_relative_path', 'Copy relative path')}</ContextMenuItem>
+              <ContextMenuItem onSelect={onCopyRelativePath}>
+                {t('workbench.copy_relative_path', 'Copy relative path')}
+              </ContextMenuItem>
             </ContextMenu.Group>
             {/* Add lock/unlock options for files and folders */}
             <ContextMenu.Group className="p-1 border-t-px border-solid border-bolt-elements-borderColor">
@@ -567,7 +569,9 @@ function FileContextMenu({
               <ContextMenuItem onSelect={handleDelete}>
                 <div className="flex items-center gap-2 text-red-500">
                   <div className="i-ph:trash" />
-                  {t('workbench.delete_item', 'Delete {{item}}', { item: isFolder ? t('common.folder', 'Folder') : t('common.file', 'File') })}
+                  {t('workbench.delete_item', 'Delete {{item}}', {
+                    item: isFolder ? t('common.folder', 'Folder') : t('common.file', 'File'),
+                  })}
                 </div>
               </ContextMenuItem>
             </ContextMenu.Group>

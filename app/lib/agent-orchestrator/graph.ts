@@ -113,7 +113,7 @@ const checkQCPass = (state: RunState) => {
  */
 
 export function createGraph() {
-  const workflow = new StateGraph<RunState>({
+  const workflow: any = new StateGraph<RunState>({
     channels: {
       runId: { value: (_: string, b: string) => b, default: () => '' },
       conversationId: { value: (_: string, b: string) => b, default: () => '' },
@@ -178,11 +178,20 @@ export function createGraph() {
           }) as QCState,
       },
 
-      events: { value: (a: EventLogEntry[], b: EventLogEntry[]) => a.concat(b || []), default: () => [] as EventLogEntry[] },
+      events: {
+        value: (a: EventLogEntry[], b: EventLogEntry[] | undefined) => a.concat(b || []),
+        default: () => [] as EventLogEntry[],
+      },
 
       cost: { value: (_: any, b: any) => b, default: () => undefined },
-      warnings: { value: (a: string[], b: string[]) => (b ? [...(a || []), ...b] : a), default: () => [] as string[] },
-      errors: { value: (a: string[], b: string[]) => (b ? [...(a || []), ...b] : a), default: () => [] as string[] },
+      warnings: {
+        value: (a: string[] | undefined, b: string[] | undefined) => [...(a || []), ...(b || [])],
+        default: () => [] as string[],
+      },
+      errors: {
+        value: (a: string[] | undefined, b: string[] | undefined) => [...(a || []), ...(b || [])],
+        default: () => [] as string[],
+      },
     },
   });
 

@@ -10,6 +10,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { ClientOnly } from 'remix-utils/client-only';
 import { cssTransition, ToastContainer } from 'react-toastify';
 import { I18nextProvider } from 'react-i18next';
+import { IconButton } from '~/components/ui/IconButton';
 import './lib/i18n/config';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
@@ -87,13 +88,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <DndProvider backend={HTML5Backend}>{children}</DndProvider>
         </I18nextProvider>
         <ToastContainer
-          closeButton={({ closeToast }: { closeToast: (e: React.MouseEvent) => void }) => {
-            return (
-              <button className="Toastify__close-button" onClick={closeToast} aria-label="Close notification">
-                <div className="i-ph:x text-lg" />
-              </button>
-            );
-          }}
+          closeButton={({ closeToast }: { closeToast: (e: React.MouseEvent<HTMLElement>) => void }) => (
+            <IconButton
+              onClick={(e) => closeToast(e as any)}
+              title="Close Toast"
+              className="text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary"
+            >
+              <div className="i-ph:x" />
+            </IconButton>
+          )}
           icon={({ type }: { type: string }) => {
             switch (type) {
               case 'success': {

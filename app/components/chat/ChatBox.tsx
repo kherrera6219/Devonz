@@ -231,7 +231,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             minHeight: props.TEXTAREA_MIN_HEIGHT,
             maxHeight: props.TEXTAREA_MAX_HEIGHT,
           }}
-          placeholder={props.chatMode === 'build' ? t('chat.ask_build', 'Ask Devonz to build...') : t('chat.ask_discuss', 'What would you like to discuss?')}
+          placeholder={
+            props.chatMode === 'build'
+              ? t('chat.ask_build', 'Ask Devonz to build...')
+              : t('chat.ask_discuss', 'What would you like to discuss?')
+          }
           translate="no"
         />
         <ClientOnly>
@@ -257,7 +261,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
             <McpTools />
-            <IconButton title={t('chat.upload_file', 'Upload file')} className="transition-all" onClick={() => props.handleFileUpload()}>
+            <IconButton
+              title={t('chat.upload_file', 'Upload file')}
+              className="transition-all"
+              onClick={() => props.handleFileUpload()}
+            >
               <div className="i-ph:paperclip text-xl"></div>
             </IconButton>
             <IconButton
@@ -336,9 +344,15 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             </div>
           </div>
           {props.input.length > 3 ? (
-            <div className="text-xs text-bolt-elements-textTertiary" dangerouslySetInnerHTML={{
-              __html: t('chat.shift_return_new_line', 'Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> + <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for a new line')
-            }} />
+            <div
+              className="text-xs text-bolt-elements-textTertiary"
+              dangerouslySetInnerHTML={{
+                __html: t(
+                  'chat.shift_return_new_line',
+                  'Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> + <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> for a new line',
+                ),
+              }}
+            />
           ) : null}
           <SupabaseConnection />
           <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />
