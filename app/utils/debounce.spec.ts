@@ -99,7 +99,7 @@ describe('debounce', () => {
   });
 
   it('should handle different function signatures', () => {
-    const fn = vi.fn<[number, string, boolean], void>();
+    const fn = vi.fn<(n: number, s: string, b: boolean) => void>();
     const debounced = debounce(fn, 100);
 
     debounced(42, 'test', true);
