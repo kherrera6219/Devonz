@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Switch } from '~/components/ui/Switch';
 import { useSettings } from '~/lib/hooks/useSettings';
 import { URL_CONFIGURABLE_PROVIDERS } from '~/lib/stores/settings';
@@ -8,12 +8,6 @@ import { motion } from 'framer-motion';
 import { classNames } from '~/utils/classNames';
 import { toast } from 'react-toastify';
 import { providerBaseUrlEnvKeys } from '~/utils/constants';
-import { SiAmazon, SiGoogle, SiGithub, SiHuggingface, SiPerplexity, SiOpenai } from 'react-icons/si';
-import { BsRobot, BsCloud } from 'react-icons/bs';
-import { TbBrain, TbCloudComputing } from 'react-icons/tb';
-import { BiCodeBlock, BiChip } from 'react-icons/bi';
-import { FaCloud, FaBrain } from 'react-icons/fa';
-import type { IconType } from 'react-icons';
 
 // Add type for provider names to ensure type safety
 type ProviderName =
@@ -33,23 +27,23 @@ type ProviderName =
   | 'Together'
   | 'XAI';
 
-// Update the PROVIDER_ICONS type to use the ProviderName type
-const PROVIDER_ICONS: Record<ProviderName, IconType> = {
-  AmazonBedrock: SiAmazon,
-  Anthropic: FaBrain,
-  Cohere: BiChip,
-  Deepseek: BiCodeBlock,
-  Github: SiGithub,
-  Google: SiGoogle,
-  Groq: BsCloud,
-  HuggingFace: SiHuggingface,
-  Hyperbolic: TbCloudComputing,
-  Mistral: TbBrain,
-  OpenAI: SiOpenai,
-  OpenRouter: FaCloud,
-  Perplexity: SiPerplexity,
-  Together: BsCloud,
-  XAI: BsRobot,
+// Phosphor UnoCSS icon classes for each provider
+const PROVIDER_ICONS: Record<ProviderName, string> = {
+  AmazonBedrock: 'i-ph:amazon-logo',
+  Anthropic: 'i-ph:brain',
+  Cohere: 'i-ph:cpu',
+  Deepseek: 'i-ph:code',
+  Github: 'i-ph:github-logo',
+  Google: 'i-ph:google-logo',
+  Groq: 'i-ph:cloud',
+  HuggingFace: 'i-ph:robot',
+  Hyperbolic: 'i-ph:cloud',
+  Mistral: 'i-ph:brain',
+  OpenAI: 'i-ph:openai-logo',
+  OpenRouter: 'i-ph:cloud',
+  Perplexity: 'i-ph:sparkle',
+  Together: 'i-ph:cloud',
+  XAI: 'i-ph:robot',
 };
 
 // Update PROVIDER_DESCRIPTIONS to use the same type
@@ -150,7 +144,7 @@ const CloudProvidersTab = () => {
                 'text-purple-500',
               )}
             >
-              <TbCloudComputing className="w-5 h-5" />
+              <div className="i-ph:cloud w-5 h-5" />
             </div>
             <div>
               <h4 className="text-md font-medium text-bolt-elements-textPrimary">Cloud Providers</h4>
@@ -204,12 +198,15 @@ const CloudProvidersTab = () => {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <div className={classNames('w-6 h-6', 'transition-transform duration-200', 'group-hover:rotate-12')}>
-                    {React.createElement(PROVIDER_ICONS[provider.name as ProviderName] || BsRobot, {
-                      className: 'w-full h-full',
-                      'aria-label': `${provider.name} logo`,
-                    })}
-                  </div>
+                  <div
+                    className={classNames(
+                      PROVIDER_ICONS[provider.name as ProviderName] || 'i-ph:robot',
+                      'w-6 h-6',
+                      'transition-transform duration-200',
+                      'group-hover:rotate-12',
+                    )}
+                    aria-label={`${provider.name} logo`}
+                  />
                 </motion.div>
 
                 <div className="flex-1 min-w-0">
