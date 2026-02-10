@@ -29,6 +29,7 @@ import {
 import { contextService } from '~/lib/services/contextService';
 
 import { withSecurity } from '~/lib/security';
+import { chatRequestSchema } from '~/lib/api-validation';
 
 export const action = withSecurity(async (args: ActionFunctionArgs) => {
   return chatAction(args);
@@ -82,6 +83,32 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     },
   });
 
+  // Validate request body
+  let requestBody: any;
+
+  try {
+    requestBody = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const parseResult = chatRequestSchema.safeParse(requestBody);
+
+  if (!parseResult.success) {
+    logger.warn('Chat request validation failed:', parseResult.error.issues);
+
+    return new Response(
+      JSON.stringify({
+        error: 'Validation failed',
+        details: parseResult.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
+      }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   const {
     messages,
     files,
@@ -93,7 +120,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     maxLLMSteps,
     agentMode,
     orchestratorMode,
-  } = (await request.json()) as {
+  } = requestBody as {
     messages: Messages;
     files: any;
     promptId?: string;

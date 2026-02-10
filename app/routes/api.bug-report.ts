@@ -1,7 +1,10 @@
 import { json, type ActionFunctionArgs } from '@remix-run/node';
 import { Octokit } from '@octokit/rest';
 import { z } from 'zod';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.bug-report');
 
 // Input validation schema
 const bugReportSchema = z.object({
@@ -152,7 +155,7 @@ export const action = withSecurity(
         (context?.cloudflare?.env as any)?.BUG_REPORT_REPO || process.env.BUG_REPORT_REPO || 'zebbern/Devonz';
 
       if (!githubToken) {
-        console.error('GitHub bug report token not configured');
+        logger.error('GitHub bug report token not configured');
         return json(
           { error: 'Bug reporting is not properly configured. Please contact the administrators.' },
           { status: 500 },
@@ -182,7 +185,7 @@ export const action = withSecurity(
         message: 'Bug report submitted successfully!',
       });
     } catch (error) {
-      console.error('Error creating bug report:', error);
+      logger.error('Error creating bug report:', error);
 
       // Handle validation errors
       if (error instanceof z.ZodError) {

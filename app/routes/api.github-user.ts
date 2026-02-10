@@ -1,6 +1,9 @@
 import { json } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.github-user');
 
 async function githubUserLoader({ request, context }: { request: Request; context: any }) {
   try {
@@ -54,7 +57,7 @@ async function githubUserLoader({ request, context }: { request: Request; contex
       type: userData.type,
     });
   } catch (error) {
-    console.error('Error fetching GitHub user:', error);
+    logger.error('Error fetching GitHub user:', error);
     return json(
       {
         error: 'Failed to fetch GitHub user information',
@@ -270,7 +273,7 @@ async function githubUserAction({ request, context }: { request: Request; contex
 
     return json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('Error in GitHub user action:', error);
+    logger.error('Error in GitHub user action:', error);
     return json(
       {
         error: 'Failed to process GitHub request',

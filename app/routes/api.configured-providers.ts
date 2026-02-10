@@ -2,7 +2,10 @@ import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.configured-providers');
 
 interface ConfiguredProvider {
   name: string;
@@ -97,7 +100,7 @@ export const loader: LoaderFunction = withSecurity(async ({ context }) => {
       providers: configuredProviders,
     });
   } catch (error) {
-    console.error('Error detecting configured providers:', error);
+    logger.error('Error detecting configured providers:', error);
 
     // Return default state on error
     return json<ConfiguredProvidersResponse>({

@@ -9,7 +9,10 @@
 
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.vercel-domains');
 
 const VERCEL_API_BASE = 'https://api.vercel.com';
 
@@ -94,7 +97,7 @@ async function vercelDomainsLoader({ request, context }: LoaderFunctionArgs) {
 
     return json(data);
   } catch (error) {
-    console.error('Vercel domains error:', error);
+    logger.error('Vercel domains error:', error);
 
     return json(
       {
@@ -237,7 +240,7 @@ async function vercelDomainsAction({ request, context }: ActionFunctionArgs) {
 
     return json({ error: 'Invalid action. Use: list, add, or remove' }, { status: 400 });
   } catch (error) {
-    console.error('Vercel domains error:', error);
+    logger.error('Vercel domains error:', error);
 
     return json(
       {

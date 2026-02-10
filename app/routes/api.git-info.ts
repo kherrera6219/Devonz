@@ -1,7 +1,10 @@
 import { json } from '@remix-run/node';
 import { execSync } from 'child_process';
 import { existsSync } from 'fs';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.git-info');
 
 export const loader = withSecurity(async () => {
   try {
@@ -56,7 +59,7 @@ export const loader = withSecurity(async () => {
       lastCommit,
     });
   } catch (error) {
-    console.error('Error fetching git info:', error);
+    logger.error('Error fetching git info:', error);
     return json(
       {
         branch: 'error',

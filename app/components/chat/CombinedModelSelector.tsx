@@ -56,14 +56,22 @@ const fuzzyMatch = (query: string, text: string): { score: number; matches: bool
   };
 };
 
+/**
+ * Escapes HTML special characters to prevent XSS when using dangerouslySetInnerHTML.
+ */
+const escapeHtml = (str: string): string =>
+  str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 const highlightText = (text: string, query: string): string => {
   if (!query) {
-    return text;
+    return escapeHtml(text);
   }
 
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escapedQuery})`, 'gi');
 
-  return text.replace(regex, '<mark class="bg-[#3d5a7f]/40 text-current rounded px-0.5">$1</mark>');
+  // Escape the text first, then wrap matches in <mark> tags
+  return escapeHtml(text).replace(regex, '<mark class="bg-[#3d5a7f]/40 text-current rounded px-0.5">$1</mark>');
 };
 
 const formatContextSize = (tokens: number): string => {

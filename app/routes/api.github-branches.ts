@@ -1,6 +1,9 @@
 import { json } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.github-branches');
 
 interface GitHubBranch {
   name: string;
@@ -133,7 +136,7 @@ async function githubBranchesLoader({ request, context }: { request: Request; co
       total: transformedBranches.length,
     });
   } catch (error) {
-    console.error('Failed to fetch GitHub branches:', error);
+    logger.error('Failed to fetch GitHub branches:', error);
 
     if (error instanceof Error) {
       if (error.message.includes('fetch')) {

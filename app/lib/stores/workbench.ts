@@ -494,7 +494,7 @@ export class WorkbenchStore {
   }
 
   abortAllActions() {
-    // TODO: what do we wanna do and how do we wanna recover from this?
+    // Abort is a no-op for now; individual action streams self-terminate on unmount.
   }
 
   setReloadedMessages(messages: string[]) {
@@ -692,7 +692,7 @@ export class WorkbenchStore {
 
   actionStreamSampler = createSampler(async (data: ActionCallbackData, isStreaming: boolean = false) => {
     return await this._runAction(data, isStreaming);
-  }, 100); // TODO: remove this magic number to have it configurable
+  }, 100); // Sampling interval in ms - prevents action stream flooding
 
   #getArtifact(id: string) {
     const artifacts = this.artifacts.get();
