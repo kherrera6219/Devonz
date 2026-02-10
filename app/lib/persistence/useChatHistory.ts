@@ -376,11 +376,8 @@ export function useChatHistory() {
 }
 
 function navigateChat(nextId: string) {
-  /**
-   * FIXME: Using the intended navigate function causes a rerender for <Chat /> that breaks the app.
-   *
-   * `navigate(`/chat/${nextId}`, { replace: true });`
-   */
+  // Using window.history directly instead of Remix navigate() to avoid
+  // triggering a full <Chat /> re-render which breaks streaming state.
   const url = new URL(window.location.href);
   url.pathname = `/chat/${nextId}`;
 

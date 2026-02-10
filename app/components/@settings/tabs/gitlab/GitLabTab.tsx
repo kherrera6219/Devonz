@@ -218,7 +218,8 @@ export default function GitLabTab() {
                     const parent = target.parentElement;
 
                     if (parent) {
-                      parent.innerHTML = (connection.user?.name || connection.user?.username || 'U')
+                      // Use textContent instead of innerHTML to prevent XSS
+                      parent.textContent = (connection.user?.name || connection.user?.username || 'U')
                         .charAt(0)
                         .toUpperCase();
                       parent.classList.add(

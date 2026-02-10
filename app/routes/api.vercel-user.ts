@@ -1,6 +1,9 @@
 import { json } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.vercel-user');
 
 async function vercelUserLoader({ request, context }: { request: Request; context: any }) {
   try {
@@ -61,7 +64,7 @@ async function vercelUserLoader({ request, context }: { request: Request; contex
       username: userData.user.username,
     });
   } catch (error) {
-    console.error('Error fetching Vercel user:', error);
+    logger.error('Error fetching Vercel user:', error);
     return json(
       {
         error: 'Failed to fetch Vercel user information',
@@ -144,7 +147,7 @@ async function vercelUserAction({ request, context }: { request: Request; contex
 
     return json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('Error in Vercel user action:', error);
+    logger.error('Error in Vercel user action:', error);
     return json(
       {
         error: 'Failed to process Vercel request',

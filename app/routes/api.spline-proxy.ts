@@ -19,7 +19,10 @@
  */
 
 import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.spline-proxy');
 
 const SPLINE_CDN_BASE = 'https://prod.spline.design';
 
@@ -113,7 +116,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs): Prom
   const cached = sceneCache.get(splineUrl);
 
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log(`[Spline Proxy] Cache hit for: ${splineUrl}`);
+    logger.info(`[Spline Proxy] Cache hit for: ${splineUrl}`);
 
     return new Response(cached.data, {
       status: 200,
@@ -126,7 +129,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs): Prom
     });
   }
 
-  console.log(`[Spline Proxy] Fetching scene: ${splineUrl}`);
+  logger.info(`[Spline Proxy] Fetching scene: ${splineUrl}`);
 
   try {
     // Fetch the Spline scene from CDN
@@ -141,7 +144,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs): Prom
     });
 
     if (!response.ok) {
-      console.error(`[Spline Proxy] Failed to fetch: ${response.status} ${response.statusText}`);
+      logger.error(`[Spline Proxy] Failed to fetch: ${response.status} ${response.statusText}`);
 
       return new Response(
         JSON.stringify({
@@ -175,7 +178,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs): Prom
       contentType,
     });
 
-    console.log(`[Spline Proxy] Successfully fetched scene: ${data.byteLength} bytes`);
+    logger.info(`[Spline Proxy] Successfully fetched scene: ${data.byteLength} bytes`);
 
     return new Response(data, {
       status: 200,
@@ -189,7 +192,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs): Prom
       },
     });
   } catch (error) {
-    console.error('[Spline Proxy] Error fetching scene:', error);
+    logger.error('[Spline Proxy] Error fetching scene:', error);
 
     return new Response(
       JSON.stringify({

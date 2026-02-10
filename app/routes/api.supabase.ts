@@ -1,5 +1,13 @@
 import { json, type ActionFunction } from '@remix-run/node';
+import { z } from 'zod';
 import type { SupabaseProject } from '~/types/supabase';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('api.supabase');
+
+const supabaseAuthSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+});
 
 export const action: ActionFunction = async ({ request }) => {
   if (request.method !== 'POST') {
@@ -7,7 +15,14 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   try {
-    const { token } = (await request.json()) as any;
+    const body = await request.json();
+    const parseResult = supabaseAuthSchema.safeParse(body);
+
+    if (!parseResult.success) {
+      return json({ error: 'Invalid request: token is required' }, { status: 400 });
+    }
+
+    const { token } = parseResult.data;
 
     const projectsResponse = await fetch('https://api.supabase.com/v1/projects', {
       headers: {
@@ -17,8 +32,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
 
     if (!projectsResponse.ok) {
-      const errorText = await projectsResponse.text();
-      console.error('Projects fetch failed:', errorText);
+      logger.error('Projects fetch failed:', projectsResponse.status);
 
       return json({ error: 'Failed to fetch projects' }, { status: 401 });
     }
@@ -45,10 +59,10 @@ export const action: ActionFunction = async ({ request }) => {
       },
     });
   } catch (error) {
-    console.error('Supabase API error:', error);
+    logger.error('Supabase API error:', error);
     return json(
       {
-        error: error instanceof Error ? error.message : 'Authentication failed',
+        error: 'Authentication failed',
       },
       { status: 401 },
     );

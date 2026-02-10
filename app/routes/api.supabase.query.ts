@@ -35,7 +35,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
       try {
         errorData = JSON.parse(errorText);
       } catch (e) {
-        console.log(e);
+        logger.info(e);
         errorData = { message: errorText };
       }
 

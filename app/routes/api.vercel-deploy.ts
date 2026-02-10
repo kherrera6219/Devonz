@@ -1,6 +1,9 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/node';
 import type { VercelProjectInfo } from '~/types/vercel';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.vercel-deploy');
 
 // Function to detect framework from project files
 const detectFramework = (files: Record<string, string>): string => {
@@ -113,7 +116,7 @@ const detectFramework = (files: Record<string, string>): string => {
 
       return 'nodejs';
     } catch (error) {
-      console.error('Error parsing package.json:', error);
+      logger.error('Error parsing package.json:', error);
     }
   }
 
@@ -214,7 +217,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs) => {
         : null,
     });
   } catch (error) {
-    console.error('Error fetching Vercel deployment:', error);
+    logger.error('Error fetching Vercel deployment:', error);
     return json({ error: 'Failed to fetch deployment' }, { status: 500 });
   }
 });
@@ -243,7 +246,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
 
     if (!detectedFramework && sourceFiles) {
       detectedFramework = detectFramework(sourceFiles);
-      console.log('Detected framework from source files:', detectedFramework);
+      logger.info('Detected framework from source files:', detectedFramework);
     }
 
     if (!targetProjectId) {
@@ -432,7 +435,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
       project: projectInfo,
     });
   } catch (error) {
-    console.error('Vercel deploy error:', error);
+    logger.error('Vercel deploy error:', error);
     return json({ error: 'Deployment failed' }, { status: 500 });
   }
 });

@@ -1,6 +1,56 @@
 import { json } from '@remix-run/node';
 import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.git-proxy');
+
+/**
+ * Whitelist of allowed domains for git proxy requests.
+ * Only these domains can be proxied to prevent SSRF attacks.
+ */
+const ALLOWED_DOMAINS = new Set([
+  'github.com',
+  'api.github.com',
+  'raw.githubusercontent.com',
+  'gitlab.com',
+  'bitbucket.org',
+  'api.bitbucket.org',
+  'codeberg.org',
+  'gitea.com',
+  'sr.ht',
+]);
+
+/**
+ * Allowed CORS origins. In production, restrict to your app's domain.
+ */
+function getAllowedOrigin(request: Request): string {
+  const origin = request.headers.get('origin');
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000'];
+
+  if (origin && allowedOrigins.includes(origin)) {
+    return origin;
+  }
+
+  return allowedOrigins[0];
+}
+
+function isAllowedDomain(domain: string): boolean {
+  const normalizedDomain = domain.toLowerCase().replace(/:\d+$/, '');
+
+  if (ALLOWED_DOMAINS.has(normalizedDomain)) {
+    return true;
+  }
+
+  // Allow subdomains of allowed domains (e.g., user.gitlab.com)
+  for (const allowed of ALLOWED_DOMAINS) {
+    if (normalizedDomain.endsWith(`.${allowed}`)) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 // Allowed headers to forward to the target server
 const ALLOW_HEADERS = [
@@ -58,12 +108,14 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       return json({ error: 'Invalid proxy URL format' }, { status: 400 });
     }
 
+    const corsOrigin = getAllowedOrigin(request);
+
     // Handle CORS preflight request
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Origin': corsOrigin,
           'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
           'Access-Control-Allow-Headers': ALLOW_HEADERS.join(', '),
           'Access-Control-Expose-Headers': EXPOSE_HEADERS.join(', '),
@@ -82,11 +134,14 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
     const domain = parts[1];
     const remainingPath = parts[2] || '';
 
+    // Validate domain against whitelist to prevent SSRF
+    if (!isAllowedDomain(domain)) {
+      return json({ error: 'Domain not allowed' }, { status: 403 });
+    }
+
     // Reconstruct the target URL with query parameters
     const url = new URL(request.url);
     const targetURL = `https://${domain}/${remainingPath}${url.search}`;
-
-    console.log('Target URL:', targetURL);
 
     // Filter and prepare headers
     const headers = new Headers();
@@ -105,8 +160,6 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
     if (!headers.has('user-agent') || !headers.get('user-agent')?.startsWith('git/')) {
       headers.set('User-Agent', 'git/@isomorphic-git/cors-proxy');
     }
-
-    console.log('Request headers:', Object.fromEntries(headers.entries()));
 
     // Prepare fetch options
     const fetchOptions: RequestInit = {
@@ -129,13 +182,11 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
     // Forward the request to the target URL
     const response = await fetch(targetURL, fetchOptions);
 
-    console.log('Response status:', response.status);
-
     // Create response headers
     const responseHeaders = new Headers();
 
-    // Add CORS headers
-    responseHeaders.set('Access-Control-Allow-Origin', '*');
+    // Add CORS headers with restricted origin
+    responseHeaders.set('Access-Control-Allow-Origin', corsOrigin);
     responseHeaders.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     responseHeaders.set('Access-Control-Allow-Headers', ALLOW_HEADERS.join(', '));
     responseHeaders.set('Access-Control-Expose-Headers', EXPOSE_HEADERS.join(', '));
@@ -157,8 +208,6 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       responseHeaders.set('x-redirected-url', response.url);
     }
 
-    console.log('Response headers:', Object.fromEntries(responseHeaders.entries()));
-
     // Return the response with the target's body stream piped directly
     return new Response(response.body, {
       status: response.status,
@@ -166,7 +215,7 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error('Proxy error:', error);
+    logger.error('Proxy error:', error);
     return json(
       {
         error: 'Proxy error',

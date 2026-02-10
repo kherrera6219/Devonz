@@ -17,9 +17,31 @@
 
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
 
+const logger = createScopedLogger('api.vercel-proxy');
+
 const VERCEL_API_BASE = 'https://api.vercel.com';
+
+/**
+ * Whitelist of allowed Vercel API endpoint patterns.
+ * Only these endpoints can be proxied to prevent SSRF attacks.
+ */
+const ALLOWED_ENDPOINT_PATTERNS: RegExp[] = [
+  /^\/v\d+\/user$/,
+  /^\/v\d+\/projects(\/[a-zA-Z0-9_-]+)?$/,
+  /^\/v\d+\/projects\/[a-zA-Z0-9_-]+\/domains(\/[a-zA-Z0-9._-]+)?$/,
+  /^\/v\d+\/projects\/[a-zA-Z0-9_-]+\/env(\/[a-zA-Z0-9_-]+)?$/,
+  /^\/v\d+\/deployments(\/[a-zA-Z0-9_-]+)?$/,
+  /^\/v\d+\/domains(\/[a-zA-Z0-9._-]+)?$/,
+  /^\/v\d+\/teams(\/[a-zA-Z0-9_-]+)?$/,
+];
+
+function isAllowedEndpoint(endpoint: string): boolean {
+  const cleanEndpoint = endpoint.split('?')[0];
+  return ALLOWED_ENDPOINT_PATTERNS.some((pattern) => pattern.test(cleanEndpoint));
+}
 
 interface ProxyRequest {
   /** Vercel API endpoint path (e.g., '/v2/user', '/v9/projects') */
@@ -98,7 +120,7 @@ async function vercelProxyLoader({ request, context }: LoaderFunctionArgs) {
 
     return json(data);
   } catch (error) {
-    console.error('Vercel proxy error:', error);
+    logger.error('Vercel proxy error:', error);
 
     return json(
       {
@@ -128,8 +150,15 @@ async function vercelProxyAction({ request, context }: ActionFunctionArgs) {
       return json({ error: 'Missing endpoint in request body' }, { status: 400 });
     }
 
+    // Validate endpoint against whitelist to prevent SSRF
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+
+    if (!isAllowedEndpoint(normalizedEndpoint)) {
+      return json({ error: 'Endpoint not allowed' }, { status: 403 });
+    }
+
     // Build URL with query params
-    let url = `${VERCEL_API_BASE}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+    let url = `${VERCEL_API_BASE}${normalizedEndpoint}`;
 
     if (params && Object.keys(params).length > 0) {
       const searchParams = new URLSearchParams(params);
@@ -175,7 +204,7 @@ async function vercelProxyAction({ request, context }: ActionFunctionArgs) {
 
     return json(responseData);
   } catch (error) {
-    console.error('Vercel proxy error:', error);
+    logger.error('Vercel proxy error:', error);
 
     return json(
       {

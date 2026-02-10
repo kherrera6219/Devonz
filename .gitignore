@@ -28,7 +28,11 @@ dist-ssr
 functions/build/
 .env.local
 .env
+.env.production
+.env.staging
+.env.*.local
 .dev.vars
+database/.env
 *.vars
 .wrangler
 _worker.bundle

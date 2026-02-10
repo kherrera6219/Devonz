@@ -1,5 +1,8 @@
 import { json, type ActionFunctionArgs } from '@remix-run/node';
+import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security';
+
+const logger = createScopedLogger('api.supabase.variables');
 
 export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   try {
@@ -27,7 +30,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
 
     return json({ apiKeys });
   } catch (error) {
-    console.error('Error fetching project API keys:', error);
+    logger.error('Error fetching project API keys:', error);
     return json({ error: error instanceof Error ? error.message : 'Unknown error occurred' }, { status: 500 });
   }
 });

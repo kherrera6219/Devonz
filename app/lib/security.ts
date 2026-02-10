@@ -1,7 +1,10 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 
-// Rate limiting store (in-memory for serverless environments)
+// Rate limiting store (in-memory for single-instance, use Redis for distributed)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+// Maximum entries in rate limit store to prevent memory leaks
+const MAX_RATE_LIMIT_ENTRIES = 10000;
 
 // Rate limit configuration
 const RATE_LIMITS = {
@@ -11,12 +14,33 @@ const RATE_LIMITS = {
   // LLM API (more restrictive)
   '/api/llmcall': { windowMs: 60 * 1000, maxRequests: 10 }, // 10 requests per minute
 
+  // Chat API (more restrictive)
+  '/api/chat': { windowMs: 60 * 1000, maxRequests: 20 }, // 20 requests per minute
+
   // GitHub API endpoints
   '/api/github-*': { windowMs: 60 * 1000, maxRequests: 30 }, // 30 requests per minute
 
+  // GitLab API endpoints
+  '/api/gitlab-*': { windowMs: 60 * 1000, maxRequests: 30 }, // 30 requests per minute
+
   // Netlify API endpoints
   '/api/netlify-*': { windowMs: 60 * 1000, maxRequests: 20 }, // 20 requests per minute
+
+  // Vercel API endpoints
+  '/api/vercel-*': { windowMs: 60 * 1000, maxRequests: 20 }, // 20 requests per minute
+
+  // File import (restrictive)
+  '/api/import-file': { windowMs: 60 * 1000, maxRequests: 10 }, // 10 per minute
 };
+
+/**
+ * Trusted proxy configuration.
+ * When behind a reverse proxy (nginx, Cloudflare, etc.), only trust
+ * IP headers from known proxy addresses.
+ */
+const TRUSTED_PROXIES = new Set(
+  (process.env.TRUSTED_PROXIES || '127.0.0.1,::1').split(',').map((ip) => ip.trim()),
+);
 
 /**
  * Rate limiting middleware
@@ -32,6 +56,11 @@ export function checkRateLimit(request: Request, endpoint: string): { allowed: b
       return endpoint.startsWith(basePattern);
     }
 
+    if (pattern.endsWith('-*')) {
+      const basePattern = pattern.slice(0, -1);
+      return endpoint.startsWith(basePattern);
+    }
+
     return endpoint === pattern;
   });
 
@@ -43,15 +72,23 @@ export function checkRateLimit(request: Request, endpoint: string): { allowed: b
   const now = Date.now();
   const windowStart = now - config.windowMs;
 
-  // Clean up old entries
-  for (const [storedKey, data] of rateLimitStore.entries()) {
-    if (data.resetTime < windowStart) {
-      rateLimitStore.delete(storedKey);
+  // Clean up old entries to prevent memory leaks
+  if (rateLimitStore.size > MAX_RATE_LIMIT_ENTRIES) {
+    for (const [storedKey, data] of rateLimitStore.entries()) {
+      if (data.resetTime < windowStart) {
+        rateLimitStore.delete(storedKey);
+      }
     }
   }
 
   // Get or create rate limit data
   const rateLimitData = rateLimitStore.get(key) || { count: 0, resetTime: now + config.windowMs };
+
+  // Reset if window has passed
+  if (rateLimitData.resetTime < now) {
+    rateLimitData.count = 0;
+    rateLimitData.resetTime = now + config.windowMs;
+  }
 
   if (rateLimitData.count >= config.maxRequests) {
     return { allowed: false, resetTime: rateLimitData.resetTime };
@@ -65,16 +102,58 @@ export function checkRateLimit(request: Request, endpoint: string): { allowed: b
 }
 
 /**
- * Get client IP address from request
+ * Get client IP address from request.
+ * Uses a priority-based approach with trusted proxy validation.
  */
 function getClientIP(request: Request): string {
-  // Try various headers that might contain the real IP
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const realIP = request.headers.get('x-real-ip');
+  // Cloudflare's connecting IP is most reliable when behind CF
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
 
-  // Return the first available IP or a fallback
-  return cfConnectingIP || realIP || forwardedFor?.split(',')[0]?.trim() || 'unknown';
+  if (cfConnectingIP && isValidIP(cfConnectingIP)) {
+    return cfConnectingIP;
+  }
+
+  // For x-forwarded-for, take the leftmost (client) IP only if we trust the proxy
+  const forwardedFor = request.headers.get('x-forwarded-for');
+
+  if (forwardedFor) {
+    const ips = forwardedFor.split(',').map((ip) => ip.trim());
+
+    // Walk from rightmost to find the first non-trusted IP
+    for (let i = ips.length - 1; i >= 0; i--) {
+      if (!TRUSTED_PROXIES.has(ips[i]) && isValidIP(ips[i])) {
+        return ips[i];
+      }
+    }
+  }
+
+  const realIP = request.headers.get('x-real-ip');
+
+  if (realIP && isValidIP(realIP)) {
+    return realIP;
+  }
+
+  return 'unknown';
+}
+
+/**
+ * Basic IP format validation
+ */
+function isValidIP(ip: string): boolean {
+  // IPv4
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) {
+    return ip.split('.').every((octet) => {
+      const num = parseInt(octet, 10);
+      return num >= 0 && num <= 255;
+    });
+  }
+
+  // IPv6 (simplified check)
+  if (/^[0-9a-fA-F:]+$/.test(ip) && ip.includes(':')) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -91,21 +170,31 @@ export function createSecurityHeaders() {
     // Enable XSS protection
     'X-XSS-Protection': '1; mode=block',
 
-    /*
-     * Content Security Policy - restrict to same origin and trusted sources
-     * 'Content-Security-Policy': [
-     *   "default-src 'self'",
-     *   "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Allow inline scripts for React
-     *   "style-src 'self' 'unsafe-inline'", // Allow inline styles
-     *   "img-src 'self' data: https: blob:", // Allow images from same origin, data URLs, and HTTPS
-     *   "font-src 'self' data:", // Allow fonts from same origin and data URLs
-     *   "connect-src 'self' https://api.github.com https://api.netlify.com", // Allow connections to GitHub and Netlify APIs
-     *   "frame-src 'none'", // Prevent iframe embedding
-     *   "object-src 'none'", // Prevent object embedding
-     *   "base-uri 'self'",
-     *   "form-action 'self'",
-     * ].join('; '),
-     */
+    // Content Security Policy
+    'Content-Security-Policy': [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https: blob:",
+      "font-src 'self' data:",
+      [
+        "connect-src 'self'",
+        'https://api.github.com',
+        'https://api.netlify.com',
+        'https://api.vercel.com',
+        'https://gitlab.com',
+        'https://api.anthropic.com',
+        'https://api.openai.com',
+        'https://generativelanguage.googleapis.com',
+        'wss:',
+        'ws:',
+      ].join(' '),
+      "frame-src 'self' https://stackblitz.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "worker-src 'self' blob:",
+    ].join('; '),
 
     // Referrer Policy
     'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -193,8 +282,8 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
       });
     }
 
-    // Apply rate limiting - only in production
-    if (options.rateLimit !== false && process.env.NODE_ENV === 'production') {
+    // Apply rate limiting in all environments
+    if (options.rateLimit !== false) {
       const rateLimitResult = checkRateLimit(request, endpoint);
 
       if (!rateLimitResult.allowed) {
