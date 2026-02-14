@@ -15,6 +15,7 @@
     "dev": "node pre-start.js && remix vite:dev",
     "test": "vitest --run",
     "test:watch": "vitest",
+    "test:visual": "playwright test",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app",
     "lint:fix": "npm run lint -- --fix && prettier app --write",
     "start": "remix-serve ./build/server/index.js",

@@ -110,41 +110,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 import { logStore } from './lib/stores/logs';
 
+import { RouteErrorBoundary } from '~/components/errors/RouteErrorBoundary';
+
 export function ErrorBoundary() {
-  const error = useRouteError();
-  console.error(error);
-
-  let message = 'An unexpected error occurred';
-  let details = 'Please try reloading the page.';
-
-  if (isRouteErrorResponse(error)) {
-    message = `${error.status} ${error.statusText}`;
-    details = error.data;
-  } else if (import.meta.env.DEV && error instanceof Error) {
-    message = 'Application Error';
-    details = error.message;
-  } else if (error instanceof Error) {
-    message = 'Application Error';
-    details = 'An unexpected error occurred. Please try again later.';
-  }
-
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-full gap-4 p-4">
-      <div className="i-ph:warning-circle-bold text-6xl text-bolt-elements-icon-error" />
-      <h1 className="text-2xl font-bold">{message}</h1>
-      <p className="text-bolt-elements-textSecondary max-w-lg text-center font-mono text-sm bg-bolt-elements-background-depth-3 p-4 rounded border border-bolt-elements-borderColor">
-        {details}
-      </p>
-      <button
-        onClick={() => window.location.reload()}
-        className="px-4 py-2 bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text rounded hover:bg-bolt-elements-button-primary-backgroundHover transition-colors"
-        aria-label="Reload Application"
-      >
-        Reload Application
-      </button>
+    <div className="h-screen w-screen flex items-center justify-center bg-bolt-elements-background-depth-1">
+      <RouteErrorBoundary />
     </div>
   );
 }
+
+import { FeatureProvider } from '~/lib/modules/features/FeatureContext';
+
+// ...
 
 export default function App() {
   const theme = useStore(themeStore);
@@ -175,9 +153,11 @@ export default function App() {
   return (
     <ClientOnly fallback={<Outlet />}>
       {() => (
-        <DndProvider backend={HTML5Backend}>
-          <Outlet />
-        </DndProvider>
+        <FeatureProvider>
+          <DndProvider backend={HTML5Backend}>
+            <Outlet />
+          </DndProvider>
+        </FeatureProvider>
       )}
     </ClientOnly>
   );

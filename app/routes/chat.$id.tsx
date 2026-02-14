@@ -5,4 +5,6 @@ export async function loader(args: LoaderFunctionArgs) {
   return json({ id: args.params.id });
 }
 
+export { RouteErrorBoundary as ErrorBoundary } from '~/components/errors/RouteErrorBoundary';
+
 export default IndexRoute;

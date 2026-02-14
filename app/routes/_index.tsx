@@ -15,6 +15,9 @@ export const meta: MetaFunction = () => {
 
 // export const loader = () => json({});
 
+// Export the reusable ErrorBoundary for route-level isolation
+export { RouteErrorBoundary as ErrorBoundary } from '~/components/errors/RouteErrorBoundary';
+
 /**
  * Landing page component for Devonz
  * Note: Settings functionality should ONLY be accessed through the sidebar menu.

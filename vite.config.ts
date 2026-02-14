@@ -104,6 +104,9 @@ export default defineConfig((config) => {
       },
     },
     test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./app/test/setup-a11y.ts'],
       exclude: [
         '**/node_modules/**',
         '**/dist/**',
