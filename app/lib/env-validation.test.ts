@@ -5,7 +5,11 @@ describe('Environment Validation', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    process.env = { ...originalEnv };
+    // Create a clean env with only the essentials — prevents real .env from bleeding in
+    process.env = {
+      NODE_ENV: 'development',
+      PATH: originalEnv.PATH,
+    };
   });
 
   afterEach(() => {

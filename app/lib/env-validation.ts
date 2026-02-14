@@ -79,10 +79,21 @@ export function validateEnv(): EnvConfig {
 
     console.warn('Continuing with defaults in non-production mode...');
 
-    // Return with defaults applied where possible
+    // Strip out invalid fields so schema defaults can apply
+    const cleanEnv = { ...process.env };
+
+    for (const issue of result.error.issues) {
+      const key = issue.path[0];
+
+      if (key && typeof key === 'string') {
+        delete cleanEnv[key];
+      }
+    }
+
+    // Re-parse with invalid fields removed — defaults will apply
     return envSchema.parse({
-      ...process.env,
-      NODE_ENV: process.env.NODE_ENV || 'development',
+      ...cleanEnv,
+      NODE_ENV: cleanEnv.NODE_ENV || 'development',
     });
   }
 

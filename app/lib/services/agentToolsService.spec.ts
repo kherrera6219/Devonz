@@ -497,10 +497,10 @@ describe('executeAgentTool', () => {
 });
 
 describe('getAgentToolNames', () => {
-  it('should return all 12 tool names', () => {
+  it('should return all 13 tool names', () => {
     const names = getAgentToolNames();
 
-    expect(names).toHaveLength(12);
+    expect(names).toHaveLength(13);
     expect(names).toContain('devonz_read_file');
     expect(names).toContain('devonz_write_file');
     expect(names).toContain('devonz_list_directory');
@@ -513,6 +513,7 @@ describe('getAgentToolNames', () => {
     expect(names).toContain('devonz_read_document');
     expect(names).toContain('devonz_knowledge_ingest');
     expect(names).toContain('devonz_knowledge_query');
+    expect(names).toContain('devonz_apply_patch');
   });
 });
 

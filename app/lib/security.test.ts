@@ -1,7 +1,46 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+// In-memory store to simulate Redis for rate limiting tests
+const mockStore = new Map<string, string>();
+
+vi.mock('./services/redisService', () => ({
+  redisService: {
+    get: vi.fn((key: string) => Promise.resolve(mockStore.get(key) ?? null)),
+    set: vi.fn((key: string, value: string) => {
+      mockStore.set(key, value);
+      return Promise.resolve('OK');
+    }),
+    del: vi.fn((key: string) => {
+      mockStore.delete(key);
+      return Promise.resolve(1);
+    }),
+    isConnected: vi.fn(() => true),
+  },
+}));
+
+// Mock the logger to avoid noise
+vi.mock('~/utils/logger', () => ({
+  createScopedLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    trace: vi.fn(),
+  }),
+}));
+
 import { checkRateLimit, createSecurityHeaders, validateApiKeyFormat, sanitizeErrorMessage } from './security';
 
 describe('Security Module', () => {
+  beforeEach(() => {
+    mockStore.clear();
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    mockStore.clear();
+  });
+
   describe('createSecurityHeaders', () => {
     it('should include all required security headers', () => {
       const headers = createSecurityHeaders();
