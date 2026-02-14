@@ -41,6 +41,13 @@ export class ArchitectAgent {
   /**
    * Main entry point
    */
+  /**
+   * Main entry point for the Architect Agent.
+   * Identifies pending tasks and generates/applies patches to implement them.
+   *
+   * @param state The current run state.
+   * @returns A partial state containing updated tasks, patches, and event logs.
+   */
   async run(state: RunState): Promise<Partial<RunState>> {
     try {
       this._ensureModel(state);

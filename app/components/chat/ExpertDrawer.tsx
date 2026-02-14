@@ -13,13 +13,17 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
   const [activeTab, setActiveTab] = useState<'timeline' | 'qc' | 'research' | 'changes'>('timeline');
 
   // Extract latest data from events
-  const researchEvent = [...events].reverse().find((e) => e.type === 'artifact_ready' && e.agent === 'researcher');
-  const patchEvents = events.filter((e) => e.type === 'patch_applied');
-  const qcEvents = events.filter(
-    (e) => e.type === 'qc_issues_found' || e.type === 'qc_passed' || e.type === 'qc_failed',
-  );
+  const { researchData, patchEvents, qcEvents } = React.useMemo(() => {
+    const researchEvent = [...events].reverse().find((e) => e.type === 'artifact_ready' && e.agent === 'researcher');
+    const patches = events.filter((e) => e.type === 'patch_applied');
+    const qcs = events.filter((e) => e.type === 'qc_issues_found' || e.type === 'qc_passed' || e.type === 'qc_failed');
 
-  const researchData = researchEvent?.details;
+    return {
+      researchData: researchEvent?.details,
+      patchEvents: patches,
+      qcEvents: qcs,
+    };
+  }, [events]);
 
   if (!isOpen) {
     return null;

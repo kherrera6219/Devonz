@@ -47,14 +47,23 @@ export class ResearcherAgent {
   /**
    * Main entry point - usually called via specific methods by Graph
    */
+  /**
+   * Main entry point for the Researcher Agent.
+   * Performs technology research, competency mapping, and codebase analysis.
+   *
+   * @param state The current run state of the MAS orchestrator.
+   * @returns A partial state containing research artifacts and event logs.
+   */
   async run(state: RunState): Promise<Partial<RunState>> {
     this._ensureModels(state);
 
+    const infraContext = await this._getInfrastructureContext(state);
+
     // If the stage is specifically analysis, run that
     if (state.status.stage === 'RESEARCH_TECH_AND_SKILLS') {
-      const techUpdate = await this.runTechResearch(state);
+      const techUpdate = await this.runTechResearch(state, infraContext);
       const competencyUpdate = await this.runCompetencyResearch(state);
-      const codebaseUpdate = await this.runCodebaseAnalysis(state);
+      const codebaseUpdate = await this.runCodebaseAnalysis(state, infraContext);
 
       return {
         research: {
@@ -67,7 +76,7 @@ export class ResearcherAgent {
       };
     }
 
-    return await this.runTechResearch(state);
+    return await this.runTechResearch(state, infraContext);
   }
 
   /**
@@ -107,11 +116,19 @@ export class ResearcherAgent {
    * ACTION: CODEBASE_ANALYSIS
    * Performs deep recursive analysis of the codebase.
    */
-  async runCodebaseAnalysis(state: RunState): Promise<Partial<RunState>> {
+  /**
+   * ACTION: CODEBASE_ANALYSIS
+   * Performs deep recursive analysis of the codebase using RAG and Graph services.
+   *
+   * @param state The current run state.
+   * @param providedContext Optional infrastructure context to avoid redundant fetching.
+   * @returns Partial state with findings.
+   */
+  async runCodebaseAnalysis(state: RunState, providedContext?: string): Promise<Partial<RunState>> {
     try {
       this._ensureModels(state);
 
-      const infraContext = await this._getInfrastructureContext(state);
+      const infraContext = providedContext ?? (await this._getInfrastructureContext(state));
 
       const parser = new JsonOutputParser();
       const prompt = PromptTemplate.fromTemplate(
@@ -169,14 +186,18 @@ export class ResearcherAgent {
   /**
    * ACTION: TECH_REALITY_CHECK
    */
-  async runTechResearch(state: RunState): Promise<Partial<RunState>> {
+  /**
+   * ACTION: TECH_REALITY_CHECK
+   * Validates the technology stack against latest standards, CVEs, and compatibility.
+   */
+  async runTechResearch(state: RunState, providedContext?: string): Promise<Partial<RunState>> {
     try {
       this._ensureModels(state);
 
       // Context from Plan or User Input
       const query = state.inputs.requestText || 'General Tech Inquiry';
       const constraints = JSON.stringify(state.inputs.constraints || {});
-      const infraContext = await this._getInfrastructureContext(state);
+      const infraContext = providedContext ?? (await this._getInfrastructureContext(state));
 
       const parser = new JsonOutputParser();
       const prompt = PromptTemplate.fromTemplate(
