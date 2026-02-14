@@ -99,6 +99,18 @@ export const ResizeHandle = memo(
         )}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
+        onKeyDown={(e) => {
+          if (disabled) {
+            return;
+          }
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            onResize(-10);
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            onResize(10);
+          }
+        }}
         role="separator"
         aria-orientation="vertical"
         aria-label="Resize handle"

@@ -92,6 +92,20 @@ You operate in WebContainer, an in-browser Node.js runtime that emulates a Linux
 </guidelines>
 `;
 
+import { longTermMemory } from '~/lib/services/longTermMemoryService';
+
+export const createCoordinatorSystemPrompt = async (projectRoot: string = process.cwd()) => {
+  const memoryContext = await longTermMemory.getMemoryContext(projectRoot);
+
+  return `You are the Coordinator Agent...
+
+  [PROJECT MEMORY]
+  ${memoryContext}
+  [END MEMORY]
+
+  ...rest of prompt`;
+};
+
 /**
  * Main agent system prompt
  */

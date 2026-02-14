@@ -67,6 +67,7 @@ export function HeaderActionButtons({ chatStarted: _chatStarted }: HeaderActionB
           onClick={() => setIsVercelModalOpen(true)}
           className="rounded-md items-center justify-center px-2 py-1.5 text-xs bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-4 hover:text-bolt-elements-textPrimary hover:border-accent-500/50 outline-accent-500 flex gap-1 transition-colors"
           title="Vercel Domain Settings"
+          aria-label="Vercel Domain Settings"
         >
           <svg className="w-3.5 h-3.5" viewBox="0 0 76 65" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />

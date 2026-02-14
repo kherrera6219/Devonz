@@ -55,7 +55,7 @@ textarea,
 [class*='overflow-x-auto'],
 [class*='overflow-scroll'] {
   scrollbar-width: thin;
-  scrollbar-color: #444444 #131a24;
+  scrollbar-color: var(--bolt-elements-borderColor) var(--bolt-elements-bg-depth-1);
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -63,22 +63,22 @@ textarea,
   }
 
   &::-webkit-scrollbar-track {
-    background: #131a24;
+    background: var(--bolt-elements-bg-depth-1);
     border-radius: 4px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #444444;
+    background-color: var(--bolt-elements-borderColor);
     border-radius: 4px;
-    border: 2px solid #131a24;
+    border: 2px solid var(--bolt-elements-bg-depth-1);
 
     &:hover {
-      background-color: #555555;
+      background-color: var(--bolt-elements-textTertiary);
     }
   }
 
   &::-webkit-scrollbar-corner {
-    background: #131a24;
+    background: var(--bolt-elements-bg-depth-1);
   }
 }
 

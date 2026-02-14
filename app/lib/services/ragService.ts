@@ -62,6 +62,10 @@ export class RAGService {
         model: embeddingModel,
       });
 
+      // 2025 Modernization: Optimize chunking for Code + Text
+      Settings.chunkSize = 1024;
+      Settings.chunkOverlap = 200;
+
       // Map common models to their dimensions
       const dimensionMap: Record<string, number> = {
         'text-embedding-3-small': 1536,
@@ -81,7 +85,9 @@ export class RAGService {
       });
 
       this._isInitialized = true;
-      logger.info(`RAG Service initialized with PGVectorStore (${embeddingModel}, ${dimensions} dims)`);
+      logger.info(
+        `RAG Service initialized with PGVectorStore (${embeddingModel}, ${dimensions} dims, Chunk: 1024/200)`,
+      );
     } catch (error) {
       logger.error('Failed to initialize RAG Service', error);
       throw error;
@@ -96,9 +102,19 @@ export class RAGService {
     }
 
     const documents = Object.entries(files).map(([path, content]) => {
+      // Auto-detect language
+      const ext = path.split('.').pop() || 'text';
+      const language = this._getLanguageFromExt(ext);
+
       return new Document({
         text: content,
-        metadata: { path, projectId },
+        metadata: {
+          path,
+          projectId,
+          language,
+          lastModified: new Date().toISOString(),
+          type: 'code_file',
+        },
       });
     });
 
@@ -113,6 +129,29 @@ export class RAGService {
     logger.info(`Successfully indexed ${documents.length} files`);
 
     return documents.length;
+  }
+
+  private _getLanguageFromExt(ext: string): string {
+    const map: Record<string, string> = {
+      ts: 'typescript',
+      tsx: 'typescript',
+      js: 'javascript',
+      jsx: 'javascript',
+      py: 'python',
+      rb: 'ruby',
+      go: 'go',
+      rs: 'rust',
+      java: 'java',
+      cpp: 'cpp',
+      c: 'c',
+      html: 'html',
+      css: 'css',
+      json: 'json',
+      md: 'markdown',
+      yml: 'yaml',
+      yaml: 'yaml',
+    };
+    return map[ext.toLowerCase()] || 'text';
   }
 
   async query(projectId: string, query: string, topK: number = 5): Promise<string[]> {
