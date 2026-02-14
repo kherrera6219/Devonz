@@ -336,13 +336,13 @@ export const Menu = () => {
         animate={open ? 'open' : 'closed'}
         variants={menuVariants}
         className={classNames(
-          'flex selection-accent flex-col side-menu fixed top-0 h-full rounded-r-2xl w-[340px]',
+          'flex selection-accent flex-col side-menu fixed top-0 h-full rounded-r-xl w-[340px]',
           'bg-bolt-elements-background-depth-1 border-r border-bolt-elements-borderColor',
-          'shadow-xl backdrop-blur-sm text-sm',
+          'shadow-xl acrylic-surface text-sm',
           isSettingsOpen ? 'z-40' : 'z-sidebar',
         )}
       >
-        <div className="h-12 flex items-center justify-between px-4 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2/80 rounded-tr-2xl">
+        <div className="h-12 flex items-center justify-between px-4 border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-2/80 rounded-tr-xl">
           <span className="text-bolt-elements-textPrimary font-semibold text-lg">{t('header.devonz', 'Devonz')}</span>
           <div className="flex items-center gap-2">
             <SettingsButton onClick={handleSettingsClick} />
@@ -448,11 +448,11 @@ export const Menu = () => {
               <Dialog onBackdrop={closeDialog} onClose={closeDialog}>
                 {dialogContent?.type === 'delete' && (
                   <>
-                    <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">
+                    <div className="p-6 bg-bolt-elements-bg-depth-1">
+                      <DialogTitle className="text-bolt-elements-textPrimary">
                         {t('sidebar.delete_chat_title', 'Delete Chat?')}
                       </DialogTitle>
-                      <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
+                      <DialogDescription className="mt-2 text-bolt-elements-textSecondary">
                         <p>
                           {t('sidebar.delete_chat_description', 'You are about to delete {{description}}', {
                             description: dialogContent.item.description,
@@ -463,7 +463,7 @@ export const Menu = () => {
                         </p>
                       </DialogDescription>
                     </div>
-                    <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-end gap-3 px-6 py-4 bg-bolt-elements-bg-depth-2 border-t border-bolt-elements-borderColor">
                       <DialogButton type="secondary" onClick={closeDialog}>
                         {t('common.cancel', 'Cancel')}
                       </DialogButton>
@@ -482,21 +482,21 @@ export const Menu = () => {
                 )}
                 {dialogContent?.type === 'bulkDelete' && (
                   <>
-                    <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">
+                    <div className="p-6 bg-bolt-elements-bg-depth-1">
+                      <DialogTitle className="text-bolt-elements-textPrimary">
                         {t('sidebar.bulk_delete_title', 'Delete Selected Chats?')}
                       </DialogTitle>
-                      <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
+                      <DialogDescription className="mt-2 text-bolt-elements-textSecondary">
                         <p>
                           {t('sidebar.bulk_delete_description', 'You are about to delete {{count}} chats:', {
                             count: dialogContent.items.length,
                           })}
                         </p>
-                        <div className="mt-2 max-h-32 overflow-auto border border-gray-100 dark:border-gray-800 rounded-md bg-gray-50 dark:bg-gray-900 p-2">
+                        <div className="mt-2 max-h-32 overflow-auto border border-bolt-elements-borderColor rounded-md bg-bolt-elements-bg-depth-2 p-2">
                           <ul className="list-disc pl-5 space-y-1">
                             {dialogContent.items.map((item) => (
                               <li key={item.id} className="text-sm">
-                                <span className="font-medium text-gray-900 dark:text-white">{item.description}</span>
+                                <span className="font-medium text-bolt-elements-textPrimary">{item.description}</span>
                               </li>
                             ))}
                           </ul>
@@ -506,7 +506,7 @@ export const Menu = () => {
                         </p>
                       </DialogDescription>
                     </div>
-                    <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex justify-end gap-3 px-6 py-4 bg-bolt-elements-bg-depth-2 border-t border-bolt-elements-borderColor">
                       <DialogButton type="secondary" onClick={closeDialog}>
                         {t('common.cancel', 'Cancel')}
                       </DialogButton>

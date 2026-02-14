@@ -20,12 +20,14 @@ export function Header() {
         'border-bolt-elements-borderColor': chat.started,
       })}
     >
-      <div className="flex items-center gap-3 z-logo text-bolt-elements-textPrimary cursor-pointer">
+      <div className="flex items-center gap-3 z-logo text-bolt-elements-textPrimary">
         {!sidebarOpen && (
-          <div
-            className="i-ph:sidebar-simple text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors"
+          <button
+            type="button"
+            className="i-ph:sidebar-simple text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors bg-transparent border-none cursor-pointer p-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bolt-elements-ring focus-visible:ring-offset-2"
             onClick={() => sidebarStore.toggle()}
-            title={sidebarOpen ? '' : t('header.show_sidebar', 'Show Sidebar')}
+            aria-label={t('header.show_sidebar', 'Show Sidebar')}
+            title={t('header.show_sidebar', 'Show Sidebar')}
           />
         )}
       </div>
@@ -37,9 +39,10 @@ export function Header() {
           <ClientOnly>
             {() => (
               <div className="flex items-center gap-3">
-                <div
+                <button
+                  type="button"
                   className={classNames(
-                    'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors cursor-pointer',
+                    'text-xl text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors cursor-pointer bg-transparent border-none p-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bolt-elements-ring focus-visible:ring-offset-2',
                     {
                       'i-ph:chat-circle-dots-fill': showChat,
                       'i-ph:chat-circle-dots': !showChat,
@@ -48,6 +51,7 @@ export function Header() {
                   onClick={() => {
                     chatStore.setKey('showChat', !showChat);
                   }}
+                  aria-label={showChat ? t('header.hide_chat', 'Hide Chat') : t('header.show_chat', 'Show Chat')}
                   title={showChat ? t('header.hide_chat', 'Hide Chat') : t('header.show_chat', 'Show Chat')}
                 />
                 <HeaderActionButtons chatStarted={chat.started} />

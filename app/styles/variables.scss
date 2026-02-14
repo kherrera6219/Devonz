@@ -3,6 +3,7 @@
 :root[data-theme='light'] {
   --bolt-elements-borderColor: theme('colors.alpha.gray.10');
   --bolt-elements-borderColorActive: theme('colors.accent.600');
+  --bolt-elements-ring: theme('colors.accent.500');
 
   --bolt-elements-bg-depth-1: theme('colors.white');
   --bolt-elements-bg-depth-2: theme('colors.gray.50');

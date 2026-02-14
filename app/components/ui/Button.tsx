@@ -3,16 +3,20 @@ import { cva } from 'class-variance-authority';
 import { classNames } from '~/utils/classNames';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#555] disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bolt-elements-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'bg-[#2a2a2a] text-white hover:bg-[#333]',
-        destructive: 'bg-red-600 text-white hover:bg-red-700',
-        outline: 'border border-[#444] bg-transparent hover:bg-[#2a2a2a] text-white',
-        secondary: 'bg-[#252525] text-white hover:bg-[#333]',
-        ghost: 'hover:bg-[#2a2a2a] text-white',
-        link: 'text-white underline-offset-4 hover:underline',
+        default:
+          'bg-bolt-elements-button-secondary-background text-bolt-elements-button-secondary-text hover:bg-bolt-elements-button-secondary-backgroundHover',
+        destructive:
+          'bg-bolt-elements-button-danger-background text-bolt-elements-button-danger-text hover:bg-bolt-elements-button-danger-backgroundHover',
+        outline:
+          'border border-bolt-elements-borderColor bg-transparent hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-textPrimary',
+        secondary:
+          'bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text hover:bg-bolt-elements-button-primary-backgroundHover',
+        ghost: 'hover:bg-bolt-elements-item-backgroundActive text-bolt-elements-textPrimary',
+        link: 'text-bolt-elements-textPrimary underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-9 px-4 py-2',

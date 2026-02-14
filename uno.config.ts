@@ -121,6 +121,7 @@ export default defineConfig({
         elements: {
           borderColor: 'var(--bolt-elements-borderColor)',
           borderColorActive: 'var(--bolt-elements-borderColorActive)',
+          ring: 'var(--bolt-elements-ring)',
           background: {
             depth: {
               1: 'var(--bolt-elements-bg-depth-1)',

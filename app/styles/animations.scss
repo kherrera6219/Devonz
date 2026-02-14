@@ -1,14 +1,16 @@
 .animated {
   animation-fill-mode: both;
   animation-duration: var(--animate-duration, 0.2s);
-  animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  animation-timing-function: cubic-bezier(0.8, 0, 0.2, 1);
 
   &.fadeInRight {
     animation-name: fadeInRight;
+    animation-timing-function: cubic-bezier(0, 0, 0, 1); // Fluent decelerate for entering
   }
 
   &.fadeOutRight {
     animation-name: fadeOutRight;
+    animation-timing-function: cubic-bezier(1, 0, 1, 1); // Fluent accelerate for exiting
   }
 }
 
@@ -38,7 +40,7 @@
 .dropdown-animation {
   opacity: 0;
   animation: fadeMoveDown 0.15s forwards;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-timing-function: cubic-bezier(0, 0, 0, 1); // Fluent decelerate for entering
 }
 
 @keyframes fadeMoveDown {

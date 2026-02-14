@@ -24,10 +24,10 @@ export const DialogButton = memo(({ type, children, onClick, disabled }: DialogB
       className={classNames(
         'inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors',
         type === 'primary'
-          ? 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700'
+          ? 'bg-bolt-elements-button-primary-background text-bolt-elements-button-primary-text hover:bg-bolt-elements-button-primary-backgroundHover'
           : type === 'secondary'
-            ? 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
-            : 'bg-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10',
+            ? 'bg-transparent text-bolt-elements-textSecondary hover:bg-bolt-elements-item-backgroundActive hover:text-bolt-elements-textPrimary'
+            : 'bg-transparent text-bolt-elements-button-danger-text hover:bg-bolt-elements-button-danger-background/10',
       )}
       onClick={onClick}
       disabled={disabled}
@@ -116,7 +116,7 @@ export const Dialog = memo(({ children, className, showCloseButton = true, onClo
       <RadixDialog.Content asChild>
         <motion.div
           className={classNames(
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-950 rounded-lg shadow-xl border border-bolt-elements-borderColor z-[9999] w-[520px] focus:outline-none',
+            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-bolt-elements-bg-depth-1 rounded-xl shadow-xl border border-bolt-elements-borderColor z-[9999] w-[520px] focus:outline-none acrylic-surface',
             className,
           )}
           initial="closed"
@@ -208,23 +208,14 @@ export function ConfirmationDialog({
   return (
     <RadixDialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog showCloseButton={false}>
-        <div className="p-6 bg-white dark:bg-gray-950 relative z-10">
+        <div className="p-6 bg-bolt-elements-bg-depth-1 relative z-10">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="mb-4">{description}</DialogDescription>
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={onClose} disabled={isLoading} type="button">
               {cancelLabel}
             </Button>
-            <Button
-              variant={variant}
-              onClick={onConfirm}
-              disabled={isLoading}
-              className={
-                variant === 'destructive'
-                  ? 'bg-red-500 text-white hover:bg-red-600'
-                  : 'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent hover:bg-bolt-elements-button-primary-backgroundHover'
-              }
-            >
+            <Button variant={variant} onClick={onConfirm} disabled={isLoading} type="button">
               {isLoading ? (
                 <>
                   <div className="i-ph-spinner-gap-bold animate-spin w-4 h-4 mr-2" />
@@ -382,7 +373,7 @@ export function SelectionDialog({
   return (
     <RadixDialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog showCloseButton={false}>
-        <div className="p-6 bg-white dark:bg-gray-950 relative z-10">
+        <div className="p-6 bg-bolt-elements-bg-depth-1 relative z-10">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="mt-2 mb-4">
             Select the items you want to include and click{' '}
@@ -399,6 +390,7 @@ export function SelectionDialog({
                 size="sm"
                 onClick={handleSelectAll}
                 className="text-xs h-8 px-2 text-bolt-elements-textPrimary hover:text-bolt-elements-item-contentAccent hover:bg-bolt-elements-item-backgroundAccent bg-bolt-elements-bg-depth-2 dark:bg-transparent"
+                type="button"
               >
                 {selectAll ? 'Deselect All' : 'Select All'}
               </Button>
@@ -431,6 +423,7 @@ export function SelectionDialog({
               variant="outline"
               onClick={onClose}
               className="border-bolt-elements-borderColor text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive"
+              type="button"
             >
               Cancel
             </Button>
@@ -438,6 +431,7 @@ export function SelectionDialog({
               onClick={handleConfirm}
               disabled={selectedItems.length === 0}
               className="bg-accent-500 text-white hover:bg-accent-600 disabled:opacity-50 disabled:pointer-events-none"
+              type="button"
             >
               {confirmLabel}
             </Button>
