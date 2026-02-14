@@ -325,9 +325,6 @@ export interface AgentExecutionState {
   filesModified: string[];
   commandsExecuted: string[];
 
-  /** Session end time */
-  sessionEndTime?: number;
-
   /** Pending approval request */
   pendingApproval?: ApprovalRequest;
 }
@@ -368,6 +365,7 @@ export interface AgentTaskResult {
   error?: string;
 }
 
+/**
  * Agent orchestrator options
  */
 export interface AgentOrchestratorOptions {

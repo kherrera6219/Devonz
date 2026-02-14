@@ -826,7 +826,6 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['path', 'content'],
     },
     execute: writeFile as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
-<<<<<<< HEAD
   },
 
   devonz_generate_image: {
@@ -904,8 +903,6 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['title', 'content', 'path'],
     },
     execute: generateDocument as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
-=======
->>>>>>> upstream/main
   },
 
   devonz_list_directory: {
@@ -1011,7 +1008,6 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['query'],
     },
     execute: searchCode as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
-<<<<<<< HEAD
   },
 
   devonz_read_document: {
@@ -1083,8 +1079,6 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['projectId', 'query'],
     },
     execute: knowledgeQuery as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
-=======
->>>>>>> upstream/main
   },
 };
 
