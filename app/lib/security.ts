@@ -1,12 +1,11 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { redisService } from './services/redisService';
+import { createScopedLogger } from '~/utils/logger';
+import crypto from 'node:crypto';
 
-// Rate limiting store (in-memory for single-instance, use Redis for distributed)
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const logger = createScopedLogger('Security');
 
-// Maximum entries in rate limit store to prevent memory leaks
-const MAX_RATE_LIMIT_ENTRIES = 10000;
-
-// Rate limit configuration
+// Rate limiting configuration
 const RATE_LIMITS = {
   // General API endpoints
   '/api/*': { windowMs: 15 * 60 * 1000, maxRequests: 100 }, // 100 requests per 15 minutes
@@ -43,11 +42,11 @@ const TRUSTED_PROXIES = new Set(
 );
 
 /**
- * Rate limiting middleware
+ * Rate limiting middleware (asynchronous, Redis-backed)
  */
-export function checkRateLimit(request: Request, endpoint: string): { allowed: boolean; resetTime?: number } {
+export async function checkRateLimit(request: Request, endpoint: string): Promise<{ allowed: boolean; resetTime?: number }> {
   const clientIP = getClientIP(request);
-  const key = `${clientIP}:${endpoint}`;
+  const key = `ratelimit:${clientIP}:${endpoint}`;
 
   // Find matching rate limit rule
   const rule = Object.entries(RATE_LIMITS).find(([pattern]) => {
@@ -65,40 +64,35 @@ export function checkRateLimit(request: Request, endpoint: string): { allowed: b
   });
 
   if (!rule) {
-    return { allowed: true }; // No rate limit for this endpoint
+    return { allowed: true };
   }
 
   const [, config] = rule;
   const now = Date.now();
-  const windowStart = now - config.windowMs;
 
-  // Clean up old entries to prevent memory leaks
-  if (rateLimitStore.size > MAX_RATE_LIMIT_ENTRIES) {
-    for (const [storedKey, data] of rateLimitStore.entries()) {
-      if (data.resetTime < windowStart) {
-        rateLimitStore.delete(storedKey);
-      }
+  try {
+    const data = await redisService.get(key);
+    const rateLimitData = data ? JSON.parse(data) : { count: 0, resetTime: now + config.windowMs };
+
+    // Reset if window has passed
+    if (rateLimitData.resetTime < now) {
+      rateLimitData.count = 0;
+      rateLimitData.resetTime = now + config.windowMs;
     }
+
+    if (rateLimitData.count >= config.maxRequests) {
+      return { allowed: false, resetTime: rateLimitData.resetTime };
+    }
+
+    // Update rate limit data
+    rateLimitData.count++;
+    await redisService.set(key, JSON.stringify(rateLimitData), Math.ceil((rateLimitData.resetTime - now) / 1000));
+
+    return { allowed: true };
+  } catch (error) {
+    logger.error(`Rate limit error for ${key}`, error);
+    return { allowed: true }; // Fail open in case of Redis error
   }
-
-  // Get or create rate limit data
-  const rateLimitData = rateLimitStore.get(key) || { count: 0, resetTime: now + config.windowMs };
-
-  // Reset if window has passed
-  if (rateLimitData.resetTime < now) {
-    rateLimitData.count = 0;
-    rateLimitData.resetTime = now + config.windowMs;
-  }
-
-  if (rateLimitData.count >= config.maxRequests) {
-    return { allowed: false, resetTime: rateLimitData.resetTime };
-  }
-
-  // Update rate limit data
-  rateLimitData.count++;
-  rateLimitStore.set(key, rateLimitData);
-
-  return { allowed: true };
 }
 
 /**
@@ -157,9 +151,25 @@ function isValidIP(ip: string): boolean {
 }
 
 /**
+ * Generate a cryptographically secure nonce for CSP
+ */
+export function generateNonce(): string {
+  return crypto.randomBytes(16).toString('base64');
+}
+
+/**
  * Security headers middleware
  */
-export function createSecurityHeaders() {
+export function createSecurityHeaders(nonce?: string) {
+  const scriptSrc = ["script-src 'self'"];
+
+  if (nonce) {
+    scriptSrc.push(`'nonce-${nonce}'`, "'strict-dynamic'");
+  } else {
+    // Fallback for environments without nonce support (e.g. static assets)
+    scriptSrc.push("'unsafe-inline'", "'unsafe-eval'");
+  }
+
   return {
     // Prevent clickjacking
     'X-Frame-Options': 'DENY',
@@ -173,7 +183,7 @@ export function createSecurityHeaders() {
     // Content Security Policy
     'Content-Security-Policy': [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Allow inline scripts for React
+      scriptSrc.join(' '),
       "style-src 'self' 'unsafe-inline'", // Allow inline styles
       "img-src 'self' data: https: blob:", // Allow images from same origin, data URLs, and HTTPS
       "font-src 'self' data:", // Allow fonts from same origin and data URLs
@@ -309,7 +319,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
 
     // Apply rate limiting in all environments
     if (options.rateLimit !== false) {
-      const rateLimitResult = checkRateLimit(request, endpoint);
+      const rateLimitResult = await checkRateLimit(request, endpoint);
 
       if (!rateLimitResult.allowed) {
         return new Response('Rate limit exceeded', {

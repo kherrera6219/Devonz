@@ -195,9 +195,9 @@ export class AgentOrchestrator {
       return false;
     }
 
-    this.state.status = 'waiting_for_approval';
-    this.state.pendingApproval = request;
-    this.notifyStatusChange('waiting_for_approval');
+    this._state.status = 'waiting_for_approval';
+    this._state.pendingApproval = request;
+    this._notifyStatusChange('waiting_for_approval');
 
     try {
       const approved = await this._options.onApprovalNeeded(request);

@@ -93,6 +93,31 @@ export class RedisService {
     }
   }
 
+  async sadd(key: string, ...members: string[]): Promise<void> {
+    if (!this._isConnected || !this._client) {
+      return;
+    }
+
+    try {
+      await this._client.sadd(key, ...members);
+    } catch (error) {
+      logger.error(`Redis SADD error for key: ${key}`, error);
+    }
+  }
+
+  async smembers(key: string): Promise<string[]> {
+    if (!this._isConnected || !this._client) {
+      return [];
+    }
+
+    try {
+      return await this._client.smembers(key);
+    } catch (error) {
+      logger.error(`Redis SMEMBERS error for key: ${key}`, error);
+      return [];
+    }
+  }
+
   get isConnected(): boolean {
     return this._isConnected;
   }

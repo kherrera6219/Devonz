@@ -1,5 +1,5 @@
 import { StateGraph, END, START } from '@langchain/langgraph';
-import { MemorySaver } from '@langchain/langgraph-checkpoint';
+import { RedisCheckpointSaver } from './redis-checkpointer';
 import type {
   RunState,
   RunMode,
@@ -220,7 +220,7 @@ export function createGraph() {
     .addEdge('finalize', END);
 
   // Checkpointer
-  const checkpointer = new MemorySaver();
+  const checkpointer = new RedisCheckpointSaver();
 
   return workflow.compile({ checkpointer });
 }

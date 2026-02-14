@@ -1,6 +1,5 @@
 import { type ActionFunctionArgs } from '@remix-run/node';
 import { createDataStream, generateId } from 'ai';
-import { z } from 'zod';
 import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS, type FileMap } from '~/lib/.server/llm/constants';
 import { CONTINUE_PROMPT } from '~/lib/common/prompts/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
@@ -34,46 +33,6 @@ import { chatRequestSchema } from '~/lib/api-validation';
 
 export const action = withSecurity(async (args: ActionFunctionArgs) => {
   return chatAction(args);
-});
-
-// Zod schema for chat request validation
-const messageSchema = z.object({
-  id: z.string().optional(),
-  role: z.enum(['user', 'assistant', 'system']),
-  content: z.string(),
-});
-
-const designSchemeSchema = z
-  .object({
-    palette: z.record(z.string()),
-    features: z.array(z.string()),
-    font: z.array(z.string()),
-  })
-  .optional();
-
-const supabaseConnectionSchema = z
-  .object({
-    isConnected: z.boolean(),
-    hasSelectedProject: z.boolean(),
-    credentials: z
-      .object({
-        anonKey: z.string().optional(),
-        supabaseUrl: z.string().optional(),
-      })
-      .optional(),
-  })
-  .optional();
-
-const chatRequestSchema = z.object({
-  messages: z.array(messageSchema).min(1, 'At least one message is required'),
-  files: z.any().optional(),
-  promptId: z.string().optional(),
-  contextOptimization: z.boolean().default(false),
-  chatMode: z.enum(['discuss', 'build']).default('build'),
-  designScheme: designSchemeSchema,
-  supabase: supabaseConnectionSchema,
-  maxLLMSteps: z.number().int().positive().default(5),
-  agentMode: z.boolean().optional(),
 });
 
 function parseCookies(cookieHeader: string): Record<string, string> {

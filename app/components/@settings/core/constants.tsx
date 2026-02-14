@@ -1,4 +1,5 @@
 import { classNames } from '~/utils/classNames';
+import type { TabType } from './types';
 
 // Icon wrapper component factory for UnoCSS Phosphor icons
 const createIconComponent =

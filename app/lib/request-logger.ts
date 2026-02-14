@@ -47,6 +47,19 @@ export function logRequest(request: Request, status: number, durationMs: number)
 }
 
 /**
+ * Log a structured event (OpenTelemetry-ready placeholder).
+ */
+export function logEvent(name: string, attributes: Record<string, any> = {}, level: 'info' | 'warn' | 'error' = 'info'): void {
+  logger[level](
+    JSON.stringify({
+      event: name,
+      timestamp: new Date().toISOString(),
+      ...attributes,
+    }),
+  );
+}
+
+/**
  * Wrap an API handler with request/response logging.
  */
 export function withRequestLogging<T extends (...args: any[]) => Promise<Response>>(handler: T): T {

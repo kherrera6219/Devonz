@@ -31,7 +31,7 @@ describe('Environment Validation', () => {
   });
 
   it('should reject invalid NODE_ENV', () => {
-    process.env.NODE_ENV = 'invalid';
+    process.env.NODE_ENV = 'invalid' as any;
 
     // In non-production, it should log warning but not throw
     expect(() => validateEnv()).not.toThrow();

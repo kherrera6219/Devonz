@@ -23,29 +23,29 @@ describe('Security Module', () => {
   });
 
   describe('checkRateLimit', () => {
-    it('should allow requests under the limit', () => {
+    it('should allow requests under the limit', async () => {
       const request = new Request('http://localhost/api/test', {
         headers: { 'x-forwarded-for': '1.2.3.4' },
       });
 
-      const result = checkRateLimit(request, '/api/test');
+      const result = await checkRateLimit(request, '/api/test');
       expect(result.allowed).toBe(true);
     });
 
-    it('should block requests over the limit', () => {
+    it('should block requests over the limit', async () => {
       const ip = '10.0.0.1';
 
       for (let i = 0; i < 101; i++) {
         const request = new Request('http://localhost/api/ratelimit-test', {
           headers: { 'x-forwarded-for': ip },
         });
-        checkRateLimit(request, '/api/ratelimit-test');
+        await checkRateLimit(request, '/api/ratelimit-test');
       }
 
       const request = new Request('http://localhost/api/ratelimit-test', {
         headers: { 'x-forwarded-for': ip },
       });
-      const result = checkRateLimit(request, '/api/ratelimit-test');
+      const result = await checkRateLimit(request, '/api/ratelimit-test');
       expect(result.allowed).toBe(false);
     });
   });
