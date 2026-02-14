@@ -282,7 +282,10 @@ export type AgentStatus =
  * Tool call record
  */
 export interface ToolCallRecord {
+  /** Unique ID for this tool call */
   id?: string;
+
+  /** Tool name */
   name: string;
   params: Record<string, unknown>;
   result: ToolExecutionResult;
@@ -321,6 +324,11 @@ export interface AgentExecutionState {
   filesCreated: string[];
   filesModified: string[];
   commandsExecuted: string[];
+
+  /** Session end time */
+  sessionEndTime?: number;
+
+  /** Pending approval request */
   pendingApproval?: ApprovalRequest;
 }
 
@@ -360,7 +368,6 @@ export interface AgentTaskResult {
   error?: string;
 }
 
-/**
  * Agent orchestrator options
  */
 export interface AgentOrchestratorOptions {

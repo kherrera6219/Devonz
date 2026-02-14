@@ -33,13 +33,7 @@ export interface ChatHistoryItem {
 
 const persistenceEnabled = !import.meta.env.VITE_DISABLE_PERSISTENCE;
 
-export const dbStore = atom<IDBDatabase | undefined>(undefined);
-
-export let db: IDBDatabase | undefined;
-
-dbStore.subscribe((value) => {
-  db = value;
-});
+export const db = persistenceEnabled ? await openDatabase() : undefined;
 
 export const chatId = atom<string | undefined>(undefined);
 export const description = atom<string | undefined>(undefined);
@@ -55,41 +49,22 @@ export function useChatHistory() {
   const [urlId, setUrlId] = useState<string | undefined>();
 
   useEffect(() => {
-    const initializeDb = async () => {
-      if (!persistenceEnabled) {
-        setReady(true);
-        return;
+    if (!db) {
+      setReady(true);
+
+      if (persistenceEnabled) {
+        const error = new Error('Chat persistence is unavailable');
+        logStore.logError('Chat persistence initialization failed', error);
+        toast.error('Chat persistence is unavailable');
       }
 
-      let currentDb = dbStore.get();
+      return;
+    }
 
-      if (!currentDb) {
-        try {
-          currentDb = await openDatabase();
-
-          if (currentDb) {
-            dbStore.set(currentDb);
-          }
-        } catch (error) {
-          console.error('Failed to open database:', error);
-          logStore.logError('Chat persistence initialization failed', error as Error);
-          toast.error('Chat persistence is unavailable');
-          setReady(true);
-
-          return;
-        }
-      }
-
-      if (!currentDb) {
-        setReady(true);
-        return;
-      }
-
-      if (mixedId) {
-        try {
-          // First get messages to find the actual internal chatId, then get snapshot with correct ID
-          const storedMessages = await getMessages(currentDb, mixedId);
-
+    if (mixedId) {
+      // First get messages to find the actual internal chatId, then get snapshot with correct ID
+      getMessages(db, mixedId)
+        .then(async (storedMessages) => {
           if (!storedMessages || storedMessages.messages.length === 0) {
             navigate('/', { replace: true });
             setReady(true);
@@ -97,71 +72,70 @@ export function useChatHistory() {
             return;
           }
 
+          // Use the internal chatId (like "2") not the URL id (like "2-1768949555849-0")
           const internalChatId = storedMessages.id;
-          const snapshot = await getSnapshot(currentDb, internalChatId);
-          const validSnapshot = snapshot || { chatIndex: '', files: {} };
+          const snapshot = await getSnapshot(db, internalChatId);
+
+          /*
+           * const snapshotStr = localStorage.getItem(`snapshot:${mixedId}`); // Remove localStorage usage
+           * const snapshot: Snapshot = snapshotStr ? JSON.parse(snapshotStr) : { chatIndex: 0, files: {} }; // Use snapshot from DB
+           */
+          const validSnapshot = snapshot || { chatIndex: '', files: {} }; // Ensure snapshot is not undefined
 
           const rewindId = searchParams.get('rewindTo');
-          let filteredMessages = storedMessages.messages;
+          const endingIdx = rewindId
+            ? storedMessages.messages.findIndex((m) => m.id === rewindId) + 1
+            : storedMessages.messages.length;
 
-          if (rewindId) {
-            const endingIdx = storedMessages.messages.findIndex((m) => m.id === rewindId) + 1;
+          /*
+           * SKIP SNAPSHOT MODE: Always load full message history
+           * This avoids the "Bolt Restored your chat" message that requires manual "Revert" click
+           * and prevents jsh command not found errors since we don't intercept command execution
+           */
+          const filteredMessages = storedMessages.messages.slice(0, endingIdx);
 
-            if (endingIdx > 0) {
-              filteredMessages = storedMessages.messages.slice(0, endingIdx);
-
-              await setMessages(
-                currentDb,
-                internalChatId,
-                filteredMessages,
-                storedMessages.urlId,
-                storedMessages.description,
-                undefined,
-                storedMessages.metadata,
-              );
-
-              await setSnapshot(currentDb, internalChatId, { chatIndex: rewindId, files: {} });
-
-              const newUrl = new URL(window.location.href);
-              newUrl.searchParams.delete('rewindTo');
-              window.history.replaceState({}, '', newUrl);
-            }
-          }
-
+          // No archived messages needed when loading full history
           setArchivedMessages([]);
 
+          // Still restore files from snapshot for instant load (if snapshot exists)
           if (validSnapshot?.files && Object.keys(validSnapshot.files).length > 0) {
+            /*
+             * For normal reloads (not rewind), still restore from snapshot for instant load
+             * Set flag SYNCHRONOUSLY before setInitialMessages triggers message parsing
+             */
             workbenchStore.isRestoringSession.set(true);
             restoreSnapshot(mixedId, validSnapshot);
           }
 
           setInitialMessages(filteredMessages);
+
           setUrlId(storedMessages.urlId);
           description.set(storedMessages.description);
           chatId.set(storedMessages.id);
           chatMetadata.set(storedMessages.metadata);
-          versionsStore.syncFromMessages(filteredMessages);
-        } catch (error) {
-          console.error(error);
-          logStore.logError('Failed to load chat messages or snapshot', error as Error);
-          toast.error('Failed to load chat: ' + (error as any).message);
-        } finally {
-          setReady(true);
-        }
-      } else {
-        setReady(true);
-      }
-    };
 
-    initializeDb();
-  }, [mixedId, navigate, searchParams]);
+          // Sync versions from chat messages so they appear in the Versions panel
+          versionsStore.syncFromMessages(storedMessages.messages);
+
+          setReady(true);
+        })
+        .catch((error) => {
+          console.error(error);
+
+          logStore.logError('Failed to load chat messages or snapshot', error); // Updated error message
+          toast.error('Failed to load chat: ' + error.message); // More specific error
+        });
+    } else {
+      // Handle case where there is no mixedId (e.g., new chat)
+      setReady(true);
+    }
+  }, [mixedId, db, navigate, searchParams]); // Added db, navigate, searchParams dependencies
 
   const takeSnapshot = useCallback(
     async (chatIdx: string, files: FileMap, _chatId?: string | undefined, chatSummary?: string) => {
       const id = chatId.get();
-      const currentDb = dbStore.get();
 
-      if (!id || !currentDb) {
+      if (!id || !db) {
         return;
       }
 
@@ -171,14 +145,15 @@ export function useChatHistory() {
         summary: chatSummary,
       };
 
+      // localStorage.setItem(`snapshot:${id}`, JSON.stringify(snapshot)); // Remove localStorage usage
       try {
-        await setSnapshot(currentDb, id, snapshot);
+        await setSnapshot(db, id, snapshot);
       } catch (error) {
         console.error('Failed to save snapshot:', error);
         toast.error('Failed to save chat snapshot.');
       }
     },
-    [],
+    [db],
   );
 
   const restoreSnapshot = useCallback(async (id: string, snapshot?: Snapshot) => {
@@ -229,14 +204,13 @@ export function useChatHistory() {
     initialMessages,
     updateChatMestaData: async (metadata: IChatMetadata) => {
       const id = chatId.get();
-      const currentDb = dbStore.get();
 
-      if (!currentDb || !id) {
+      if (!db || !id) {
         return;
       }
 
       try {
-        await setMessages(currentDb, id, initialMessages, urlId, description.get(), undefined, metadata);
+        await setMessages(db, id, initialMessages, urlId, description.get(), undefined, metadata);
         chatMetadata.set(metadata);
       } catch (error) {
         toast.error('Failed to update chat metadata');
@@ -244,9 +218,7 @@ export function useChatHistory() {
       }
     },
     storeMessageHistory: async (messages: Message[]) => {
-      const currentDb = dbStore.get();
-
-      if (!currentDb || messages.length === 0) {
+      if (!db || messages.length === 0) {
         return;
       }
 
@@ -256,7 +228,7 @@ export function useChatHistory() {
       let _urlId = urlId;
 
       if (!urlId && firstArtifact?.id) {
-        const urlId = await getUrlId(currentDb, firstArtifact.id);
+        const urlId = await getUrlId(db, firstArtifact.id);
         _urlId = urlId;
         navigateChat(urlId);
         setUrlId(urlId);
@@ -283,8 +255,9 @@ export function useChatHistory() {
         description.set(firstArtifact?.title);
       }
 
+      // Ensure chatId.get() is used here as well
       if (initialMessages.length === 0 && !chatId.get()) {
-        const nextId = await getNextId(currentDb);
+        const nextId = await getNextId(db);
 
         chatId.set(nextId);
 
@@ -304,7 +277,7 @@ export function useChatHistory() {
       }
 
       await setMessages(
-        currentDb,
+        db,
         finalChatId, // Use the potentially updated chatId
         [...archivedMessages, ...messages],
         urlId,
@@ -314,14 +287,12 @@ export function useChatHistory() {
       );
     },
     duplicateCurrentChat: async (listItemId: string) => {
-      const currentDb = dbStore.get();
-
-      if (!currentDb || (!mixedId && !listItemId)) {
+      if (!db || (!mixedId && !listItemId)) {
         return;
       }
 
       try {
-        const newId = await duplicateChat(currentDb, mixedId || listItemId);
+        const newId = await duplicateChat(db, mixedId || listItemId);
         navigate(`/chat/${newId}`);
         toast.success('Chat duplicated successfully');
       } catch (error) {
@@ -330,14 +301,12 @@ export function useChatHistory() {
       }
     },
     importChat: async (description: string, messages: Message[], metadata?: IChatMetadata) => {
-      const currentDb = dbStore.get();
-
-      if (!currentDb) {
+      if (!db) {
         return;
       }
 
       try {
-        const newId = await createChatFromMessages(currentDb, description, messages, metadata);
+        const newId = await createChatFromMessages(db, description, messages, metadata);
         window.location.href = `/chat/${newId}`;
         toast.success('Chat imported successfully');
       } catch (error) {
@@ -349,13 +318,11 @@ export function useChatHistory() {
       }
     },
     exportChat: async (id = urlId) => {
-      const currentDb = dbStore.get();
-
-      if (!currentDb || !id) {
+      if (!db || !id) {
         return;
       }
 
-      const chat = await getMessages(currentDb, id);
+      const chat = await getMessages(db, id);
       const chatData = {
         messages: chat.messages,
         description: chat.description,
@@ -376,10 +343,15 @@ export function useChatHistory() {
 }
 
 function navigateChat(nextId: string) {
-  // Using window.history directly instead of Remix navigate() to avoid
-  // triggering a full <Chat /> re-render which breaks streaming state.
+  /**
+   * Updates the URL to the new chat ID without triggering a full Remix re-render.
+   *
+   * We use window.history.replaceState instead of Remix's navigate() because
+   * navigate() causes a re-render of <Chat /> that breaks the app's state.
+   * This approach updates the URL silently while preserving component state.
+   */
   const url = new URL(window.location.href);
   url.pathname = `/chat/${nextId}`;
 
-  window.history.replaceState({}, '', url);
+  window.history.replaceState({ idx: window.history.state?.idx ?? 0 }, '', url);
 }

@@ -21,9 +21,6 @@ export default defineConfig((config) => {
       rollupOptions: {
         // Externalize undici and util/types for client builds - these are server-only modules
         external: ['undici', 'util/types', 'node:util/types'],
-        output: {
-          // manualChunks: { ... } removed to troubleshoot build error
-        },
       },
     },
     resolve: {

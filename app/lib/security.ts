@@ -173,6 +173,7 @@ export function createSecurityHeaders() {
     // Content Security Policy
     'Content-Security-Policy': [
       "default-src 'self'",
+<<<<<<< HEAD
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https: blob:",
@@ -191,6 +192,49 @@ export function createSecurityHeaders() {
       ].join(' '),
       "frame-src 'self' https://stackblitz.com",
       "object-src 'none'",
+=======
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Allow inline scripts for React
+      "style-src 'self' 'unsafe-inline'", // Allow inline styles
+      "img-src 'self' data: https: blob:", // Allow images from same origin, data URLs, and HTTPS
+      "font-src 'self' data:", // Allow fonts from same origin and data URLs
+      [
+        "connect-src 'self'",
+
+        // Git providers
+        'https://api.github.com',
+        'https://models.github.ai',
+        'https://gitlab.com',
+
+        // Deployment platforms
+        'https://api.netlify.com',
+        'https://api.vercel.com',
+        'https://*.supabase.co',
+        'https://api.supabase.com',
+
+        // LLM providers - Major
+        'https://api.openai.com',
+        'https://api.anthropic.com',
+        'https://generativelanguage.googleapis.com',
+
+        // LLM providers - Other
+        'https://api.groq.com',
+        'https://api.mistral.ai',
+        'https://api.cohere.com',
+        'https://api.deepseek.com',
+        'https://api.perplexity.ai',
+        'https://api.x.ai',
+        'https://api.together.xyz',
+        'https://api.hyperbolic.xyz',
+        'https://api.moonshot.ai',
+        'https://openrouter.ai',
+        'https://api-inference.huggingface.co',
+
+        // WebSocket support for real-time features
+        'wss://*.supabase.co',
+      ].join(' '),
+      "frame-src 'none'", // Prevent iframe embedding
+      "object-src 'none'", // Prevent object embedding
+>>>>>>> upstream/main
       "base-uri 'self'",
       "form-action 'self'",
       "worker-src 'self' blob:",

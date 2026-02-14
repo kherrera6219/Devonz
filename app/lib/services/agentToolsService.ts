@@ -463,32 +463,8 @@ async function getErrors(params: GetErrorsParams): Promise<ToolExecutionResult<G
       }
     }
 
-    /*
-     * Get errors from preview error handler
-     * Note: PreviewErrorHandler currently doesn't expose a getErrors() method
-     * This functionality can be added when the handler interface is extended
-     *
-     * try {
-     *   const previewHandler = getPreviewErrorHandler();
-     *   const previewErrors = previewHandler.getErrors();
-     *
-     *   for (const err of previewErrors) {
-     *     if (!source || err.source === source) {
-     *       errors.push({
-     *         source: err.source || 'preview',
-     *         type: err.type || 'unknown',
-     *         message: err.message,
-     *         file: err.file,
-     *         line: err.line,
-     *         column: err.column,
-     *         content: err.content,
-     *       });
-     *     }
-     *   }
-     * } catch {
-     *   // Preview handler may not be available
-     * }
-     */
+    // Note: PreviewErrorHandler doesn't expose a getErrors() method.
+    // Preview errors are captured via autoFixStore when they occur.
 
     logger.debug(`Retrieved errors`, { count: errors.length, source });
 
@@ -850,6 +826,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['path', 'content'],
     },
     execute: writeFile as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+<<<<<<< HEAD
   },
 
   devonz_generate_image: {
@@ -927,6 +904,8 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['title', 'content', 'path'],
     },
     execute: generateDocument as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+=======
+>>>>>>> upstream/main
   },
 
   devonz_list_directory: {
@@ -1032,6 +1011,7 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['query'],
     },
     execute: searchCode as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+<<<<<<< HEAD
   },
 
   devonz_read_document: {
@@ -1103,6 +1083,8 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['projectId', 'query'],
     },
     execute: knowledgeQuery as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+=======
+>>>>>>> upstream/main
   },
 };
 

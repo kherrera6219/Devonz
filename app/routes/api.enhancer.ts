@@ -4,7 +4,11 @@ import { stripIndents } from '~/utils/stripIndent';
 import type { ProviderInfo } from '~/types/model';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
 import { createScopedLogger } from '~/utils/logger';
+<<<<<<< HEAD
 import { withSecurity } from '~/lib/security';
+=======
+import { z } from 'zod';
+>>>>>>> upstream/main
 
 const logger = createScopedLogger('api.enhancer');
 
@@ -12,8 +16,56 @@ export const action = withSecurity(async (args: ActionFunctionArgs) => {
   return enhancerAction(args);
 });
 
+// Zod schema for enhancer request validation
+const providerSchema = z.object({
+  name: z.string().min(1, 'Provider name is required'),
+  staticModels: z.array(z.any()).optional(),
+  getApiKeyLink: z.string().optional(),
+  labelForGetApiKey: z.string().optional(),
+  icon: z.string().optional(),
+});
+
+const enhancerRequestSchema = z.object({
+  message: z.string().min(1, 'Message is required'),
+  model: z.string().min(1, 'Model is required'),
+  provider: providerSchema,
+  apiKeys: z.record(z.string()).optional(),
+});
+
 async function enhancerAction({ context, request }: ActionFunctionArgs) {
-  const { message, model, provider } = (await request.json()) as {
+  // Parse and validate request body
+  let rawBody: unknown;
+
+  try {
+    rawBody = await request.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const parsed = enhancerRequestSchema.safeParse(rawBody);
+
+  if (!parsed.success) {
+    logger.warn('Enhancer request validation failed:', parsed.error.issues);
+
+    return new Response(
+      JSON.stringify({
+        error: 'Invalid request',
+        details: parsed.error.issues.map((issue) => ({
+          path: issue.path.join('.'),
+          message: issue.message,
+        })),
+      }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
+  }
+
+  const { message, model, provider } = parsed.data as {
     message: string;
     model: string;
     provider: ProviderInfo;
@@ -21,21 +73,6 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
   };
 
   const { name: providerName } = provider;
-
-  // validate 'model' and 'provider' fields
-  if (!model || typeof model !== 'string') {
-    throw new Response('Invalid or missing model', {
-      status: 400,
-      statusText: 'Bad Request',
-    });
-  }
-
-  if (!providerName || typeof providerName !== 'string') {
-    throw new Response('Invalid or missing provider', {
-      status: 400,
-      statusText: 'Bad Request',
-    });
-  }
 
   const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromCookie(cookieHeader);

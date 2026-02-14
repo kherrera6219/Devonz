@@ -108,10 +108,15 @@ describe('agentToolDefinitions', () => {
       const result = await readFileTool.execute({ path: '/src/test.ts' });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
 
       const data = result.data as ReadFileResult;
       expect(data?.content).toBe(mockContent);
       expect(data?.lineCount).toBe(1);
+=======
+      expect((result.data as any).content).toBe(mockContent);
+      expect((result.data as any).lineCount).toBe(1);
+>>>>>>> upstream/main
     });
 
     it('should support line range reading', async () => {
@@ -125,10 +130,15 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
 
       const data = result.data as ReadFileResult;
       expect(data?.content).toBe('line2\nline3\nline4');
       expect(data?.truncated).toBe(true);
+=======
+      expect((result.data as any).content).toBe('line2\nline3\nline4');
+      expect((result.data as any).truncated).toBe(true);
+>>>>>>> upstream/main
     });
 
     it('should return error for non-existent file', async () => {
@@ -166,11 +176,17 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
 
       const data = result.data as WriteFileResult;
       expect(data?.path).toBe('/src/new-file.ts');
       expect(data?.bytesWritten).toBe(content.length);
       expect(data?.created).toBe(true);
+=======
+      expect((result.data as any).path).toBe('/src/new-file.ts');
+      expect((result.data as any).bytesWritten).toBe(content.length);
+      expect((result.data as any).created).toBe(true);
+>>>>>>> upstream/main
     });
 
     it('should create parent directories', async () => {
@@ -196,7 +212,11 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as WriteFileResult)?.created).toBe(false);
+=======
+      expect((result.data as any).created).toBe(false);
+>>>>>>> upstream/main
     });
 
     it('should return error on write failure', async () => {
@@ -236,9 +256,15 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({ path: '/' });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.entries).toHaveLength(3);
       expect((result.data as any)?.entries[0]).toEqual({ name: '/src', isDirectory: true });
       expect((result.data as any)?.entries[1]).toEqual({ name: '/package.json', isDirectory: false });
+=======
+      expect((result.data as any).entries).toHaveLength(3);
+      expect((result.data as any).entries[0]).toEqual({ name: '/src', isDirectory: true });
+      expect((result.data as any).entries[1]).toEqual({ name: '/package.json', isDirectory: false });
+>>>>>>> upstream/main
     });
 
     it('should default to root path', async () => {
@@ -247,7 +273,11 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({});
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.path).toBe('/');
+=======
+      expect((result.data as any).path).toBe('/');
+>>>>>>> upstream/main
     });
 
     it('should support recursive listing', async () => {
@@ -262,7 +292,11 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({ path: '/', recursive: true });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.entries.length).toBeGreaterThan(1);
+=======
+      expect((result.data as any).entries.length).toBeGreaterThan(1);
+>>>>>>> upstream/main
     });
 
     it('should skip node_modules and hidden directories', async () => {
@@ -314,8 +348,13 @@ describe('agentToolDefinitions', () => {
       const result = await runCommandTool.execute({ command: 'npm install' });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.exitCode).toBe(0);
       expect((result.data as any)?.stdout).toBe('Command output here');
+=======
+      expect((result.data as any).exitCode).toBe(0);
+      expect((result.data as any).stdout).toBe('Command output here');
+>>>>>>> upstream/main
     });
 
     it('should return error for failed command', async () => {
@@ -328,8 +367,13 @@ describe('agentToolDefinitions', () => {
       const result = await runCommandTool.execute({ command: 'npm run invalid' });
 
       expect(result.success).toBe(true); // Tool succeeded, command failed
+<<<<<<< HEAD
       expect((result.data as any)?.exitCode).toBe(1);
       expect((result.data as any)?.stderr).toBe('Error: module not found');
+=======
+      expect((result.data as any).exitCode).toBe(1);
+      expect((result.data as any).stderr).toBe('Error: module not found');
+>>>>>>> upstream/main
     });
 
     it('should handle shell not ready', async () => {
@@ -369,8 +413,13 @@ describe('agentToolDefinitions', () => {
       const result = await getErrorsTool.execute({});
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.hasErrors).toBe(false);
       expect((result.data as any)?.count).toBe(0);
+=======
+      expect((result.data as any).hasErrors).toBe(false);
+      expect((result.data as any).count).toBe(0);
+>>>>>>> upstream/main
     });
 
     it('should return errors from autofix store when present', async () => {
@@ -392,8 +441,13 @@ describe('agentToolDefinitions', () => {
       const result = await getErrorsTool.execute({ source: 'terminal' });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.hasErrors).toBe(true);
       expect((result.data as any)?.count).toBe(1);
+=======
+      expect((result.data as any).hasErrors).toBe(true);
+      expect((result.data as any).count).toBe(1);
+>>>>>>> upstream/main
     });
   });
 
@@ -418,8 +472,13 @@ describe('agentToolDefinitions', () => {
       const result = await searchCodeTool.execute({ query: 'React' });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.matchCount).toBeGreaterThan(0);
       expect((result.data as any)?.results[0].file).toContain('App.tsx');
+=======
+      expect((result.data as any).matchCount).toBeGreaterThan(0);
+      expect((result.data as any).results[0].file).toContain('App.tsx');
+>>>>>>> upstream/main
     });
 
     it('should respect maxResults limit', async () => {
@@ -432,7 +491,11 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.matchCount).toBe(2);
+=======
+      expect((result.data as any).matchCount).toBe(2);
+>>>>>>> upstream/main
     });
 
     it('should return empty results for no matches', async () => {
@@ -442,7 +505,11 @@ describe('agentToolDefinitions', () => {
       const result = await searchCodeTool.execute({ query: 'nonexistent' });
 
       expect(result.success).toBe(true);
+<<<<<<< HEAD
       expect((result.data as any)?.matchCount).toBe(0);
+=======
+      expect((result.data as any).matchCount).toBe(0);
+>>>>>>> upstream/main
     });
   });
 });
