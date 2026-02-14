@@ -49,6 +49,27 @@ async function getWorkbenchStore() {
   return workbenchStoreModule.workbenchStore;
 }
 
+/**
+ * Security: Path Validation
+ * Ensures paths are within the WebContainer root and prevents traversal.
+ */
+function validatePath(path: string): string {
+  // Normalize windows-style separators and remove duplicate slashes
+  let normalized = path.replace(/\\/g, '/').replace(/\/+/g, '/');
+
+  // Ensure it starts with /
+  if (!normalized.startsWith('/')) {
+    normalized = '/' + normalized;
+  }
+
+  // Prevent traversal (..)
+  if (normalized.includes('..')) {
+    throw new Error(`Security violation: Path traversal detected in '${path}'`);
+  }
+
+  return normalized;
+}
+
 /*
  * ============================================================================
  * Tool Implementations
@@ -60,9 +81,10 @@ async function getWorkbenchStore() {
  * Reads the contents of a file from the WebContainer filesystem.
  */
 async function readFile(params: ReadFileParams): Promise<ToolExecutionResult<ReadFileResult>> {
-  const { path, startLine, endLine } = params;
+  const { path: rawPath, startLine, endLine } = params;
 
   try {
+    const path = validatePath(rawPath);
     const container = await webcontainer;
     const content = await container.fs.readFile(path, 'utf-8');
     const lines = content.split('\n');
@@ -91,11 +113,11 @@ async function readFile(params: ReadFileParams): Promise<ToolExecutionResult<Rea
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to read file: ${path}`, error);
+    logger.error(`Failed to read file: ${rawPath}`, error);
 
     return {
       success: false,
-      error: `Failed to read file '${path}': ${errorMessage}`,
+      error: `Failed to read file '${rawPath}': ${errorMessage}`,
     };
   }
 }
@@ -106,9 +128,10 @@ async function readFile(params: ReadFileParams): Promise<ToolExecutionResult<Rea
  * Creates parent directories if they don't exist.
  */
 async function writeFile(params: WriteFileParams): Promise<ToolExecutionResult<WriteFileResult>> {
-  const { path, content, encoding = 'utf-8' } = params;
+  const { path: rawPath, content, encoding = 'utf-8' } = params;
 
   try {
+    const path = validatePath(rawPath);
     const container = await webcontainer;
 
     // Check if file exists to determine if this is a create or update
@@ -166,11 +189,11 @@ async function writeFile(params: WriteFileParams): Promise<ToolExecutionResult<W
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to write file: ${path}`, error);
+    logger.error(`Failed to write file: ${rawPath}`, error);
 
     return {
       success: false,
-      error: `Failed to write file '${path}': ${errorMessage}`,
+      error: `Failed to write file '${rawPath}': ${errorMessage}`,
     };
   }
 }
@@ -304,9 +327,10 @@ async function generateDocument(params: {
  * Supports recursive listing with filtering.
  */
 async function listDirectory(params: ListDirectoryParams): Promise<ToolExecutionResult<ListDirectoryResult>> {
-  const { path = '/', recursive = false, maxDepth = 3 } = params;
+  const { path: rawPath = '/', recursive = false, maxDepth = 3 } = params;
 
   try {
+    const path = validatePath(rawPath);
     const container = await webcontainer;
     const entries: DirectoryEntry[] = [];
 
@@ -352,11 +376,11 @@ async function listDirectory(params: ListDirectoryParams): Promise<ToolExecution
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to list directory: ${path}`, error);
+    logger.error(`Failed to list directory: ${rawPath}`, error);
 
     return {
       success: false,
-      error: `Failed to list directory '${path}': ${errorMessage}`,
+      error: `Failed to list directory '${rawPath}': ${errorMessage}`,
     };
   }
 }
@@ -367,9 +391,10 @@ async function listDirectory(params: ListDirectoryParams): Promise<ToolExecution
  * Requires the terminal to be initialized and ready.
  */
 async function runCommand(params: RunCommandParams): Promise<ToolExecutionResult<RunCommandResult>> {
-  const { command, cwd, timeout = 30000 } = params;
+  const { command, cwd: rawCwd, timeout = 30000 } = params;
 
   try {
+    const cwd = rawCwd ? validatePath(rawCwd) : undefined;
     const workbench = await getWorkbenchStore();
     const shell = workbench.boltTerminal;
 
@@ -496,9 +521,10 @@ async function getErrors(params: GetErrorsParams): Promise<ToolExecutionResult<G
  * Searches for a text pattern across files in the WebContainer.
  */
 async function searchCode(params: SearchCodeParams): Promise<ToolExecutionResult<SearchCodeResult>> {
-  const { query, path = '/', maxResults = 50, includePattern, excludePattern, caseSensitive = false } = params;
+  const { query, path: rawPath = '/', maxResults = 50, includePattern, excludePattern, caseSensitive = false } = params;
 
   try {
+    const path = validatePath(rawPath);
     const container = await webcontainer;
     const results: SearchMatch[] = [];
     let totalMatches = 0;
@@ -639,30 +665,29 @@ async function searchCode(params: SearchCodeParams): Promise<ToolExecutionResult
  * Reads and parses documents (PDF, DOCX, XLSX, MD, JSON, YAML) and extracts text content.
  */
 async function readDocument(params: ReadDocumentParams): Promise<ToolExecutionResult<ReadDocumentResult>> {
-  const { path, sheet, maxPages } = params;
+  const { path: rawPath, sheet, maxPages } = params;
 
   // Validate path
-  if (!path || typeof path !== 'string') {
+  if (!rawPath || typeof rawPath !== 'string') {
     return {
       success: false,
       error: 'Invalid path: path is required',
     };
   }
 
-  // Normalize path - ensure it starts with /
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-
-  // Check if format is supported
-  if (!isSupportedFormat(normalizedPath)) {
-    return {
-      success: false,
-      error: `Unsupported document format. Supported formats: ${SUPPORTED_FORMATS.join(', ')}`,
-    };
-  }
-
-  logger.info(`Reading document: ${normalizedPath}`);
-
   try {
+    const normalizedPath = validatePath(rawPath);
+
+    // Check if format is supported
+    if (!isSupportedFormat(normalizedPath)) {
+      return {
+        success: false,
+        error: `Unsupported document format. Supported formats: ${SUPPORTED_FORMATS.join(', ')}`,
+      };
+    }
+
+    logger.info(`Reading document: ${normalizedPath}`);
+
     const container = await webcontainer;
 
     // Read file as buffer for binary formats
@@ -694,7 +719,7 @@ async function readDocument(params: ReadDocumentParams): Promise<ToolExecutionRe
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to read document: ${normalizedPath}`, error);
+    logger.error(`Failed to read document: ${rawPath}`, error);
 
     return {
       success: false,
@@ -708,10 +733,11 @@ async function readDocument(params: ReadDocumentParams): Promise<ToolExecutionRe
  * Applies a unified diff patch to a file in the WebContainer.
  */
 async function applyPatch(params: ApplyPatchParams): Promise<ToolExecutionResult<ApplyPatchResult>> {
-  const { path, patch } = params;
-  logger.info(`Applying patch to: ${path}`);
+  const { path: rawPath, patch } = params;
+  logger.info(`Applying patch to: ${rawPath}`);
 
   try {
+    const path = validatePath(rawPath);
     const container = await webcontainer;
     const { applyPatch: jsDiffApplyPatch } = await import('diff');
 
@@ -751,7 +777,7 @@ async function applyPatch(params: ApplyPatchParams): Promise<ToolExecutionResult
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Failed to apply patch to: ${path}`, error);
+    logger.error(`Failed to apply patch to: ${rawPath}`, error);
 
     return {
       success: false,
