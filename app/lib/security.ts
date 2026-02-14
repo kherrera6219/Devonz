@@ -37,14 +37,15 @@ const RATE_LIMITS = {
  * When behind a reverse proxy (nginx, Cloudflare, etc.), only trust
  * IP headers from known proxy addresses.
  */
-const TRUSTED_PROXIES = new Set(
-  (process.env.TRUSTED_PROXIES || '127.0.0.1,::1').split(',').map((ip) => ip.trim()),
-);
+const TRUSTED_PROXIES = new Set((process.env.TRUSTED_PROXIES || '127.0.0.1,::1').split(',').map((ip) => ip.trim()));
 
 /**
  * Rate limiting middleware (asynchronous, Redis-backed)
  */
-export async function checkRateLimit(request: Request, endpoint: string): Promise<{ allowed: boolean; resetTime?: number }> {
+export async function checkRateLimit(
+  request: Request,
+  endpoint: string,
+): Promise<{ allowed: boolean; resetTime?: number }> {
   const clientIP = getClientIP(request);
   const key = `ratelimit:${clientIP}:${endpoint}`;
 

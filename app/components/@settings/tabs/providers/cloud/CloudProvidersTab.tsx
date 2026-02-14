@@ -8,8 +8,24 @@ import { motion } from 'framer-motion';
 import { classNames } from '~/utils/classNames';
 import { toast } from 'react-toastify';
 import { providerBaseUrlEnvKeys } from '~/utils/constants';
+
 // Add type for provider names to ensure type safety
-type ProviderName = 'Anthropic' | 'Google' | 'OpenAI' | 'AmazonBedrock' | 'Cohere' | 'Deepseek' | 'Github' | 'Groq' | 'HuggingFace' | 'Hyperbolic' | 'Mistral' | 'OpenRouter' | 'Perplexity' | 'Together' | 'XAI';
+type ProviderName =
+  | 'Anthropic'
+  | 'Google'
+  | 'OpenAI'
+  | 'AmazonBedrock'
+  | 'Cohere'
+  | 'Deepseek'
+  | 'Github'
+  | 'Groq'
+  | 'HuggingFace'
+  | 'Hyperbolic'
+  | 'Mistral'
+  | 'OpenRouter'
+  | 'Perplexity'
+  | 'Together'
+  | 'XAI';
 
 // Phosphor UnoCSS icon classes for each provider
 const PROVIDER_ICONS: Record<ProviderName, string> = {

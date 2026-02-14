@@ -38,9 +38,7 @@ function sanitizeFilePath(rawPath: string): string | null {
   }
 
   // Split, filter dangerous segments, rejoin
-  const parts = normalized
-    .split(/[/\\]/)
-    .filter((part) => part !== '' && part !== '.' && part !== '..');
+  const parts = normalized.split(/[/\\]/).filter((part) => part !== '' && part !== '.' && part !== '..');
 
   if (parts.length === 0) {
     return null;

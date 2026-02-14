@@ -7,29 +7,32 @@ import { z } from 'zod';
 
 // Chat API
 export const chatRequestSchema = z.object({
-  messages: z.array(
-    z.object({
-      id: z.string().optional(),
-      role: z.enum(['user', 'assistant', 'system']),
-      content: z.union([
-        z.string(),
-        z.array(z.record(z.unknown())),
-      ]),
-    }),
-  ).min(1, 'At least one message is required'),
+  messages: z
+    .array(
+      z.object({
+        id: z.string().optional(),
+        role: z.enum(['user', 'assistant', 'system']),
+        content: z.union([z.string(), z.array(z.record(z.unknown()))]),
+      }),
+    )
+    .min(1, 'At least one message is required'),
   files: z.record(z.unknown()).optional().default({}),
   promptId: z.string().optional(),
   contextOptimization: z.boolean().default(false),
   chatMode: z.enum(['discuss', 'build']).default('build'),
   designScheme: z.record(z.unknown()).optional(),
-  supabase: z.object({
-    isConnected: z.boolean(),
-    hasSelectedProject: z.boolean(),
-    credentials: z.object({
-      anonKey: z.string().optional(),
-      supabaseUrl: z.string().optional(),
-    }).optional(),
-  }).optional(),
+  supabase: z
+    .object({
+      isConnected: z.boolean(),
+      hasSelectedProject: z.boolean(),
+      credentials: z
+        .object({
+          anonKey: z.string().optional(),
+          supabaseUrl: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
   maxLLMSteps: z.number().int().min(1).max(50).default(3),
   agentMode: z.boolean().optional(),
   orchestratorMode: z.boolean().optional(),
@@ -61,10 +64,14 @@ export const supabaseQuerySchema = z.object({
 export const llmCallSchema = z.object({
   model: z.string().min(1),
   provider: z.string().min(1),
-  messages: z.array(z.object({
-    role: z.enum(['user', 'assistant', 'system']),
-    content: z.string(),
-  })).min(1),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant', 'system']),
+        content: z.string(),
+      }),
+    )
+    .min(1),
   apiKeys: z.record(z.string()).optional(),
   options: z.record(z.unknown()).optional(),
 });
@@ -124,10 +131,7 @@ export async function validateRequestBody<T extends z.ZodSchema>(
 
       return {
         data: null,
-        error: json(
-          { error: 'Validation failed', details: errors },
-          { status: 400 },
-        ),
+        error: json({ error: 'Validation failed', details: errors }, { status: 400 }),
       };
     }
 
@@ -135,10 +139,7 @@ export async function validateRequestBody<T extends z.ZodSchema>(
   } catch {
     return {
       data: null,
-      error: json(
-        { error: 'Invalid JSON in request body' },
-        { status: 400 },
-      ),
+      error: json({ error: 'Invalid JSON in request body' }, { status: 400 }),
     };
   }
 }

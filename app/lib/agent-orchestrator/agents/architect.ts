@@ -80,8 +80,8 @@ export class ArchitectAgent {
 
       // 3. Generate Patches
       return await this._generatePatches(state, tasksDescription, researchContext, constraints, pendingTasks);
-    } catch (error: any) {
-      return createErrorState(this._name, state, error);
+    } catch (error) {
+      return createErrorState(this._name, state, error as Error);
     }
   }
 
@@ -204,15 +204,11 @@ export class ArchitectAgent {
         progress: {
           percent: 100,
           label: 'Architecture Complete',
-          iteration: state.status?.progress?.iteration || 0, // Added nullish coalescing for safety
+          iteration: state.status?.progress?.iteration || 0,
         },
         activeAgents:
-          state.status?.activeAgents?.map(
-            (
-              a, // Added optional chaining for safety
-            ) => (a.agentId === 'architect' ? { ...a, status: 'done' } : a),
-          ) || [], // Default to empty array if activeAgents is undefined
+          state.status?.activeAgents?.map((a) => (a.agentId === 'architect' ? { ...a, status: 'done' } : a)) || [],
       },
-    } as any;
+    } as Partial<RunState>;
   }
 }

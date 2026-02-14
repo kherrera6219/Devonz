@@ -137,8 +137,10 @@ export class KnowledgeService {
         }
       }
 
-      // Graph-based context enrichment can be added here in the future.
-      // For now, vector similarity results provide the baseline context.
+      /*
+       * Graph-based context enrichment can be added here in the future.
+       * For now, vector similarity results provide the baseline context.
+       */
       return vectorResults;
     } catch (error) {
       logger.error(`Knowledge query failed for project: ${projectId}`, error);

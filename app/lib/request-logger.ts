@@ -2,30 +2,7 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('http');
 
-/**
- * Sanitize sensitive headers before logging.
- */
-function sanitizeHeaders(headers: Headers): Record<string, string> {
-  const sensitiveHeaders = new Set([
-    'authorization',
-    'cookie',
-    'set-cookie',
-    'x-api-key',
-    'x-authorization',
-  ]);
-
-  const result: Record<string, string> = {};
-
-  headers.forEach((value, key) => {
-    if (sensitiveHeaders.has(key.toLowerCase())) {
-      result[key] = '[REDACTED]';
-    } else {
-      result[key] = value;
-    }
-  });
-
-  return result;
-}
+// sanitizeHeaders was unused and removed.
 
 /**
  * Log HTTP request/response for auditing and debugging.
@@ -49,7 +26,11 @@ export function logRequest(request: Request, status: number, durationMs: number)
 /**
  * Log a structured event (OpenTelemetry-ready placeholder).
  */
-export function logEvent(name: string, attributes: Record<string, any> = {}, level: 'info' | 'warn' | 'error' = 'info'): void {
+export function logEvent(
+  name: string,
+  attributes: Record<string, any> = {},
+  level: 'info' | 'warn' | 'error' = 'info',
+): void {
   logger[level](
     JSON.stringify({
       event: name,

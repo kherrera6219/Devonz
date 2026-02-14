@@ -1,0 +1,82 @@
+
+> devonz@1.0.0 lint
+> eslint --cache --cache-location ./node_modules/.cache/eslint app
+
+
+C:\software\Devonz\app\components\@settings\tabs\providers\cloud\CloudProvidersTab.tsx
+  11:1   error  Expected line before comment                                                                                                                                                                                                                                                                                                                                                                                                    @blitz/lines-around-comment
+  12:20  error  Replace `┬╖'Anthropic'┬╖|┬╖'Google'┬╖|┬╖'OpenAI'┬╖|┬╖'AmazonBedrock'┬╖|┬╖'Cohere'┬╖|┬╖'Deepseek'┬╖|┬╖'Github'┬╖|┬╖'Groq'┬╖|┬╖'HuggingFace'┬╖|┬╖'Hyperbolic'┬╖|┬╖'Mistral'┬╖|┬╖'OpenRouter'┬╖|┬╖'Perplexity'┬╖|┬╖'Together'` with `ΓÅÄ┬╖┬╖|┬╖'Anthropic'ΓÅÄ┬╖┬╖|┬╖'Google'ΓÅÄ┬╖┬╖|┬╖'OpenAI'ΓÅÄ┬╖┬╖|┬╖'AmazonBedrock'ΓÅÄ┬╖┬╖|┬╖'Cohere'ΓÅÄ┬╖┬╖|┬╖'Deepseek'ΓÅÄ┬╖┬╖|┬╖'Github'ΓÅÄ┬╖┬╖|┬╖'Groq'ΓÅÄ┬╖┬╖|┬╖'HuggingFace'ΓÅÄ┬╖┬╖|┬╖'Hyperbolic'ΓÅÄ┬╖┬╖|┬╖'Mistral'ΓÅÄ┬╖┬╖|┬╖'OpenRouter'ΓÅÄ┬╖┬╖|┬╖'Perplexity'ΓÅÄ┬╖┬╖|┬╖'Together'ΓÅÄ┬╖`  prettier/prettier
+
+C:\software\Devonz\app\components\workbench\Preview.tsx
+  925:9  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+  937:9  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+
+C:\software\Devonz\app\lib\agent-orchestrator\redis-checkpointer.ts
+  234:5  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+  234:5  error  Expected line before comment                                   @blitz/lines-around-comment
+  240:5  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+
+C:\software\Devonz\app\lib\api-error-handler.ts
+  27:7  error  Replace `msg.includes('api┬╖key')┬╖||┬╖msg.includes('unauthorized')┬╖||┬╖msg.includes('authentication')┬╖||┬╖msg.includes('token')` with `ΓÅÄ┬╖┬╖┬╖┬╖msg.includes('api┬╖key')┬╖||ΓÅÄ┬╖┬╖┬╖┬╖msg.includes('unauthorized')┬╖||ΓÅÄ┬╖┬╖┬╖┬╖msg.includes('authentication')┬╖||ΓÅÄ┬╖┬╖┬╖┬╖msg.includes('token')ΓÅÄ┬╖┬╖`  prettier/prettier
+
+C:\software\Devonz\app\lib\api-validation.ts
+   10:14  error  Insert `ΓÅÄ┬╖┬╖┬╖┬╖`                                                                                                                                                                     prettier/prettier
+   11:5   error  Insert `┬╖┬╖`                                                                                                                                                                        prettier/prettier
+   12:1   error  Insert `┬╖┬╖`                                                                                                                                                                        prettier/prettier
+   13:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                                                                   prettier/prettier
+   14:7   error  Replace `content:┬╖z.union([ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖z.string(),ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖z.array(z.record(z.unknown()))` with `┬╖┬╖content:┬╖z.union([z.string(),┬╖z.array(z.record(z.unknown()))])`                    prettier/prettier
+   17:7   error  Replace `]` with `}`                                                                                                                                                               prettier/prettier
+   18:5   error  Replace `}),` with `)`                                                                                                                                                             prettier/prettier
+   19:3   error  Replace `)` with `┬╖┬╖`                                                                                                                                                              prettier/prettier
+   25:14  error  Insert `ΓÅÄ┬╖┬╖┬╖┬╖`                                                                                                                                                                     prettier/prettier
+   26:5   error  Insert `┬╖┬╖`                                                                                                                                                                        prettier/prettier
+   27:1   error  Insert `┬╖┬╖`                                                                                                                                                                        prettier/prettier
+   28:1   error  Replace `┬╖┬╖┬╖┬╖credentials:┬╖z` with `┬╖┬╖┬╖┬╖┬╖┬╖credentials:┬╖zΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                                  prettier/prettier
+   29:1   error  Insert `┬╖┬╖┬╖┬╖`                                                                                                                                                                      prettier/prettier
+   30:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                                                                 prettier/prettier
+   31:5   error  Replace `})` with `┬╖┬╖┬╖┬╖})ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                                                                prettier/prettier
+   32:3   error  Replace `})` with `┬╖┬╖})ΓÅÄ┬╖┬╖┬╖┬╖`                                                                                                                                                      prettier/prettier
+   64:14  error  Replace `.array(` with `ΓÅÄ┬╖┬╖┬╖┬╖.array(ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                                                       prettier/prettier
+   65:1   error  Insert `┬╖┬╖┬╖┬╖`                                                                                                                                                                      prettier/prettier
+   66:1   error  Replace `┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                                                                     prettier/prettier
+   67:3   error  Replace `}))` with `┬╖┬╖┬╖┬╖}),ΓÅÄ┬╖┬╖┬╖┬╖)ΓÅÄ┬╖┬╖┬╖┬╖`                                                                                                                                            prettier/prettier
+  127:21  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖{┬╖error:┬╖'Validation┬╖failed',┬╖details:┬╖errors┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖{┬╖status:┬╖400┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `{┬╖error:┬╖'Validation┬╖failed',┬╖details:┬╖errors┬╖},┬╖{┬╖status:┬╖400┬╖}`  prettier/prettier
+  138:19  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖{┬╖error:┬╖'Invalid┬╖JSON┬╖in┬╖request┬╖body'┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖{┬╖status:┬╖400┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖` with `{┬╖error:┬╖'Invalid┬╖JSON┬╖in┬╖request┬╖body'┬╖},┬╖{┬╖status:┬╖400┬╖}`                    prettier/prettier
+
+C:\software\Devonz\app\lib\env-validation.test.ts
+  17:5  error  Expected blank line before this statement  padding-line-between-statements
+  27:5  error  Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\env-validation.ts
+  71:47  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖(issue)┬╖=>┬╖`┬╖┬╖-┬╖${issue.path.join('.')}:┬╖${issue.message}`,ΓÅÄ┬╖┬╖┬╖┬╖` with `(issue)┬╖=>┬╖`┬╖┬╖-┬╖${issue.path.join('.')}:┬╖${issue.message}``  prettier/prettier
+
+C:\software\Devonz\app\lib\request-logger.ts
+   8:10  error  'sanitizeHeaders' is defined but never used                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   9:37  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖'authorization',ΓÅÄ┬╖┬╖┬╖┬╖'cookie',ΓÅÄ┬╖┬╖┬╖┬╖'set-cookie',ΓÅÄ┬╖┬╖┬╖┬╖'x-api-key',ΓÅÄ┬╖┬╖┬╖┬╖'x-authorization',ΓÅÄ┬╖┬╖` with `'authorization',┬╖'cookie',┬╖'set-cookie',┬╖'x-api-key',┬╖'x-authorization'`                              prettier/prettier
+  52:26  error  Replace `name:┬╖string,┬╖attributes:┬╖Record<string,┬╖any>┬╖=┬╖{},┬╖level:┬╖'info'┬╖|┬╖'warn'┬╖|┬╖'error'┬╖=┬╖'info'` with `ΓÅÄ┬╖┬╖name:┬╖string,ΓÅÄ┬╖┬╖attributes:┬╖Record<string,┬╖any>┬╖=┬╖{},ΓÅÄ┬╖┬╖level:┬╖'info'┬╖|┬╖'warn'┬╖|┬╖'error'┬╖=┬╖'info',ΓÅÄ`  prettier/prettier
+
+C:\software\Devonz\app\lib\security.ts
+  40:33  error  Replace `ΓÅÄ┬╖┬╖(process.env.TRUSTED_PROXIES┬╖||┬╖'127.0.0.1,::1').split(',').map((ip)┬╖=>┬╖ip.trim()),ΓÅÄ` with `(process.env.TRUSTED_PROXIES┬╖||┬╖'127.0.0.1,::1').split(',').map((ip)┬╖=>┬╖ip.trim())`  prettier/prettier
+  47:38  error  Replace `request:┬╖Request,┬╖endpoint:┬╖string` with `ΓÅÄ┬╖┬╖request:┬╖Request,ΓÅÄ┬╖┬╖endpoint:┬╖string,ΓÅÄ`                                                                                                prettier/prettier
+
+C:\software\Devonz\app\lib\services\agentToolsService.spec.ts
+  111:7  error  Expected blank line before this statement  padding-line-between-statements
+  127:7  error  Expected blank line before this statement  padding-line-between-statements
+  167:7  error  Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\services\knowledgeService.ts
+  140:7  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+
+C:\software\Devonz\app\lib\services\orchestratorService.ts
+  1:15  error  'CompiledGraph' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\routes\api.health.ts
+  20:13  error  Variable name `Pool` must match one of the following formats: camelCase, UPPER_CASE   @typescript-eslint/naming-convention
+  44:11  error  Variable name `Redis` must match one of the following formats: camelCase, UPPER_CASE  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\routes\api.import-file.ts
+  41:27  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖.split(/[/\\]/)ΓÅÄ┬╖┬╖┬╖┬╖` with `.split(/[/\\]/)`  prettier/prettier
+
+Γ£û 46 problems (46 errors, 0 warnings)
+  42 errors and 0 warnings potentially fixable with the `--fix` option.
+

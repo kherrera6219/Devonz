@@ -1,0 +1,17 @@
+
+> devonz@1.0.0 lint
+> eslint --cache --cache-location ./node_modules/.cache/eslint app
+
+
+C:\software\Devonz\app\lib\request-logger.ts
+  8:10  error  'sanitizeHeaders' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\services\orchestratorService.ts
+  1:15  error  'CompiledGraph' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\routes\api.health.ts
+  20:13  error  Variable name `Pool` must match one of the following formats: camelCase, UPPER_CASE   @typescript-eslint/naming-convention
+  44:11  error  Variable name `Redis` must match one of the following formats: camelCase, UPPER_CASE  @typescript-eslint/naming-convention
+
+Γ£û 4 problems (4 errors, 0 warnings)
+

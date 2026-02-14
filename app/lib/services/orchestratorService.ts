@@ -1,4 +1,3 @@
-import type { CompiledGraph } from '@langchain/langgraph';
 import { createGraph, type GraphNodeName } from '~/lib/agent-orchestrator/graph';
 import type { RunState } from '~/lib/agent-orchestrator/types/mas-schemas';
 import { createScopedLogger } from '~/utils/logger';

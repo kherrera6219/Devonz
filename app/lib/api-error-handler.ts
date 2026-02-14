@@ -24,7 +24,12 @@ function classifyError(error: unknown): { status: number; message: string } {
   const msg = error.message.toLowerCase();
 
   // Authentication errors
-  if (msg.includes('api key') || msg.includes('unauthorized') || msg.includes('authentication') || msg.includes('token')) {
+  if (
+    msg.includes('api key') ||
+    msg.includes('unauthorized') ||
+    msg.includes('authentication') ||
+    msg.includes('token')
+  ) {
     return { status: 401, message: 'Authentication failed' };
   }
 

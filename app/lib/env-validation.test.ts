@@ -14,6 +14,7 @@ describe('Environment Validation', () => {
 
   it('should return valid config with defaults', () => {
     process.env.NODE_ENV = 'development';
+
     const config = validateEnv();
 
     expect(config.NODE_ENV).toBe('development');
@@ -24,6 +25,7 @@ describe('Environment Validation', () => {
   it('should accept valid production config', () => {
     process.env.NODE_ENV = 'production';
     process.env.ANTHROPIC_API_KEY = 'sk-ant-' + 'x'.repeat(50);
+
     const config = validateEnv();
 
     expect(config.NODE_ENV).toBe('production');

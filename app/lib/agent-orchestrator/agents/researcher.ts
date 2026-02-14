@@ -178,7 +178,7 @@ export class ResearcherAgent {
         },
         events: [newEvent],
       };
-    } catch (error: any) {
+    } catch (error) {
       return createErrorState(this._name, state, error);
     }
   }
@@ -253,7 +253,7 @@ export class ResearcherAgent {
         },
         events: [newEvent],
       };
-    } catch (error: any) {
+    } catch (error) {
       return createErrorState(this._name, state, error);
     }
   }
@@ -316,8 +316,8 @@ export class ResearcherAgent {
         },
         events: [newEvent],
       };
-    } catch (error: any) {
-      return createErrorState(this._name, state, error);
+    } catch (error) {
+      return createErrorState(this._name, state, error as Error);
     }
   }
 }

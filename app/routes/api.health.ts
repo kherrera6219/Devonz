@@ -17,8 +17,8 @@ interface HealthResponse {
 
 async function checkPostgres(): Promise<ServiceHealth> {
   try {
-    const { Pool } = await import('pg');
-    const pool = new Pool({
+    const { Pool: pgPool } = await import('pg');
+    const pool = new pgPool({
       connectionString:
         process.env.DATABASE_URL ||
         `postgresql://${process.env.POSTGRES_USER || 'devonz_user'}:${process.env.POSTGRES_PASSWORD || ''}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || '5432'}/${process.env.POSTGRES_DB || 'devonz_db'}`,
@@ -41,8 +41,8 @@ async function checkPostgres(): Promise<ServiceHealth> {
 
 async function checkRedis(): Promise<ServiceHealth> {
   try {
-    const Redis = (await import('ioredis')).default;
-    const redis = new Redis({
+    const ioRedis = (await import('ioredis')).default;
+    const redis = new ioRedis({
       host: process.env.REDIS_HOST || 'localhost',
       port: parseInt(process.env.REDIS_PORT || '6379', 10),
       password: process.env.REDIS_PASSWORD || undefined,

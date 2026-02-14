@@ -231,13 +231,18 @@ export class RedisCheckpointSaver extends BaseCheckpointSaver {
 
   async deleteThread(threadId: string): Promise<void> {
     logger.info(`Deleting thread state for: ${threadId}`);
-    // A robust delete would use SCAN to find all keys for this thread
-    // lg:checkpoint:threadId:*
-    // lg:checkpoint:writes:threadId:*
-    // lg:checkpoint:index:threadId:*
-    // lg:checkpoint:set:threadId:*
 
-    // For now we'll rely on Redis TTLs if we were using them, or implement a basic scan
-    // Given the small scope, we'll implement a simple one if needed.
+    /*
+     * A robust delete would use SCAN to find all keys for this thread
+     * lg:checkpoint:threadId:*
+     * lg:checkpoint:writes:threadId:*
+     * lg:checkpoint:index:threadId:*
+     * lg:checkpoint:set:threadId:*
+     */
+
+    /*
+     * For now we'll rely on Redis TTLs if we were using them, or implement a basic scan
+     * Given the small scope, we'll implement a simple one if needed.
+     */
   }
 }
