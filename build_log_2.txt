@@ -1,0 +1,135 @@
+
+> devonz@1.0.0 build
+> npx remix vite:build
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+[7m[33m warn [39m[27m Data fetching is changing to a single fetch in React Router v7
+[33m┃[39m [90mYou can use the `v3_singleFetch` future flag to opt-in early.[39m
+[33m┃[39m [90m-> https://remix.run/docs/en/2.13.1/start/future-flags#v3_singleFetch[39m
+[33m┗[39m
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+app/components/ui/Collapsible.tsx (1:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+app/components/ui/Badge.tsx (1:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+app/components/ui/ScrollArea.tsx (1:0): Error when using sourcemap for reporting an error: Can't resolve original location of error.
+[32m✓[39m 1469 modules transformed.
+[31mx[39m Build failed in 4.56s
+[31m[vite]: Rollup failed to resolve import "lucide-react" from "C:/software/Devonz/app/components/chat/RunCard.tsx".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`[39m
+    at rollupWarn (file:///C:/software/Devonz/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65855:17)
+    at file:///C:/software/Devonz/node_modules/vite-plugin-node-polyfills/src/index.ts:216:17
+    at handleCircularDependancyWarning (C:\software\Devonz\node_modules\node-stdlib-browser\helpers\rollup\plugin.js:29:3)
+    at Object.onwarn (file:///C:/software/Devonz/node_modules/vite-plugin-node-polyfills/src/index.ts:211:15)
+    at onwarn (C:\software\Devonz\node_modules\@remix-run\dev\dist\vite\plugin.js:628:48)
+    at onRollupWarning (file:///C:/software/Devonz/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65885:5)
+    at onwarn (file:///C:/software/Devonz/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65550:7)
+    at file:///C:/software/Devonz/node_modules/rollup/dist/es/shared/node-entry.js:20972:13
+    at Object.logger [as onLog] (file:///C:/software/Devonz/node_modules/rollup/dist/es/shared/node-entry.js:22945:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///C:/software/Devonz/node_modules/rollup/dist/es/shared/node-entry.js:21689:26)
+    at file:///C:/software/Devonz/node_modules/rollup/dist/es/shared/node-entry.js:21647:26 {
+  watchFiles: [
+    'C:/software/Devonz/app/entry.client.tsx',
+    'C:/software/Devonz/app/routes/api.agent.generate-audio.ts',
+    'C:/software/Devonz/app/root.tsx',
+    'C:/software/Devonz/app/routes/webcontainer.connect.$id.tsx',
+    'C:/software/Devonz/app/routes/api.agent.generate-image.ts',
+    'C:/software/Devonz/app/routes/api.configured-providers.ts',
+    'C:/software/Devonz/app/routes/api.supabase.variables.ts',
+    'C:/software/Devonz/app/routes/webcontainer.preview.$id.tsx',
+    'C:/software/Devonz/app/routes/api.mcp-update-config.ts',
+    'C:/software/Devonz/app/routes/api.system.disk-info.ts',
+    'C:/software/Devonz/app/routes/api.system.diagnostics.ts',
+    'C:/software/Devonz/app/routes/api.github-branches.ts',
+    'C:/software/Devonz/app/routes/api.models.$provider.ts',
+    'C:/software/Devonz/app/routes/api.github-template.ts',
+    'C:/software/Devonz/app/routes/api.gitlab-branches.ts',
+    'C:/software/Devonz/app/routes/api.supabase.query.ts',
+    'C:/software/Devonz/app/routes/api.netlify-deploy.ts',
+    'C:/software/Devonz/app/routes/api.gitlab-projects.ts',
+    'C:/software/Devonz/app/routes/api.system.git-info.ts',
+    'C:/software/Devonz/app/routes/api.vercel-domains.ts',
+    'C:/software/Devonz/app/routes/api.check-env-key.ts',
+    'C:/software/Devonz/app/routes/api.netlify-user.ts',
+    'C:/software/Devonz/app/routes/api.supabase-user.ts',
+    'C:/software/Devonz/app/routes/api.spline-proxy.ts',
+    'C:/software/Devonz/app/routes/api.github-stats.ts',
+    'C:/software/Devonz/app/routes/api.github-user.ts',
+    'C:/software/Devonz/app/routes/api.vercel-deploy.ts',
+    'C:/software/Devonz/app/routes/api.git-proxy.$.ts',
+    'C:/software/Devonz/app/routes/api.bug-report.ts',
+    'C:/software/Devonz/app/routes/api.vercel-proxy.ts',
+    'C:/software/Devonz/app/routes/api.vercel-user.ts',
+    'C:/software/Devonz/app/routes/api.knowledge.ts',
+    'C:/software/Devonz/app/routes/api.enhancer.ts',
+    'C:/software/Devonz/app/routes/api.mcp-check.ts',
+    'C:/software/Devonz/app/routes/api.supabase.ts',
+    'C:/software/Devonz/app/routes/api.import-file.ts',
+    'C:/software/Devonz/app/routes/api.llmcall.ts',
+    'C:/software/Devonz/app/routes/api.health.ts',
+    'C:/software/Devonz/app/routes/api.git-info.ts',
+    'C:/software/Devonz/app/routes/api.update.ts',
+    'C:/software/Devonz/app/routes/chat.$id.tsx',
+    'C:/software/Devonz/app/routes/api.models.ts',
+    'C:/software/Devonz/app/routes/_index.tsx',
+    'C:/software/Devonz/app/routes/api.chat.ts',
+    'C:/software/Devonz/app/routes/git.tsx',
+    'C:\\software\\Devonz\\package.json',
+    'C:/software/Devonz/app/lib/services/errorReporter.ts',
+    'C:/software/Devonz/app/lib/stores/logs.ts',
+    'C:/software/Devonz/app/lib/stores/theme.ts',
+    'C:/software/Devonz/app/utils/stripIndent.ts',
+    'C:/software/Devonz/app/lib/i18n/config.ts',
+    'C:/software/Devonz/app/utils/debugLogger.ts',
+    'C:/software/Devonz/app/components/ui/IconButton.tsx',
+    'C:/software/Devonz/app/components/errors/RouteErrorBoundary.tsx',
+    'C:/software/Devonz/app/lib/modules/features/FeatureContext.tsx',
+    'C:/software/Devonz/app/styles/liquid-metal.css',
+    'C:/software/Devonz/app/styles/index.scss',
+    'C:/software/Devonz/app/lib/runtime/config.ts',
+    'C:/software/Devonz/app/utils/logger.ts',
+    'C:/software/Devonz/node_modules/react/index.js',
+    'C:/software/Devonz/node_modules/@remix-run/react/dist/esm/index.js',
+    'C:/software/Devonz/node_modules/react-dom/client.js',
+    'C:/software/Devonz/node_modules/react/jsx-runtime.js',
+    'C:/software/Devonz/app/components/header/Header.tsx',
+    'C:/software/Devonz/app/components/ui/ImportProgressBar.tsx',
+    'C:/software/Devonz/app/components/chat/Chat.client.tsx',
+    'C:/software/Devonz/app/components/chat/BaseChat.tsx',
+    'C:/software/Devonz/app/components/git/GitUrlImport.client.tsx',
+    'C:/software/Devonz/app/components/ui/BackgroundRays/index.tsx',
+    'C:/software/Devonz/app/lib/modules/features/defaults.ts',
+    'C:/software/Devonz/app/utils/classNames.ts',
+    'C:/software/Devonz/app/components/ui/Button.tsx',
+    'C:/software/Devonz/app/utils/os.ts',
+    'C:/software/Devonz/app/utils/mobile.ts',
+    'C:/software/Devonz/node_modules/@remix-run/react/dist/esm/browser.js',
+    'C:/software/Devonz/node_modules/@remix-run/server-runtime/dist/esm/index.js',
+    'C:/software/Devonz/app/utils/constants.ts',
+    'C:/software/Devonz/node_modules/@remix-run/react/dist/esm/server.js',
+    'C:/software/Devonz/node_modules/@remix-run/react/dist/esm/components.js',
+    'C:/software/Devonz/node_modules/@remix-run/react/dist/esm/scroll-restoration.js',
+    'C:/software/Devonz/node_modules/react-router-dom/dist/index.js',
+    'C:/software/Devonz/node_modules/react-dnd-html5-backend/dist/index.js',
+    'C:/software/Devonz/node_modules/react-dnd/dist/index.js',
+    'C:/software/Devonz/node_modules/@nanostores/react/index.js',
+    'C:/software/Devonz/node_modules/react-i18next/dist/es/index.js',
+    'C:/software/Devonz/node_modules/react-toastify/dist/react-toastify.esm.mjs',
+    'C:/software/Devonz/node_modules/remix-utils/build/react/client-only.js',
+    'C:/software/Devonz/node_modules/react/cjs/react.development.js',
+    'C:/software/Devonz/node_modules/react/cjs/react-jsx-runtime.development.js',
+    'C:/software/Devonz/node_modules/react-dom/index.js',
+    'C:/software/Devonz/node_modules/@unocss/reset/tailwind-compat.css',
+    'C:/software/Devonz/node_modules/react-toastify/dist/ReactToastify.css',
+    'C:/software/Devonz/node_modules/@xterm/xterm/css/xterm.css',
+    'C:/software/Devonz/app/components/ui/Progress.tsx',
+    'C:/software/Devonz/app/lib/stores/importStore.ts',
+    'C:/software/Devonz/app/lib/hooks/index.ts',
+    'C:/software/Devonz/app/lib/persistence/index.ts',
+    'C:/software/Devonz/app/utils/easings.ts',
+    'C:/software/Devonz/app/utils/debounce.ts',
+    'C:/software/Devonz/app/lib/stores/chat.ts',
+    ... 1327 more items
+  ]
+}
