@@ -120,9 +120,12 @@ export function ErrorBoundary() {
   if (isRouteErrorResponse(error)) {
     message = `${error.status} ${error.statusText}`;
     details = error.data;
-  } else if (error instanceof Error) {
+  } else if (import.meta.env.DEV && error instanceof Error) {
     message = 'Application Error';
     details = error.message;
+  } else if (error instanceof Error) {
+    message = 'Application Error';
+    details = 'An unexpected error occurred. Please try again later.';
   }
 
   return (

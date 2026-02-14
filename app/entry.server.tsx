@@ -30,6 +30,29 @@ export default async function handleRequest(
           responseHeaders.set('Cross-Origin-Embedder-Policy', 'credentialless');
           responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
 
+          // Microsoft Security Best Practices Headers
+          responseHeaders.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+          responseHeaders.set('X-Content-Type-Options', 'nosniff');
+          responseHeaders.set('X-Frame-Options', 'DENY');
+          responseHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+          // Content Security Policy (CSP)
+          // Note: 'unsafe-eval' is required for WebContainer/Monaco
+          // 'unsafe-inline' is required for Remix hydration and styling
+          const csp = [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https:",
+            "style-src 'self' 'unsafe-inline' https:",
+            "img-src 'self' data: https: blob:",
+            "font-src 'self' data: https:",
+            "connect-src 'self' https: wss:",
+            "worker-src 'self' blob:",
+            "frame-src 'self' https:",
+            "media-src 'self' data: https: blob:",
+          ].join('; ');
+
+          responseHeaders.set('Content-Security-Policy', csp);
+
           resolve(
             new Response(body as unknown as ReadableStream, {
               headers: responseHeaders,

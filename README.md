@@ -37,6 +37,14 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | Auto-Fix                     | Automatic error detection and fixing with terminal error detector           |
 | **Multi-Language Expert**    | Support for 25+ programming languages (Python, Go, Rust, C++, Java, etc.)   |
 
+### ✨ 2026 Updates (Fluent Design & Security)
+
+| Feature                     | Description                                                                 |
+| --------------------------- | --------------------------------------------------------------------------- |
+| **Fluent Design UI**        | **Native Windows 11 aesthetics** (Mica, Acrylic, Segoe UI Variable)         |
+| **Enterprise Security**     | **Microsoft Standard Headers** (CSP, HSTS) & Production Error Sanitization  |
+| **Optimized Persistence**   | **High-Performance Chat History** via IndexedDB v3 Pagination & Indexing    |
+
 ### Specialized Agent Tools
 
 | Tool                          | Description                                                              |
@@ -65,9 +73,9 @@ Devonz is an AI-powered development agent that helps you build full-stack applic
 | ------------- | --------------------------------------------------------- |
 | Framework     | [Remix](https://remix.run/) + [Vite](https://vitejs.dev/) |
 | Language      | TypeScript                                                |
-| Database      | PostgreSQL (pgvector), Neo4j, Redis, MinIO                |
+| Database      | PostgreSQL (pgvector), Neo4j, Redis, MinIO, **IndexedDB** |
 | Orchestration | LangGraph, LangChain                                      |
-| Styling       | UnoCSS + Tailwind CSS                                     |
+| Styling       | UnoCSS + Tailwind CSS + **Fluent Design System**          |
 | AI SDK        | Vercel AI SDK                                             |
 | Editor        | CodeMirror                                                |
 | Terminal      | xterm.js                                                  |
