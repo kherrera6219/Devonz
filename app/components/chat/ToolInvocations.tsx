@@ -2,8 +2,8 @@ import type { ToolInvocationUIPart } from '@ai-sdk/ui-utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useMemo, useState, useEffect } from 'react';
 import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
-import DOMPurify from 'dompurify';
 import { classNames } from '~/utils/classNames';
+import { sanitizer } from '~/utils/sanitize';
 import {
   TOOL_EXECUTION_APPROVAL,
   TOOL_EXECUTION_DENIED,
@@ -81,7 +81,7 @@ function JsonCodeBlock({ className, code, theme }: JsonCodeBlockProps) {
    * Tool invocation data (args/results) comes from LLM and MCP servers,
    * which could contain malicious content if a user connects to an untrusted MCP server.
    */
-  const sanitizedHtml = DOMPurify.sanitize(rawHtml, SHIKI_PURIFY_CONFIG);
+  const sanitizedHtml = sanitizer.clean(rawHtml, sanitizer.config.SHIKI);
 
   return (
     <div

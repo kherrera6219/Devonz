@@ -3,6 +3,7 @@ import { RemixServer } from '@remix-run/react';
 import { isbot } from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
 import { PassThrough } from 'node:stream';
+import { createSecurityHeaders } from '~/lib/security';
 
 const ABORT_DELAY = 5_000;
 
@@ -37,19 +38,9 @@ export default async function handleRequest(
           responseHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
           // Content Security Policy (CSP)
-          // Note: 'unsafe-eval' is required for WebContainer/Monaco
-          // 'unsafe-inline' is required for Remix hydration and styling
-          const csp = [
-            "default-src 'self'",
-            "script-src 'self' 'unsafe-eval' 'unsafe-inline' https:",
-            "style-src 'self' 'unsafe-inline' https:",
-            "img-src 'self' data: https: blob:",
-            "font-src 'self' data: https:",
-            "connect-src 'self' https: wss:",
-            "worker-src 'self' blob:",
-            "frame-src 'self' https:",
-            "media-src 'self' data: https: blob:",
-          ].join('; ');
+          // Managed centrally in app/lib/security.ts
+          const securityHeaders = createSecurityHeaders();
+          const csp = securityHeaders['Content-Security-Policy'];
 
           responseHeaders.set('Content-Security-Policy', csp);
 

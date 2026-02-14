@@ -1,11 +1,25 @@
-import { useRouteError, isRouteErrorResponse, useNavigate } from '@remix-run/react';
+import { isRouteErrorResponse, useNavigation, useRouteError, useNavigate } from '@remix-run/react';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
+import { errorReporter } from '~/lib/services/errorReporter';
 import { Button } from '~/components/ui/Button';
 
 export function RouteErrorBoundary() {
   const error = useRouteError();
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (!isRouteErrorResponse(error)) {
+      errorReporter.report({
+        message: 'RouteErrorBoundary caught error',
+        source: 'react-boundary',
+        severity: 'error',
+        metadata: { error },
+      });
+    }
+  }, [error]);
 
   let message = t('common.error.unexpected', 'An unexpected error occurred');
   let details = t('common.error.retry_message', 'Please try reloading the page.');

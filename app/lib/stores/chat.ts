@@ -1,4 +1,5 @@
 import { map } from 'nanostores';
+import { createAction } from './middleware';
 
 export const chatStore = map({
   started: false,
@@ -8,11 +9,11 @@ export const chatStore = map({
 });
 
 // Helper to set a pending message that will be picked up by the chat input
-export function setPendingChatMessage(message: string) {
+export const setPendingChatMessage = createAction('chatStore', 'setPendingChatMessage', (message: string) => {
   chatStore.setKey('pendingMessage', message);
-}
+});
 
 // Helper to clear the pending message after it's been consumed
-export function clearPendingChatMessage() {
+export const clearPendingChatMessage = createAction('chatStore', 'clearPendingChatMessage', () => {
   chatStore.setKey('pendingMessage', null);
-}
+});

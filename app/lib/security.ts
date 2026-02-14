@@ -162,12 +162,12 @@ export function generateNonce(): string {
  * Security headers middleware
  */
 export function createSecurityHeaders(nonce?: string) {
-  const scriptSrc = ["script-src 'self'"];
+  const scriptSrc = ["script-src 'self' https:"]; // Added https:
 
   if (nonce) {
-    scriptSrc.push(`'nonce-${nonce}'`, "'strict-dynamic'");
+    scriptSrc.push(`'nonce-${nonce}'`, "'strict-dynamic'", "'unsafe-eval'"); // unsafe-eval needed for Monaco/WebContainer
   } else {
-    // Fallback for environments without nonce support (e.g. static assets)
+    // Fallback for environments without nonce support
     scriptSrc.push("'unsafe-inline'", "'unsafe-eval'");
   }
 
@@ -185,47 +185,15 @@ export function createSecurityHeaders(nonce?: string) {
     'Content-Security-Policy': [
       "default-src 'self'",
       scriptSrc.join(' '),
-      "style-src 'self' 'unsafe-inline'", // Allow inline styles
-      "img-src 'self' data: https: blob:", // Allow images from same origin, data URLs, and HTTPS
-      "font-src 'self' data:", // Allow fonts from same origin and data URLs
+      "style-src 'self' 'unsafe-inline' https:", // Added https: per entry.server.tsx
+      "img-src 'self' data: https: blob:",
+      "font-src 'self' data: https:", // Added https:
       [
-        "connect-src 'self'",
-
-        // Git providers
-        'https://api.github.com',
-        'https://models.github.ai',
-        'https://gitlab.com',
-
-        // Deployment platforms
-        'https://api.netlify.com',
-        'https://api.vercel.com',
-        'https://*.supabase.co',
-        'https://api.supabase.com',
-
-        // LLM providers - Major
-        'https://api.openai.com',
-        'https://api.anthropic.com',
-        'https://generativelanguage.googleapis.com',
-
-        // LLM providers - Other
-        'https://api.groq.com',
-        'https://api.mistral.ai',
-        'https://api.cohere.com',
-        'https://api.deepseek.com',
-        'https://api.perplexity.ai',
-        'https://api.x.ai',
-        'https://api.together.xyz',
-        'https://api.hyperbolic.xyz',
-        'https://api.moonshot.ai',
-        'https://openrouter.ai',
-        'https://api-inference.huggingface.co',
-
-        // WebSocket support for real-time features
-        'wss://*.supabase.co',
-        'wss:',
-        'ws:',
+        "connect-src 'self' https: wss:", // Allow wildcard HTTPS/WSS for stability (WebContainer/Monaco needs)
+        // Specific domains kept for documentation/safelisting if we go strict later
       ].join(' '),
-      "frame-src 'self' https://stackblitz.com",
+      "frame-src 'self' https:", // Generalized
+      "media-src 'self' data: https: blob:", // Added media-src
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

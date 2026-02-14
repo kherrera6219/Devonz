@@ -2,18 +2,14 @@ import { RemixBrowser } from '@remix-run/react';
 import { startTransition, StrictMode } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 
+import { errorReporter } from '~/lib/services/errorReporter';
+
 console.log('[Entry] Client entry point starting...');
 
 if (typeof window !== 'undefined') {
   console.log('[Entry] Window environment detected');
-
-  window.addEventListener('error', (event) => {
-    console.error('[Global Error]:', event.error);
-  });
-
-  window.addEventListener('unhandledrejection', (event) => {
-    console.error('[Unhandled Rejection]:', event.reason);
-  });
+  // Initialize centralized error reporting
+  errorReporter.init();
 }
 
 import { logStore } from '~/lib/stores/logs';
@@ -29,24 +25,23 @@ startTransition(() => {
       </StrictMode>,
       {
         onRecoverableError: (error: any) => {
-          console.error('[Hydration] Recoverable error:', error);
-
-          // Attempt to log to our internal store if possible
-          try {
-            logStore.logError('Hydration recoverable error', error);
-          } catch {
-            // LogStore might not be available yet
-          }
+          errorReporter.report({
+            message: 'Hydration recoverable error',
+            stack: error?.stack,
+            source: 'hydration-recoverable',
+            severity: 'warning',
+            metadata: { originalError: error },
+          });
         },
       },
     );
   } catch (error) {
-    console.error('[Entry] Hydration critical failure:', error);
-
-    try {
-      logStore.logError('Hydration critical failure', error as Error);
-    } catch {
-      // LogStore might not be available yet
-    }
+    errorReporter.report({
+      message: 'Hydration critical failure',
+      stack: (error as Error)?.stack,
+      source: 'hydration-critical',
+      severity: 'fatal',
+      metadata: { originalError: error },
+    });
   }
 });
