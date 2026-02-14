@@ -3,6 +3,10 @@ import type { RunState, PatchSet, EventLogEntry, ResearchState } from '~/lib/age
 import { PromptTemplate } from '@langchain/core/prompts';
 import { JsonOutputParser } from '@langchain/core/output_parsers';
 import { safeInvoke, createErrorState } from '~/lib/agent-orchestrator/utils/agent-utils';
+import { executeAgentTool } from '~/lib/services/agentToolsService';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('architect-agent');
 
 /**
  * Architect Agent (Internal)
@@ -123,7 +127,29 @@ export class ArchitectAgent {
       format_instructions: parser.getFormatInstructions(),
     })) as { patches: PatchSet[]; summary: string };
 
-    // 4. Construct Updates
+    // 4. Materialize Patches to Filesystem
+    const appliedResults = await Promise.all(
+      result.patches.map(async (patch) => {
+        logger.info(`Materializing patch for ${patch.filesTouched.join(', ')}`);
+
+        // Architect assumes first file is the primary target for the unified diff
+        const targetPath = patch.filesTouched[0];
+
+        if (!targetPath) {
+          return { path: 'unknown', success: false, error: 'No target path in patch' };
+        }
+
+        return await executeAgentTool('devonz_apply_patch', {
+          path: targetPath,
+          patch: patch.unifiedDiff,
+        });
+      }),
+    );
+
+    const successfulPatches = appliedResults.filter((r) => r.success);
+    const failedPatches = appliedResults.filter((r) => !r.success);
+
+    // 5. Construct Updates
     const newEvents: EventLogEntry[] = [
       {
         eventId: crypto.randomUUID(),
@@ -132,9 +158,14 @@ export class ArchitectAgent {
         type: 'patch_applied',
         stage: 'ARCH_BUILD',
         agent: 'architect',
-        summary: result.summary,
+        summary: `${result.summary} (${successfulPatches.length} applied, ${failedPatches.length} failed)`,
         visibility: 'user',
-        details: { patchCount: result.patches.length },
+        details: {
+          patchCount: result.patches.length,
+          appliedCount: successfulPatches.length,
+          failedCount: failedPatches.length,
+          errors: failedPatches.map((f) => f.error),
+        },
       },
     ];
 

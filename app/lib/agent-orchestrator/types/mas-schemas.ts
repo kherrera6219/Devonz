@@ -114,6 +114,7 @@ export interface PlanState {
 export interface ResearchState {
   techReality?: TechRealityReport;
   competencyMap?: CompetencyMap;
+  codebaseAnalysis?: any;
   lastUpdated: string;
 }
 

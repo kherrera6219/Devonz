@@ -31,6 +31,8 @@ import type {
   AgentToolDefinition,
   ReadDocumentParams,
   ReadDocumentResult,
+  ApplyPatchParams,
+  ApplyPatchResult,
 } from '~/lib/agent-orchestrator/shared/agent-types';
 import { parseDocument, isSupportedFormat, SUPPORTED_FORMATS } from '~/lib/services/documentParserService';
 
@@ -463,8 +465,10 @@ async function getErrors(params: GetErrorsParams): Promise<ToolExecutionResult<G
       }
     }
 
-    // Note: PreviewErrorHandler doesn't expose a getErrors() method.
-    // Preview errors are captured via autoFixStore when they occur.
+    /**
+     * Note: PreviewErrorHandler doesn't expose a getErrors() method.
+     * Preview errors are captured via autoFixStore when they occur.
+     */
 
     logger.debug(`Retrieved errors`, { count: errors.length, source });
 
@@ -695,6 +699,63 @@ async function readDocument(params: ReadDocumentParams): Promise<ToolExecutionRe
     return {
       success: false,
       error: `Failed to read document: ${errorMessage}`,
+    };
+  }
+}
+
+/**
+ * Apply Patch Tool
+ * Applies a unified diff patch to a file in the WebContainer.
+ */
+async function applyPatch(params: ApplyPatchParams): Promise<ToolExecutionResult<ApplyPatchResult>> {
+  const { path, patch } = params;
+  logger.info(`Applying patch to: ${path}`);
+
+  try {
+    const container = await webcontainer;
+    const { applyPatch: jsDiffApplyPatch } = await import('diff');
+
+    // Read current content
+    let currentContent: string;
+
+    try {
+      currentContent = await container.fs.readFile(path, 'utf-8');
+    } catch {
+      return {
+        success: false,
+        error: `File not found for patching: ${path}`,
+      };
+    }
+
+    // Apply patch
+    const patchedContent = jsDiffApplyPatch(currentContent, patch);
+
+    if (patchedContent === false) {
+      return {
+        success: false,
+        error: `Failed to apply patch to ${path}. Verification failed (mismatched hunks).`,
+      };
+    }
+
+    // Write back
+    await container.fs.writeFile(path, patchedContent, 'utf-8');
+
+    logger.info(`Successfully applied patch to ${path}`);
+
+    return {
+      success: true,
+      data: {
+        path,
+        success: true,
+      },
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to apply patch to: ${path}`, error);
+
+    return {
+      success: false,
+      error: `Failed to apply patch: ${errorMessage}`,
     };
   }
 }
@@ -1079,6 +1140,26 @@ export const agentToolDefinitions: Record<string, AgentToolDefinition> = {
       required: ['projectId', 'query'],
     },
     execute: knowledgeQuery as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
+  },
+  devonz_apply_patch: {
+    name: 'devonz_apply_patch',
+    description:
+      'Apply a Unified Diff patch to a file. This is the primary way to modify existing code. The patch must be in standard unified diff format.',
+    parameters: {
+      type: 'object',
+      properties: {
+        path: {
+          type: 'string',
+          description: 'The absolute path to the file to patch',
+        },
+        patch: {
+          type: 'string',
+          description: 'The unified diff content to apply',
+        },
+      },
+      required: ['path', 'patch'],
+    },
+    execute: applyPatch as unknown as (args: Record<string, unknown>) => Promise<ToolExecutionResult<unknown>>,
   },
 };
 

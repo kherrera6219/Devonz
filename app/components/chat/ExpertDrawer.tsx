@@ -12,6 +12,15 @@ interface ExpertDrawerProps {
 export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, events, qcReport: _qcReport }) => {
   const [activeTab, setActiveTab] = useState<'timeline' | 'qc' | 'research' | 'changes'>('timeline');
 
+  // Extract latest data from events
+  const researchEvent = [...events].reverse().find((e) => e.type === 'artifact_ready' && e.agent === 'researcher');
+  const patchEvents = events.filter((e) => e.type === 'patch_applied');
+  const qcEvents = events.filter(
+    (e) => e.type === 'qc_issues_found' || e.type === 'qc_passed' || e.type === 'qc_failed',
+  );
+
+  const researchData = researchEvent?.details;
+
   if (!isOpen) {
     return null;
   }
@@ -101,19 +110,99 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
         {activeTab === 'qc' && (
           <div className="space-y-4">
             <div className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Issue List</div>
-            {/* Placeholder for QC List from QCReport */}
-            <div className="p-3 border border-dashed border-[#333] rounded text-gray-500 text-center text-sm">
-              Running QC checks...
-            </div>
+            {qcEvents.length > 0 ? (
+              qcEvents.map((ev, i) => (
+                <div key={i} className="p-3 border border-[#222] bg-[#111] rounded space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-orange-400 capitalize">{ev.summary}</span>
+                    <span className="text-[10px] text-gray-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
+                  </div>
+                  {ev.details?.issues?.map((issue: any, j: number) => (
+                    <div key={j} className="text-xs text-gray-300 pl-2 border-l border-orange-500/30">
+                      <div className="font-bold">{issue.title}</div>
+                      <div className="text-gray-500">{issue.description}</div>
+                    </div>
+                  ))}
+                </div>
+              ))
+            ) : (
+              <div className="p-10 border border-dashed border-[#222] rounded text-gray-500 text-center text-sm">
+                No QC findings recorded yet.
+              </div>
+            )}
           </div>
         )}
 
-        {/* Placeholders for other tabs */}
         {activeTab === 'research' && (
-          <div className="text-gray-500 text-sm text-center py-10">Research artifacts will appear here.</div>
+          <div className="space-y-6">
+            {researchData ? (
+              <>
+                {researchData.techReality && (
+                  <section className="space-y-2">
+                    <h3 className="text-xs font-bold text-blue-400 flex items-center gap-2 uppercase tracking-tight">
+                      <BookOpen className="w-3 h-3" /> Tech Reality
+                    </h3>
+                    <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded">
+                      <p className="text-xs text-blue-100/70 mb-2">{researchData.techReality.stackSummary}</p>
+                      <ul className="space-y-1">
+                        {researchData.techReality.recommendedPins?.map((p: any, i: number) => (
+                          <li key={i} className="text-[11px] text-gray-400">
+                            <span className="text-blue-300 font-mono">
+                              {p.name}@{p.recommended}
+                            </span>
+                            : {p.reason}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </section>
+                )}
+
+                {researchData.codebaseAnalysis && (
+                  <section className="space-y-2">
+                    <h3 className="text-xs font-bold text-green-400 flex items-center gap-2 uppercase tracking-tight">
+                      <Activity className="w-3 h-3" /> Codebase Analysis
+                    </h3>
+                    <div className="p-3 bg-green-500/5 border border-green-500/20 rounded">
+                      <p className="text-xs text-green-100/70">{researchData.codebaseAnalysis.architecturalNotes}</p>
+                      <div className="mt-2 grid grid-cols-1 gap-1">
+                        {researchData.codebaseAnalysis.bottlenecks?.map((b: string, i: number) => (
+                          <div
+                            key={i}
+                            className="text-[10px] bg-red-500/10 text-red-400 px-2 py-1 rounded border border-red-500/20"
+                          >
+                            {b}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                )}
+              </>
+            ) : (
+              <div className="text-gray-500 text-sm text-center py-10">Research artifacts will appear here.</div>
+            )}
+          </div>
         )}
+
         {activeTab === 'changes' && (
-          <div className="text-gray-500 text-sm text-center py-10">File changes will appear here.</div>
+          <div className="space-y-4">
+            {patchEvents.length > 0 ? (
+              patchEvents.map((ev, i) => (
+                <div key={i} className="p-3 border border-[#222] bg-[#111] rounded space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-200">{ev.summary}</span>
+                    <span className="text-[10px] text-gray-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
+                  </div>
+                  <div className="text-[10px] font-mono text-gray-500 bg-black/50 p-2 rounded max-h-[150px] overflow-y-auto">
+                    {ev.details?.patchCount} file(s) modified
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500 text-sm text-center py-10">File changes will appear here.</div>
+            )}
+          </div>
         )}
       </div>
     </motion.div>

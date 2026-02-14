@@ -8,6 +8,11 @@ import type {
   EventLogEntry,
 } from '~/lib/agent-orchestrator/types/mas-schemas';
 import { safeInvoke, createErrorState } from '~/lib/agent-orchestrator/utils/agent-utils';
+import { RAGService } from '~/lib/services/ragService';
+import { graphService } from '~/lib/services/graphService';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('researcher-agent');
 
 /**
  * Researcher Agent (Internal)
@@ -45,8 +50,120 @@ export class ResearcherAgent {
   async run(state: RunState): Promise<Partial<RunState>> {
     this._ensureModels(state);
 
-    // Default behavior if called generically: run tech research based on plan
+    // If the stage is specifically analysis, run that
+    if (state.status.stage === 'RESEARCH_TECH_AND_SKILLS') {
+      const techUpdate = await this.runTechResearch(state);
+      const competencyUpdate = await this.runCompetencyResearch(state);
+      const codebaseUpdate = await this.runCodebaseAnalysis(state);
+
+      return {
+        research: {
+          ...state.research,
+          ...techUpdate.research,
+          ...competencyUpdate.research,
+          ...codebaseUpdate.research,
+        },
+        events: [...(techUpdate.events || []), ...(competencyUpdate.events || []), ...(codebaseUpdate.events || [])],
+      };
+    }
+
     return await this.runTechResearch(state);
+  }
+
+  /**
+   * Helper to fetch context from RAG and Graph infrastructure
+   */
+  private async _getInfrastructureContext(state: RunState): Promise<string> {
+    const projectId = state.conversationId;
+    const query = state.inputs.requestText || '';
+
+    const contextParts: string[] = [];
+
+    try {
+      // 1. Query RAG for semantic context
+      const ragResults = await RAGService.getInstance().query(projectId, query, 5);
+
+      if (ragResults.length > 0) {
+        contextParts.push('### Codebase Semantic Context (RAG):\n' + ragResults.join('\n\n'));
+      }
+
+      // 2. Query Graph for dependency context
+      const graphResults = await graphService.getProjectSubgraph(projectId, 10);
+
+      if (graphResults.length > 0) {
+        const graphSummary = graphResults
+          .map((r) => `- ${r.source.path} --(${r.relationship})--> ${r.target.path}`)
+          .join('\n');
+        contextParts.push('### Dependency Graph Context:\n' + graphSummary);
+      }
+    } catch (err) {
+      logger.error('Failed to fetch infrastructure context', err);
+    }
+
+    return contextParts.join('\n\n');
+  }
+
+  /**
+   * ACTION: CODEBASE_ANALYSIS
+   * Performs deep recursive analysis of the codebase.
+   */
+  async runCodebaseAnalysis(state: RunState): Promise<Partial<RunState>> {
+    try {
+      this._ensureModels(state);
+
+      const infraContext = await this._getInfrastructureContext(state);
+
+      const parser = new JsonOutputParser();
+      const prompt = PromptTemplate.fromTemplate(
+        `Analyze the following CODEBASE CONTEXT and identify potential architectural bottlenecks and patterns.
+
+        Infrastructure Context:
+        {infraContext}
+
+        Identify:
+        1. Circular dependencies or complex couplings.
+        2. Incomplete or "stub" implementations.
+        3. Alignment with 2025 development standards.
+
+        Respond with JSON:
+        {{
+          "architecturalNotes": "String",
+          "bottlenecks": ["String"],
+          "suggestedPatterns": ["String"]
+        }}
+
+        {format_instructions}`,
+      );
+
+      const chain = prompt.pipe(this._model!).pipe(parser);
+      const analysis = await safeInvoke(this._name, chain, {
+        infraContext,
+        format_instructions: parser.getFormatInstructions(),
+      });
+
+      const newEvent: EventLogEntry = {
+        eventId: crypto.randomUUID(),
+        runId: state.runId,
+        timestamp: new Date().toISOString(),
+        type: 'artifact_ready',
+        stage: 'RESEARCH_TECH_AND_SKILLS',
+        agent: 'researcher',
+        summary: 'Deep Codebase Analysis complete.',
+        visibility: 'expert',
+        details: analysis as any,
+      };
+
+      return {
+        research: {
+          ...state.research,
+          codebaseAnalysis: analysis,
+          lastUpdated: new Date().toISOString(),
+        },
+        events: [newEvent],
+      };
+    } catch (error: any) {
+      return createErrorState(this._name, state, error);
+    }
   }
 
   /**
@@ -59,12 +176,14 @@ export class ResearcherAgent {
       // Context from Plan or User Input
       const query = state.inputs.requestText || 'General Tech Inquiry';
       const constraints = JSON.stringify(state.inputs.constraints || {});
+      const infraContext = await this._getInfrastructureContext(state);
 
       const parser = new JsonOutputParser();
       const prompt = PromptTemplate.fromTemplate(
         `Perform a rigorous TECHNOLOGY REALITY CHECK.
 
         Context: {query}
+        Infrastructure Context: {infraContext}
         Constraints: {constraints}
 
         Your job is to validate the technology stack choices.
@@ -87,6 +206,7 @@ export class ResearcherAgent {
       const chain = prompt.pipe(this._model!).pipe(parser);
       const report = (await safeInvoke(this._name, chain, {
         query,
+        infraContext,
         constraints,
         format_instructions: parser.getFormatInstructions(),
       })) as TechRealityReport;

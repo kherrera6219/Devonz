@@ -200,6 +200,22 @@ export interface ReadDocumentResult {
 }
 
 /**
+ * Apply patch tool parameters
+ */
+export interface ApplyPatchParams {
+  path: string;
+  patch: string;
+}
+
+/**
+ * Apply patch tool result data
+ */
+export interface ApplyPatchResult {
+  path: string;
+  success: boolean;
+}
+
+/**
  * Index document tool parameters
  */
 export interface IndexDocumentParams {
