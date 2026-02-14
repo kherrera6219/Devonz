@@ -173,26 +173,6 @@ export function createSecurityHeaders() {
     // Content Security Policy
     'Content-Security-Policy': [
       "default-src 'self'",
-<<<<<<< HEAD
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https: blob:",
-      "font-src 'self' data:",
-      [
-        "connect-src 'self'",
-        'https://api.github.com',
-        'https://api.netlify.com',
-        'https://api.vercel.com',
-        'https://gitlab.com',
-        'https://api.anthropic.com',
-        'https://api.openai.com',
-        'https://generativelanguage.googleapis.com',
-        'wss:',
-        'ws:',
-      ].join(' '),
-      "frame-src 'self' https://stackblitz.com",
-      "object-src 'none'",
-=======
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Allow inline scripts for React
       "style-src 'self' 'unsafe-inline'", // Allow inline styles
       "img-src 'self' data: https: blob:", // Allow images from same origin, data URLs, and HTTPS
@@ -231,10 +211,11 @@ export function createSecurityHeaders() {
 
         // WebSocket support for real-time features
         'wss://*.supabase.co',
+        'wss:',
+        'ws:',
       ].join(' '),
-      "frame-src 'none'", // Prevent iframe embedding
-      "object-src 'none'", // Prevent object embedding
->>>>>>> upstream/main
+      "frame-src 'self' https://stackblitz.com",
+      "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
       "worker-src 'self' blob:",

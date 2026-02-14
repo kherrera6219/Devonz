@@ -4,11 +4,8 @@ import { stripIndents } from '~/utils/stripIndent';
 import type { ProviderInfo } from '~/types/model';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
 import { createScopedLogger } from '~/utils/logger';
-<<<<<<< HEAD
 import { withSecurity } from '~/lib/security';
-=======
 import { z } from 'zod';
->>>>>>> upstream/main
 
 const logger = createScopedLogger('api.enhancer');
 
