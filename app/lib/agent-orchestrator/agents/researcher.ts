@@ -114,10 +114,6 @@ export class ResearcherAgent {
 
   /**
    * ACTION: CODEBASE_ANALYSIS
-   * Performs deep recursive analysis of the codebase.
-   */
-  /**
-   * ACTION: CODEBASE_ANALYSIS
    * Performs deep recursive analysis of the codebase using RAG and Graph services.
    *
    * @param state The current run state.
@@ -179,13 +175,10 @@ export class ResearcherAgent {
         events: [newEvent],
       };
     } catch (error) {
-      return createErrorState(this._name, state, error);
+      return createErrorState(this._name, state, error as Error);
     }
   }
 
-  /**
-   * ACTION: TECH_REALITY_CHECK
-   */
   /**
    * ACTION: TECH_REALITY_CHECK
    * Validates the technology stack against latest standards, CVEs, and compatibility.
@@ -254,7 +247,7 @@ export class ResearcherAgent {
         events: [newEvent],
       };
     } catch (error) {
-      return createErrorState(this._name, state, error);
+      return createErrorState(this._name, state, error as Error);
     }
   }
 
