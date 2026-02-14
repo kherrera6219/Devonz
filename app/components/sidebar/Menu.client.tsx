@@ -85,7 +85,7 @@ export const Menu = () => {
       return;
     }
 
-    getAll(db)
+    getAll(db, { index: 'timestamp', direction: 'prev', limit: 100 })
       .then((list) => list.filter((item) => item.urlId && item.description))
       .then(setList)
       .catch((error) => toast.error(error.message));

@@ -22,13 +22,14 @@ export const RecentChats: React.FC<RecentChatsProps> = ({ maxItems = 10 }) => {
     }
 
     try {
-      const allChats = await getAll(db);
+      const allChats = await getAll(db, {
+        index: 'timestamp',
+        direction: 'prev',
+        limit: maxItems,
+      });
 
-      // Filter chats with urlId and description, sort by timestamp descending
-      const filteredChats = allChats
-        .filter((item) => item.urlId && item.description)
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, maxItems);
+      // Filter chats with urlId and description (Note: Filtering happens after fetch in this simple implementation, so we might get fewer than maxItems if some are invalid. For robust pagination, we'd need a robust query or over-fetching)
+      const filteredChats = allChats.filter((item) => item.urlId && item.description);
 
       setChats(filteredChats);
     } catch (error) {

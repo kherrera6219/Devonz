@@ -19,7 +19,7 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
   }
 
   return new Promise((resolve) => {
-    const request = indexedDB.open('boltHistory', 2);
+    const request = indexedDB.open('boltHistory', 3);
 
     request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
       const db = (event.target as IDBOpenDBRequest).result;
@@ -38,6 +38,15 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
           db.createObjectStore('snapshots', { keyPath: 'chatId' });
         }
       }
+
+      if (oldVersion < 3) {
+        if (db.objectStoreNames.contains('chats')) {
+          const store = request.transaction!.objectStore('chats');
+          if (!store.indexNames.contains('timestamp')) {
+            store.createIndex('timestamp', 'timestamp', { unique: false });
+          }
+        }
+      }
     };
 
     request.onsuccess = (event: Event) => {
@@ -51,13 +60,51 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
   });
 }
 
-export async function getAll(db: IDBDatabase): Promise<ChatHistoryItem[]> {
+export async function getAll(
+  db: IDBDatabase,
+  options?: {
+    index?: string;
+    direction?: IDBCursorDirection;
+    limit?: number;
+    offset?: number;
+  },
+): Promise<ChatHistoryItem[]> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readonly');
     const store = transaction.objectStore('chats');
-    const request = store.getAll();
+    const request = options?.index
+      ? store.index(options.index).openCursor(null, options.direction)
+      : store.openCursor(null, options?.direction);
 
-    request.onsuccess = () => resolve(request.result as ChatHistoryItem[]);
+    const results: ChatHistoryItem[] = [];
+    let advanced = false;
+    let count = 0;
+
+    request.onsuccess = (event) => {
+      const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+
+      if (!cursor) {
+        resolve(results);
+        return;
+      }
+
+      if (options?.offset && !advanced) {
+        advanced = true;
+        cursor.advance(options.offset);
+        return;
+      }
+
+      results.push(cursor.value);
+      count++;
+
+      if (options?.limit && count >= options.limit) {
+        resolve(results);
+        return;
+      }
+
+      cursor.continue();
+    };
+
     request.onerror = () => reject(request.error);
   });
 }
