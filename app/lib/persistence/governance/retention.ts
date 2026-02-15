@@ -49,9 +49,10 @@ export class RetentionEngine {
     for (const chat of chats) {
       const chatAge = now - new Date(chat.timestamp).getTime();
 
-      if (chatAge > maxAgeMs) {
+      if (chat && chatAge > maxAgeMs) {
         // Check if chat is explicitly protected from deletion if the flag is set
-        if (this._policy.preserveProtected && chat.metadata?.isProtected) {
+        const metadata = (chat as any).metadata;
+        if (this._policy.preserveProtected && metadata?.isProtected) {
           logger.info(`Skipping expiry of protected chat: ${chat.id}`);
           continue;
         }

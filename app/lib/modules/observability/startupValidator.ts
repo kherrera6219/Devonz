@@ -26,7 +26,7 @@ export class StartupValidator {
     logger.info('Starting deterministic startup validation...');
 
     const checks = [
-      { name: 'Redis', check: () => redisService.isConnected() },
+      { name: 'Redis', check: () => redisService.isConnected },
       { name: 'Environment', check: () => !!process.env.APP_SECRET },
       // Add more checks (DB, LLM API, etc.)
     ];

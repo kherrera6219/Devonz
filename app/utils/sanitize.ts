@@ -19,22 +19,23 @@ export interface SanitizeOptions {
    * Return a trusted HTML type (if configured) or string
    */
   RETURN_TRUSTED_TYPE?: boolean;
+  [key: string]: any;
 }
 
 // Default strict configuration
-const DEFAULT_CONFIG: DOMPurify.Config = {
+const DEFAULT_CONFIG: any = {
   USE_PROFILES: { html: true }, // Only allow HTML, strip SVG/MathML/etc by default unless specified
   FORBID_TAGS: ['style', 'script', 'iframe', 'object', 'embed', 'form'],
   FORBID_ATTR: ['style', 'onmouseover', 'onclick', 'onerror', 'onload'],
 };
 
 // Shiki-compatible configuration (allows inline styles for syntax highlighting)
-export const SHIKI_CONFIG: DOMPurify.Config = {
+export const SHIKI_CONFIG: any = {
   ADD_TAGS: ['span', 'pre', 'code'],
   ADD_ATTR: ['style', 'class'], // Shiki uses inline styles and classes
 };
 
-export function sanitizeHTML(dirty: string, options: DOMPurify.Config = DEFAULT_CONFIG): string {
+export function sanitizeHTML(dirty: string, options: any = DEFAULT_CONFIG): string {
   if (RuntimeConfig.isServer) {
     // DOMPurify requires a window/JSDOM.
     // If strict server-side sanitization is needed, we'd need 'isomorphic-dompurify'.

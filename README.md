@@ -18,17 +18,22 @@ Devonz is a multi-agent AI development environment that helps you build full-sta
 | [**Architecture**](./ARCHITECTURE.md) | System design, data flow, and agent orchestration logic. |
 | [**Deployment**](./DEPLOYMENT.md) | Production setup, environment variables, and build guides. |
 | [**Security**](./SECURITY.md) | Vulnerability reporting and security policies. |
+| [**Desktop Governance**](./docs/DESKTOP_GOVERNANCE.md) | Windows installer, update, and port resolution policies. |
+| [**Release Checklist**](./docs/RELEASE_CHECKLIST.md) | Standardized workflow for production deployments. |
 | [**Project Structure**](./docs/PROJECT_STRUCTURE.md) | Annotated file system map for new developers. |
 
 ---
 
 ## ✨ Key Features (2026 Edition)
 
--   **Fluent Design UI**: Native Windows 11 aesthetics (Mica, Acrylic) with a polished UX.
--   **Multi-Agent Orchestration**: Specialized Coordinator, Researcher, and Architect agents working in tandem.
--   **Enterprise Security**: Microsoft Standard compliance (HSTS, CSP, Strict Error Handling).
--   **RAG-Powered Memory**: Long-term project context via `pgvector` and Neo4j.
--   **WebContainer Environment**: Full Node.js runtime directly in the browser.
+-   **Fluent Design UI**: Native-class Windows 11 aesthetics (Mica, Acrylic) with enterprise-grade UX components.
+-   **AI Governance Layer**: Production-hardened guardrails, prompt registry, and cost/usage monitoring.
+-   **Secure Data Layer**: AES-256 encryption-at-rest, HMAC integrity verification, and automated retention management.
+-   **Multi-Agent Orchestration**: Specialized Coordinator, Researcher, and Architect agents working via LangGraph.
+-   **Enterprise Security**: RBAC enforcement, SSRF protection, secure secrets management, and automated log redaction.
+-   **High-Fidelity Observability**: Real-time metrics, latency monitoring, and automated diagnostic support bundles.
+-   **CI/CD Enforcement**: Unified GitHub Actions pipeline for automated linting, typechecking, and testing.
+-   **WebContainer Environment**: Full Node.js runtime directly in the browser for secure, sandboxed code execution.
 
 ## 🚀 Quick Start
 

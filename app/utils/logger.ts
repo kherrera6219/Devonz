@@ -8,6 +8,8 @@ if (typeof process !== 'undefined' && process.release?.name === 'node' && proces
   }).catch(() => { /* ignore */ });
 }
 
+export type DebugLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'none';
+
 type LoggerFunction = (...messages: any[]) => void;
 
 interface Logger {

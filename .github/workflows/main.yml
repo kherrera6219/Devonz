@@ -1,0 +1,43 @@
+name: CI Enforcement Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Static Analysis (Lint)
+        run: pnpm run lint
+
+      - name: Type Safety (TSC)
+        run: pnpm run typecheck
+
+      - name: Unit & Integration Tests
+        run: pnpm run test
+
+      - name: Production Build Verification
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+          VITE_LOG_LEVEL: info
+          APP_SECRET: ${{ secrets.APP_SECRET }}
