@@ -2,6 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { redisService } from './services/redisService';
 import { createScopedLogger } from '~/utils/logger';
 import crypto from 'node:crypto';
+import { rbacEngine, type Permission, type UserRole } from '~/lib/modules/security/rbacEngine';
 
 const logger = createScopedLogger('Security');
 
@@ -274,6 +275,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
     rateLimit?: boolean;
     csrf?: boolean;
     allowedMethods?: string[];
+    permission?: Permission;
   } = {},
 ) {
   return async (args: ActionFunctionArgs | LoaderFunctionArgs): Promise<Response> => {
@@ -287,6 +289,24 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
         status: 405,
         headers: createSecurityHeaders(),
       });
+    }
+
+    // RBAC Check
+    if (options.permission) {
+      // TODO: Retrieve actual user role from session/JWT
+      // For now, we assume a default secure role or developer role based on environment
+      // In a real app, this would be: const role = session.user.role;
+      const role: UserRole = process.env.NODE_ENV === 'development' ? 'DEVELOPER' : 'VIEWER';
+
+      const hasPermission = rbacEngine.can(role, options.permission);
+
+      if (!hasPermission) {
+        logger.warn(`RBAC Access Denied: User with role '${role}' attempted to access '${endpoint}' requires '${options.permission}'`);
+        return new Response('Forbidden: Insufficient Permissions', {
+          status: 403,
+          headers: createSecurityHeaders(),
+        });
+      }
     }
 
     // CSRF Check (only for mutating methods if enabled)

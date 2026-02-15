@@ -7,6 +7,8 @@ const logger = createScopedLogger('CrashReporter');
 /**
  * Observability Subsystem: Crash Reporting System
  * Captures fatal errors and generates detailed reports for debugging.
+ *
+ * @deprecated Use `~/lib/services/errorReporter.ts` instead for centralized error handling.
  */
 export class CrashReporter {
   private static _instance: CrashReporter;

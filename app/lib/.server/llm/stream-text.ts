@@ -12,6 +12,7 @@ import { createFilesContext, extractPropertiesFromMessage } from './utils';
 import { discussPrompt } from '~/lib/common/prompts/discuss-prompt';
 import type { DesignScheme } from '~/types/design-scheme';
 import { type LocalInfrastructure } from '~/lib/common/prompts/infrastructure';
+import { guardrailService } from '~/lib/modules/llm/governance/guardrailService';
 
 export type Messages = Message[];
 
@@ -111,6 +112,25 @@ export async function streamText(props: {
         }
       : undefined,
   };
+
+  // 0. AI Governance: Input Guardrails
+  // Extract the latest user message to validate
+  const lastUserMessage = messages.filter((m) => m.role === 'user').pop();
+
+  if (lastUserMessage) {
+    const content = typeof lastUserMessage.content === 'string'
+      ? lastUserMessage.content
+      : Array.isArray(lastUserMessage.content)
+        ? lastUserMessage.content.map((c) => (c.type === 'text' ? c.text : '')).join('')
+        : '';
+
+    const guardResult = await guardrailService.validateInput(content);
+
+    if (!guardResult.passed) {
+      logger.warn(`Guardrail violation: ${guardResult.reason}`);
+      throw new Error(`AI Safety Violation: ${guardResult.reason}`);
+    }
+  }
 
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
