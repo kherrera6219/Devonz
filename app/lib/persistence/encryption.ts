@@ -1,20 +1,22 @@
-import crypto from 'node:crypto';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('Encryption');
+const ENCODER = new TextEncoder();
+const DECODER = new TextDecoder();
 
-// In production, this should be a 32-byte secure key from environment (ENCRYPTION_KEY)
-const ENCRYPTION_SECRET = process.env.ENCRYPTION_KEY || 'dev-encryption-key-2026-secret-32';
-const ALGORITHM = 'aes-256-gcm';
+// In production, this should be a 32-byte secure key from environment (VITE_ENCRYPTION_KEY)
+const ENCRYPTION_SECRET = import.meta.env.VITE_ENCRYPTION_KEY || 'dev-encryption-key-2026-secret-32';
+const ALGORITHM = 'AES-GCM';
 const IV_LENGTH = 12; // Standard for GCM
-const AUTH_TAG_LENGTH = 16;
 
 /**
  * Data Layer: Encryption-at-Rest
  * Provides authenticated encryption for sensitive data fields.
+ * Uses Web Crypto API for browser compatibility.
  */
 export class EncryptionService {
   private static _instance: EncryptionService;
+  private _key: CryptoKey | null = null;
 
   private constructor() {}
 
@@ -26,23 +28,47 @@ export class EncryptionService {
     return EncryptionService._instance;
   }
 
+  private async getKey(): Promise<CryptoKey> {
+    if (this._key) {
+      return this._key;
+    }
+
+    const secretBuffer = ENCODER.encode(ENCRYPTION_SECRET);
+    const hash = await crypto.subtle.digest('SHA-256', secretBuffer);
+
+    this._key = await crypto.subtle.importKey(
+      'raw',
+      hash,
+      ALGORITHM,
+      false,
+      ['encrypt', 'decrypt'],
+    );
+
+    return this._key;
+  }
+
   /**
-   * Encrypts plain text into a secure format (iv:ciphertext:authTag).
+   * Encrypts plain text into a secure format (iv:ciphertext).
+   * Note: WebCrypto AES-GCM includes the AuthTag in the ciphertext output.
    */
-  encrypt(text: string): string {
+  async encrypt(text: string): Promise<string> {
     try {
-      const iv = crypto.randomBytes(IV_LENGTH);
+      const key = await this.getKey();
+      const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+      const encodedText = ENCODER.encode(text);
 
-      // Ensure key is 32 bytes for AES-256
-      const key = crypto.createHash('sha256').update(ENCRYPTION_SECRET).digest();
-      const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
+      const encryptedBuffer = await crypto.subtle.encrypt(
+        { name: ALGORITHM, iv },
+        key,
+        encodedText,
+      );
 
-      let encrypted = cipher.update(text, 'utf8', 'hex');
-      encrypted += cipher.final('hex');
+      const ivHex = Array.from(iv).map((b) => b.toString(16).padStart(2, '0')).join('');
+      const cipherHex = Array.from(new Uint8Array(encryptedBuffer))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
 
-      const authTag = cipher.getAuthTag().toString('hex');
-
-      return `${iv.toString('hex')}:${encrypted}:${authTag}`;
+      return `${ivHex}:${cipherHex}`;
     } catch (error) {
       logger.error('Encryption failed', error);
       throw new Error('Data encryption failed');
@@ -52,25 +78,37 @@ export class EncryptionService {
   /**
    * Decrypts encrypted data back to plain text.
    */
-  decrypt(encryptedData: string): string {
+  async decrypt(encryptedData: string): Promise<string> {
     try {
-      const [ivHex, encrypted, authTagHex] = encryptedData.split(':');
+      const parts = encryptedData.split(':');
 
-      if (!ivHex || !encrypted || !authTagHex) {
+      /*
+       * Support legacy format if necessary, though unused currently.
+       * New format: iv:ciphertext (where ciphertext includes auth tag)
+       */
+      const [ivHex, cipherHex] = parts;
+
+      if (!ivHex || !cipherHex) {
         throw new Error('Invalid encrypted data format');
       }
 
-      const iv = Buffer.from(ivHex, 'hex');
-      const authTag = Buffer.from(authTagHex, 'hex');
-      const key = crypto.createHash('sha256').update(ENCRYPTION_SECRET).digest();
+      const key = await this.getKey();
 
-      const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-      decipher.setAuthTag(authTag);
+      // Hex to Uint8Array
+      const iv = new Uint8Array(
+        ivHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
+      );
+      const ciphertext = new Uint8Array(
+        cipherHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
+      );
 
-      let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-      decrypted += decipher.final('utf8');
+      const decryptedBuffer = await crypto.subtle.decrypt(
+        { name: ALGORITHM, iv },
+        key,
+        ciphertext,
+      );
 
-      return decrypted;
+      return DECODER.decode(decryptedBuffer);
     } catch (error) {
       logger.error('Decryption failed', error);
       throw new Error('Data decryption failed (likely invalid key or tampered data)');

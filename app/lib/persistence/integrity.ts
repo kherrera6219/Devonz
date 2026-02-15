@@ -1,17 +1,19 @@
-import crypto from 'node:crypto';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('DataIntegrity');
+const ENCODER = new TextEncoder();
 
-// In production, this should be a secure environment variable (APP_SECRET)
-const INTEGRITY_SECRET = process.env.APP_SECRET || 'dev-integrity-secret-2026';
+// In production, this should be a secure environment variable (VITE_APP_SECRET)
+const INTEGRITY_SECRET = import.meta.env.VITE_APP_SECRET || 'dev-integrity-secret-2026';
 
 /**
  * Data Layer: Snapshot Integrity System
  * Provides HMAC-SHA256 signing and verification for chat snapshots.
+ * Uses Web Crypto API for browser compatibility.
  */
 export class SnapshotIntegrity {
   private static _instance: SnapshotIntegrity;
+  private _key: CryptoKey | null = null;
 
   private constructor() {}
 
@@ -23,38 +25,68 @@ export class SnapshotIntegrity {
     return SnapshotIntegrity._instance;
   }
 
+  private async getKey(): Promise<CryptoKey> {
+    if (this._key) {
+      return this._key;
+    }
+
+    const keyData = ENCODER.encode(INTEGRITY_SECRET);
+
+    this._key = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign', 'verify'],
+    );
+
+    return this._key;
+  }
+
   /**
    * Signs a snapshot object and returns the HMAC signature.
    */
-  sign(data: any): string {
-    const serialized = JSON.stringify(data);
-    return crypto.createHmac('sha256', INTEGRITY_SECRET).update(serialized).digest('hex');
+  async sign(data: any): Promise<string> {
+    try {
+      const key = await this.getKey();
+      const serialized = JSON.stringify(data);
+      const buffer = ENCODER.encode(serialized);
+      const signature = await crypto.subtle.sign('HMAC', key, buffer);
+
+      return Array.from(new Uint8Array(signature))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    } catch (error) {
+      logger.error('Signing failed', error);
+      throw error;
+    }
   }
 
   /**
    * Verifies the integrity of a snapshot using its signature.
    */
-  verify(data: any, signature: string): boolean {
-    const expected = this.sign(data);
+  async verify(data: any, signature: string): Promise<boolean> {
+    try {
+      const expected = await this.sign(data);
 
-    // Constant-time comparison to prevent timing attacks
-    const isValid = crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+      return expected === signature;
+    } catch (error) {
+      logger.error('Verification failed', error);
 
-    if (!isValid) {
-      logger.error('Data Integrity Violation: Snapshot signature mismatch!');
+      return false;
     }
-
-    return isValid;
   }
 
   /**
    * Wraps data with an integrity header.
    */
-  wrapWithIntegrity(data: any) {
+  async wrapWithIntegrity(data: any) {
+    const signature = await this.sign(data);
+
     return {
       data,
       metadata: {
-        signature: this.sign(data),
+        signature,
         timestamp: new Date().toISOString(),
         algorithm: 'HMAC-SHA256',
       },

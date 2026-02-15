@@ -1,7 +1,9 @@
 import type { Message } from 'ai';
 import { createScopedLogger } from '~/utils/logger';
 import type { ChatHistoryItem } from './useChatHistory';
-import type { Snapshot } from './types'; // Import Snapshot type
+import type { Snapshot } from './types';
+import { encryptionService } from './encryption';
+import { snapshotIntegrity } from './integrity';
 
 export interface IChatMetadata {
   gitUrl: string;
@@ -10,6 +12,20 @@ export interface IChatMetadata {
 }
 
 const logger = createScopedLogger('ChatHistory');
+
+async function processRetrievedItem(item: any): Promise<ChatHistoryItem> {
+  if (typeof item.messages === 'string') {
+    try {
+      const decrypted = await encryptionService.decrypt(item.messages);
+      item.messages = JSON.parse(decrypted);
+    } catch (error) {
+      logger.error(`Failed to decrypt chat ${item.id}`, error);
+      item.messages = []; // Fallback or handle error
+      item.description = `(Decryption Error) ${item.description || ''}`;
+    }
+  }
+  return item as ChatHistoryItem;
+}
 
 // this is used at the top level and never rejects
 export async function openDatabase(): Promise<IDBDatabase | undefined> {
@@ -77,15 +93,17 @@ export async function getAll(
       ? store.index(options.index).openCursor(null, options.direction)
       : store.openCursor(null, options?.direction);
 
-    const results: ChatHistoryItem[] = [];
+    const results: any[] = [];
     let advanced = false;
     let count = 0;
 
-    request.onsuccess = (event) => {
+    request.onsuccess = async (event) => {
       const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
 
       if (!cursor) {
-        resolve(results);
+        // Process all results (decrypt) before resolving
+        const processed = await Promise.all(results.map(processRetrievedItem));
+        resolve(processed);
         return;
       }
 
@@ -100,7 +118,9 @@ export async function getAll(
       count++;
 
       if (options?.limit && count >= options.limit) {
-        resolve(results);
+        // Process results before resolving
+        const processed = await Promise.all(results.map(processRetrievedItem));
+        resolve(processed);
         return;
       }
 
@@ -120,7 +140,7 @@ export async function setMessages(
   timestamp?: string,
   metadata?: IChatMetadata,
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const transaction = db.transaction('chats', 'readwrite');
     const store = transaction.objectStore('chats');
 
@@ -129,17 +149,25 @@ export async function setMessages(
       return;
     }
 
-    const request = store.put({
-      id,
-      messages,
-      urlId,
-      description,
-      timestamp: timestamp ?? new Date().toISOString(),
-      metadata,
-    });
+    try {
+      // Encrypt messages before storage
+      const serialized = JSON.stringify(messages);
+      const encryptedMessages = await encryptionService.encrypt(serialized);
 
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
+      const request = store.put({
+        id,
+        messages: encryptedMessages, // Type mismatch with interface (handled by cast/any)
+        urlId,
+        description,
+        timestamp: timestamp ?? new Date().toISOString(),
+        metadata,
+      });
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
@@ -154,7 +182,15 @@ export async function getMessagesByUrlId(db: IDBDatabase, id: string): Promise<C
     const index = store.index('urlId');
     const request = index.get(id);
 
-    request.onsuccess = () => resolve(request.result as ChatHistoryItem);
+    request.onsuccess = async () => {
+      if (!request.result) return resolve(request.result as ChatHistoryItem);
+      try {
+        const item = await processRetrievedItem(request.result);
+        resolve(item);
+      } catch (e) {
+        reject(e);
+      }
+    };
     request.onerror = () => reject(request.error);
   });
 }
@@ -165,19 +201,27 @@ export async function getMessagesById(db: IDBDatabase, id: string): Promise<Chat
     const store = transaction.objectStore('chats');
     const request = store.get(id);
 
-    request.onsuccess = () => resolve(request.result as ChatHistoryItem);
+    request.onsuccess = async () => {
+      if (!request.result) return resolve(request.result as ChatHistoryItem);
+      try {
+        const item = await processRetrievedItem(request.result);
+        resolve(item);
+      } catch (e) {
+        reject(e);
+      }
+    };
     request.onerror = () => reject(request.error);
   });
 }
 
 export async function deleteById(db: IDBDatabase, id: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(['chats', 'snapshots'], 'readwrite'); // Add snapshots store to transaction
+    const transaction = db.transaction(['chats', 'snapshots'], 'readwrite');
     const chatStore = transaction.objectStore('chats');
     const snapshotStore = transaction.objectStore('snapshots');
 
     const deleteChatRequest = chatStore.delete(id);
-    const deleteSnapshotRequest = snapshotStore.delete(id); // Also delete snapshot
+    const deleteSnapshotRequest = snapshotStore.delete(id);
 
     let chatDeleted = false;
     let snapshotDeleted = false;
@@ -308,19 +352,19 @@ export async function createChatFromMessages(
   metadata?: IChatMetadata,
 ): Promise<string> {
   const newId = await getNextId(db);
-  const newUrlId = await getUrlId(db, newId); // Get a new urlId for the duplicated chat
+  const newUrlId = await getUrlId(db, newId);
 
   await setMessages(
     db,
     newId,
     messages,
-    newUrlId, // Use the new urlId
+    newUrlId,
     description,
-    undefined, // Use the current timestamp
+    undefined,
     metadata,
   );
 
-  return newUrlId; // Return the urlId instead of id for navigation
+  return newUrlId;
 }
 
 export async function updateChatDescription(db: IDBDatabase, id: string, description: string): Promise<void> {
@@ -357,19 +401,45 @@ export async function getSnapshot(db: IDBDatabase, chatId: string): Promise<Snap
     const store = transaction.objectStore('snapshots');
     const request = store.get(chatId);
 
-    request.onsuccess = () => resolve(request.result?.snapshot as Snapshot | undefined);
+    request.onsuccess = async () => {
+      if (!request.result?.snapshot) return resolve(undefined);
+
+      const retrieved = request.result.snapshot;
+
+      // Check for integrity wrapper
+      if (retrieved.metadata?.signature && retrieved.data) {
+        const isValid = await snapshotIntegrity.verify(retrieved.data, retrieved.metadata.signature);
+        if (isValid) {
+          resolve(retrieved.data as Snapshot);
+        } else {
+          logger.error(`Snapshot integrity verification failed for chat ${chatId}`);
+          resolve(undefined); // Reject or return nothing on tamper detection
+        }
+      } else {
+        // Legacy snapshot support
+        resolve(retrieved as Snapshot);
+      }
+    };
     request.onerror = () => reject(request.error);
   });
 }
 
 export async function setSnapshot(db: IDBDatabase, chatId: string, snapshot: Snapshot): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const transaction = db.transaction('snapshots', 'readwrite');
     const store = transaction.objectStore('snapshots');
-    const request = store.put({ chatId, snapshot });
 
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
+    try {
+      // Sign the snapshot before saving
+      const signedSnapshot = await snapshotIntegrity.wrapWithIntegrity(snapshot);
+
+      const request = store.put({ chatId, snapshot: signedSnapshot });
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
