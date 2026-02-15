@@ -11,7 +11,7 @@ try {
   // Use a string variable to prevent Vite from attempting to resolve the import at build time
   const moduleName = 'prom-client';
   client = await import(moduleName);
-} catch (e) {
+} catch (_e) {
   // NOOP Shim if prom-client is missing
   client = {
     Registry: class {
@@ -27,11 +27,13 @@ try {
         return { inc() {} };
       }
     },
-    collectDefaultMetrics() {},
+
+    collectDefaultMetrics(_e: any) {},
   };
 }
 
 // Create a Registry which registers the metrics
+
 export const register = new client.Registry();
 
 // Add a default label which is added to all metrics
@@ -42,7 +44,7 @@ register.setDefaultLabels?.({
 // Enable the collection of default metrics
 try {
   client.collectDefaultMetrics({ register });
-} catch (e) {}
+} catch (_e) {}
 
 // Create custom metrics
 export const httpRequestDurationMicroseconds = new client.Histogram({

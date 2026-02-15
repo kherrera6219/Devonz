@@ -1,0 +1,241 @@
+
+> devonz@1.0.0 lint C:\software\Devonz
+> eslint --cache --cache-location ./node_modules/.cache/eslint app
+
+
+C:\software\Devonz\app\components\chat\ChatBox.stories.tsx
+  101:0  error  Parsing error: '*/' expected
+
+C:\software\Devonz\app\components\header\Header.stories.tsx
+  15:6  error  Parameter name `Story` must match one of the following formats: camelCase  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\components\header\HeaderActionButtons.client.stories.tsx
+  13:6  error  Parameter name `Story` must match one of the following formats: camelCase  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\components\sidebar\HistoryItem.stories.tsx
+  13:6   error  Parameter name `Story` must match one of the following formats: camelCase  @typescript-eslint/naming-convention
+  44:16  error  'e' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+  51:6   error  Parameter name `Story` must match one of the following formats: camelCase  @typescript-eslint/naming-convention
+  64:16  error  'e' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\ui\Dialog.stories.tsx
+  2:64  error  'DialogClose' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\entry.server.tsx
+   78:22  error  '_e' is defined but never used                 @typescript-eslint/no-unused-vars
+   91:21  error  'duration' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  105:22  error  '_e' is defined but never used                 @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\.server\llm\stream-text.ts
+  116:3   error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+  121:20  error  Insert `ΓÅÄ┬╖┬╖┬╖┬╖┬╖`                                                prettier/prettier
+  122:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                               prettier/prettier
+  123:1   error  Insert `┬╖┬╖`                                                    prettier/prettier
+  124:1   error  Insert `┬╖┬╖`                                                    prettier/prettier
+  125:1   error  Insert `┬╖┬╖`                                                    prettier/prettier
+
+C:\software\Devonz\app\lib\agent-orchestrator\agents\qc.ts
+  72:11  error  'failedFiles' is never reassigned. Use 'const' instead         prefer-const
+  75:9   error  Delete `┬╖┬╖`                                                    prettier/prettier
+  76:1   error  Delete `┬╖┬╖┬╖┬╖`                                                  prettier/prettier
+  76:15  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+  77:11  error  Delete `┬╖┬╖┬╖┬╖`                                                  prettier/prettier
+  78:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                     prettier/prettier
+  79:1   error  Delete `┬╖┬╖┬╖┬╖`                                                  prettier/prettier
+  80:11  error  Delete `┬╖┬╖┬╖┬╖`                                                  prettier/prettier
+  80:15  error  Expected blank line before this statement                      padding-line-between-statements
+  81:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`               prettier/prettier
+  82:1   error  Delete `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                              prettier/prettier
+  82:23  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+  83:15  error  Delete `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                              prettier/prettier
+  84:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`         prettier/prettier
+  85:15  error  Delete `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                              prettier/prettier
+  86:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`               prettier/prettier
+  86:28  error  'e' is defined but never used                                  @typescript-eslint/no-unused-vars
+  87:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`         prettier/prettier
+  88:13  error  Delete `┬╖┬╖┬╖┬╖┬╖┬╖`                                                prettier/prettier
+  89:1   error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                     prettier/prettier
+  90:1   error  Delete `┬╖┬╖`                                                    prettier/prettier
+  93:22  error  Insert `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                              prettier/prettier
+
+C:\software\Devonz\app\lib\api\ipc.ts
+  25:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\metrics.server.ts
+  14:10  error    'e' is defined but never used                    @typescript-eslint/no-unused-vars
+  18:26  warning  Unexpected empty method 'setDefaultLabels'       @typescript-eslint/no-empty-function
+  22:28  warning  Unexpected empty method 'observe'                @typescript-eslint/no-empty-function
+  27:24  warning  Unexpected empty method 'inc'                    @typescript-eslint/no-empty-function
+  30:29  warning  Unexpected empty method 'collectDefaultMetrics'  @typescript-eslint/no-empty-function
+  45:10  error    'e' is defined but never used                    @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\connectors\connectorRegistry.ts
+  14:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\connectors\fileSanitizer.ts
+  13:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\connectors\ssrfGuard.ts
+  25:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\llm\governance\auditTrail.ts
+  32:25  warning  Unexpected empty constructor                                              @typescript-eslint/no-empty-function
+  68:17  error    'filter' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\llm\governance\classifier.ts
+   3:7   error    'logger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  20:25  warning  Unexpected empty constructor                 @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\llm\governance\guardrailService.ts
+  29:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\llm\governance\routingEngine.ts
+   1:15  error    'ModelRoutingConfig' is defined but never used  @typescript-eslint/no-unused-vars
+   1:35  error    'OrchestrationEvent' is defined but never used  @typescript-eslint/no-unused-vars
+  44:25  warning  Unexpected empty constructor                    @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\llm\governance\usageMonitor.ts
+  29:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\cleanupHandler.ts
+   5:7   error    'execAsync' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  15:25  warning  Unexpected empty constructor                    @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\crashReporter.ts
+  16:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\diagnostics.ts
+  14:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\latencyMonitor.ts
+  13:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\logAggregator.ts
+   4:7   error    'logger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  21:25  warning  Unexpected empty constructor                 @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\metricsCollector.ts
+   3:7   error    'logger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  20:25  warning  Unexpected empty constructor                 @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\startupValidator.ts
+  13:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\security\portResolution.ts
+  13:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\security\rbacEngine.ts
+  47:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\security\redactor.ts
+  21:25  warning  Unexpected empty constructor                                             @typescript-eslint/no-empty-function
+  38:45  error    'match' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\security\secretsManager.ts
+  13:25  warning  Unexpected empty constructor       @typescript-eslint/no-empty-function
+  42:16  error    'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\security\sessionManager.ts
+  22:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\security\tenantGuard.ts
+  12:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\db.ts
+   27:3   error  Expected blank line before this statement                                                                                                                                          padding-line-between-statements
+  107:9   error  Expected newline before return statement                                                                                                                                           @blitz/newline-before-return
+  124:9   error  Expected newline before return statement                                                                                                                                           @blitz/newline-before-return
+  143:22  error  Promise executor functions should not be async                                                                                                                                     no-async-promise-executor
+  185:34  error  Expected to return a value at the end of async arrow function                                                                                                                      consistent-return
+  186:28  error  Expected { after 'if' condition                                                                                                                                                    curly
+  187:7   error  Expected blank line before this statement                                                                                                                                          padding-line-between-statements
+  204:34  error  Expected to return a value at the end of async arrow function                                                                                                                      consistent-return
+  205:28  error  Expected { after 'if' condition                                                                                                                                                    curly
+  206:7   error  Expected blank line before this statement                                                                                                                                          padding-line-between-statements
+  357:21  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖db,ΓÅÄ┬╖┬╖┬╖┬╖newId,ΓÅÄ┬╖┬╖┬╖┬╖messages,ΓÅÄ┬╖┬╖┬╖┬╖newUrlId,ΓÅÄ┬╖┬╖┬╖┬╖description,ΓÅÄ┬╖┬╖┬╖┬╖undefined,ΓÅÄ┬╖┬╖┬╖┬╖metadata,ΓÅÄ┬╖┬╖` with `db,┬╖newId,┬╖messages,┬╖newUrlId,┬╖description,┬╖undefined,┬╖metadata`  prettier/prettier
+  404:34  error  Expected to return a value at the end of async arrow function                                                                                                                      consistent-return
+  405:38  error  Expected { after 'if' condition                                                                                                                                                    curly
+  412:9   error  Expected blank line before this statement                                                                                                                                          padding-line-between-statements
+  428:22  error  Promise executor functions should not be async                                                                                                                                     no-async-promise-executor
+
+C:\software\Devonz\app\lib\persistence\encryption.ts
+   21:25  warning  Unexpected empty constructor                                                                                                                                       @typescript-eslint/no-empty-function
+   31:17  error    Class Method name `getKey` must have one leading underscore(s)                                                                                                     @typescript-eslint/naming-convention
+   39:47  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖'raw',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖hash,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖ALGORITHM,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖false,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖['encrypt',┬╖'decrypt'],ΓÅÄ┬╖┬╖┬╖┬╖` with `'raw',┬╖hash,┬╖ALGORITHM,┬╖false,┬╖['encrypt',┬╖'decrypt']`  prettier/prettier
+   60:59  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖{┬╖name:┬╖ALGORITHM,┬╖iv┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖key,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖encodedText,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖` with `{┬╖name:┬╖ALGORITHM,┬╖iv┬╖},┬╖key,┬╖encodedText`                              prettier/prettier
+   66:35  error    Replace `.map((b)┬╖=>┬╖b.toString(16).padStart(2,┬╖'0'))` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖.map((b)┬╖=>┬╖b.toString(16).padStart(2,┬╖'0'))ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                       prettier/prettier
+   98:33  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖ivHex.match(/.{1,2}/g)!.map((byte)┬╖=>┬╖parseInt(byte,┬╖16)),ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖` with `ivHex.match(/.{1,2}/g)!.map((byte)┬╖=>┬╖parseInt(byte,┬╖16))`              prettier/prettier
+  101:41  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖cipherHex.match(/.{1,2}/g)!.map((byte)┬╖=>┬╖parseInt(byte,┬╖16)),ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖` with `cipherHex.match(/.{1,2}/g)!.map((byte)┬╖=>┬╖parseInt(byte,┬╖16))`      prettier/prettier
+  105:59  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖{┬╖name:┬╖ALGORITHM,┬╖iv┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖key,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖ciphertext,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖` with `{┬╖name:┬╖ALGORITHM,┬╖iv┬╖},┬╖key,┬╖ciphertext`                                prettier/prettier
+
+C:\software\Devonz\app\lib\persistence\governance\backup.ts
+  19:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  25:5   error    Expected blank line before this statement  padding-line-between-statements
+  78:7   error    Delete `┬╖`                                 prettier/prettier
+
+C:\software\Devonz\app\lib\persistence\governance\classifier.ts
+  27:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\governance\exporter.ts
+  14:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\governance\migration.ts
+  22:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\governance\retention.ts
+  22:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\integrity.ts
+  18:25  warning  Unexpected empty constructor                                                                                                                                     @typescript-eslint/no-empty-function
+  28:17  error    Class Method name `getKey` must have one leading underscore(s)                                                                                                   @typescript-eslint/naming-convention
+  35:47  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖'raw',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖keyData,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖{┬╖name:┬╖'HMAC',┬╖hash:┬╖'SHA-256'┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖false,` with `'raw',┬╖keyData,┬╖{┬╖name:┬╖'HMAC',┬╖hash:┬╖'SHA-256'┬╖},┬╖false,┬╖[`  prettier/prettier
+  40:7   error    Replace `['sign',┬╖'verify']` with `'sign',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖'verify'`                                                                                                       prettier/prettier
+  41:5   error    Insert `]`                                                                                                                                                       prettier/prettier
+
+C:\software\Devonz\app\lib\persistence\parity.ts
+  45:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\runtime\config.ts
+  52:14  error  Variable name `RuntimeConfig` must match one of the following formats: camelCase, UPPER_CASE  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\lib\security-utils.ts
+  1:1  error  Delete `ΓÅÄ`  prettier/prettier
+
+C:\software\Devonz\app\lib\security.server.test.ts
+  1:1  error  Delete `ΓÅÄ`  prettier/prettier
+
+C:\software\Devonz\app\lib\security.server.ts
+  248:7   error  Expected a block comment instead of consecutive line comments                                                                                                                                                                                                              multiline-comment-style
+  256:21  error  Replace ``RBAC┬╖Access┬╖Denied:┬╖User┬╖with┬╖role┬╖'${role}'┬╖attempted┬╖to┬╖access┬╖'${endpoint}'┬╖requires┬╖'${options.permission}'`` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`RBAC┬╖Access┬╖Denied:┬╖User┬╖with┬╖role┬╖'${role}'┬╖attempted┬╖to┬╖access┬╖'${endpoint}'┬╖requires┬╖'${options.permission}'`,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+
+C:\software\Devonz\app\lib\security.test.ts
+  1:1  error  Delete `ΓÅÄ`  prettier/prettier
+
+C:\software\Devonz\app\lib\security.ts
+  1:1  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+
+C:\software\Devonz\app\lib\services\errorReporter.ts
+  24:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\services\longTermMemoryService.ts
+  18:25  warning  Unexpected empty constructor       @typescript-eslint/no-empty-function
+  98:14  error    'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\services\ragService.test.ts
+  20:15  error  Variable name `RAGService` must match one of the following formats: camelCase, UPPER_CASE  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\lib\stores\middleware.ts
+  1:10  error  'map' is defined but never used           @typescript-eslint/no-unused-vars
+  2:15  error  'MapStore' is defined but never used      @typescript-eslint/no-unused-vars
+  2:25  error  'WritableAtom' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\root.tsx
+  40:25  error  ["csrf_token"] is better written in dot notation  dot-notation
+
+C:\software\Devonz\app\utils\fileUtils.spec.ts
+  7:42  error  Insert `┬╖`  prettier/prettier
+
+Γ£û 128 problems (92 errors, 36 warnings)
+  56 errors and 0 warnings potentially fixable with the `--fix` option.
+
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

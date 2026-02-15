@@ -37,7 +37,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
       return acc;
     }, {});
-    csrfToken = cookies['csrf_token'];
+    csrfToken = cookies.csrf_token;
   }
 
   const newSession = !csrfToken;

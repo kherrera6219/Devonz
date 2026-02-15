@@ -24,6 +24,7 @@ async function processRetrievedItem(item: any): Promise<ChatHistoryItem> {
       item.description = `(Decryption Error) ${item.description || ''}`;
     }
   }
+
   return item as ChatHistoryItem;
 }
 
@@ -104,6 +105,7 @@ export async function getAll(
         // Process all results (decrypt) before resolving
         const processed = await Promise.all(results.map(processRetrievedItem));
         resolve(processed);
+
         return;
       }
 
@@ -121,6 +123,7 @@ export async function getAll(
         // Process results before resolving
         const processed = await Promise.all(results.map(processRetrievedItem));
         resolve(processed);
+
         return;
       }
 
@@ -140,20 +143,19 @@ export async function setMessages(
   timestamp?: string,
   metadata?: IChatMetadata,
 ): Promise<void> {
-  return new Promise(async (resolve, reject) => {
+  if (timestamp && isNaN(Date.parse(timestamp))) {
+    throw new Error('Invalid timestamp');
+  }
+
+  // Encrypt messages before storage
+  const serialized = JSON.stringify(messages);
+  const encryptedMessages = await encryptionService.encrypt(serialized);
+
+  return new Promise((resolve, reject) => {
     const transaction = db.transaction('chats', 'readwrite');
     const store = transaction.objectStore('chats');
 
-    if (timestamp && isNaN(Date.parse(timestamp))) {
-      reject(new Error('Invalid timestamp'));
-      return;
-    }
-
     try {
-      // Encrypt messages before storage
-      const serialized = JSON.stringify(messages);
-      const encryptedMessages = await encryptionService.encrypt(serialized);
-
       const request = store.put({
         id,
         messages: encryptedMessages, // Type mismatch with interface (handled by cast/any)
@@ -183,7 +185,10 @@ export async function getMessagesByUrlId(db: IDBDatabase, id: string): Promise<C
     const request = index.get(id);
 
     request.onsuccess = async () => {
-      if (!request.result) return resolve(request.result as ChatHistoryItem);
+      if (!request.result) {
+        return resolve(request.result as ChatHistoryItem);
+      }
+
       try {
         const item = await processRetrievedItem(request.result);
         resolve(item);
@@ -202,7 +207,10 @@ export async function getMessagesById(db: IDBDatabase, id: string): Promise<Chat
     const request = store.get(id);
 
     request.onsuccess = async () => {
-      if (!request.result) return resolve(request.result as ChatHistoryItem);
+      if (!request.result) {
+        return resolve(request.result as ChatHistoryItem);
+      }
+
       try {
         const item = await processRetrievedItem(request.result);
         resolve(item);
@@ -354,15 +362,7 @@ export async function createChatFromMessages(
   const newId = await getNextId(db);
   const newUrlId = await getUrlId(db, newId);
 
-  await setMessages(
-    db,
-    newId,
-    messages,
-    newUrlId,
-    description,
-    undefined,
-    metadata,
-  );
+  await setMessages(db, newId, messages, newUrlId, description, undefined, metadata);
 
   return newUrlId;
 }
@@ -402,13 +402,17 @@ export async function getSnapshot(db: IDBDatabase, chatId: string): Promise<Snap
     const request = store.get(chatId);
 
     request.onsuccess = async () => {
-      if (!request.result?.snapshot) return resolve(undefined);
+      if (!request.result?.snapshot) {
+        resolve(undefined);
+        return;
+      }
 
       const retrieved = request.result.snapshot;
 
       // Check for integrity wrapper
       if (retrieved.metadata?.signature && retrieved.data) {
         const isValid = await snapshotIntegrity.verify(retrieved.data, retrieved.metadata.signature);
+
         if (isValid) {
           resolve(retrieved.data as Snapshot);
         } else {
@@ -425,14 +429,14 @@ export async function getSnapshot(db: IDBDatabase, chatId: string): Promise<Snap
 }
 
 export async function setSnapshot(db: IDBDatabase, chatId: string, snapshot: Snapshot): Promise<void> {
-  return new Promise(async (resolve, reject) => {
+  // Sign the snapshot before saving
+  const signedSnapshot = await snapshotIntegrity.wrapWithIntegrity(snapshot);
+
+  return new Promise((resolve, reject) => {
     const transaction = db.transaction('snapshots', 'readwrite');
     const store = transaction.objectStore('snapshots');
 
     try {
-      // Sign the snapshot before saving
-      const signedSnapshot = await snapshotIntegrity.wrapWithIntegrity(snapshot);
-
       const request = store.put({ chatId, snapshot: signedSnapshot });
 
       request.onsuccess = () => resolve();

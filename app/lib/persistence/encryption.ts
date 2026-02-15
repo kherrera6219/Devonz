@@ -36,13 +36,7 @@ export class EncryptionService {
     const secretBuffer = ENCODER.encode(ENCRYPTION_SECRET);
     const hash = await crypto.subtle.digest('SHA-256', secretBuffer);
 
-    this._key = await crypto.subtle.importKey(
-      'raw',
-      hash,
-      ALGORITHM,
-      false,
-      ['encrypt', 'decrypt'],
-    );
+    this._key = await crypto.subtle.importKey('raw', hash, ALGORITHM, false, ['encrypt', 'decrypt']);
 
     return this._key;
   }
@@ -57,13 +51,11 @@ export class EncryptionService {
       const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
       const encodedText = ENCODER.encode(text);
 
-      const encryptedBuffer = await crypto.subtle.encrypt(
-        { name: ALGORITHM, iv },
-        key,
-        encodedText,
-      );
+      const encryptedBuffer = await crypto.subtle.encrypt({ name: ALGORITHM, iv }, key, encodedText);
 
-      const ivHex = Array.from(iv).map((b) => b.toString(16).padStart(2, '0')).join('');
+      const ivHex = Array.from(iv)
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
       const cipherHex = Array.from(new Uint8Array(encryptedBuffer))
         .map((b) => b.toString(16).padStart(2, '0'))
         .join('');
@@ -95,18 +87,10 @@ export class EncryptionService {
       const key = await this.getKey();
 
       // Hex to Uint8Array
-      const iv = new Uint8Array(
-        ivHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
-      );
-      const ciphertext = new Uint8Array(
-        cipherHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
-      );
+      const iv = new Uint8Array(ivHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
+      const ciphertext = new Uint8Array(cipherHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
 
-      const decryptedBuffer = await crypto.subtle.decrypt(
-        { name: ALGORITHM, iv },
-        key,
-        ciphertext,
-      );
+      const decryptedBuffer = await crypto.subtle.decrypt({ name: ALGORITHM, iv }, key, ciphertext);
 
       return DECODER.decode(decryptedBuffer);
     } catch (error) {

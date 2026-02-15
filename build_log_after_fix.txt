@@ -52,8 +52,8 @@ Generated an empty chunk: "api.chat".
 [unocss] The labeled variant is experimental and may not follow semver.
 rendering chunks...
 [unocss] failed to load icon "ph:filter-duotone"
-[unocss] failed to load icon "ph:openai-logo"
 [unocss] failed to load icon "ph:server"
+[unocss] failed to load icon "ph:openai-logo"
 [plugin:vite:reporter] [plugin vite:reporter] 
 (!) C:/software/Devonz/app/lib/stores/workbench.ts is dynamically imported by C:/software/Devonz/app/utils/previewErrorHandler.ts but also statically imported by C:/software/Devonz/app/components/@settings/tabs/project-memory/ProjectMemoryTab.tsx, C:/software/Devonz/app/components/chat/Artifact.tsx, C:/software/Devonz/app/components/chat/AssistantMessage.tsx, C:/software/Devonz/app/components/chat/BaseChat.tsx, C:/software/Devonz/app/components/chat/Chat.client.tsx, C:/software/Devonz/app/components/chat/ChatAlert.tsx, C:/software/Devonz/app/components/chat/chatExportAndImport/ExportChatButton.tsx, C:/software/Devonz/app/components/deploy/DeployButton.tsx, C:/software/Devonz/app/components/deploy/GitHubDeploy.client.tsx, C:/software/Devonz/app/components/deploy/GitLabDeploy.client.tsx, C:/software/Devonz/app/components/deploy/NetlifyDeploy.client.tsx, C:/software/Devonz/app/components/deploy/VercelDeploy.client.tsx, C:/software/Devonz/app/components/header/HeaderActionButtons.client.tsx, C:/software/Devonz/app/components/workbench/EditorPanel.tsx, C:/software/Devonz/app/components/workbench/FileTree.tsx, C:/software/Devonz/app/components/workbench/LockManager.tsx, C:/software/Devonz/app/components/workbench/Preview.tsx, C:/software/Devonz/app/components/workbench/Search.tsx, C:/software/Devonz/app/components/workbench/StagedChangesPanel.tsx, C:/software/Devonz/app/components/workbench/Versions.tsx, C:/software/Devonz/app/components/workbench/Workbench.client.tsx, C:/software/Devonz/app/components/workbench/terminal/TerminalTabs.tsx, C:/software/Devonz/app/lib/hooks/useMessageParser.ts, C:/software/Devonz/app/lib/persistence/snapshotUtils.ts, C:/software/Devonz/app/lib/persistence/useChatHistory.ts, C:/software/Devonz/app/utils/terminalErrorDetector.ts, dynamic import will not move module into another chunk.
 
@@ -451,128 +451,35 @@ computing gzip size...
 - Using dynamic import() to code-split the application
 - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
-[32mΓ£ô built in 21.53s[39m
+[32mΓ£ô built in 25.09s[39m
 [36mvite v5.4.21 [32mbuilding SSR bundle for production...[36m[39m
 transforming...
-[32mΓ£ô[39m 254 modules transformed.
-x Build failed in 810ms
-[vite]: Rollup failed to resolve import "@langchain/langgraph-checkpoint" from "C:/software/Devonz/app/lib/agent-orchestrator/redis-checkpointer.ts".
-This is most likely unintended because it can break your application at runtime.
-If you do want to externalize this module explicitly add it to
-`build.rollupOptions.external`
-    at rollupWarn (file:///C:/software/Devonz/node_modules/.pnpm/vite@5.4.21_@types+node@25.2.3_sass-embedded@1.97.3_sass@1.97.3/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65855:17)
-    at file:///C:/software/Devonz/node_modules/.pnpm/vite-plugin-node-polyfills@0.22.0_rollup@4.57.1_vite@5.4.21_@types+node@25.2.3_sass-embedded@1.97.3_sass@1.97.3_/node_modules/vite-plugin-node-polyfills/src/index.ts:216:17
-    at handleCircularDependancyWarning (C:\software\Devonz\node_modules\.pnpm\node-stdlib-browser@1.3.1\node_modules\node-stdlib-browser\helpers\rollup\plugin.js:29:3)
-    at Object.onwarn (file:///C:/software/Devonz/node_modules/.pnpm/vite-plugin-node-polyfills@0.22.0_rollup@4.57.1_vite@5.4.21_@types+node@25.2.3_sass-embedded@1.97.3_sass@1.97.3_/node_modules/vite-plugin-node-polyfills/src/index.ts:211:15)
-    at onwarn (C:\software\Devonz\node_modules\.pnpm\@remix-run+dev@2.17.4_@remix-run+react@2.17.4_react-dom@18.3.1_react@18.3.1__react@18.3.1_typ_7w4qtam4uie7dpcksn742rddcq\node_modules\@remix-run\dev\dist\vite\plugin.js:628:48)
-    at onRollupWarning (file:///C:/software/Devonz/node_modules/.pnpm/vite@5.4.21_@types+node@25.2.3_sass-embedded@1.97.3_sass@1.97.3/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65885:5)
-    at onwarn (file:///C:/software/Devonz/node_modules/.pnpm/vite@5.4.21_@types+node@25.2.3_sass-embedded@1.97.3_sass@1.97.3/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:65550:7)
-    at file:///C:/software/Devonz/node_modules/.pnpm/rollup@4.57.1/node_modules/rollup/dist/es/shared/node-entry.js:20972:13
-    at Object.logger [as onLog] (file:///C:/software/Devonz/node_modules/.pnpm/rollup@4.57.1/node_modules/rollup/dist/es/shared/node-entry.js:22945:9)
-    at ModuleLoader.handleInvalidResolvedId (file:///C:/software/Devonz/node_modules/.pnpm/rollup@4.57.1/node_modules/rollup/dist/es/shared/node-entry.js:21689:26)
-    at file:///C:/software/Devonz/node_modules/.pnpm/rollup@4.57.1/node_modules/rollup/dist/es/shared/node-entry.js:21647:26 {
-  watchFiles: [
-    'C:/software/Devonz/app/routes/api.agent.generate-image.ts',
-    'C:/software/Devonz/app/root.tsx',
-    'C:/software/Devonz/app/routes/api.agent.generate-audio.ts',
-    'C:/software/Devonz/app/routes/api.configured-providers.ts',
-    'C:/software/Devonz/app/entry.server.tsx',
-    'C:/software/Devonz/app/routes/webcontainer.connect.$id.tsx',
-    'C:/software/Devonz/app/routes/webcontainer.preview.$id.tsx',
-    'C:/software/Devonz/app/routes/api.supabase.variables.ts',
-    'C:/software/Devonz/app/routes/api.system.diagnostics.ts',
-    'C:/software/Devonz/app/routes/api.mcp-update-config.ts',
-    'C:/software/Devonz/app/routes/api.models.$provider.ts',
-    'C:/software/Devonz/app/routes/api.system.disk-info.ts',
-    'C:/software/Devonz/app/routes/api.github-branches.ts',
-    'C:/software/Devonz/app/routes/api.github-template.ts',
-    'C:/software/Devonz/app/routes/api.system.git-info.ts',
-    'C:/software/Devonz/app/routes/api.gitlab-projects.ts',
-    'C:/software/Devonz/app/routes/api.supabase.query.ts',
-    'C:/software/Devonz/app/routes/api.gitlab-branches.ts',
-    'C:/software/Devonz/app/routes/api.vercel-domains.ts',
-    'C:/software/Devonz/app/routes/api.check-env-key.ts',
-    'C:/software/Devonz/app/routes/api.netlify-deploy.ts',
-    'C:/software/Devonz/app/routes/api.github-stats.ts',
-    'C:/software/Devonz/app/routes/api.vercel-deploy.ts',
-    'C:/software/Devonz/app/routes/api.supabase-user.ts',
-    'C:/software/Devonz/app/routes/api.netlify-user.ts',
-    'C:/software/Devonz/app/routes/api.spline-proxy.ts',
-    'C:/software/Devonz/app/routes/api.git-proxy.$.ts',
-    'C:/software/Devonz/app/routes/api.import-file.ts',
-    'C:/software/Devonz/app/routes/api.vercel-proxy.ts',
-    'C:/software/Devonz/app/routes/api.github-user.ts',
-    'C:/software/Devonz/app/routes/api.vercel-user.ts',
-    'C:/software/Devonz/app/routes/api.bug-report.ts',
-    'C:/software/Devonz/app/routes/api.mcp-check.ts',
-    'C:/software/Devonz/app/routes/api.git-info.ts',
-    'C:/software/Devonz/app/routes/api.enhancer.ts',
-    'C:/software/Devonz/app/routes/api.supabase.ts',
-    'C:/software/Devonz/app/routes/api.knowledge.ts',
-    'C:/software/Devonz/app/routes/api.llmcall.ts',
-    'C:/software/Devonz/app/routes/api.metrics.ts',
-    'C:/software/Devonz/app/routes/api.models.ts',
-    'C:/software/Devonz/app/routes/api.health.ts',
-    'C:/software/Devonz/app/routes/api.update.ts',
-    'C:/software/Devonz/app/routes/api.chat.ts',
-    'C:/software/Devonz/app/routes/chat.$id.tsx',
-    'C:/software/Devonz/app/routes/_index.tsx',
-    'C:/software/Devonz/app/routes/git.tsx',
-    'C:\\software\\Devonz\\package.json',
-    'C:/software/Devonz/app/utils/logger.ts',
-    'C:/software/Devonz/app/lib/security.server.ts',
-    'C:/software/Devonz/app/lib/stores/theme.ts',
-    'C:/software/Devonz/app/lib/i18n/config.ts',
-    'C:/software/Devonz/app/lib/stores/logs.ts',
-    'C:/software/Devonz/app/utils/stripIndent.ts',
-    'C:/software/Devonz/app/utils/debugLogger.ts',
-    'C:/software/Devonz/app/components/ui/IconButton.tsx',
-    'C:/software/Devonz/app/components/errors/RouteErrorBoundary.tsx',
-    'C:/software/Devonz/app/lib/modules/features/FeatureContext.tsx',
-    'C:/software/Devonz/app/lib/csrf.server.ts',
-    'C:/software/Devonz/app/lib/.server/llm/stream-text.ts',
-    'C:/software/Devonz/app/lib/api/cookies.ts',
-    'C:/software/Devonz/app/lib/.server/llm/constants.ts',
-    'C:/software/Devonz/app/lib/.server/llm/switchable-stream.ts',
-    'C:/software/Devonz/app/lib/.server/llm/utils.ts',
-    'C:/software/Devonz/app/lib/common/prompts/prompts.ts',
-    'C:/software/Devonz/app/lib/services/mcpService.ts',
-    'C:/software/Devonz/app/lib/.server/llm/select-context.ts',
-    'C:/software/Devonz/app/lib/services/contextService.ts',
-    'C:/software/Devonz/app/lib/.server/llm/stream-recovery.ts',
-    'C:/software/Devonz/app/lib/services/agentChatIntegration.ts',
-    'C:/software/Devonz/app/lib/services/orchestratorService.ts',
-    'C:/software/Devonz/app/lib/api-validation.ts',
-    'C:/software/Devonz/app/lib/modules/llm/manager.ts',
-    'C:/software/Devonz/app/lib/stores/settings.ts',
-    'C:/software/Devonz/app/lib/context.server.ts',
-    'C:/software/Devonz/app/lib/metrics.server.ts',
-    'C:/software/Devonz/app/components/chat/BaseChat.tsx',
-    'C:/software/Devonz/app/components/git/GitUrlImport.client.tsx',
-    'C:/software/Devonz/app/components/header/Header.tsx',
-    'C:/software/Devonz/app/components/ui/BackgroundRays/index.tsx',
-    'C:/software/Devonz/app/styles/liquid-metal.css',
-    'C:/software/Devonz/app/styles/index.scss',
-    'C:/software/Devonz/app/components/chat/Chat.client.tsx',
-    'C:/software/Devonz/app/components/ui/ImportProgressBar.tsx',
-    'C:/software/Devonz/app/lib/services/minioService.ts',
-    'C:/software/Devonz/app/lib/services/ragService.ts',
-    'C:/software/Devonz/node_modules/.pnpm/path-browserify@1.0.1/node_modules/path-browserify/index.js',
-    'C:/software/Devonz/app/lib/services/knowledgeService.ts',
-    'C:/software/Devonz/app/utils/constants.ts',
-    'C:/software/Devonz/app/lib/common/prompts/infrastructure.ts',
-    'C:/software/Devonz/app/utils/markdown.ts',
-    'C:/software/Devonz/app/lib/services/redisService.ts',
-    'C:/software/Devonz/app/lib/.server/llm/create-summary.ts',
-    'C:/software/Devonz/app/lib/agent-orchestrator/graph.ts',
-    'C:/software/Devonz/app/lib/services/agentToolsService.ts',
-    'C:/software/Devonz/app/lib/stores/agentMode.ts',
-    'C:/software/Devonz/app/lib/services/legacyAgentService.ts',
-    'C:/software/Devonz/app/lib/agent-orchestrator/prompts/base.ts',
-    'C:/software/Devonz/node_modules/.pnpm/@unocss+reset@0.61.9/node_modules/@unocss/reset/tailwind-compat.css',
-    'C:/software/Devonz/node_modules/.pnpm/react-toastify@10.0.6_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/react-toastify/dist/ReactToastify.css',
-    'C:/software/Devonz/node_modules/.pnpm/@xterm+xterm@5.5.0/node_modules/@xterm/xterm/css/xterm.css',
-    ... 155 more items
-  ]
-}
-ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
+[32mΓ£ô[39m 277 modules transformed.
+rendering chunks...
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) C:/software/Devonz/app/lib/services/agentToolsService.ts is dynamically imported by C:/software/Devonz/app/lib/services/legacyAgentService.ts, C:/software/Devonz/app/lib/services/legacyAgentService.ts, C:/software/Devonz/app/lib/services/legacyAgentService.ts but also statically imported by C:/software/Devonz/app/lib/agent-orchestrator/agents/architect.ts, C:/software/Devonz/app/lib/services/agentChatIntegration.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) C:/software/Devonz/app/lib/stores/workbench.ts is dynamically imported by C:/software/Devonz/app/lib/services/agentToolsService.ts, C:/software/Devonz/app/utils/previewErrorHandler.ts but also statically imported by C:/software/Devonz/app/components/chat/BaseChat.tsx, C:/software/Devonz/app/components/chat/ChatAlert.tsx, C:/software/Devonz/app/components/workbench/Preview.tsx, C:/software/Devonz/app/lib/hooks/useMessageParser.ts, C:/software/Devonz/app/lib/persistence/snapshotUtils.ts, C:/software/Devonz/app/lib/persistence/useChatHistory.ts, C:/software/Devonz/app/utils/terminalErrorDetector.ts, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) C:/software/Devonz/app/lib/services/gitlabApiService.ts is dynamically imported by C:/software/Devonz/app/lib/stores/workbench.ts but also statically imported by C:/software/Devonz/app/lib/stores/gitlabConnection.ts, dynamic import will not move module into another chunk.
+
+[2mbuild/server/[22m[32m.vite/manifest.json                     [39m[1m[2m    3.37 kB[22m[1m[22m
+[2mbuild/server/[22m[35massets/liquid-metal-C5kW_Wex.css        [39m[1m[2m    1.77 kB[22m[1m[22m
+[2mbuild/server/[22m[35massets/tailwind-compat-Bwh-BmjE.css     [39m[1m[2m    2.25 kB[22m[1m[22m
+[2mbuild/server/[22m[35massets/xterm-LZoznX6r.css               [39m[1m[2m    4.08 kB[22m[1m[22m
+[2mbuild/server/[22m[35massets/ReactToastify-Bh76j7cs.css       [39m[1m[2m   14.19 kB[22m[1m[22m
+[2mbuild/server/[22m[35massets/index-B9-GHZKo.css               [39m[1m[2m   26.81 kB[22m[1m[22m
+[2mbuild/server/[22m[35massets/server-build-CK1QHlAR.css        [39m[1m[2m  214.10 kB[22m[1m[22m
+[2mbuild/server/[22m[36massets/csrf.server-BYTAjU9b.js          [39m[1m[2m    0.88 kB[22m[1m[22m
+[2mbuild/server/[22m[36mindex.js                                [39m[1m[2m    1.54 kB[22m[1m[22m
+[2mbuild/server/[22m[36massets/debugLogger-BFrsA5ES.js          [39m[1m[2m   30.78 kB[22m[1m[22m
+[2mbuild/server/[22m[36massets/orchestratorService-CSmbMvCg.js  [39m[1m[2m   41.13 kB[22m[1m[22m
+[2mbuild/server/[22m[36massets/Preview-Cb48s5Aw.js              [39m[1m[2m  108.34 kB[22m[1m[22m
+[2mbuild/server/[22m[36massets/server-build-Bm25-D5d.js         [39m[1m[33m1,092.21 kB[39m[22m
+
+[32mΓ£ô[39m 1 asset moved from Remix server build to client assets.
+[2mbuild\client\assets\server-build-CK1QHlAR.css[22m
+
+[32mΓ£ô built in 1.85s[39m

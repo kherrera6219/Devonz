@@ -245,15 +245,19 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
 
     // RBAC Check
     if (options.permission) {
-      // TODO: Retrieve actual user role from session/JWT
-      // For now, we assume a default secure role or developer role based on environment
-      // In a real app, this would be: const role = session.user.role;
+      /*
+       * TODO: Retrieve actual user role from session/JWT
+       * For now, we assume a default secure role or developer role based on environment
+       * In a real app, this would be: const role = session.user.role;
+       */
       const role: UserRole = process.env.NODE_ENV === 'development' ? 'DEVELOPER' : 'VIEWER';
 
       const hasPermission = rbacEngine.can(role, options.permission);
 
       if (!hasPermission) {
-        logger.warn(`RBAC Access Denied: User with role '${role}' attempted to access '${endpoint}' requires '${options.permission}'`);
+        logger.warn(
+          `RBAC Access Denied: User with role '${role}' attempted to access '${endpoint}' requires '${options.permission}'`,
+        );
         return new Response('Forbidden: Insufficient Permissions', {
           status: 403,
           headers: createSecurityHeaders(),

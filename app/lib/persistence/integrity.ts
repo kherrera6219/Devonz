@@ -32,13 +32,10 @@ export class SnapshotIntegrity {
 
     const keyData = ENCODER.encode(INTEGRITY_SECRET);
 
-    this._key = await crypto.subtle.importKey(
-      'raw',
-      keyData,
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign', 'verify'],
-    );
+    this._key = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, [
+      'sign',
+      'verify',
+    ]);
 
     return this._key;
   }

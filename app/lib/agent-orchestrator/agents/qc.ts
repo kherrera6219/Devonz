@@ -69,28 +69,34 @@ export class QCAgent {
        */
       const webcontainer = await webcontainerContext; // Access real container
       let verifiedCount = 0;
-      let failedFiles: string[] = [];
+      const failedFiles: string[] = [];
 
       if (webcontainer.loaded) {
-          for (const patch of patches) {
-              // Basic check: Does the file exist after patching?
-              // The patch object usually has 'path' or 'file'
-              // Assuming patch structure from memory/context:
-              const path = (patch as any).path || (patch as any).file;
-              if (path) {
-                  try {
-                      // Try to read the file to verify it was written
-                      // This confirms the 'Architect' actually applied changes
-                      await webcontainer.instance?.fs.readFile(path, 'utf-8');
-                      verifiedCount++;
-                  } catch (e) {
-                      failedFiles.push(path);
-                  }
-              }
+        for (const patch of patches) {
+          /*
+           * Basic check: Does the file exist after patching?
+           * The patch object usually has 'path' or 'file'
+           * Assuming patch structure from memory/context:
+           */
+          const path = (patch as any).path || (patch as any).file;
+
+          if (path) {
+            try {
+              /*
+               * Try to read the file to verify it was written
+               * This confirms the 'Architect' actually applied changes
+               */
+              await webcontainer.instance?.fs.readFile(path, 'utf-8');
+              verifiedCount++;
+            } catch (e) {
+              failedFiles.push(path);
+            }
           }
+        }
       }
 
-      const summary = failedFiles.length > 0
+      const summary =
+        failedFiles.length > 0
           ? `QC1 warning: ${failedFiles.length} files not found on disk.`
           : `QC1: Verified ${verifiedCount} files exist on disk.`;
 

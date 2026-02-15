@@ -1,4 +1,3 @@
-
 /**
  * Validate API key format (basic validation)
  */

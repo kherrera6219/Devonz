@@ -22,6 +22,7 @@ export class BackupService {
     if (!BackupService._instance) {
       BackupService._instance = new BackupService();
     }
+
     return BackupService._instance;
   }
 
@@ -75,7 +76,7 @@ export class BackupService {
     }
 
     for (const snap of archive.data.snapshots) {
-       await setSnapshot(db, snap.chatId, snap.snapshot);
+      await setSnapshot(db, snap.chatId, snap.snapshot);
     }
   }
 }

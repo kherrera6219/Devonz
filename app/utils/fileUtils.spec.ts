@@ -4,7 +4,7 @@ import { isBinaryFile, shouldIncludeFile, generateId, MAX_FILES, IGNORE_PATTERNS
 beforeAll(() => {
   // Polyfill `arrayBuffer` on Blob/File if missing in JSDOM environment
   if (!Blob.prototype.arrayBuffer) {
-    Blob.prototype.arrayBuffer = function() {
+    Blob.prototype.arrayBuffer = function () {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result as ArrayBuffer);

@@ -113,16 +113,19 @@ export async function streamText(props: {
       : undefined,
   };
 
-  // 0. AI Governance: Input Guardrails
-  // Extract the latest user message to validate
+  /*
+   * 0. AI Governance: Input Guardrails
+   * Extract the latest user message to validate
+   */
   const lastUserMessage = messages.filter((m) => m.role === 'user').pop();
 
   if (lastUserMessage) {
-    const content = typeof lastUserMessage.content === 'string'
-      ? lastUserMessage.content
-      : Array.isArray(lastUserMessage.content)
-        ? lastUserMessage.content.map((c) => (c.type === 'text' ? c.text : '')).join('')
-        : '';
+    const content =
+      typeof lastUserMessage.content === 'string'
+        ? lastUserMessage.content
+        : Array.isArray(lastUserMessage.content)
+          ? lastUserMessage.content.map((c) => (c.type === 'text' ? c.text : '')).join('')
+          : '';
 
     const guardResult = await guardrailService.validateInput(content);
 
