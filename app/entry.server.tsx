@@ -6,7 +6,7 @@ import { PassThrough } from 'node:stream';
 import { createSecurityHeaders } from '~/lib/security';
 import crypto from 'node:crypto';
 import { requestContext } from '~/lib/context.server';
-// import { httpRequestDurationMicroseconds } from '~/lib/metrics.server';
+import { httpRequestDurationMicroseconds } from '~/lib/metrics.server';
 
 
 const ABORT_DELAY = 5_000;
@@ -68,7 +68,9 @@ export default async function handleRequest(
             // Record metrics
             const duration = (Date.now() - startTime) / 1000;
             try {
-              httpRequestDurationMicroseconds.labels('GET', new URL(request.url).pathname, String(responseStatusCode)).observe(duration);
+              if (typeof httpRequestDurationMicroseconds !== 'undefined') {
+                httpRequestDurationMicroseconds.labels('GET', new URL(request.url).pathname, String(responseStatusCode)).observe(duration);
+              }
             } catch (e) {
               // Ignore metrics errors
             }

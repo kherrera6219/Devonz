@@ -13,10 +13,10 @@ import { I18nextProvider } from 'react-i18next';
 import { IconButton } from '~/components/ui/IconButton';
 import './lib/i18n/config';
 
-// import reactToastifyStylesimport 'react-toastify/dist/ReactToastify.css?url';
-import './styles/index.scss?url';
-import './styles/liquid-metal.css?url';
-import '@xterm/xterm/css/xterm.css?url';
+import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
+import globalStyles from './styles/index.scss?url';
+import liquidMetalStyles from './styles/liquid-metal.css?url';
+import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 
 import 'virtual:uno.css';
 

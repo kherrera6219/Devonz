@@ -1,4 +1,5 @@
-import { map, MapStore, WritableAtom } from 'nanostores';
+import { map } from 'nanostores';
+import type { MapStore, WritableAtom } from 'nanostores';
 import { RuntimeConfig } from '~/lib/runtime/config';
 
 /**

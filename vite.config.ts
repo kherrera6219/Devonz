@@ -49,15 +49,17 @@ export default defineConfig((config) => {
         '@langchain/openai',
         '@langchain/anthropic',
         '@langchain/google-genai',
+        'prom-client',
       ],
     },
     plugins: [
       nodePolyfills({
-        include: ['buffer', 'process', 'util'],
+        include: ['buffer', 'process', 'util', 'path'],
         globals: {
           Buffer: true,
           process: true,
           global: true,
+          path: true,
         },
         protocolImports: true,
         exclude: ['child_process', 'fs', 'stream'],
@@ -81,6 +83,7 @@ export default defineConfig((config) => {
           v3_relativeSplatPath: true,
           v3_throwAbortReason: true,
           v3_lazyRouteDiscovery: true,
+          v3_singleFetch: true,
         },
       }),
       UnoCSS(),
