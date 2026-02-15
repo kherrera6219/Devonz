@@ -1,4 +1,4 @@
-import type { ModelRoutingConfig, OrchestrationEvent } from '~/lib/types';
+import type { ModelInfo } from '~/lib/modules/llm/types';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('RoutingEngine');

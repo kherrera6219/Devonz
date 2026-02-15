@@ -65,7 +65,7 @@ export class MetadataAuditTrail {
   /**
    * Retrieves audit logs for a specific conversation or user.
    */
-  async getAuditTrail(entityId: string, _filter?: Record<string, any>): Promise<any[]> {
+  async getAuditLog(_entityId: string): Promise<AuditEntry[]> {
     // Placeholder for DB query
     return [];
   }

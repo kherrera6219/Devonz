@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Slider } from './Slider';
 import { useState } from 'react';
 
@@ -17,6 +17,13 @@ type Story = StoryObj<typeof meta>;
 type OptionType = 'opt1' | 'opt2' | 'opt3';
 
 export const TwoOptions: Story = {
+  args: {
+    selected: 'opt1',
+    options: {
+      left: { value: 'opt1', text: 'Option 1' },
+      right: { value: 'opt2', text: 'Option 2' },
+    },
+  },
   render: () => {
     const [selected, setSelected] = useState<OptionType>('opt1');
     return (
@@ -33,6 +40,14 @@ export const TwoOptions: Story = {
 };
 
 export const ThreeOptions: Story = {
+  args: {
+    selected: 'opt2',
+    options: {
+      left: { value: 'opt1', text: 'Left' },
+      middle: { value: 'opt2', text: 'Middle' },
+      right: { value: 'opt3', text: 'Right' },
+    },
+  },
   render: () => {
     const [selected, setSelected] = useState<OptionType>('opt2');
     return (

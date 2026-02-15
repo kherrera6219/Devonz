@@ -49,7 +49,7 @@ const platform = ((): RuntimeConfig['platform'] => {
   return 'unknown';
 })();
 
-export const RuntimeConfig: RuntimeConfig = {
+export const runtimeConfig: RuntimeConfig = {
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
   isTest: import.meta.env.MODE === 'test',

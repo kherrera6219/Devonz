@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Dropdown, DropdownItem, DropdownSeparator } from './Dropdown';
 import { Button } from './Button';
 
@@ -15,6 +15,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  args: {} as any,
   render: () => (
     <Dropdown trigger={<Button>Open Menu</Button>}>
       <DropdownItem onSelect={() => alert('Profile clicked')}>Profile</DropdownItem>

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Switch } from './Switch';
 import { Label } from './Label';
 import { useState } from 'react';

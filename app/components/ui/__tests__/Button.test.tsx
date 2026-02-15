@@ -1,7 +1,9 @@
+import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { expect, describe, it } from 'vitest';
-import { Button } from '~/components/ui/Button';
-import { axe } from 'vitest-axe';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { Button } from '../Button';
+
+expect.extend(toHaveNoViolations);
 
 describe('Button Accessibility', () => {
   it('should not have accessibility violations', async () => {

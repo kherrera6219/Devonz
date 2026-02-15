@@ -124,7 +124,7 @@ export async function streamText(props: {
       typeof lastUserMessage.content === 'string'
         ? lastUserMessage.content
         : Array.isArray(lastUserMessage.content)
-          ? lastUserMessage.content.map((c) => (c.type === 'text' ? c.text : '')).join('')
+          ? (lastUserMessage.content as any[]).map((c) => (c?.type === 'text' ? c.text : '')).join('')
           : '';
 
     const guardResult = await guardrailService.validateInput(content);

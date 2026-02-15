@@ -1,7 +1,5 @@
 import { createScopedLogger } from '~/utils/logger';
 
-const logger = createScopedLogger('OutputClassifier');
-
 export type AIOutputClass =
   | 'CODE_CHANGE'
   | 'RESEARCH_REPORT'

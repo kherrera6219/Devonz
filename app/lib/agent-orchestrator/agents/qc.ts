@@ -1,7 +1,7 @@
 import { ChatOpenAI } from '@langchain/openai';
 import type { RunState, EventLogEntry } from '~/lib/agent-orchestrator/types/mas-schemas';
 import { createErrorState } from '~/lib/agent-orchestrator/utils/agent-utils';
-import { webcontainerContext } from '~/lib/webcontainer'; // Connect to real FS
+import { webcontainer } from '~/lib/webcontainer'; // Connect to real FS
 
 /**
  * Quality Control Agent (Internal)
@@ -67,30 +67,27 @@ export class QCAgent {
       /*
        * Real Implementation: Check file existence and basic syntax (JSON parsing)
        */
-      const webcontainer = await webcontainerContext; // Access real container
+      const container = await webcontainer; // Access real container
       let verifiedCount = 0;
       const failedFiles: string[] = [];
 
-      if (webcontainer.loaded) {
-        for (const patch of patches) {
-          /*
-           * Basic check: Does the file exist after patching?
-           * The patch object usually has 'path' or 'file'
-           * Assuming patch structure from memory/context:
-           */
-          const path = (patch as any).path || (patch as any).file;
+      /*
+       * Check if boot completed (using internal state or just assuming provided promise resolved)
+       * WebContainer promise resolves when booted.
+       */
 
-          if (path) {
-            try {
-              /*
-               * Try to read the file to verify it was written
-               * This confirms the 'Architect' actually applied changes
-               */
-              await webcontainer.instance?.fs.readFile(path, 'utf-8');
-              verifiedCount++;
-            } catch (e) {
-              failedFiles.push(path);
-            }
+      for (const patch of patches) {
+        /*
+         * Basic check: Does the file exist after patching?
+         */
+        const path = (patch as any).path || (patch as any).file;
+
+        if (path) {
+          try {
+            await container.fs.readFile(path, 'utf-8');
+            verifiedCount++;
+          } catch {
+            failedFiles.push(path);
           }
         }
       }

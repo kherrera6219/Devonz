@@ -25,7 +25,7 @@ export class SnapshotIntegrity {
     return SnapshotIntegrity._instance;
   }
 
-  private async getKey(): Promise<CryptoKey> {
+  private async _getKey(): Promise<CryptoKey> {
     if (this._key) {
       return this._key;
     }
@@ -45,7 +45,7 @@ export class SnapshotIntegrity {
    */
   async sign(data: any): Promise<string> {
     try {
-      const key = await this.getKey();
+      const key = await this._getKey();
       const serialized = JSON.stringify(data);
       const buffer = ENCODER.encode(serialized);
       const signature = await crypto.subtle.sign('HMAC', key, buffer);

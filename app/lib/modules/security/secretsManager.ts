@@ -27,7 +27,7 @@ export class SecretsManager {
   async setSecret(key: string, value: string): Promise<void> {
     logger.info(`Storing secret for key: ${key}`);
 
-    const encrypted = encryptionService.encrypt(value);
+    const encrypted = await encryptionService.encrypt(value);
 
     // Platform-specific secure storage integration
     if (process.env.LOCAL_MODE === 'true') {
@@ -44,13 +44,19 @@ export class SecretsManager {
       }
     }
 
-    localStorage.setItem(`secret:${key}`, encrypted);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(`secret:${key}`, encrypted);
+    }
   }
 
   /**
    * Retrieves a secret securely.
    */
   async getSecret(key: string): Promise<string | null> {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
     const encrypted = localStorage.getItem(`secret:${key}`);
 
     if (!encrypted) {
@@ -59,8 +65,8 @@ export class SecretsManager {
 
     try {
       return encryptionService.decrypt(encrypted);
-    } catch (error) {
-      logger.error(`Failed to decrypt secret for ${key}`, error);
+    } catch {
+      logger.error(`Failed to store secret for ${key}`);
       return null;
     }
   }

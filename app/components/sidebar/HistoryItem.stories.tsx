@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { HistoryItem } from './HistoryItem';
 import { createRemixStub } from '@remix-run/testing';
 
@@ -10,15 +10,15 @@ const meta = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => {
+    (StoryComponent: any) => {
       const RemixStub = createRemixStub([
         {
           path: '/chat/:id',
-          Component: Story,
+          Component: StoryComponent,
         },
         {
           path: '/',
-          Component: Story,
+          Component: StoryComponent,
         },
       ]);
       return <RemixStub initialEntries={['/']} />;
@@ -41,18 +41,18 @@ export const Default: Story = {
   args: {
     item: mockItem,
     exportChat: (id) => alert(`Export ${id}`),
-    onDelete: (e) => alert('Delete'),
+    onDelete: () => alert('Delete'),
     onDuplicate: (id) => alert(`Duplicate ${id}`),
   },
 };
 
 export const Active: Story = {
   decorators: [
-    (Story) => {
+    (StoryComponent: any) => {
       const RemixStub = createRemixStub([
         {
           path: '/chat/:id',
-          Component: Story,
+          Component: StoryComponent,
         },
       ]);
       return <RemixStub initialEntries={['/chat/chat-1']} />;
@@ -61,7 +61,7 @@ export const Active: Story = {
   args: {
     item: mockItem,
     exportChat: (id) => alert(`Export ${id}`),
-    onDelete: (e) => alert('Delete'),
+    onDelete: () => alert('Delete'),
     onDuplicate: (id) => alert(`Duplicate ${id}`),
   },
 };

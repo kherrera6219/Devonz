@@ -1,7 +1,5 @@
 import { createScopedLogger } from '~/utils/logger';
 
-const logger = createScopedLogger('MetricsCollector');
-
 interface MetricEntry {
   name: string;
   value: number;

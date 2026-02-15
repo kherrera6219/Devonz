@@ -35,7 +35,7 @@ export class LogRedactor {
     let redacted = text;
 
     for (const { name, pattern } of this._redactionPatterns) {
-      redacted = redacted.replace(pattern, (match) => {
+      redacted = redacted.replace(pattern, (_match) => {
         logger.debug(`Redacted sensitive data: ${name}`);
         return `[REDACTED:${name}]`;
       });

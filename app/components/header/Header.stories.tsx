@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Header } from './Header';
 import { createRemixStub } from '@remix-run/testing';
 import { chatStore } from '~/lib/stores/chat';
@@ -12,11 +12,11 @@ const meta = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => {
+    (StoryComponent: any) => {
       const RemixStub = createRemixStub([
         {
           path: '/',
-          Component: Story,
+          Component: StoryComponent,
         },
       ]);
       return <RemixStub />;
@@ -32,7 +32,7 @@ export const Default: Story = {
     // Reset stores
     chatStore.setKey('started', true);
     chatStore.setKey('showChat', true);
-    sidebarStore.setKey('open', false);
+    sidebarStore.setOpen(false);
 
     return <Header />;
   },
@@ -41,7 +41,7 @@ export const Default: Story = {
 export const SidebarOpen: Story = {
   render: () => {
     chatStore.setKey('started', true);
-    sidebarStore.setKey('open', true);
+    sidebarStore.setOpen(true);
 
     return <Header />;
   },

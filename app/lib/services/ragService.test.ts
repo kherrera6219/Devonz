@@ -18,10 +18,10 @@ describe('RAGService Validation', () => {
 
     try {
       const { RAGService } = await import('./ragService');
-      const rag = RAGService.getInstance();
+      const ragService = RAGService.getInstance();
 
       // 1. Clear
-      await rag.clearIndex();
+      await ragService.clearIndex();
       console.log('Index cleared.');
 
       // 2. Index
@@ -29,13 +29,13 @@ describe('RAGService Validation', () => {
         'test-file.ts': 'export const secret = "the magic word is bird";',
       };
       const projectId = 'test-project-1';
-      const indexedCount = await rag.indexFiles(projectId, testFiles);
+      const indexedCount = await ragService.indexFiles(projectId, testFiles);
 
       expect(indexedCount).toBe(1);
       console.log('Indexed 1 file.');
 
       // 3. Query
-      const results = await rag.query(projectId, 'What is the magic word?', 1);
+      const results = await ragService.query(projectId, 'What is the magic word?', 1);
       expect(results.length).toBeGreaterThan(0);
       expect(results[0]).toContain('bird');
       console.log('Query successful, found content:', results[0]);

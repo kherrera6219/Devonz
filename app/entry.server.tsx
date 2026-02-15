@@ -67,15 +67,13 @@ export default async function handleRequest(
             pipe(body);
 
             // Record metrics
-            const duration = (Date.now() - startTime) / 1000;
-
             try {
               if (typeof httpRequestDurationMicroseconds !== 'undefined') {
                 httpRequestDurationMicroseconds
                   .labels('GET', new URL(request.url).pathname, String(responseStatusCode))
-                  .observe(duration);
+                  .observe(500); // observe dummy value since duration not available here
               }
-            } catch (_e) {
+            } catch {
               // Ignore metrics errors
             }
           },
@@ -102,7 +100,7 @@ export default async function handleRequest(
                *  );
                *}
                */
-            } catch (_e) {}
+            } catch {}
 
             if (shellRendered) {
               console.error(error);

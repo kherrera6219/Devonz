@@ -186,7 +186,8 @@ export async function getMessagesByUrlId(db: IDBDatabase, id: string): Promise<C
 
     request.onsuccess = async () => {
       if (!request.result) {
-        return resolve(request.result as ChatHistoryItem);
+        resolve(request.result as ChatHistoryItem);
+        return;
       }
 
       try {
@@ -208,7 +209,8 @@ export async function getMessagesById(db: IDBDatabase, id: string): Promise<Chat
 
     request.onsuccess = async () => {
       if (!request.result) {
-        return resolve(request.result as ChatHistoryItem);
+        resolve(request.result as ChatHistoryItem);
+        return;
       }
 
       try {

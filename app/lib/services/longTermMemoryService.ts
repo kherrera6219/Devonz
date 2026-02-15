@@ -95,7 +95,7 @@ ${entry.content}
 
     try {
       return await fs.readFile(filePath, 'utf-8');
-    } catch (error) {
+    } catch {
       logger.warn('Memory file not found, returning empty context');
       return '';
     }

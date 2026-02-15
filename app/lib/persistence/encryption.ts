@@ -28,7 +28,7 @@ export class EncryptionService {
     return EncryptionService._instance;
   }
 
-  private async getKey(): Promise<CryptoKey> {
+  private async _getKey(): Promise<CryptoKey> {
     if (this._key) {
       return this._key;
     }
@@ -47,7 +47,7 @@ export class EncryptionService {
    */
   async encrypt(text: string): Promise<string> {
     try {
-      const key = await this.getKey();
+      const key = await this._getKey();
       const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
       const encodedText = ENCODER.encode(text);
 
@@ -84,7 +84,7 @@ export class EncryptionService {
         throw new Error('Invalid encrypted data format');
       }
 
-      const key = await this.getKey();
+      const key = await this._getKey();
 
       // Hex to Uint8Array
       const iv = new Uint8Array(ivHex.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)));
