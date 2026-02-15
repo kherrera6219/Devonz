@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Header } from './Header';
 import { createRemixStub } from '@remix-run/testing';
 import { chatStore } from '~/lib/stores/chat';
@@ -12,11 +12,11 @@ const meta = {
   },
   tags: ['autodocs'],
   decorators: [
-    (StoryComponent: any) => {
+    (storyComponent: any) => {
       const RemixStub = createRemixStub([
         {
           path: '/',
-          Component: StoryComponent,
+          Component: storyComponent,
         },
       ]);
       return <RemixStub />;

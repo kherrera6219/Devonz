@@ -85,8 +85,8 @@ export default async function handleRequest(
 
             // Record error metrics
             try {
-              // Approximate duration for error case
-              const duration = (Date.now() - startTime) / 1000;
+              // Approximate duration for error case (calculated but not sent to metrics yet)
+              void (Date.now() - startTime);
 
               /*
                *if (httpRequestDurationMicroseconds) {

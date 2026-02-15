@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { Button } from '../Button';
+import { Button } from '~/components/ui/Button';
 
 expect.extend(toHaveNoViolations);
 

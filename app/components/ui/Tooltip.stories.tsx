@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Tooltip } from './Tooltip';
 import { Button } from './Button';
 
@@ -21,9 +21,10 @@ export const Default: Story = {
   },
 };
 
-export const LongContent: Story = {
+export const CustomDelay: Story = {
   args: {
-    content: 'This is a much longer tooltip content to see how it wraps or behaves.',
-    children: <Button variant="outline">Hover for details</Button>,
+    content: 'Fast tooltip',
+    delayDuration: 100,
+    children: <Button variant="outline">Fast hover</Button>,
   },
 };

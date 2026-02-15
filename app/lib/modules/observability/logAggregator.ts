@@ -1,4 +1,3 @@
-import { createScopedLogger } from '~/utils/logger';
 import { logRedactor } from '~/lib/modules/security/redactor';
 
 export interface StructuredLog {

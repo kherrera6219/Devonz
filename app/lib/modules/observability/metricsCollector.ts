@@ -1,5 +1,3 @@
-import { createScopedLogger } from '~/utils/logger';
-
 interface MetricEntry {
   name: string;
   value: number;

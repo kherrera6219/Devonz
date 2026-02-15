@@ -39,7 +39,7 @@ export class SecretsManager {
          */
 
         logger.info(`[Desktop] Secret ${key} successfully stored in native vault proxy.`);
-      } catch (error) {
+      } catch {
         logger.warn(`[Desktop] Native vault unavailable, falling back to encrypted local storage.`);
       }
     }

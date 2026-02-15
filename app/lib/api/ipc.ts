@@ -1,4 +1,4 @@
-import { RuntimeConfig } from '~/lib/runtime/config';
+import { runtimeConfig } from '~/lib/runtime/config';
 
 /**
  * Secure IPC Abstraction Layer.
@@ -37,7 +37,7 @@ class IPCService {
    * Returns a Promise.
    */
   async invoke<T = any>(channel: string, data?: any): Promise<T> {
-    if (!RuntimeConfig.isDesktop || !window.electron) {
+    if (!runtimeConfig.isDesktop || !window.electron) {
       console.warn(`[IPC] 'invoke' called on '${channel}' but not in Desktop mode.`);
       throw new Error('IPC not available in Web mode');
     }
@@ -54,7 +54,7 @@ class IPCService {
    * Send a one-way message to the Main process.
    */
   send(channel: string, data?: any): void {
-    if (!RuntimeConfig.isDesktop || !window.electron) {
+    if (!runtimeConfig.isDesktop || !window.electron) {
       console.warn(`[IPC] 'send' called on '${channel}' but not in Desktop mode.`);
       return;
     }
@@ -66,7 +66,7 @@ class IPCService {
    * Listen for messages from the Main process.
    */
   on(channel: string, listener: (...args: any[]) => void): void {
-    if (!RuntimeConfig.isDesktop || !window.electron) {
+    if (!runtimeConfig.isDesktop || !window.electron) {
       console.warn(`[IPC] 'on' called on '${channel}' but not in Desktop mode.`);
       return;
     }

@@ -17,8 +17,8 @@ describe('RAGService Validation', () => {
     }
 
     try {
-      const { RAGService } = await import('./ragService');
-      const ragService = RAGService.getInstance();
+      const { RAGService: ragServiceClass } = await import('./ragService');
+      const ragService = ragServiceClass.getInstance();
 
       // 1. Clear
       await ragService.clearIndex();

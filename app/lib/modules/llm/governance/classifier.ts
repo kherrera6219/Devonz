@@ -1,4 +1,4 @@
-import { createScopedLogger } from '~/utils/logger';
+// Output classification system
 
 export type AIOutputClass =
   | 'CODE_CHANGE'

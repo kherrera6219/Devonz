@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { HistoryItem } from './HistoryItem';
 import { createRemixStub } from '@remix-run/testing';
 
@@ -10,15 +10,15 @@ const meta = {
   },
   tags: ['autodocs'],
   decorators: [
-    (StoryComponent: any) => {
+    (storyComponent: any) => {
       const RemixStub = createRemixStub([
         {
           path: '/chat/:id',
-          Component: StoryComponent,
+          Component: storyComponent,
         },
         {
           path: '/',
-          Component: StoryComponent,
+          Component: storyComponent,
         },
       ]);
       return <RemixStub initialEntries={['/']} />;
@@ -48,11 +48,11 @@ export const Default: Story = {
 
 export const Active: Story = {
   decorators: [
-    (StoryComponent: any) => {
+    (storyComponent: any) => {
       const RemixStub = createRemixStub([
         {
-          path: '/chat/:id',
-          Component: StoryComponent,
+          path: '/',
+          Component: storyComponent,
         },
       ]);
       return <RemixStub initialEntries={['/chat/chat-1']} />;

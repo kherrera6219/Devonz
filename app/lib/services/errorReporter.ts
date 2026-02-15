@@ -1,4 +1,4 @@
-import { RuntimeConfig } from '~/lib/runtime/config';
+import { runtimeConfig } from '~/lib/runtime/config';
 import { logStore } from '~/lib/stores/logs';
 
 /**
@@ -35,7 +35,7 @@ class ErrorReporterService {
    * Initialize global error handlers
    */
   init() {
-    if (this._initialized || RuntimeConfig.isServer) {
+    if (this._initialized || runtimeConfig.isServer) {
       return;
     }
 
@@ -73,7 +73,7 @@ class ErrorReporterService {
     };
 
     // 1. Log to console in specific environments
-    if (RuntimeConfig.isDevelopment) {
+    if (runtimeConfig.isDevelopment) {
       console.groupCollapsed(`[ErrorReporter] ${report.severity.toUpperCase()}: ${report.message}`);
       console.log('Source:', report.source);
       console.log('Stack:', report.stack);

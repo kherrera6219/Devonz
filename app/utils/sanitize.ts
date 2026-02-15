@@ -1,5 +1,5 @@
 import DOMPurify from 'dompurify';
-import { RuntimeConfig } from '~/lib/runtime/config';
+import { runtimeConfig } from '~/lib/runtime/config';
 
 /**
  * Centralized HTML Sanitization Utility.
@@ -38,7 +38,7 @@ export const SHIKI_CONFIG: any = {
 };
 
 export function sanitizeHTML(dirty: string, options: any = DEFAULT_CONFIG): string {
-  if (RuntimeConfig.isServer) {
+  if (runtimeConfig.isServer) {
     /*
      * DOMPurify requires a window/JSDOM.
      * If strict server-side sanitization is needed, we'd need 'isomorphic-dompurify'.
