@@ -1,4 +1,3 @@
-import { logRedactor } from '~/lib/modules/security/redactor';
 
 export interface StructuredLog {
   timestamp: string;
