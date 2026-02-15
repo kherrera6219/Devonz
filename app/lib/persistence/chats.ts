@@ -3,6 +3,7 @@
  */
 
 import type { Message } from 'ai';
+import { logger } from '~/utils/logger';
 import type { IChatMetadata } from './db'; // Import IChatMetadata
 
 export interface ChatMessage {
@@ -27,7 +28,7 @@ export interface Chat {
  * @returns A promise that resolves to an array of chats
  */
 export async function getAllChats(db: IDBDatabase): Promise<Chat[]> {
-  console.log(`getAllChats: Using database '${db.name}', version ${db.version}`);
+  logger.debug(`getAllChats: Using database '${db.name}', version ${db.version}`);
 
   return new Promise((resolve, reject) => {
     try {
@@ -37,16 +38,16 @@ export async function getAllChats(db: IDBDatabase): Promise<Chat[]> {
 
       request.onsuccess = () => {
         const result = request.result || [];
-        console.log(`getAllChats: Found ${result.length} chats in database '${db.name}'`);
+        logger.debug(`getAllChats: Found ${result.length} chats in database '${db.name}'`);
         resolve(result);
       };
 
       request.onerror = () => {
-        console.error(`getAllChats: Error querying database '${db.name}':`, request.error);
+        logger.error(`getAllChats: Error querying database '${db.name}':`, request.error);
         reject(request.error);
       };
     } catch (err) {
-      console.error(`getAllChats: Error creating transaction on database '${db.name}':`, err);
+      logger.error(`getAllChats: Error creating transaction on database '${db.name}':`, err);
       reject(err);
     }
   });

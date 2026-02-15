@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { atom } from 'nanostores';
 import { type JSONValue, type Message } from 'ai';
 import { toast } from 'react-toastify';
+import { logger } from '~/utils/logger';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { versionsStore } from '~/lib/stores/versions';
 import { logStore } from '~/lib/stores/logs'; // Import logStore
@@ -121,7 +122,7 @@ export function useChatHistory() {
           setReady(true);
         })
         .catch((error) => {
-          console.error(error);
+          logger.error(error);
 
           logStore.logError('Failed to load chat messages or snapshot', error); // Updated error message
           toast.error('Failed to load chat: ' + error.message); // More specific error
@@ -150,7 +151,7 @@ export function useChatHistory() {
       try {
         await setSnapshot(db, id, snapshot);
       } catch (error) {
-        console.error('Failed to save snapshot:', error);
+        logger.error('Failed to save snapshot:', error);
         toast.error('Failed to save chat snapshot.');
       }
     },
@@ -215,7 +216,7 @@ export function useChatHistory() {
         chatMetadata.set(metadata);
       } catch (error) {
         toast.error('Failed to update chat metadata');
-        console.error(error);
+        logger.error(error);
       }
     },
     storeMessageHistory: async (messages: Message[]) => {
@@ -271,7 +272,7 @@ export function useChatHistory() {
       const finalChatId = chatId.get();
 
       if (!finalChatId) {
-        console.error('Cannot save messages, chat ID is not set.');
+        logger.error('Cannot save messages, chat ID is not set.');
         toast.error('Failed to save chat messages: Chat ID missing.');
 
         return;
@@ -298,7 +299,7 @@ export function useChatHistory() {
         toast.success('Chat duplicated successfully');
       } catch (error) {
         toast.error('Failed to duplicate chat');
-        console.log(error);
+        logger.error(error);
       }
     },
     importChat: async (description: string, messages: Message[], metadata?: IChatMetadata) => {
