@@ -220,7 +220,7 @@ export function createSecurityHeaders(nonce?: string) {
 /**
  * Security wrapper for API routes
  */
-export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctionArgs) => Promise<Response>>(
+export function withSecurity<T extends (args: any) => Promise<Response | any>>(
   handler: T,
   options: {
     requireAuth?: boolean;
@@ -230,7 +230,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
     permission?: Permission;
   } = {},
 ) {
-  return async (args: ActionFunctionArgs | LoaderFunctionArgs): Promise<Response> => {
+  return async (args: ActionFunctionArgs | LoaderFunctionArgs): Promise<Response | any> => {
     const { request } = args;
     const url = new URL(request.url);
     const endpoint = url.pathname;

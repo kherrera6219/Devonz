@@ -1,4 +1,4 @@
-import { json, type ActionFunctionArgs } from '@remix-run/node';
+import { type ActionFunctionArgs } from '@remix-run/node';
 import OpenAI from 'openai';
 import { createScopedLogger } from '~/utils/logger';
 import { withSecurity } from '~/lib/security.server';
@@ -11,7 +11,10 @@ export const action = withSecurity(
       const { prompt, size = '1024x1024' } = await request.json();
 
       if (!prompt) {
-        return json({ error: 'Prompt is required' }, { status: 400 });
+        return new Response(JSON.stringify({ error: 'Prompt is required' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
 
       const openai = new OpenAI({
@@ -34,12 +37,15 @@ export const action = withSecurity(
         throw new Error('No image data received from OpenAI');
       }
 
-      return json({ b64_json: imageData });
+      return { b64_json: imageData };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error('Failed to generate image', error);
 
-      return json({ error: errorMessage }, { status: 500 });
+      return new Response(JSON.stringify({ error: errorMessage }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
   },
   { allowedMethods: ['POST'] },
