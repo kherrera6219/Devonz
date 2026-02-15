@@ -1,5 +1,18 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeAll } from 'vitest';
 import { isBinaryFile, shouldIncludeFile, generateId, MAX_FILES, IGNORE_PATTERNS } from './fileUtils';
+
+beforeAll(() => {
+  // Polyfill `arrayBuffer` on Blob/File if missing in JSDOM environment
+  if (!Blob.prototype.arrayBuffer) {
+    Blob.prototype.arrayBuffer = function() {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as ArrayBuffer);
+        reader.readAsArrayBuffer(this);
+      });
+    };
+  }
+});
 
 describe('fileUtils', () => {
   describe('IGNORE_PATTERNS', () => {

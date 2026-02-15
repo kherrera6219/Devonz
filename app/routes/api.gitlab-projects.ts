@@ -1,6 +1,6 @@
 import { json } from '@remix-run/node';
 import { createScopedLogger } from '~/utils/logger';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 import type { GitLabProjectInfo } from '~/types/GitLab';
 
 const logger = createScopedLogger('api.gitlab-projects');

@@ -1,5 +1,5 @@
 import { json, type ActionFunction } from '@remix-run/node';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 export const action: ActionFunction = withSecurity(
   async ({ request: _request }) => {

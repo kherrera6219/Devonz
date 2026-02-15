@@ -10,7 +10,7 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from '@remix-run/node';
 import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { createScopedLogger } from '~/utils/logger';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.vercel-domains');
 

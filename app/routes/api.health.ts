@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 interface ServiceHealth {
   status: 'healthy' | 'unhealthy' | 'unconfigured';

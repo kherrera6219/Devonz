@@ -3,7 +3,7 @@ import { RemixServer } from '@remix-run/react';
 import { isbot } from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
 import { PassThrough } from 'node:stream';
-import { createSecurityHeaders } from '~/lib/security';
+import { createSecurityHeaders } from '~/lib/security.server';
 import crypto from 'node:crypto';
 import { requestContext } from '~/lib/context.server';
 import { httpRequestDurationMicroseconds } from '~/lib/metrics.server';

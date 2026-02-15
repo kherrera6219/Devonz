@@ -2,7 +2,7 @@ import { type ActionFunctionArgs, json } from '@remix-run/node';
 import crypto from 'crypto';
 import type { NetlifySiteInfo } from '~/types/netlify';
 import { createScopedLogger } from '~/utils/logger';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.netlify-deploy');
 

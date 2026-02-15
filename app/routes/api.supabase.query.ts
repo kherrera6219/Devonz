@@ -1,6 +1,6 @@
 import { type ActionFunctionArgs } from '@remix-run/node';
 import { createScopedLogger } from '~/utils/logger';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.supabase.query');
 

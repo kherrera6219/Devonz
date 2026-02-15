@@ -1,7 +1,7 @@
 import { json } from '@remix-run/node';
 import { createScopedLogger } from '~/utils/logger';
 import { MCPService } from '~/lib/services/mcpService';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.mcp-check');
 

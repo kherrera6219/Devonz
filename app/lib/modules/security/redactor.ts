@@ -10,12 +10,12 @@ export class LogRedactor {
   private static _instance: LogRedactor;
 
   private readonly _redactionPatterns = [
-    { name: 'API Key', pattern: /[a-z0-9]{32,}/gi }, // Generic hex-like key
     { name: 'GitHub Token', pattern: /ghp_[a-zA-Z0-9]{36}/g },
     { name: 'OpenAI Key', pattern: /sk-[a-zA-Z0-9]{48}/g },
     { name: 'Anthropic Key', pattern: /sk-ant-sid01-[a-zA-Z0-9_-]{93}/g },
     { name: 'AWS Secret', pattern: /(?:AWS|aws|Aws).?[0-9a-zA-Z/+]{40}/g },
     { name: 'Password', pattern: /(?:password|passwd|pwd)\s*[:=]\s*["']?([^"'\s]+)["']?/gi },
+    { name: 'API Key', pattern: /[a-z0-9]{32,}/gi }, // Generic hex-like key (last resort)
   ];
 
   private constructor() {}

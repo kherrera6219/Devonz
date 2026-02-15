@@ -1,5 +1,5 @@
 import { json, type LoaderFunction, type LoaderFunctionArgs } from '@remix-run/node';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 /**
  * Diagnostic API for troubleshooting connection issues

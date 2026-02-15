@@ -28,7 +28,7 @@ import {
 } from '~/lib/services/agentChatIntegration';
 import { contextService } from '~/lib/services/contextService';
 
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 import { chatRequestSchema } from '~/lib/api-validation';
 
 export const action = withSecurity(async (args: ActionFunctionArgs) => {

@@ -3,7 +3,7 @@ import { json, type ActionFunctionArgs } from '@remix-run/node';
 import { minioService } from '~/lib/services/minioService';
 import { RAGService } from '~/lib/services/ragService';
 import { createScopedLogger } from '~/utils/logger';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api-import-file');
 

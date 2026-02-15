@@ -9,7 +9,7 @@ import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
 import { createScopedLogger } from '~/utils/logger';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 export const action = withSecurity(async (args: ActionFunctionArgs) => {
   return llmCallAction(args);

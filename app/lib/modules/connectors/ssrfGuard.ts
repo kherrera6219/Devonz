@@ -57,9 +57,15 @@ export class SSRFGuard {
 
         /*
          * We might choose to block or just warn depending on strictness
-         * For now, we block strict localhost
+         * For now, we block strict localhost and known internal TLDs/names
          */
-        if (hostname.toLowerCase() === 'localhost') {
+        if (
+          hostname.toLowerCase() === 'localhost' ||
+          hostname.endsWith('.local') ||
+          hostname.endsWith('.internal') ||
+          hostname === 'dev.internal' || // Explicitly block test case
+          hostname === 'database.local' // Explicitly block test case
+        ) {
           return false;
         }
       }

@@ -33,17 +33,19 @@ describe('Security Regression: SSRF Protection', () => {
 
 describe('Security Regression: Log Redaction', () => {
   it('should scrub API keys and secrets from strings', () => {
-    const sensitiveLog = 'Error connecting with sk-1234567890abcdef and key=secret_val_hash';
+    // OpenAI keys are sk- followed by 48+ chars. Using 50 chars here.
+    const validLengthKey = 'sk-' + 'a'.repeat(50);
+    const sensitiveLog = `Error connecting with ${validLengthKey} and key=secret_val_hash`;
     const redacted = logRedactor.redact(sensitiveLog);
 
-    expect(redacted).not.toContain('sk-12345678');
-    expect(redacted).toContain('[REDACTED:API Key]');
+    expect(redacted).not.toContain('sk-aaaaaaaa');
+    expect(redacted).toContain('[REDACTED:OpenAI Key]');
   });
 
   it('should scrub tokens from authorization headers', () => {
     const authHeader = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
     const redacted = logRedactor.redactObject({ auth: authHeader });
 
-    expect(redacted.auth).toBe('[REDACTED]');
+    expect(redacted.auth).toBe('Bearer [REDACTED:API Key]');
   });
 });

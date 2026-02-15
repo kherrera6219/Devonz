@@ -2,7 +2,7 @@ import { json, type ActionFunctionArgs } from '@remix-run/node';
 import { Octokit } from '@octokit/rest';
 import { z } from 'zod';
 import { createScopedLogger } from '~/utils/logger';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.bug-report');
 

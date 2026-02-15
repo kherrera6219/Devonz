@@ -2,7 +2,7 @@ import { json } from '@remix-run/node';
 import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { createScopedLogger } from '~/utils/logger';
-import { withSecurity } from '~/lib/security';
+import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.git-info');
 
