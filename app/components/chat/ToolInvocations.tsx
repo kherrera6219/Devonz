@@ -25,12 +25,6 @@ import type { ToolCallAnnotation } from '~/types/context';
  * content and MCP server responses, which could be controlled by malicious actors.
  * Sanitization is critical here.
  */
-const SHIKI_PURIFY_CONFIG = {
-  ALLOWED_TAGS: ['pre', 'code', 'span'],
-  ALLOWED_ATTR: ['class', 'style', 'tabindex'],
-  ALLOW_DATA_ATTR: false,
-  ALLOW_ARIA_ATTR: false,
-};
 
 const highlighterOptions = {
   langs: ['json'],
@@ -85,13 +79,9 @@ function JsonCodeBlock({ className, code, theme }: JsonCodeBlockProps) {
 
   return (
     <div
-      className={classNames('text-xs rounded-md overflow-hidden mcp-tool-invocation-code', className)}
+      className={classNames('text-xs rounded-md overflow-hidden mcp-tool-invocation-code p-0 m-0', className)}
       dangerouslySetInnerHTML={{
         __html: sanitizedHtml,
-      }}
-      style={{
-        padding: '0',
-        margin: '0',
       }}
     ></div>
   );
@@ -225,7 +215,7 @@ interface ToolResultsListProps {
 const ToolResultsList = memo(({ toolInvocations, toolCallAnnotations, theme }: ToolResultsListProps) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-      <ul className="list-none space-y-4">
+      <div className="space-y-4">
         {toolInvocations.map((tool, index) => {
           const toolCallState = tool.toolInvocation.state;
 
@@ -244,7 +234,7 @@ const ToolResultsList = memo(({ toolInvocations, toolCallAnnotations, theme }: T
           );
 
           return (
-            <motion.li
+            <motion.div
               key={index}
               variants={toolVariants}
               initial="hidden"
@@ -285,10 +275,10 @@ const ToolResultsList = memo(({ toolInvocations, toolCallAnnotations, theme }: T
                   <JsonCodeBlock className="mb-0" code={JSON.stringify(tool.toolInvocation.result)} theme={theme} />
                 </div>
               </div>
-            </motion.li>
+            </motion.div>
           );
         })}
-      </ul>
+      </div>
     </motion.div>
   );
 });
@@ -361,7 +351,7 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-      <ul className="list-none space-y-4">
+      <div className="space-y-4">
         {toolInvocations.map((tool, index) => {
           const toolCallState = tool.toolInvocation.state;
 
@@ -373,7 +363,7 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
           const annotation = toolCallAnnotations.find((annotation) => annotation.toolCallId === toolCallId);
 
           return (
-            <motion.li
+            <motion.div
               key={index}
               variants={toolVariants}
               initial="hidden"
@@ -427,10 +417,10 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
                   </div>
                 </div>
               </div>
-            </motion.li>
+            </motion.div>
           );
         })}
-      </ul>
+      </div>
     </motion.div>
   );
 });

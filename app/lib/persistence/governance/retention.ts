@@ -1,4 +1,4 @@
-import { deleteById, getAll, openDatabase } from '../db';
+import { deleteById, getAll, openDatabase } from '~/lib/persistence/db';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('RetentionEngine');
@@ -25,6 +25,7 @@ export class RetentionEngine {
     if (!RetentionEngine._instance) {
       RetentionEngine._instance = new RetentionEngine();
     }
+
     return RetentionEngine._instance;
   }
 
@@ -38,7 +39,10 @@ export class RetentionEngine {
    */
   async purgeExpiredRecords(): Promise<number> {
     const db = await openDatabase();
-    if (!db) return 0;
+
+    if (!db) {
+      return 0;
+    }
 
     const chats = await getAll(db);
     const now = Date.now();
@@ -52,6 +56,7 @@ export class RetentionEngine {
       if (chat && chatAge > maxAgeMs) {
         // Check if chat is explicitly protected from deletion if the flag is set
         const metadata = (chat as any).metadata;
+
         if (this._policy.preserveProtected && metadata?.isProtected) {
           logger.info(`Skipping expiry of protected chat: ${chat.id}`);
           continue;

@@ -19,6 +19,7 @@ export class SnapshotIntegrity {
     if (!SnapshotIntegrity._instance) {
       SnapshotIntegrity._instance = new SnapshotIntegrity();
     }
+
     return SnapshotIntegrity._instance;
   }
 
@@ -27,10 +28,7 @@ export class SnapshotIntegrity {
    */
   sign(data: any): string {
     const serialized = JSON.stringify(data);
-    return crypto
-      .createHmac('sha256', INTEGRITY_SECRET)
-      .update(serialized)
-      .digest('hex');
+    return crypto.createHmac('sha256', INTEGRITY_SECRET).update(serialized).digest('hex');
   }
 
   /**
@@ -40,10 +38,7 @@ export class SnapshotIntegrity {
     const expected = this.sign(data);
 
     // Constant-time comparison to prevent timing attacks
-    const isValid = crypto.timingSafeEqual(
-      Buffer.from(expected, 'hex'),
-      Buffer.from(signature, 'hex')
-    );
+    const isValid = crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
 
     if (!isValid) {
       logger.error('Data Integrity Violation: Snapshot signature mismatch!');

@@ -17,6 +17,7 @@ export class ConnectorRegistry {
     if (!ConnectorRegistry._instance) {
       ConnectorRegistry._instance = new ConnectorRegistry();
     }
+
     return ConnectorRegistry._instance;
   }
 
@@ -33,9 +34,11 @@ export class ConnectorRegistry {
    */
   getConnector<T extends BaseConnector>(name: string): T {
     const connector = this._connectors.get(name.toLowerCase());
+
     if (!connector) {
       throw new Error(`Connector '${name}' not found in registry.`);
     }
+
     return connector as T;
   }
 

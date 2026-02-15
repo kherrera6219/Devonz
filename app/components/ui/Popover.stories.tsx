@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import Popover from './Popover';
 import { Button } from './Button';
 
@@ -16,12 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: (args) => (
-    <Popover
-      trigger={<Button variant="outline">Open Popover</Button>}
-      side="bottom"
-      align="center"
-      {...args}
-    >
+    <Popover trigger={<Button variant="outline">Open Popover</Button>} side="bottom" align="center" {...args}>
       <div className="w-64 p-2">
         <h4 className="font-medium mb-2 text-bolt-elements-textPrimary">Popover Title</h4>
         <p className="text-sm text-bolt-elements-textSecondary">

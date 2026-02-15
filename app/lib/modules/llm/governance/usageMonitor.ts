@@ -23,7 +23,7 @@ export class UsageMonitor {
     'gpt-4o-mini': { prompt: 0.15, completion: 0.6 },
     'claude-3-5-sonnet': { prompt: 3.0, completion: 15.0 },
     'claude-3-opus': { prompt: 15.0, completion: 75.0 },
-    'default': { prompt: 1.0, completion: 2.0 },
+    default: { prompt: 1.0, completion: 2.0 },
   };
 
   private constructor() {}
@@ -32,6 +32,7 @@ export class UsageMonitor {
     if (!UsageMonitor._instance) {
       UsageMonitor._instance = new UsageMonitor();
     }
+
     return UsageMonitor._instance;
   }
 
@@ -56,12 +57,17 @@ export class UsageMonitor {
 
       // Update global usage
       const globalCurrent = await this.getGlobalUsage();
-      await redisService.set(globalKey, JSON.stringify({
-        totalTokens: globalCurrent.totalTokens + usage.promptTokens + usage.completionTokens,
-        estimatedCost: globalCurrent.estimatedCost + cost,
-      }));
+      await redisService.set(
+        globalKey,
+        JSON.stringify({
+          totalTokens: globalCurrent.totalTokens + usage.promptTokens + usage.completionTokens,
+          estimatedCost: globalCurrent.estimatedCost + cost,
+        }),
+      );
 
-      logger.info(`Usage recorded for user ${userId}: ${usage.promptTokens + usage.completionTokens} tokens, $${cost.toFixed(4)}`);
+      logger.info(
+        `Usage recorded for user ${userId}: ${usage.promptTokens + usage.completionTokens} tokens, $${cost.toFixed(4)}`,
+      );
     } catch (error) {
       logger.error('Failed to record usage', error);
     }
@@ -89,6 +95,7 @@ export class UsageMonitor {
     const price = this._pricing[modelId.toLowerCase()] || this._pricing.default;
     const promptCost = (usage.promptTokens / 1_000_000) * price.prompt;
     const completionCost = (usage.completionTokens / 1_000_000) * price.completion;
+
     return promptCost + completionCost;
   }
 }

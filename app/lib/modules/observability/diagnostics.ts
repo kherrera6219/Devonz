@@ -17,6 +17,7 @@ export class DiagnosticsService {
     if (!DiagnosticsService._instance) {
       DiagnosticsService._instance = new DiagnosticsService();
     }
+
     return DiagnosticsService._instance;
   }
 
@@ -36,6 +37,7 @@ export class DiagnosticsService {
       },
       metrics: metricsCollector.exportPrometheus(),
       config: this._getSanitizedConfig(),
+
       // In production, we would add log files here
       logs: ['Recent log entries would be collected here...'],
     };
@@ -49,6 +51,7 @@ export class DiagnosticsService {
     return {
       nodeEnv: process.env.NODE_ENV,
       viteDev: !!process.env.VITE_DEV,
+
       // Avoid raw process.env
     };
   }

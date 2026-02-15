@@ -42,6 +42,7 @@ export async function openDatabase(): Promise<IDBDatabase | undefined> {
       if (oldVersion < 3) {
         if (db.objectStoreNames.contains('chats')) {
           const store = request.transaction!.objectStore('chats');
+
           if (!store.indexNames.contains('timestamp')) {
             store.createIndex('timestamp', 'timestamp', { unique: false });
           }
@@ -91,6 +92,7 @@ export async function getAll(
       if (options?.offset && !advanced) {
         advanced = true;
         cursor.advance(options.offset);
+
         return;
       }
 

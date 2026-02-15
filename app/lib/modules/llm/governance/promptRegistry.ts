@@ -33,6 +33,7 @@ export class PromptRegistry {
     if (!PromptRegistry._instance) {
       PromptRegistry._instance = new PromptRegistry();
     }
+
     return PromptRegistry._instance;
   }
 
@@ -69,9 +70,13 @@ export class PromptRegistry {
    */
   getRawTemplate(id: string, version?: string): string {
     const definition = this._registry.get(id);
-    if (!definition) throw new Error(`Prompt '${id}' not found`);
+
+    if (!definition) {
+      throw new Error(`Prompt '${id}' not found`);
+    }
 
     const v = version || definition.currentVersion;
+
     return definition.versions[v].template;
   }
 

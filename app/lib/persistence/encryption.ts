@@ -22,6 +22,7 @@ export class EncryptionService {
     if (!EncryptionService._instance) {
       EncryptionService._instance = new EncryptionService();
     }
+
     return EncryptionService._instance;
   }
 
@@ -31,6 +32,7 @@ export class EncryptionService {
   encrypt(text: string): string {
     try {
       const iv = crypto.randomBytes(IV_LENGTH);
+
       // Ensure key is 32 bytes for AES-256
       const key = crypto.createHash('sha256').update(ENCRYPTION_SECRET).digest();
       const cipher = crypto.createCipheriv(ALGORITHM, key, iv);

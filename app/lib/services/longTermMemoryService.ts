@@ -21,6 +21,7 @@ export class LongTermMemoryService {
     if (!LongTermMemoryService._instance) {
       LongTermMemoryService._instance = new LongTermMemoryService();
     }
+
     return LongTermMemoryService._instance;
   }
 
@@ -75,8 +76,10 @@ ${entry.content}
 `;
 
     try {
-      // Robust append: Read, verify section, append.
-      // For MVP, we just append to the end.
+      /*
+       * Robust append: Read, verify section, append.
+       * For MVP, we just append to the end.
+       */
       await fs.appendFile(filePath, formattedEntry, 'utf-8');
       logger.info(`Added memory entry: [${entry.category}]`);
     } catch (error) {

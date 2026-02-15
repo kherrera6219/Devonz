@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Dialog, DialogButton, DialogDescription, DialogTitle, DialogClose, DialogRoot } from './Dialog';
 import { Button } from './Button';
 import { useState } from 'react';
@@ -28,9 +28,7 @@ export const Default: Story = {
         <Dialog onClose={() => setIsOpen(false)}>
           <div className="p-6 bg-bolt-elements-bg-depth-1">
             <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>
-              Make changes to your profile here. Click save when you're done.
-            </DialogDescription>
+            <DialogDescription>Make changes to your profile here. Click save when you're done.</DialogDescription>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <label htmlFor="name" className="text-right text-sm">

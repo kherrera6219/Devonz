@@ -56,8 +56,11 @@ function ProviderCard({
               )}
             >
               <div
-                className={classNames(iconClass, 'w-5 h-5 transition-all duration-300')}
-                style={{ color: provider.settings.enabled ? '#a855f7' : '#6b7280' }}
+                className={classNames(
+                  iconClass,
+                  'w-5 h-5 transition-all duration-300',
+                  provider.settings.enabled ? 'text-[#a855f7]' : 'text-[#6b7280]',
+                )}
               />
             </div>
             <div className="flex-1 flex flex-col justify-center">

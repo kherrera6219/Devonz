@@ -20,22 +20,23 @@ declare global {
 }
 
 class IPCService {
-  private static instance: IPCService;
+  private static _instance: IPCService;
 
   private constructor() {}
 
-  public static getInstance(): IPCService {
-    if (!IPCService.instance) {
-      IPCService.instance = new IPCService();
+  static getInstance(): IPCService {
+    if (!IPCService._instance) {
+      IPCService._instance = new IPCService();
     }
-    return IPCService.instance;
+
+    return IPCService._instance;
   }
 
   /**
    * Invoke a remote method on the Main process.
    * Returns a Promise.
    */
-  public async invoke<T = any>(channel: string, data?: any): Promise<T> {
+  async invoke<T = any>(channel: string, data?: any): Promise<T> {
     if (!RuntimeConfig.isDesktop || !window.electron) {
       console.warn(`[IPC] 'invoke' called on '${channel}' but not in Desktop mode.`);
       throw new Error('IPC not available in Web mode');
@@ -52,22 +53,24 @@ class IPCService {
   /**
    * Send a one-way message to the Main process.
    */
-  public send(channel: string, data?: any): void {
+  send(channel: string, data?: any): void {
     if (!RuntimeConfig.isDesktop || !window.electron) {
       console.warn(`[IPC] 'send' called on '${channel}' but not in Desktop mode.`);
       return;
     }
+
     window.electron.send(channel, data);
   }
 
   /**
    * Listen for messages from the Main process.
    */
-  public on(channel: string, listener: (...args: any[]) => void): void {
+  on(channel: string, listener: (...args: any[]) => void): void {
     if (!RuntimeConfig.isDesktop || !window.electron) {
-       console.warn(`[IPC] 'on' called on '${channel}' but not in Desktop mode.`);
-       return;
+      console.warn(`[IPC] 'on' called on '${channel}' but not in Desktop mode.`);
+      return;
     }
+
     // Note: A real implementation needs an 'off' method to remove listeners to prevent leaks
     window.electron.receive(channel, listener);
   }

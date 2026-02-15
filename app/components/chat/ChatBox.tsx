@@ -174,19 +174,18 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           aria-label={t('chat.input_label', 'Chat input')}
           onDragEnter={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '2px solid #1488fc';
+            e.currentTarget.classList.add('border-accent-500', 'border-2');
           }}
           onDragOver={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '2px solid #1488fc';
           }}
           onDragLeave={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+            e.currentTarget.classList.remove('border-accent-500', 'border-2');
           }}
           onDrop={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+            e.currentTarget.classList.remove('border-accent-500', 'border-2');
 
             const files = Array.from(e.dataTransfer.files);
             files.forEach((file) => {

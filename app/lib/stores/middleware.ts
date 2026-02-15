@@ -10,9 +10,8 @@ import { RuntimeConfig } from '~/lib/runtime/config';
 export function createAction<T extends any[]>(
   storeName: string,
   actionName: string,
-  action: (...args: T) => void
+  action: (...args: T) => void,
 ): (...args: T) => void {
-
   return (...args: T) => {
     if (RuntimeConfig.isDevelopment) {
       console.groupCollapsed(`[State] ${storeName}/${actionName}`);
@@ -24,6 +23,7 @@ export function createAction<T extends any[]>(
       action(...args);
     } catch (error) {
       console.error(`[State] Error in ${storeName}/${actionName}:`, error);
+
       // Could also report to ErrorReporter here
       throw error;
     }

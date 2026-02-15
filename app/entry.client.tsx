@@ -8,11 +8,10 @@ console.log('[Entry] Client entry point starting...');
 
 if (typeof window !== 'undefined') {
   console.log('[Entry] Window environment detected');
-  // Initialize centralized error reporting
+
+  // Initialized centralized error reporting
   errorReporter.init();
 }
-
-import { logStore } from '~/lib/stores/logs';
 
 startTransition(() => {
   const rootElement = document;

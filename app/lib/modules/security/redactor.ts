@@ -24,6 +24,7 @@ export class LogRedactor {
     if (!LogRedactor._instance) {
       LogRedactor._instance = new LogRedactor();
     }
+
     return LogRedactor._instance;
   }
 
@@ -52,14 +53,16 @@ export class LogRedactor {
     }
 
     if (Array.isArray(obj)) {
-      return obj.map(item => this.redactObject(item));
+      return obj.map((item) => this.redactObject(item));
     }
 
     const result: any = {};
+
     for (const [key, value] of Object.entries(obj)) {
       // Specifically redact common sensitive keys regardless of value pattern
       const sensitiveKeys = ['token', 'password', 'secret', 'key', 'apiKey', 'authorization'];
-      if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk.toLowerCase()))) {
+
+      if (sensitiveKeys.some((sk) => key.toLowerCase().includes(sk.toLowerCase()))) {
         result[key] = '[REDACTED]';
       } else {
         result[key] = this.redactObject(value);

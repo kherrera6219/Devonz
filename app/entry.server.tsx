@@ -8,7 +8,6 @@ import crypto from 'node:crypto';
 import { requestContext } from '~/lib/context.server';
 import { httpRequestDurationMicroseconds } from '~/lib/metrics.server';
 
-
 const ABORT_DELAY = 5_000;
 
 export default async function handleRequest(
@@ -38,7 +37,7 @@ export default async function handleRequest(
 
             const body = new PassThrough();
 
-              responseHeaders.set('Content-Type', 'text/html');
+            responseHeaders.set('Content-Type', 'text/html');
 
             responseHeaders.set('Cross-Origin-Embedder-Policy', 'credentialless');
             responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
@@ -49,8 +48,10 @@ export default async function handleRequest(
             responseHeaders.set('X-Frame-Options', 'DENY');
             responseHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-            // Content Security Policy (CSP)
-            // Managed centrally in app/lib/security.ts
+            /*
+             * Content Security Policy (CSP)
+             * Managed centrally in app/lib/security.ts
+             */
             const securityHeaders = createSecurityHeaders();
             const csp = securityHeaders['Content-Security-Policy'];
 
@@ -67,11 +68,14 @@ export default async function handleRequest(
 
             // Record metrics
             const duration = (Date.now() - startTime) / 1000;
+
             try {
               if (typeof httpRequestDurationMicroseconds !== 'undefined') {
-                httpRequestDurationMicroseconds.labels('GET', new URL(request.url).pathname, String(responseStatusCode)).observe(duration);
+                httpRequestDurationMicroseconds
+                  .labels('GET', new URL(request.url).pathname, String(responseStatusCode))
+                  .observe(duration);
               }
-            } catch (e) {
+            } catch (_e) {
               // Ignore metrics errors
             }
           },
@@ -80,23 +84,25 @@ export default async function handleRequest(
           },
           onError(error: unknown) {
             responseStatusCode = 500;
+
             // Record error metrics
-             try {
-               // Approximate duration for error case
-               const duration = (Date.now() - startTime) / 1000;
+            try {
+              // Approximate duration for error case
+              const duration = (Date.now() - startTime) / 1000;
+
               /*
-          if (httpRequestDurationMicroseconds) {
-            httpRequestDurationMicroseconds.observe(
-              {
-                method: request.method,
-                route: new URL(request.url).pathname,
-                status_code: responseStatusCode,
-              },
-              duration,
-            );
-          }
-          */
-             } catch (e) {}
+               *if (httpRequestDurationMicroseconds) {
+               *  httpRequestDurationMicroseconds.observe(
+               *    {
+               *      method: request.method,
+               *      route: new URL(request.url).pathname,
+               *      status_code: responseStatusCode,
+               *    },
+               *    duration,
+               *  );
+               *}
+               */
+            } catch (_e) {}
 
             if (shellRendered) {
               console.error(error);

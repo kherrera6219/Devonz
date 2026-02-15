@@ -21,7 +21,7 @@ export abstract class OAuthConnector extends BaseConnector {
   protected async authenticatedRequest<T>(
     endpoint: string,
     schema: z.ZodType<T>,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ): Promise<T> {
     if (!this._token) {
       throw new Error(`Authentication required for ${this.name} connector.`);
@@ -32,7 +32,7 @@ export abstract class OAuthConnector extends BaseConnector {
       headers: {
         ...options.headers,
         Authorization: `Bearer ${this._token}`,
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     };
 

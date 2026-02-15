@@ -1,4 +1,5 @@
 import { createScopedLogger } from '~/utils/logger';
+
 // import { db } from '~/lib/persistence/postgres'; // Placeholder for production DB
 
 const logger = createScopedLogger('AuditTrail');
@@ -34,6 +35,7 @@ export class MetadataAuditTrail {
     if (!MetadataAuditTrail._instance) {
       MetadataAuditTrail._instance = new MetadataAuditTrail();
     }
+
     return MetadataAuditTrail._instance;
   }
 
@@ -42,13 +44,19 @@ export class MetadataAuditTrail {
    */
   async logInteraction(entry: AuditEntry) {
     try {
-      // In production, this would write to a database like PostgreSQL
-      // await db.insert('ai_audit_trail').values(entry);
+      /*
+       * In production, this would write to a database like PostgreSQL
+       * await db.insert('ai_audit_trail').values(entry);
+       */
 
-      logger.info(`Audit Log: [${entry.model}] ${entry.tokens.total} tokens ($${entry.cost.toFixed(4)}) - Status: ${entry.status}`);
+      logger.info(
+        `Audit Log: [${entry.model}] ${entry.tokens.total} tokens ($${entry.cost.toFixed(4)}) - Status: ${entry.status}`,
+      );
 
-      // For now, we'll also log to a dedicated internal log if needed
-      // but the main goal is preparing the persistence hook.
+      /*
+       * For now, we'll also log to a dedicated internal log if needed
+       * but the main goal is preparing the persistence hook.
+       */
     } catch (error) {
       logger.error('Failed to write to audit trail', error);
     }

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Badge } from './Badge';
 
 const meta = {
@@ -11,7 +11,18 @@ const meta = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'secondary', 'destructive', 'outline', 'primary', 'success', 'warning', 'danger', 'info', 'subtle'],
+      options: [
+        'default',
+        'secondary',
+        'destructive',
+        'outline',
+        'primary',
+        'success',
+        'warning',
+        'danger',
+        'info',
+        'subtle',
+      ],
     },
     size: {
       control: 'select',

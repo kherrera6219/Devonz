@@ -1,6 +1,6 @@
 import { useStore } from '@nanostores/react';
 import type { LinksFunction } from '@remix-run/node';
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteError, isRouteErrorResponse } from '@remix-run/react';
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
 import { stripIndents } from './utils/stripIndent';
@@ -28,15 +28,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
   let csrfToken: string | undefined;
 
   if (cookieHeader) {
-     const cookies = cookieHeader.split(';').reduce((acc, c) => {
-       const [key, value] = c.trim().split('=');
-       if (key) acc[key] = value;
-       return acc;
-     }, {} as Record<string, string>);
-     csrfToken = cookies['csrf_token'];
+    const cookies = cookieHeader.split(';').reduce((acc: Record<string, string>, c: string) => {
+      const [key, value] = c.trim().split('=');
+
+      if (key) {
+        acc[key] = value;
+      }
+
+      return acc;
+    }, {});
+    csrfToken = cookies['csrf_token'];
   }
 
   const newSession = !csrfToken;
+
   if (newSession) {
     const { generateCsrfToken } = await import('~/lib/csrf.server');
     csrfToken = generateCsrfToken();
@@ -47,13 +52,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
       csrfToken,
       ENV: {
         CSRF_TOKEN: csrfToken,
-      }
+      },
     },
     {
-      headers: newSession ? {
-        'Set-Cookie': `csrf_token=${csrfToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000`,
-      } : undefined,
-    }
+      headers: newSession
+        ? {
+            'Set-Cookie': `csrf_token=${csrfToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000`,
+          }
+        : undefined,
+    },
   );
 }
 

@@ -59,7 +59,6 @@ export default defineConfig((config) => {
           Buffer: true,
           process: true,
           global: true,
-          path: true,
         },
         protocolImports: true,
         exclude: ['child_process', 'fs', 'stream'],

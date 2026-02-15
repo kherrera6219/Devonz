@@ -17,6 +17,7 @@ export class CrashReporter {
     if (!CrashReporter._instance) {
       CrashReporter._instance = new CrashReporter();
     }
+
     return CrashReporter._instance;
   }
 
@@ -48,9 +49,9 @@ export class CrashReporter {
    */
   init() {
     if (typeof window !== 'undefined') {
-       window.addEventListener('error', (event) => {
-         this.reportCrash(event.error || new Error(event.message));
-       });
+      window.addEventListener('error', (event) => {
+        this.reportCrash(event.error || new Error(event.message));
+      });
     }
   }
 }

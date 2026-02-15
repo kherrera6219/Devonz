@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Switch } from './Switch';
 import { Label } from './Label';
 import { useState } from 'react';
@@ -20,7 +20,7 @@ export const Default: Story = {
     const [checked, setChecked] = useState(false);
     return (
       <div className="flex items-center space-x-2">
-        <Switch id="airplane-mode" checked={checked} onCheckedChange={setChecked} {...args} />
+        <Switch className="mx-auto" checked={checked} onCheckedChange={setChecked} {...args} />
         <Label htmlFor="airplane-mode">Airplane Mode</Label>
       </div>
     );
@@ -30,7 +30,7 @@ export const Default: Story = {
 export const Checked: Story = {
   render: (args) => (
     <div className="flex items-center space-x-2">
-      <Switch id="checked-mode" checked={true} {...args} />
+      <Switch checked={true} {...args} />
       <Label htmlFor="checked-mode">Always On</Label>
     </div>
   ),

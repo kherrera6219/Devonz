@@ -1,5 +1,5 @@
 import { createScopedLogger } from '~/utils/logger';
-import { schemaParityService } from '../parity';
+import { schemaParityService } from '~/lib/persistence/parity';
 
 const logger = createScopedLogger('MigrationGovernance');
 
@@ -25,6 +25,7 @@ export class MigrationGovernanceSystem {
     if (!MigrationGovernanceSystem._instance) {
       MigrationGovernanceSystem._instance = new MigrationGovernanceSystem();
     }
+
     return MigrationGovernanceSystem._instance;
   }
 
@@ -41,6 +42,7 @@ export class MigrationGovernanceSystem {
    */
   async preFlightCheck(tableName: string, sampleData: any[]): Promise<boolean> {
     logger.info(`Performing pre-flight check for table: ${tableName}`);
+
     const { valid, errors } = schemaParityService.validateRecord(tableName, sampleData[0]);
 
     if (!valid) {
@@ -49,6 +51,7 @@ export class MigrationGovernanceSystem {
     }
 
     logger.info(`Pre-flight check passed for ${tableName}`);
+
     return true;
   }
 
@@ -56,21 +59,27 @@ export class MigrationGovernanceSystem {
    * Mock implementation of applying a migration.
    */
   async applyMigration(migrationId: string): Promise<boolean> {
-    const migration = this._migrations.find(m => m.id === migrationId);
-    if (!migration) throw new Error(`Migration ${migrationId} not found`);
+    const migration = this._migrations.find((m) => m.id === migrationId);
+
+    if (!migration) {
+      throw new Error(`Migration ${migrationId} not found`);
+    }
 
     logger.info(`Applying migration: ${migration.id}...`);
 
-    // In a real implementation, this would execute SQL against Postgres or SQLite
-    // await db.execute(migration.sql);
+    /*
+     * In a real implementation, this would execute SQL against Postgres or SQLite
+     * await db.execute(migration.sql);
+     */
 
     migration.applied = true;
     logger.info(`Migration ${migration.id} applied successfully.`);
+
     return true;
   }
 
   getPendingMigrations(): Migration[] {
-    return this._migrations.filter(m => !m.applied);
+    return this._migrations.filter((m) => !m.applied);
   }
 }
 

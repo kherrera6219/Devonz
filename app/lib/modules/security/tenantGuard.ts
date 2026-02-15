@@ -15,6 +15,7 @@ export class TenantGuard {
     if (!TenantGuard._instance) {
       TenantGuard._instance = new TenantGuard();
     }
+
     return TenantGuard._instance;
   }
 
@@ -34,7 +35,7 @@ export class TenantGuard {
    * Wraps a query to automatically filter by tenantId.
    */
   enforceIsolation<T>(tenantId: string, items: T[], tenantIdKey: keyof T = 'tenantId' as any): T[] {
-    return items.filter(item => item[tenantIdKey] === tenantId);
+    return items.filter((item) => item[tenantIdKey] === tenantId);
   }
 }
 

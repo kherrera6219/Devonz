@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ChatBox } from './ChatBox';
-import { createRemixStub } from '@remix-run/testing';
+// import { createRemixStub } from '@remix-run/testing';
 
 const meta = {
   title: 'Features/ChatBox',
@@ -9,6 +9,22 @@ const meta = {
     layout: 'padded',
   },
   tags: ['autodocs'],
+  argTypes: {
+    isStreaming: { control: 'boolean' },
+    input: { control: 'text' },
+  },
+} satisfies Meta<typeof ChatBox>;
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+/*
+export const Default: Story = {
+  args: {
+    isStreaming: false,
+    input: '',
+    messages: [],
+  },
   decorators: [
     (Story) => {
       const RemixStub = createRemixStub([
@@ -20,17 +36,13 @@ const meta = {
       return <RemixStub />;
     },
   ],
-} satisfies Meta<typeof ChatBox>;
-
-export default meta;
-type Story = StoryObj<typeof meta>;
-
-const defaultProps = {
-  isModelSettingsCollapsed: false,
   setIsModelSettingsCollapsed: () => {},
   provider: { name: 'OpenAI', staticModels: [], getApiKeyLink: 'https://platform.openai.com/account/api-keys' },
-  providerList: [{ name: 'OpenAI', staticModels: [], getApiKeyLink: '' }, { name: 'Anthropic', staticModels: [], getApiKeyLink: '' }],
-  modelList: [{ name: 'gpt-4o', label: 'GPT-4o', provider: 'OpenAI' }],
+  providerList: [
+    { name: 'OpenAI', staticModels: [], getApiKeyLink: '' },
+    { name: 'Anthropic', staticModels: [], getApiKeyLink: '' },
+  ],
+  modelList: [{ name: 'gpt-4o', label: 'GPT-4o', provider: 'OpenAI', maxTokenAllowed: 8192 }],
   apiKeys: {},
   isModelLoading: undefined,
   onApiKeysChange: () => {},
@@ -42,7 +54,10 @@ const defaultProps = {
   TEXTAREA_MIN_HEIGHT: 76,
   TEXTAREA_MAX_HEIGHT: 200,
   isStreaming: false,
-  handleSendMessage: (e) => { e?.preventDefault(); alert('Send Message'); },
+  handleSendMessage: (e: React.FormEvent | React.KeyboardEvent) => {
+    e?.preventDefault();
+    alert('Send Message');
+  },
   isListening: false,
   startListening: () => {},
   stopListening: () => {},

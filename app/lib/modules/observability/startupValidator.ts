@@ -16,6 +16,7 @@ export class StartupValidator {
     if (!StartupValidator._instance) {
       StartupValidator._instance = new StartupValidator();
     }
+
     return StartupValidator._instance;
   }
 
@@ -28,6 +29,7 @@ export class StartupValidator {
     const checks = [
       { name: 'Redis', check: () => redisService.isConnected },
       { name: 'Environment', check: () => !!process.env.APP_SECRET },
+
       // Add more checks (DB, LLM API, etc.)
     ];
 
@@ -36,6 +38,7 @@ export class StartupValidator {
     for (const { name, check } of checks) {
       try {
         const passed = await check();
+
         if (passed) {
           logger.info(`Startup Check: ${name} [PASS]`);
         } else {

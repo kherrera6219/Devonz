@@ -23,6 +23,7 @@ export class MetricsCollector {
     if (!MetricsCollector._instance) {
       MetricsCollector._instance = new MetricsCollector();
     }
+
     return MetricsCollector._instance;
   }
 
@@ -77,11 +78,18 @@ export class MetricsCollector {
   }
 
   private _groupMetrics(): Record<string, MetricEntry[]> {
-    return this._metrics.reduce((acc, entry) => {
-      if (!acc[entry.name]) acc[entry.name] = [];
-      acc[entry.name].push(entry);
-      return acc;
-    }, {} as Record<string, MetricEntry[]>);
+    return this._metrics.reduce(
+      (acc, entry) => {
+        if (!acc[entry.name]) {
+          acc[entry.name] = [];
+        }
+
+        acc[entry.name].push(entry);
+
+        return acc;
+      },
+      {} as Record<string, MetricEntry[]>,
+    );
   }
 }
 

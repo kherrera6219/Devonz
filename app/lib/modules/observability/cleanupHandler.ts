@@ -18,6 +18,7 @@ export class CleanupHandler {
     if (!CleanupHandler._instance) {
       CleanupHandler._instance = new CleanupHandler();
     }
+
     return CleanupHandler._instance;
   }
 
@@ -30,12 +31,16 @@ export class CleanupHandler {
 
     try {
       if (process.platform === 'win32') {
-        // Example: Kill any stray node processes that don't belong to this tree
-        // Note: Be very careful with taskkill in production
-        // const { stdout } = await execAsync('tasklist /FI "IMAGENAME eq node.exe" /FO CSV');
+        /*
+         * Example: Kill any stray node processes that don't belong to this tree
+         * Note: Be very careful with taskkill in production
+         * const { stdout } = await execAsync('tasklist /FI "IMAGENAME eq node.exe" /FO CSV');
+         */
       } else {
-        // Unix based cleanup
-        // await execAsync("pkill -u $(whoami) -f 'node.*bolt.diy'");
+        /*
+         * Unix based cleanup
+         * await execAsync("pkill -u $(whoami) -f 'node.*bolt.diy'");
+         */
       }
 
       logger.info('Cleanup scan completed.');

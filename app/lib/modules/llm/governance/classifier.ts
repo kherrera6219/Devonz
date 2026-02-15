@@ -2,7 +2,13 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('OutputClassifier');
 
-export type AIOutputClass = 'CODE_CHANGE' | 'RESEARCH_REPORT' | 'SECURITY_ADVISORY' | 'UX_GUIDANCE' | 'SYSTEM_ERROR' | 'GENERAL_CHAT';
+export type AIOutputClass =
+  | 'CODE_CHANGE'
+  | 'RESEARCH_REPORT'
+  | 'SECURITY_ADVISORY'
+  | 'UX_GUIDANCE'
+  | 'SYSTEM_ERROR'
+  | 'GENERAL_CHAT';
 
 /**
  * AI Governance: Output Classification System
@@ -17,6 +23,7 @@ export class OutputClassifier {
     if (!OutputClassifier._instance) {
       OutputClassifier._instance = new OutputClassifier();
     }
+
     return OutputClassifier._instance;
   }
 
@@ -34,7 +41,11 @@ export class OutputClassifier {
       return 'SECURITY_ADVISORY';
     }
 
-    if (snippet.includes('research find') || snippet.includes('technical report') || snippet.includes('documentation summary')) {
+    if (
+      snippet.includes('research find') ||
+      snippet.includes('technical report') ||
+      snippet.includes('documentation summary')
+    ) {
       return 'RESEARCH_REPORT';
     }
 

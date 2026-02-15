@@ -103,6 +103,7 @@ export const ResizeHandle = memo(
           if (disabled) {
             return;
           }
+
           if (e.key === 'ArrowLeft') {
             e.preventDefault();
             onResize(-10);

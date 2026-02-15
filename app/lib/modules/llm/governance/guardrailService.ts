@@ -32,6 +32,7 @@ export class GuardrailService {
     if (!GuardrailService._instance) {
       GuardrailService._instance = new GuardrailService();
     }
+
     return GuardrailService._instance;
   }
 

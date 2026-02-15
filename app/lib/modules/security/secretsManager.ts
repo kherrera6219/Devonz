@@ -16,6 +16,7 @@ export class SecretsManager {
     if (!SecretsManager._instance) {
       SecretsManager._instance = new SecretsManager();
     }
+
     return SecretsManager._instance;
   }
 
@@ -31,9 +32,11 @@ export class SecretsManager {
     // Platform-specific secure storage integration
     if (process.env.LOCAL_MODE === 'true') {
       try {
-        // In a real desktop environment, we would use a native module:
-        // const keytar = await import('keytar');
-        // await keytar.setPassword('Devonz', key, value);
+        /*
+         * In a real desktop environment, we would use a native module:
+         * const keytar = await import('keytar');
+         * await keytar.setPassword('Devonz', key, value);
+         */
 
         logger.info(`[Desktop] Secret ${key} successfully stored in native vault proxy.`);
       } catch (error) {
@@ -50,7 +53,9 @@ export class SecretsManager {
   async getSecret(key: string): Promise<string | null> {
     const encrypted = localStorage.getItem(`secret:${key}`);
 
-    if (!encrypted) return null;
+    if (!encrypted) {
+      return null;
+    }
 
     try {
       return encryptionService.decrypt(encrypted);

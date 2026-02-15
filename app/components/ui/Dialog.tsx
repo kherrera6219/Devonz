@@ -336,16 +336,12 @@ export function SelectionDialog({
       <div
         key={item.id}
         className={classNames(
-          'flex items-start space-x-3 p-2 rounded-md transition-colors',
+          'flex items-start space-x-3 p-2 rounded-md transition-colors w-full box-border',
           selectedItems.includes(item.id)
             ? 'bg-bolt-elements-item-backgroundAccent'
             : 'bg-bolt-elements-bg-depth-2 hover:bg-bolt-elements-item-backgroundActive',
         )}
-        style={{
-          ...style,
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
+        style={style}
       >
         <Checkbox
           id={`item-${item.id}`}
@@ -399,7 +395,7 @@ export function SelectionDialog({
             <div
               className="pr-2 border rounded-md border-bolt-elements-borderColor bg-bolt-elements-bg-depth-2"
               style={{
-                maxHeight,
+                maxHeight: maxHeight || '400px',
               }}
             >
               {items.length > 0 ? (

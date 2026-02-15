@@ -11,10 +11,12 @@ export interface SanitizeOptions {
    * Allow specific tags that are usually blocked
    */
   ADD_TAGS?: string[];
+
   /**
    * Allow specific attributes
    */
   ADD_ATTR?: string[];
+
   /**
    * Return a trusted HTML type (if configured) or string
    */
@@ -37,11 +39,13 @@ export const SHIKI_CONFIG: any = {
 
 export function sanitizeHTML(dirty: string, options: any = DEFAULT_CONFIG): string {
   if (RuntimeConfig.isServer) {
-    // DOMPurify requires a window/JSDOM.
-    // If strict server-side sanitization is needed, we'd need 'isomorphic-dompurify'.
-    // For now, we return as-is or use a simple strip if strictly required,
-    // but usually this runs on client (Markdown rendering, etc).
-    // WARN: Returning dirty content on server if not handled carefully.
+    /*
+     * DOMPurify requires a window/JSDOM.
+     * If strict server-side sanitization is needed, we'd need 'isomorphic-dompurify'.
+     * For now, we return as-is or use a simple strip if strictly required,
+     * but usually this runs on client (Markdown rendering, etc).
+     * WARN: Returning dirty content on server if not handled carefully.
+     */
     return dirty;
   }
 
@@ -53,5 +57,5 @@ export const sanitizer = {
   config: {
     DEFAULT: DEFAULT_CONFIG,
     SHIKI: SHIKI_CONFIG,
-  }
+  },
 };

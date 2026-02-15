@@ -1,0 +1,562 @@
+
+> devonz@1.0.0 lint C:\software\Devonz
+> eslint --cache --cache-location ./node_modules/.cache/eslint app
+
+
+C:\software\Devonz\app\components\chat\ChatBox.stories.tsx
+   1:1   error    Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)                                       storybook/no-renderer-packages
+  13:6   error    Parameter name `Story` must match one of the following formats: camelCase                                                                                                                                                                                              @typescript-eslint/naming-convention
+  30:38  warning  Unexpected empty method 'setIsModelSettingsCollapsed'                                                                                                                                                                                                                  @typescript-eslint/no-empty-function
+  32:18  error    Replace `{┬╖name:┬╖'OpenAI',┬╖staticModels:┬╖[],┬╖getApiKeyLink:┬╖''┬╖},┬╖{┬╖name:┬╖'Anthropic',┬╖staticModels:┬╖[],┬╖getApiKeyLink:┬╖''┬╖}` with `ΓÅÄ┬╖┬╖┬╖┬╖{┬╖name:┬╖'OpenAI',┬╖staticModels:┬╖[],┬╖getApiKeyLink:┬╖''┬╖},ΓÅÄ┬╖┬╖┬╖┬╖{┬╖name:┬╖'Anthropic',┬╖staticModels:┬╖[],┬╖getApiKeyLink:┬╖''┬╖},ΓÅÄ┬╖┬╖`  prettier/prettier
+  36:26  warning  Unexpected empty method 'onApiKeysChange'                                                                                                                                                                                                                              @typescript-eslint/no-empty-function
+  41:22  warning  Unexpected empty method 'handlePaste'                                                                                                                                                                                                                                  @typescript-eslint/no-empty-function
+  45:30  error    Replace `┬╖e?.preventDefault();┬╖alert('Send┬╖Message');` with `ΓÅÄ┬╖┬╖┬╖┬╖e?.preventDefault();ΓÅÄ┬╖┬╖┬╖┬╖alert('Send┬╖Message');ΓÅÄ┬╖`                                                                                                                                                   prettier/prettier
+  47:25  warning  Unexpected empty method 'startListening'                                                                                                                                                                                                                               @typescript-eslint/no-empty-function
+  48:24  warning  Unexpected empty method 'stopListening'                                                                                                                                                                                                                                @typescript-eslint/no-empty-function
+  51:25  warning  Unexpected empty method 'setQrModalOpen'                                                                                                                                                                                                                               @typescript-eslint/no-empty-function
+  52:27  warning  Unexpected empty method 'handleFileUpload'                                                                                                                                                                                                                             @typescript-eslint/no-empty-function
+  53:28  warning  Unexpected empty method 'handleInputChange'                                                                                                                                                                                                                            @typescript-eslint/no-empty-function
+  54:27  warning  Unexpected empty method 'setUploadedFiles'                                                                                                                                                                                                                             @typescript-eslint/no-empty-function
+  55:27  warning  Unexpected empty method 'setImageDataList'                                                                                                                                                                                                                             @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\components\chat\ToolInvocations.tsx
+  28:7  error  'SHIKI_PURIFY_CONFIG' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\errors\RouteErrorBoundary.tsx
+  11:9   error  'navigation' is assigned a value but never used                                                                                                                        @typescript-eslint/no-unused-vars
+  48:81  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖{details}ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `{details}`                                                                                                               prettier/prettier
+  55:96  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖{technicalDetails}ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `{technicalDetails}`                                                                                         prettier/prettier
+  62:16  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖variant="secondary"ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖onClick={()┬╖=>┬╖navigate(-1)}ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖variant="secondary"┬╖onClick={()┬╖=>┬╖navigate(-1)}`                      prettier/prettier
+  68:16  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖variant="primary"ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖onClick={()┬╖=>┬╖window.location.reload()}ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖variant="primary"┬╖onClick={()┬╖=>┬╖window.location.reload()}`  prettier/prettier
+
+C:\software\Devonz\app\components\header\Header.stories.tsx
+   1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+  15:6  error  Parameter name `Story` must match one of the following formats: camelCase                                                                                                                                                         @typescript-eslint/naming-convention
+  36:5  error  Expected newline before return statement                                                                                                                                                                                          @blitz/newline-before-return
+  44:5  error  Expected newline before return statement                                                                                                                                                                                          @blitz/newline-before-return
+  52:5  error  Expected newline before return statement                                                                                                                                                                                          @blitz/newline-before-return
+
+C:\software\Devonz\app\components\header\HeaderActionButtons.client.stories.tsx
+   1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+  13:6  error  Parameter name `Story` must match one of the following formats: camelCase                                                                                                                                                         @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\components\sidebar\HistoryItem.stories.tsx
+   1:1   error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+  13:6   error  Parameter name `Story` must match one of the following formats: camelCase                                                                                                                                                         @typescript-eslint/naming-convention
+  44:16  error  'e' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                               @typescript-eslint/no-unused-vars
+  51:6   error  Parameter name `Story` must match one of the following formats: camelCase                                                                                                                                                         @typescript-eslint/naming-convention
+  64:16  error  'e' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                               @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\ui\Badge.stories.tsx
+   1:1   error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)                                                                                                       storybook/no-renderer-packages
+  14:17  error  Replace `'default',┬╖'secondary',┬╖'destructive',┬╖'outline',┬╖'primary',┬╖'success',┬╖'warning',┬╖'danger',┬╖'info',┬╖'subtle'` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'default',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'secondary',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'destructive',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'outline',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'primary',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'success',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'warning',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'danger',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'info',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'subtle',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+
+C:\software\Devonz\app\components\ui\Button.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Card.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Checkbox.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\CodeBlock.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Dialog.stories.tsx
+   1:1   error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+   2:64  error  'DialogClose' is defined but never used                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  31:32  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖Make┬╖changes┬╖to┬╖your┬╖profile┬╖here.┬╖Click┬╖save┬╖when┬╖you're┬╖done.ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `Make┬╖changes┬╖to┬╖your┬╖profile┬╖here.┬╖Click┬╖save┬╖when┬╖you're┬╖done.`                                                      prettier/prettier
+
+C:\software\Devonz\app\components\ui\Dropdown.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Input.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Popover.stories.tsx
+   1:1   error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)                   storybook/no-renderer-packages
+  19:13  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖trigger={<Button┬╖variant="outline">Open┬╖Popover</Button>}ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖side="bottom"ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖align="center"ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖{...args}ΓÅÄ┬╖┬╖┬╖┬╖` with `┬╖trigger={<Button┬╖variant="outline">Open┬╖Popover</Button>}┬╖side="bottom"┬╖align="center"┬╖{...args}`  prettier/prettier
+
+C:\software\Devonz\app\components\ui\Progress.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\ResizeHandle.tsx
+  106:11  error  Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\components\ui\ScrollArea.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Separator.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Slider.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Switch.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Tabs.stories.tsx
+   1:1   error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+  26:67  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖Make┬╖changes┬╖to┬╖your┬╖account┬╖here.ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `Make┬╖changes┬╖to┬╖your┬╖account┬╖here.`                                                                                                                    prettier/prettier
+  34:67  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖Change┬╖your┬╖password┬╖here.ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `Change┬╖your┬╖password┬╖here.`                                                                                                                                    prettier/prettier
+
+C:\software\Devonz\app\components\ui\ThemeSwitch.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\Tooltip.stories.tsx
+  1:1  error  Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+
+C:\software\Devonz\app\components\ui\__tests__\Button.test.tsx
+   2:1   error  '../Button' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  20:13  error  Insert `,`                                                                                                                prettier/prettier
+
+C:\software\Devonz\app\entry.client.tsx
+  11:3   error  Expected line before comment          @blitz/lines-around-comment
+  15:10  error  'logStore' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\entry.server.tsx
+  11:1   error  Delete `ΓÅÄ`                                                                                                                                                                                                  prettier/prettier
+  41:1   error  Delete `┬╖┬╖`                                                                                                                                                                                                 prettier/prettier
+  52:13  error  Expected a block comment instead of consecutive line comments                                                                                                                                               multiline-comment-style
+  70:13  error  Expected blank line before this statement                                                                                                                                                                   padding-line-between-statements
+  72:48  error  Replace `.labels('GET',┬╖new┬╖URL(request.url).pathname,┬╖String(responseStatusCode))` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖.labels('GET',┬╖new┬╖URL(request.url).pathname,┬╖String(responseStatusCode))ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+  74:22  error  'e' is defined but never used                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  83:13  error  Expected line before comment                                                                                                                                                                                @blitz/lines-around-comment
+  84:13  error  Delete `┬╖`                                                                                                                                                                                                  prettier/prettier
+  84:14  error  Expected blank line before this statement                                                                                                                                                                   padding-line-between-statements
+  85:1   error  Delete `┬╖`                                                                                                                                                                                                  prettier/prettier
+  86:1   error  Delete `┬╖`                                                                                                                                                                                                  prettier/prettier
+  86:22  error  'duration' is assigned a value but never used                                                                                                                                                               @typescript-eslint/no-unused-vars
+  87:15  error  Expected line before comment                                                                                                                                                                                @blitz/lines-around-comment
+  88:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  89:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  90:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  91:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  92:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  93:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  94:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  95:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  96:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  97:1   error  Expected a '*' at the start of this line                                                                                                                                                                    multiline-comment-style
+  98:1   error  Expected this line to be aligned with the start of the comment                                                                                                                                              multiline-comment-style
+  99:1   error  Delete `┬╖`                                                                                                                                                                                                  prettier/prettier
+  99:23  error  'e' is defined but never used                                                                                                                                                                               @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\api\ipc.ts
+  23:18  error    Class Property name `instance` must have one leading underscore(s)  @typescript-eslint/naming-convention
+  25:25  warning  Unexpected empty constructor                                        @typescript-eslint/no-empty-function
+  27:3   error    Public accessibility modifier on method definition getInstance      @typescript-eslint/explicit-member-accessibility
+  31:5   error    Expected blank line before this statement                           padding-line-between-statements
+  38:3   error    Public accessibility modifier on method definition invoke           @typescript-eslint/explicit-member-accessibility
+  55:3   error    Public accessibility modifier on method definition send             @typescript-eslint/explicit-member-accessibility
+  60:5   error    Expected blank line before this statement                           padding-line-between-statements
+  66:3   error    Public accessibility modifier on method definition on               @typescript-eslint/explicit-member-accessibility
+  68:7   error    Delete `┬╖`                                                          prettier/prettier
+  69:1   error    Delete `┬╖`                                                          prettier/prettier
+  71:5   error    Expected line before comment                                        @blitz/lines-around-comment
+  72:5   error    Expected blank line before this statement                           padding-line-between-statements
+
+C:\software\Devonz\app\lib\csrf.server.ts
+  14:22  error  Expected { after 'if' condition                                                                                                                     curly
+  17:25  error  Expected { after 'if' condition                                                                                                                     curly
+  22:16  error  Expected { after 'if' condition                                                                                                                     curly
+  23:7   error  Expected blank line before this statement                                                                                                           padding-line-between-statements
+  23:7   error  Expected newline before return statement                                                                                                            @blitz/newline-before-return
+  28:35  error  ["csrf_token"] is better written in dot notation                                                                                                    dot-notation
+  35:33  error  Replace `ΓÅÄ┬╖┬╖┬╖┬╖Buffer.from(tokenFromCookie),ΓÅÄ┬╖┬╖┬╖┬╖Buffer.from(tokenFromHeader)ΓÅÄ┬╖┬╖` with `Buffer.from(tokenFromCookie),┬╖Buffer.from(tokenFromHeader)`  prettier/prettier
+
+C:\software\Devonz\app\lib\metrics.server.ts
+  14:10  error    'e' is defined but never used                                                       @typescript-eslint/no-unused-vars
+  18:26  warning  Unexpected empty method 'setDefaultLabels'                                          @typescript-eslint/no-empty-function
+  21:17  error    Replace `┬╖return┬╖{┬╖observe()┬╖{}┬╖};` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖return┬╖{┬╖observe()┬╖{}┬╖};ΓÅÄ┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+  21:37  warning  Unexpected empty method 'observe'                                                   @typescript-eslint/no-empty-function
+  24:17  error    Replace `┬╖return┬╖{┬╖inc()┬╖{}┬╖};` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖return┬╖{┬╖inc()┬╖{}┬╖};ΓÅÄ┬╖┬╖┬╖┬╖┬╖`          prettier/prettier
+  24:33  warning  Unexpected empty method 'inc'                                                       @typescript-eslint/no-empty-function
+  26:29  warning  Unexpected empty method 'collectDefaultMetrics'                                     @typescript-eslint/no-empty-function
+  41:10  error    'e' is defined but never used                                                       @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\__tests__\parity.test.ts
+   6:5  error  Expected blank line before this statement  padding-line-between-statements
+  10:5  error  Expected blank line before this statement  padding-line-between-statements
+  18:5  error  Expected blank line before this statement  padding-line-between-statements
+  24:5  error  Expected blank line before this statement  padding-line-between-statements
+  32:5  error  Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\__tests__\security.test.ts
+   2:1  error  '../connectors/ssrfGuard' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+   3:1  error  '../security/redactor' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead     no-restricted-imports
+   8:5  error  Expected blank line before this statement                                                                                               padding-line-between-statements
+  16:5  error  Expected blank line before this statement                                                                                               padding-line-between-statements
+  24:5  error  Expected blank line before this statement                                                                                               padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\connectors\baseConnector.ts
+  25:42  error  Insert `,`                                 prettier/prettier
+  32:7   error  Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\connectors\connectorRegistry.ts
+  14:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  20:5   error    Expected blank line before this statement  padding-line-between-statements
+  36:5   error    Expected blank line before this statement  padding-line-between-statements
+  39:5   error    Expected blank line before this statement  padding-line-between-statements
+  39:5   error    Expected newline before return statement   @blitz/newline-before-return
+
+C:\software\Devonz\app\lib\modules\connectors\fileSanitizer.ts
+  13:25  warning  Unexpected empty constructor                                                                                                                                                                                                                       @typescript-eslint/no-empty-function
+  19:5   error    Expected blank line before this statement                                                                                                                                                                                                          padding-line-between-statements
+  30:20  error    Replace ``Security┬╖Violation:┬╖Path┬╖traversal┬╖attempt┬╖detected!┬╖Root:┬╖${absoluteRoot},┬╖Target:┬╖${absoluteTarget}`` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`Security┬╖Violation:┬╖Path┬╖traversal┬╖attempt┬╖detected!┬╖Root:┬╖${absoluteRoot},┬╖Target:┬╖${absoluteTarget}`,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+
+C:\software\Devonz\app\lib\modules\connectors\oauthConnector.ts
+  24:30  error  Insert `,`                        prettier/prettier
+  35:9   error  Replace `'Accept'` with `Accept`  prettier/prettier
+
+C:\software\Devonz\app\lib\modules\connectors\ssrfGuard.ts
+  15:15  error    Delete `┬╖┬╖┬╖┬╖┬╖┬╖`                                                prettier/prettier
+  16:14  error    Delete `┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                               prettier/prettier
+  18:20  error    Delete `┬╖`                                                     prettier/prettier
+  19:20  error    Delete `┬╖`                                                     prettier/prettier
+  20:14  error    Delete `┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                               prettier/prettier
+  21:15  error    Delete `┬╖┬╖┬╖┬╖┬╖┬╖`                                                prettier/prettier
+  22:14  error    Delete `┬╖┬╖┬╖┬╖┬╖┬╖`                                                prettier/prettier
+  25:25  warning  Unexpected empty constructor                                   @typescript-eslint/no-empty-function
+  31:5   error    Expected blank line before this statement                      padding-line-between-statements
+  53:7   error    Expected blank line before this statement                      padding-line-between-statements
+  53:27  error    Replace `name` with `(name)`                                   prettier/prettier
+  54:1   error    Delete `┬╖┬╖`                                                    prettier/prettier
+  55:1   error    Replace `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                           prettier/prettier
+  55:11  error    Expected a block comment instead of consecutive line comments  multiline-comment-style
+  55:11  error    Expected line before comment                                   @blitz/lines-around-comment
+  56:9   error    Delete `┬╖┬╖`                                                    prettier/prettier
+  57:1   error    Delete `┬╖┬╖`                                                    prettier/prettier
+  57:55  error    Expected { after 'if' condition                                curly
+  68:37  error    Replace `pattern` with `(pattern)`                             prettier/prettier
+
+C:\software\Devonz\app\lib\modules\features\FeatureContext.tsx
+  23:7   error  Expected blank line before this statement  padding-line-between-statements
+  25:9   error  Expected line before comment               @blitz/lines-around-comment
+  33:11  error  Expected newline before return statement   @blitz/newline-before-return
+  46:5   error  Expected blank line before this statement  padding-line-between-statements
+  90:3   error  Expected blank line before this statement  padding-line-between-statements
+  93:3   error  Expected blank line before this statement  padding-line-between-statements
+  93:3   error  Expected newline before return statement   @blitz/newline-before-return
+
+C:\software\Devonz\app\lib\modules\llm\governance\auditTrail.ts
+   2:1   error    Expected line before comment                                                                                                                                                                                                                                         @blitz/lines-around-comment
+  31:25  warning  Unexpected empty constructor                                                                                                                                                                                                                                         @typescript-eslint/no-empty-function
+  37:5   error    Expected blank line before this statement                                                                                                                                                                                                                            padding-line-between-statements
+  45:7   error    Expected a block comment instead of consecutive line comments                                                                                                                                                                                                        multiline-comment-style
+  48:19  error    Replace ``Audit┬╖Log:┬╖[${entry.model}]┬╖${entry.tokens.total}┬╖tokens┬╖($${entry.cost.toFixed(4)})┬╖-┬╖Status:┬╖${entry.status}`` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`Audit┬╖Log:┬╖[${entry.model}]┬╖${entry.tokens.total}┬╖tokens┬╖($${entry.cost.toFixed(4)})┬╖-┬╖Status:┬╖${entry.status}`,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+  50:7   error    Expected a block comment instead of consecutive line comments                                                                                                                                                                                                        multiline-comment-style
+  60:17  error    'filter' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\llm\governance\classifier.ts
+   3:7   error    'logger' is assigned a value but never used                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+   5:28  error    Replace `┬╖'CODE_CHANGE'┬╖|┬╖'RESEARCH_REPORT'┬╖|┬╖'SECURITY_ADVISORY'┬╖|┬╖'UX_GUIDANCE'┬╖|┬╖'SYSTEM_ERROR'` with `ΓÅÄ┬╖┬╖|┬╖'CODE_CHANGE'ΓÅÄ┬╖┬╖|┬╖'RESEARCH_REPORT'ΓÅÄ┬╖┬╖|┬╖'SECURITY_ADVISORY'ΓÅÄ┬╖┬╖|┬╖'UX_GUIDANCE'ΓÅÄ┬╖┬╖|┬╖'SYSTEM_ERROR'ΓÅÄ┬╖`                                                                      prettier/prettier
+  14:25  warning  Unexpected empty constructor                                                                                                                                                                                                                                                            @typescript-eslint/no-empty-function
+  20:5   error    Expected blank line before this statement                                                                                                                                                                                                                                               padding-line-between-statements
+  37:9   error    Replace `snippet.includes('research┬╖find')┬╖||┬╖snippet.includes('technical┬╖report')┬╖||┬╖snippet.includes('documentation┬╖summary')` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖snippet.includes('research┬╖find')┬╖||ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖snippet.includes('technical┬╖report')┬╖||ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖snippet.includes('documentation┬╖summary')ΓÅÄ┬╖┬╖┬╖┬╖`  prettier/prettier
+
+C:\software\Devonz\app\lib\modules\llm\governance\guardrailService.ts
+  29:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  35:5   error    Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\llm\governance\promptRegistry.ts
+  36:5   error  Expected blank line before this statement  padding-line-between-statements
+  72:22  error  Expected { after 'if' condition            curly
+  75:5   error  Expected newline before return statement   @blitz/newline-before-return
+
+C:\software\Devonz\app\lib\modules\llm\governance\routingEngine.ts
+   1:1   error    '../types' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  44:25  warning  Unexpected empty constructor                                                                                             @typescript-eslint/no-empty-function
+  50:5   error    Expected blank line before this statement                                                                                padding-line-between-statements
+  61:42  error    Replace `m` with `(m)`                                                                                                   prettier/prettier
+  62:7   error    Expected blank line before this statement                                                                                padding-line-between-statements
+  70:42  error    Replace `m` with `(m)`                                                                                                   prettier/prettier
+  71:7   error    Expected blank line before this statement                                                                                padding-line-between-statements
+  79:5   error    Expected newline before return statement                                                                                 @blitz/newline-before-return
+
+C:\software\Devonz\app\lib\modules\llm\governance\usageMonitor.ts
+  26:5   error    Replace `'default'` with `default`                                                                                                                                                                                                                                 prettier/prettier
+  29:25  warning  Unexpected empty constructor                                                                                                                                                                                                                                       @typescript-eslint/no-empty-function
+  35:5   error    Expected blank line before this statement                                                                                                                                                                                                                          padding-line-between-statements
+  59:30  error    Replace `globalKey,` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖globalKey,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                                                                                                                            prettier/prettier
+  60:1   error    Insert `┬╖┬╖`                                                                                                                                                                                                                                                        prettier/prettier
+  61:9   error    Insert `┬╖┬╖`                                                                                                                                                                                                                                                        prettier/prettier
+  62:7   error    Replace `})` with `┬╖┬╖}),ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                                                                                                                                                   prettier/prettier
+  64:19  error    Replace ``Usage┬╖recorded┬╖for┬╖user┬╖${userId}:┬╖${usage.promptTokens┬╖+┬╖usage.completionTokens}┬╖tokens,┬╖$${cost.toFixed(4)}`` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`Usage┬╖recorded┬╖for┬╖user┬╖${userId}:┬╖${usage.promptTokens┬╖+┬╖usage.completionTokens}┬╖tokens,┬╖$${cost.toFixed(4)}`,ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+  92:5   error    Expected newline before return statement                                                                                                                                                                                                                           @blitz/newline-before-return
+
+C:\software\Devonz\app\lib\modules\observability\cleanupHandler.ts
+   5:7   error    'execAsync' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+  15:25  warning  Unexpected empty constructor                                   @typescript-eslint/no-empty-function
+  21:5   error    Expected blank line before this statement                      padding-line-between-statements
+  33:9   error    Expected a block comment instead of consecutive line comments  multiline-comment-style
+  37:9   error    Expected a block comment instead of consecutive line comments  multiline-comment-style
+
+C:\software\Devonz\app\lib\modules\observability\crashReporter.ts
+  14:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  20:5   error    Expected blank line before this statement  padding-line-between-statements
+  51:7   error    Delete `┬╖`                                 prettier/prettier
+  52:1   error    Delete `┬╖`                                 prettier/prettier
+  53:1   error    Delete `┬╖`                                 prettier/prettier
+
+C:\software\Devonz\app\lib\modules\observability\diagnostics.ts
+  14:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  20:5   error    Expected blank line before this statement  padding-line-between-statements
+  39:7   error    Expected line before comment               @blitz/lines-around-comment
+  52:7   error    Expected line before comment               @blitz/lines-around-comment
+
+C:\software\Devonz\app\lib\modules\observability\latencyMonitor.ts
+  13:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  19:5   error    Expected blank line before this statement  padding-line-between-statements
+  35:9   error    Expected property shorthand                object-shorthand
+  49:5   error    Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\observability\logAggregator.ts
+   4:7   error    'logger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  21:25  warning  Unexpected empty constructor                 @typescript-eslint/no-empty-function
+  27:5   error    Expected blank line before this statement    padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\observability\metricsCollector.ts
+   3:7   error    'logger' is assigned a value but never used                                                                           @typescript-eslint/no-unused-vars
+  20:25  warning  Unexpected empty constructor                                                                                          @typescript-eslint/no-empty-function
+  26:5   error    Expected blank line before this statement                                                                             padding-line-between-statements
+  80:33  error    Insert `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                      prettier/prettier
+  81:7   error    Insert `┬╖┬╖`                                                                                                           prettier/prettier
+  81:29  error    Expected { after 'if' condition                                                                                       curly
+  82:1   error    Insert `┬╖┬╖`                                                                                                           prettier/prettier
+  82:7   error    Expected blank line before this statement                                                                             padding-line-between-statements
+  83:7   error    Insert `┬╖┬╖`                                                                                                           prettier/prettier
+  83:7   error    Expected newline before return statement                                                                              @blitz/newline-before-return
+  84:1   error    Replace `┬╖┬╖┬╖┬╖},┬╖{}┬╖as┬╖Record<string,┬╖MetricEntry[]>` with `┬╖┬╖┬╖┬╖┬╖┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖{}┬╖as┬╖Record<string,┬╖MetricEntry[]>,ΓÅÄ┬╖┬╖┬╖┬╖`  prettier/prettier
+
+C:\software\Devonz\app\lib\modules\observability\startupValidator.ts
+  13:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  19:5   error    Expected blank line before this statement  padding-line-between-statements
+  31:7   error    Expected line before comment               @blitz/lines-around-comment
+  39:9   error    Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\security\portResolution.ts
+  13:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  19:5   error    Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\security\rbacEngine.ts
+  30:24  error    Replace `┬╖'write:project',` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'write:project',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                    prettier/prettier
+  31:26  error    Replace `┬╖'execute:tools',┬╖'view:analytics',┬╖'manage:users'` with `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'execute:tools',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'view:analytics',ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'manage:users',`                         prettier/prettier
+  35:21  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'read:project',┬╖'write:project',┬╖'execute:tools',┬╖'view:analytics'ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖` with `'read:project',┬╖'write:project',┬╖'execute:tools',┬╖'view:analytics'`  prettier/prettier
+  40:21  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖'read:project',┬╖'view:analytics'ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖` with `'read:project',┬╖'view:analytics'`                                                                      prettier/prettier
+  46:25  warning  Unexpected empty constructor                                                                                                                                            @typescript-eslint/no-empty-function
+  52:5   error    Expected blank line before this statement                                                                                                                               padding-line-between-statements
+
+C:\software\Devonz\app\lib\modules\security\redactor.ts
+  21:25  warning  Unexpected empty constructor                                             @typescript-eslint/no-empty-function
+  27:5   error    Expected blank line before this statement                                padding-line-between-statements
+  37:45  error    'match' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  55:22  error    Replace `item` with `(item)`                                             prettier/prettier
+  59:5   error    Expected blank line before this statement                                padding-line-between-statements
+  62:7   error    Expected blank line before this statement                                padding-line-between-statements
+  62:30  error    Replace `sk` with `(sk)`                                                 prettier/prettier
+
+C:\software\Devonz\app\lib\modules\security\secretsManager.ts
+  13:25  warning  Unexpected empty constructor                                   @typescript-eslint/no-empty-function
+  19:5   error    Expected blank line before this statement                      padding-line-between-statements
+  34:9   error    Expected a block comment instead of consecutive line comments  multiline-comment-style
+  39:16  error    'error' is defined but never used                              @typescript-eslint/no-unused-vars
+  53:21  error    Expected { after 'if' condition                                curly
+
+C:\software\Devonz\app\lib\modules\security\sessionManager.ts
+  22:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  28:5   error    Expected blank line before this statement  padding-line-between-statements
+  62:7   error    Expected newline before return statement   @blitz/newline-before-return
+
+C:\software\Devonz\app\lib\modules\security\tenantGuard.ts
+  12:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  18:5   error    Expected blank line before this statement  padding-line-between-statements
+  37:25  error    Replace `item` with `(item)`               prettier/prettier
+
+C:\software\Devonz\app\lib\persistence\db.ts
+  45:11  error  Expected blank line before this statement  padding-line-between-statements
+  94:9   error  Expected newline before return statement   @blitz/newline-before-return
+
+C:\software\Devonz\app\lib\persistence\encryption.ts
+  10:7   error    'AUTH_TAG_LENGTH' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  19:25  warning  Unexpected empty constructor                          @typescript-eslint/no-empty-function
+  25:5   error    Expected blank line before this statement             padding-line-between-statements
+  34:7   error    Expected line before comment                          @blitz/lines-around-comment
+
+C:\software\Devonz\app\lib\persistence\governance\backup.ts
+   1:1   error    '../db' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  23:25  warning  Unexpected empty constructor                                                                                          @typescript-eslint/no-empty-function
+  29:5   error    Expected blank line before this statement                                                                             padding-line-between-statements
+  37:14  error    Expected { after 'if' condition                                                                                       curly
+  41:5   error    Expected a block comment instead of consecutive line comments                                                         multiline-comment-style
+  56:5   error    Expected newline before return statement                                                                              @blitz/newline-before-return
+  64:14  error    Expected { after 'if' condition                                                                                       curly
+  73:7   error    Delete `┬╖┬╖`                                                                                                           prettier/prettier
+  82:21  error    'archive' is defined but never used. Allowed unused args must match /^_/u                                             @typescript-eslint/no-unused-vars
+  84:5   error    Expected a block comment instead of consecutive line comments                                                         multiline-comment-style
+  84:5   error    Expected line before comment                                                                                          @blitz/lines-around-comment
+
+C:\software\Devonz\app\lib\persistence\governance\classifier.ts
+  27:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  33:5   error    Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\persistence\governance\exporter.ts
+   1:1   error    '../db' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead         no-restricted-imports
+   2:1   error    '../integrity' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  14:25  warning  Unexpected empty constructor                                                                                                 @typescript-eslint/no-empty-function
+  20:5   error    Expected blank line before this statement                                                                                    padding-line-between-statements
+  28:14  error    Expected { after 'if' condition                                                                                              curly
+  31:16  error    Expected { after 'if' condition                                                                                              curly
+  53:5   error    Expected a block comment instead of consecutive line comments                                                                multiline-comment-style
+
+C:\software\Devonz\app\lib\persistence\governance\migration.ts
+   2:1   error    '../parity' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  22:25  warning  Unexpected empty constructor                                                                                              @typescript-eslint/no-empty-function
+  28:5   error    Expected blank line before this statement                                                                                 padding-line-between-statements
+  44:5   error    Expected blank line before this statement                                                                                 padding-line-between-statements
+  52:5   error    Expected newline before return statement                                                                                  @blitz/newline-before-return
+  59:45  error    Replace `m` with `(m)`                                                                                                    prettier/prettier
+  60:21  error    Expected { after 'if' condition                                                                                           curly
+  64:5   error    Expected a block comment instead of consecutive line comments                                                             multiline-comment-style
+  69:5   error    Expected newline before return statement                                                                                  @blitz/newline-before-return
+  73:36  error    Replace `m` with `(m)`                                                                                                    prettier/prettier
+
+C:\software\Devonz\app\lib\persistence\governance\retention.ts
+   1:1   error    '../db' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  22:25  warning  Unexpected empty constructor                                                                                          @typescript-eslint/no-empty-function
+  28:5   error    Expected blank line before this statement                                                                             padding-line-between-statements
+  41:14  error    Expected { after 'if' condition                                                                                       curly
+  55:9   error    Expected blank line before this statement                                                                             padding-line-between-statements
+
+C:\software\Devonz\app\lib\persistence\integrity.ts
+  16:25  warning  Unexpected empty constructor                                                                                                                                 @typescript-eslint/no-empty-function
+  22:5   error    Expected blank line before this statement                                                                                                                    padding-line-between-statements
+  30:18  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖.createHmac('sha256',┬╖INTEGRITY_SECRET)ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖.update(serialized)ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖` with `.createHmac('sha256',┬╖INTEGRITY_SECRET).update(serialized)`  prettier/prettier
+  43:44  error    Replace `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖Buffer.from(expected,┬╖'hex'),ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖Buffer.from(signature,┬╖'hex')ΓÅÄ┬╖┬╖┬╖┬╖` with `Buffer.from(expected,┬╖'hex'),┬╖Buffer.from(signature,┬╖'hex')`   prettier/prettier
+
+C:\software\Devonz\app\lib\persistence\parity.ts
+  45:25  warning  Unexpected empty constructor               @typescript-eslint/no-empty-function
+  51:5   error    Expected blank line before this statement  padding-line-between-statements
+  59:17  error    Expected { after 'if' condition            curly
+  70:9   error    Expected blank line before this statement  padding-line-between-statements
+  74:7   error    Expected blank line before this statement  padding-line-between-statements
+  93:7   error    Expected blank line before this statement  padding-line-between-statements
+
+C:\software\Devonz\app\lib\runtime\config.ts
+  22:1   error  Expected a block comment instead of consecutive line comments                                                                                                 multiline-comment-style
+  24:32  error  Replace `ΓÅÄ┬╖┬╖/Electron/.test(navigator.userAgent)┬╖||ΓÅÄ┬╖┬╖!!(window┬╖as┬╖any).electronΓÅÄ` with `/Electron/.test(navigator.userAgent)┬╖||┬╖!!(window┬╖as┬╖any).electron`  prettier/prettier
+  32:17  error  Expected { after 'if' condition                                                                                                                               curly
+  33:3   error  Expected blank line before this statement                                                                                                                     padding-line-between-statements
+  34:23  error  Expected { after 'if' condition                                                                                                                               curly
+  35:3   error  Expected blank line before this statement                                                                                                                     padding-line-between-statements
+  35:23  error  Expected { after 'if' condition                                                                                                                               curly
+  36:3   error  Expected blank line before this statement                                                                                                                     padding-line-between-statements
+  36:25  error  Expected { after 'if' condition                                                                                                                               curly
+  37:3   error  Expected blank line before this statement                                                                                                                     padding-line-between-statements
+  37:3   error  Expected newline before return statement                                                                                                                      @blitz/newline-before-return
+  40:14  error  Variable name `RuntimeConfig` must match one of the following formats: camelCase, UPPER_CASE                                                                  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\lib\security.ts
+  294:7  error  Delete `┬╖┬╖`                                   prettier/prettier
+  295:1  error  Delete `┬╖┬╖`                                   prettier/prettier
+  296:7  error  Delete `┬╖┬╖`                                   prettier/prettier
+  297:1  error  Delete `┬╖┬╖`                                   prettier/prettier
+  297:9  error  Expected blank line before this statement     padding-line-between-statements
+  298:9  error  Delete `┬╖┬╖┬╖┬╖`                                 prettier/prettier
+  299:1  error  Replace `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖` with `┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+  300:1  error  Delete `┬╖┬╖┬╖┬╖┬╖┬╖`                               prettier/prettier
+  301:9  error  Delete `┬╖┬╖┬╖┬╖`                                 prettier/prettier
+  302:1  error  Delete `┬╖┬╖`                                   prettier/prettier
+
+C:\software\Devonz\app\lib\services\errorReporter.ts
+  21:18  error    Class Property name `instance` must have one leading underscore(s)      @typescript-eslint/naming-convention
+  22:11  error    Class Property name `initialized` must have one leading underscore(s)   @typescript-eslint/naming-convention
+  24:25  warning  Unexpected empty constructor                                            @typescript-eslint/no-empty-function
+  26:3   error    Public accessibility modifier on method definition getInstance          @typescript-eslint/explicit-member-accessibility
+  30:5   error    Expected blank line before this statement                               padding-line-between-statements
+  36:3   error    Public accessibility modifier on method definition init                 @typescript-eslint/explicit-member-accessibility
+  37:53  error    Expected { after 'if' condition                                         curly
+  64:3   error    Public accessibility modifier on method definition report               @typescript-eslint/explicit-member-accessibility
+  83:7   error    Delete `┬╖┬╖`                                                             prettier/prettier
+  84:1   error    Delete `┬╖┬╖`                                                             prettier/prettier
+  84:9   error    Expected a block comment instead of consecutive line comments           multiline-comment-style
+  84:9   error    Expected line before comment                                            @blitz/lines-around-comment
+  85:7   error    Delete `┬╖┬╖`                                                             prettier/prettier
+  87:1   error    Delete `┬╖┬╖`                                                             prettier/prettier
+  90:5   error    Expected a block comment instead of consecutive line comments           multiline-comment-style
+  96:11  error    Class Method name `normalizeError` must have one leading underscore(s)  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\lib\services\longTermMemoryService.ts
+  18:25  warning  Unexpected empty constructor                                   @typescript-eslint/no-empty-function
+  24:5   error    Expected blank line before this statement                      padding-line-between-statements
+  78:7   error    Expected a block comment instead of consecutive line comments  multiline-comment-style
+  95:14  error    'error' is defined but never used                              @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\services\ragService.test.ts
+  19:15  error  Variable name `RAGService` must match one of the following formats: camelCase, UPPER_CASE  @typescript-eslint/naming-convention
+  42:18  error  Insert `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                          prettier/prettier
+  43:9   error  Insert `┬╖┬╖`                                                                                prettier/prettier
+  44:1   error  Insert `┬╖┬╖`                                                                                prettier/prettier
+  45:11  error  Insert `┬╖┬╖`                                                                                prettier/prettier
+  46:1   error  Insert `┬╖┬╖`                                                                                prettier/prettier
+
+C:\software\Devonz\app\lib\stores\middleware.ts
+   1:10  error  'map' is defined but never used           @typescript-eslint/no-unused-vars
+   2:15  error  'MapStore' is defined but never used      @typescript-eslint/no-unused-vars
+   2:25  error  'WritableAtom' is defined but never used  @typescript-eslint/no-unused-vars
+  13:31  error  Insert `,`                                prettier/prettier
+  14:26  error  Delete `ΓÅÄ`                                prettier/prettier
+  27:7   error  Expected line before comment              @blitz/lines-around-comment
+
+C:\software\Devonz\app\root.tsx
+   3:59  error  'useRouteError' is defined but never used                                                                                 @typescript-eslint/no-unused-vars
+   3:74  error  'isRouteErrorResponse' is defined but never used                                                                          @typescript-eslint/no-unused-vars
+  31:5   error  Replace `┬╖const┬╖cookies┬╖=┬╖cookieHeader.split(';').reduce(` with `const┬╖cookies┬╖=┬╖cookieHeader.split(';').reduce(ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖`  prettier/prettier
+  32:1   error  Insert `┬╖`                                                                                                                prettier/prettier
+  33:1   error  Insert `┬╖`                                                                                                                prettier/prettier
+  33:17  error  Expected { after 'if' condition                                                                                           curly
+  34:8   error  Insert `┬╖`                                                                                                                prettier/prettier
+  34:8   error  Expected blank line before this statement                                                                                 padding-line-between-statements
+  34:8   error  Expected newline before return statement                                                                                  @blitz/newline-before-return
+  35:6   error  Replace `},┬╖{}┬╖as┬╖Record<string,┬╖string>` with `┬╖},ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖{}┬╖as┬╖Record<string,┬╖string>,ΓÅÄ┬╖┬╖┬╖┬╖`                             prettier/prettier
+  36:1   error  Delete `┬╖`                                                                                                                prettier/prettier
+  36:26  error  ["csrf_token"] is better written in dot notation                                                                          dot-notation
+  40:3   error  Expected blank line before this statement                                                                                 padding-line-between-statements
+  50:8   error  Insert `,`                                                                                                                prettier/prettier
+  53:26  error  Insert `ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                                         prettier/prettier
+  54:1   error  Insert `┬╖┬╖┬╖┬╖`                                                                                                             prettier/prettier
+  55:7   error  Replace `}` with `┬╖┬╖┬╖┬╖}ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖┬╖`                                                                                          prettier/prettier
+  56:6   error  Insert `,`                                                                                                                prettier/prettier
+
+C:\software\Devonz\app\utils\logger.ts
+    6:18  error  Insert `ΓÅÄ┬╖┬╖┬╖┬╖`                                                                                                                            prettier/prettier
+    7:1   error  Insert `┬╖┬╖`                                                                                                                               prettier/prettier
+    8:1   error  Replace `┬╖┬╖}).catch(()┬╖=>┬╖{┬╖/*┬╖ignore┬╖*/` with `┬╖┬╖┬╖┬╖})ΓÅÄ┬╖┬╖┬╖┬╖.catch(()┬╖=>┬╖{ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖/*┬╖ignore┬╖*/ΓÅÄ┬╖┬╖┬╖`                                         prettier/prettier
+   25:5   error  'getRequestId' is never reassigned. Use 'const' instead                                                                                   prefer-const
+   28:1   error  Expected a '*' at the start of this line                                                                                                  multiline-comment-style
+   29:1   error  Expected a '*' at the start of this line                                                                                                  multiline-comment-style
+   30:1   error  Expected a '*' at the start of this line                                                                                                  multiline-comment-style
+   31:1   error  Expected a '*' at the start of this line                                                                                                  multiline-comment-style
+   32:1   error  Expected a '*' at the start of this line                                                                                                  multiline-comment-style
+   33:1   error  Expected a '*' at the start of this line                                                                                                  multiline-comment-style
+   34:1   error  Expected a '*' at the start of this line                                                                                                  multiline-comment-style
+   35:1   error  Expected a '*' at the start of this line                                                                                                  multiline-comment-style
+   36:1   error  Expected this line to be aligned with the start of the comment                                                                            multiline-comment-style
+   50:46  error  Delete `ΓÅÄ`                                                                                                                                prettier/prettier
+  107:29  error  Replace `m┬╖=>┬╖typeof┬╖m┬╖===┬╖'object'┬╖?┬╖JSON.stringify(m)┬╖:┬╖String(m` with `(m)┬╖=>┬╖(typeof┬╖m┬╖===┬╖'object'┬╖?┬╖JSON.stringify(m)┬╖:┬╖String(m)`  prettier/prettier
+  117:5   error  Expected blank line before this statement                                                                                                 padding-line-between-statements
+  117:5   error  Expected newline before return statement                                                                                                  @blitz/newline-before-return
+  167:3   error  Expected blank line before this statement                                                                                                 padding-line-between-statements
+  195:58  error  Delete `ΓÅÄ`                                                                                                                                prettier/prettier
+
+C:\software\Devonz\app\utils\sanitize.ts
+  14:3  error  Expected line before comment                                   @blitz/lines-around-comment
+  18:3  error  Expected line before comment                                   @blitz/lines-around-comment
+  40:5  error  Expected a block comment instead of consecutive line comments  multiline-comment-style
+  56:4  error  Insert `,`                                                     prettier/prettier
+
+Γ£û 403 problems (357 errors, 46 warnings)
+  290 errors and 0 warnings potentially fixable with the `--fix` option.
+
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

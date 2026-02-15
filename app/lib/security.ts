@@ -291,15 +291,16 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
 
     // CSRF Check (only for mutating methods if enabled)
     if (options.csrf && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
-        // Dynamic import to avoid bundling server code in client
-        const { validateCsrf } = await import('~/lib/csrf.server');
-        const isValid = validateCsrf(request, request.headers.get('Cookie'));
-        if (!isValid) {
-            return new Response('Invalid CSRF Token', {
-                status: 403,
-                headers: createSecurityHeaders(),
-            });
-        }
+      // Dynamic import to avoid bundling server code in client
+      const { validateCsrf } = await import('~/lib/csrf.server');
+      const isValid = validateCsrf(request, request.headers.get('Cookie'));
+
+      if (!isValid) {
+        return new Response('Invalid CSRF Token', {
+          status: 403,
+          headers: createSecurityHeaders(),
+        });
+      }
     }
 
     // Apply rate limiting in all environments

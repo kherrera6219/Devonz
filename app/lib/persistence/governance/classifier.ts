@@ -30,6 +30,7 @@ export class DataClassificationService {
     if (!DataClassificationService._instance) {
       DataClassificationService._instance = new DataClassificationService();
     }
+
     return DataClassificationService._instance;
   }
 

@@ -19,21 +19,33 @@ interface RuntimeConfig {
 const isServer = typeof window === 'undefined';
 const isClient = !isServer;
 
-// Simple detection for Electron renderer process
-// In a real Electron app, we'd check for window.process?.versions?.electron or user agent
-const isDesktop = isClient && (
-  /Electron/.test(navigator.userAgent) ||
-  !!(window as any).electron
-);
+/*
+ * Simple detection for Electron renderer process
+ * In a real Electron app, we'd check for window.process?.versions?.electron or user agent
+ */
+const isDesktop = isClient && (/Electron/.test(navigator.userAgent) || !!(window as any).electron);
 
 const isWeb = !isDesktop;
 
 const platform = ((): RuntimeConfig['platform'] => {
-  if (isServer) return 'unknown'; // Could detect via process.platform if needed
+  if (isServer) {
+    return 'unknown';
+  } // Could detect via process.platform if needed
+
   const ua = navigator.userAgent;
-  if (/Win/.test(ua)) return 'windows';
-  if (/Mac/.test(ua)) return 'mac';
-  if (/Linux/.test(ua)) return 'linux';
+
+  if (/Win/.test(ua)) {
+    return 'windows';
+  }
+
+  if (/Mac/.test(ua)) {
+    return 'mac';
+  }
+
+  if (/Linux/.test(ua)) {
+    return 'linux';
+  }
+
   return 'unknown';
 })();
 

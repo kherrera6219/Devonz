@@ -16,6 +16,7 @@ export class FileSanitizer {
     if (!FileSanitizer._instance) {
       FileSanitizer._instance = new FileSanitizer();
     }
+
     return FileSanitizer._instance;
   }
 
@@ -27,7 +28,9 @@ export class FileSanitizer {
     const absoluteTarget = path.resolve(root, targetPath);
 
     if (!absoluteTarget.startsWith(absoluteRoot)) {
-      logger.error(`Security Violation: Path traversal attempt detected! Root: ${absoluteRoot}, Target: ${absoluteTarget}`);
+      logger.error(
+        `Security Violation: Path traversal attempt detected! Root: ${absoluteRoot}, Target: ${absoluteTarget}`,
+      );
       throw new Error('Path traversal is not allowed.');
     }
 

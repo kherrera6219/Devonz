@@ -25,6 +25,7 @@ export class SessionManager {
     if (!SessionManager._instance) {
       SessionManager._instance = new SessionManager();
     }
+
     return SessionManager._instance;
   }
 
@@ -59,6 +60,7 @@ export class SessionManager {
     if (new Date(session.expiresAt).getTime() < Date.now()) {
       logger.warn(`Session ${sessionId} expired.`);
       this.destroySession(sessionId);
+
       return null;
     }
 

@@ -12,14 +12,14 @@ export class SSRFGuard {
 
   // Private IP ranges (RFC 1918, etc.)
   private readonly _blockedRanges = [
-    /^127\./,       // Loopback
-    /^10\./,        // Private Class A
+    /^127\./, // Loopback
+    /^10\./, // Private Class A
     /^172\.(1[6-9]|2[0-9]|3[0-1])\./, // Private Class B
-    /^192\.168\./,  // Private Class C
-    /^169\.254\./,  // Link-local
-    /^::1$/,        // IPv6 Loopback
-    /^fe80:/,       // IPv6 Link-local
-    /^fc00:/,       // IPv6 Unique Local
+    /^192\.168\./, // Private Class C
+    /^169\.254\./, // Link-local
+    /^::1$/, // IPv6 Loopback
+    /^fe80:/, // IPv6 Link-local
+    /^fc00:/, // IPv6 Unique Local
   ];
 
   private constructor() {}
@@ -28,6 +28,7 @@ export class SSRFGuard {
     if (!SSRFGuard._instance) {
       SSRFGuard._instance = new SSRFGuard();
     }
+
     return SSRFGuard._instance;
   }
 
@@ -50,11 +51,17 @@ export class SSRFGuard {
 
       // 2. Hostname check (common local names)
       const localNames = ['localhost', 'local', 'internal', 'development'];
-      if (localNames.some(name => hostname.toLowerCase().includes(name))) {
-          logger.warn(`SSRF Warning: Potential local hostname detected: ${hostname}`);
-          // We might choose to block or just warn depending on strictness
-          // For now, we block strict localhost
-          if (hostname.toLowerCase() === 'localhost') return false;
+
+      if (localNames.some((name) => hostname.toLowerCase().includes(name))) {
+        logger.warn(`SSRF Warning: Potential local hostname detected: ${hostname}`);
+
+        /*
+         * We might choose to block or just warn depending on strictness
+         * For now, we block strict localhost
+         */
+        if (hostname.toLowerCase() === 'localhost') {
+          return false;
+        }
       }
 
       return true;
@@ -65,7 +72,7 @@ export class SSRFGuard {
   }
 
   private _isInternalIP(ip: string): boolean {
-    return this._blockedRanges.some(pattern => pattern.test(ip));
+    return this._blockedRanges.some((pattern) => pattern.test(ip));
   }
 }
 

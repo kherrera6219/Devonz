@@ -1,4 +1,4 @@
-import type { ModelInfo } from '../types';
+import type { ModelRoutingConfig, OrchestrationEvent } from '~/lib/types';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('RoutingEngine');
@@ -47,6 +47,7 @@ export class ModelRoutingEngine {
     if (!ModelRoutingEngine._instance) {
       ModelRoutingEngine._instance = new ModelRoutingEngine();
     }
+
     return ModelRoutingEngine._instance;
   }
 
@@ -58,7 +59,8 @@ export class ModelRoutingEngine {
 
     // Try to find a preferred model that is available
     for (const modelName of rule.preferredModels) {
-      const found = availableModels.find(m => m.name.toLowerCase().includes(modelName.toLowerCase()));
+      const found = availableModels.find((m) => m.name.toLowerCase().includes(modelName.toLowerCase()));
+
       if (found) {
         logger.info(`Routing: Selected preferred model '${found.name}' via ${policy} policy`);
         return found;
@@ -67,7 +69,8 @@ export class ModelRoutingEngine {
 
     // Try fallback models
     for (const modelName of rule.fallbackModels) {
-      const found = availableModels.find(m => m.name.toLowerCase().includes(modelName.toLowerCase()));
+      const found = availableModels.find((m) => m.name.toLowerCase().includes(modelName.toLowerCase()));
+
       if (found) {
         logger.warn(`Routing: Fallback used! Selected '${found.name}' via ${policy} policy`);
         return found;
@@ -76,6 +79,7 @@ export class ModelRoutingEngine {
 
     // Default to the first available model if no matches
     logger.warn(`Routing: No policy match for ${policy}. Defaulting to first available model.`);
+
     return availableModels[0];
   }
 }

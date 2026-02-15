@@ -16,6 +16,7 @@ export class PortResolution {
     if (!PortResolution._instance) {
       PortResolution._instance = new PortResolution();
     }
+
     return PortResolution._instance;
   }
 

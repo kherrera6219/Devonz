@@ -18,10 +18,14 @@ try {
       setDefaultLabels() {}
     },
     Histogram: class {
-      labels() { return { observe() {} }; }
+      labels() {
+        return { observe() {} };
+      }
     },
     Counter: class {
-      labels() { return { inc() {} }; }
+      labels() {
+        return { inc() {} };
+      }
     },
     collectDefaultMetrics() {},
   };

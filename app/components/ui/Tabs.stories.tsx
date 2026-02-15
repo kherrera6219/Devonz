@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
 
 const meta = {
@@ -23,17 +23,13 @@ export const Default: Story = {
       <TabsContent value="account">
         <div className="p-4 border rounded-md mt-2 bg-bolt-elements-background-depth-2">
           <h3 className="text-lg font-medium">Account</h3>
-          <p className="text-sm text-bolt-elements-textSecondary">
-            Make changes to your account here.
-          </p>
+          <p className="text-sm text-bolt-elements-textSecondary">Make changes to your account here.</p>
         </div>
       </TabsContent>
       <TabsContent value="password">
         <div className="p-4 border rounded-md mt-2 bg-bolt-elements-background-depth-2">
           <h3 className="text-lg font-medium">Password</h3>
-          <p className="text-sm text-bolt-elements-textSecondary">
-            Change your password here.
-          </p>
+          <p className="text-sm text-bolt-elements-textSecondary">Change your password here.</p>
         </div>
       </TabsContent>
     </Tabs>

@@ -1,4 +1,4 @@
-import { isRouteErrorResponse, useNavigation, useRouteError, useNavigate } from '@remix-run/react';
+import { isRouteErrorResponse, useRouteError, useNavigate } from '@remix-run/react';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { errorReporter } from '~/lib/services/errorReporter';
@@ -8,7 +8,6 @@ export function RouteErrorBoundary() {
   const error = useRouteError();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const navigation = useNavigation();
 
   useEffect(() => {
     if (!isRouteErrorResponse(error)) {
@@ -45,30 +44,20 @@ export function RouteErrorBoundary() {
 
       <div className="space-y-2 max-w-md">
         <h1 className="text-2xl font-bold text-bolt-elements-textPrimary">{message}</h1>
-        <p className="text-bolt-elements-textSecondary text-sm leading-relaxed">
-          {details}
-        </p>
+        <p className="text-bolt-elements-textSecondary text-sm leading-relaxed">{details}</p>
       </div>
 
       {technicalDetails && (
         <div className="w-full max-w-2xl mt-4 p-4 bg-bolt-elements-terminals-background rounded-md text-left overflow-x-auto border border-bolt-elements-borderColor/50">
-          <code className="text-xs font-mono text-bolt-elements-code-text whitespace-pre-wrap">
-            {technicalDetails}
-          </code>
+          <code className="text-xs font-mono text-bolt-elements-code-text whitespace-pre-wrap">{technicalDetails}</code>
         </div>
       )}
 
       <div className="flex gap-4 mt-2">
-        <Button
-          variant="secondary"
-          onClick={() => navigate(-1)}
-        >
+        <Button variant="secondary" onClick={() => navigate(-1)}>
           {t('common.go_back', 'Go Back')}
         </Button>
-        <Button
-          variant="primary"
-          onClick={() => window.location.reload()}
-        >
+        <Button variant="default" onClick={() => window.location.reload()}>
           {t('common.reload', 'Reload Page')}
         </Button>
       </div>

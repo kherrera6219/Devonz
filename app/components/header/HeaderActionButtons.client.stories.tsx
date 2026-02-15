@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { createRemixStub } from '@remix-run/testing';
 

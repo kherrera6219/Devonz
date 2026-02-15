@@ -3,9 +3,13 @@
 let chalk: any;
 
 if (typeof process !== 'undefined' && process.release?.name === 'node' && process.env.NODE_ENV !== 'production') {
-  import('chalk').then((m) => {
-    chalk = new m.Chalk({ level: 3 });
-  }).catch(() => { /* ignore */ });
+  import('chalk')
+    .then((m) => {
+      chalk = new m.Chalk({ level: 3 });
+    })
+    .catch(() => {
+      /* ignore */
+    });
 }
 
 export type DebugLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'none';
@@ -22,18 +26,18 @@ interface Logger {
 }
 
 // Server-side Request ID retrieval (safe for isomorphic usage)
-let getRequestId: () => string | undefined = () => undefined;
+const getRequestId: () => string | undefined = () => undefined;
 
 /*
-// Disabled for build stability - dynamic import of server module breaks client bundle
-if (typeof process !== 'undefined' && process.release?.name === 'node' && typeof window === 'undefined') {
-  import('~/lib/context.server').then((m) => {
-    getRequestId = m.getRequestId;
-  }).catch(() => {
-    // Ignore errors
-  });
-}
-*/
+ * // Disabled for build stability - dynamic import of server module breaks client bundle
+ *if (typeof process !== 'undefined' && process.release?.name === 'node' && typeof window === 'undefined') {
+ *  import('~/lib/context.server').then((m) => {
+ *    getRequestId = m.getRequestId;
+ *  }).catch(() => {
+ *    // Ignore errors
+ *  });
+ *}
+ */
 
 const getLogLevel = (): DebugLevel => {
   try {
@@ -48,7 +52,6 @@ const getLogLevel = (): DebugLevel => {
 };
 
 let currentLevel: DebugLevel = getLogLevel();
-
 
 export const logger: Logger = {
   trace: (...messages: any[]) => logWithDebugCapture('trace', undefined, messages),
@@ -104,7 +107,7 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
       level,
       requestId,
       scope,
-      message: messages.map(m => typeof m === 'object' ? JSON.stringify(m) : String(m)).join(' '),
+      message: messages.map((m) => (typeof m === 'object' ? JSON.stringify(m) : String(m))).join(' '),
       data: messages.length > 1 ? messages.slice(1) : undefined,
     };
 
@@ -114,6 +117,7 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
     } else {
       console.log(JSON.stringify(logObject));
     }
+
     return;
   }
 
@@ -164,6 +168,7 @@ function formatText(text: string, color: string, bg: string) {
   if (chalk) {
     return chalk.bgHex(bg)(chalk.hex(color)(text));
   }
+
   return text;
 }
 
@@ -193,7 +198,6 @@ function getColorForLevel(level: DebugLevel): string {
 }
 
 export const renderLogger = createScopedLogger('Render');
-
 
 // Debug logging integration
 let debugLogger: any = null;

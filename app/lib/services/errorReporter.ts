@@ -18,23 +18,26 @@ interface ErrorReport {
 }
 
 class ErrorReporterService {
-  private static instance: ErrorReporterService;
-  private initialized = false;
+  private static _instance: ErrorReporterService;
+  private _initialized = false;
 
   private constructor() {}
 
-  public static getInstance(): ErrorReporterService {
-    if (!ErrorReporterService.instance) {
-      ErrorReporterService.instance = new ErrorReporterService();
+  static getInstance(): ErrorReporterService {
+    if (!ErrorReporterService._instance) {
+      ErrorReporterService._instance = new ErrorReporterService();
     }
-    return ErrorReporterService.instance;
+
+    return ErrorReporterService._instance;
   }
 
   /**
    * Initialize global error handlers
    */
-  public init() {
-    if (this.initialized || RuntimeConfig.isServer) return;
+  init() {
+    if (this._initialized || RuntimeConfig.isServer) {
+      return;
+    }
 
     window.addEventListener('error', (event) => {
       this.report({
@@ -54,19 +57,19 @@ class ErrorReporterService {
       });
     });
 
-    this.initialized = true;
+    this._initialized = true;
     console.log('[ErrorReporter] Initialized');
   }
 
   /**
    * Report an error
    */
-  public report(error: Error | string | Partial<ErrorReport>) {
+  report(error: Error | string | Partial<ErrorReport>) {
     const report: ErrorReport = {
       timestamp: Date.now(),
       severity: 'error',
       message: 'Unknown error',
-      ...this.normalizeError(error),
+      ...this._normalizeError(error),
     };
 
     // 1. Log to console in specific environments
@@ -80,20 +83,25 @@ class ErrorReporterService {
 
     // 2. Log to internal LogStore (visible in debugging UI)
     try {
-        logStore.logError(`[${report.source || 'Manual'}] ${report.message}`, new Error(report.message));
-        // Note: logStore expects an Error object. We preserve the original if possible, but creating a new one works for now.
-        // Ideally logStore should accept a robust object.
+      logStore.logError(`[${report.source || 'Manual'}] ${report.message}`, new Error(report.message));
+
+      /*
+       * Note: logStore expects an Error object. We preserve the original if possible, but creating a new one works for now.
+       * Ideally logStore should accept a robust object.
+       */
     } catch {
-        // failed to log
+      // failed to log
     }
 
-    // 3. (Future) Send to external service (Sentry, etc.)
-    // if (RuntimeConfig.isProduction) {
-    //   Sentry.captureException(...)
-    // }
+    /*
+     * 3. (Future) Send to external service (Sentry, etc.)
+     * if (RuntimeConfig.isProduction) {
+     *   Sentry.captureException(...)
+     * }
+     */
   }
 
-  private normalizeError(error: Error | string | Partial<ErrorReport>): Partial<ErrorReport> {
+  private _normalizeError(error: Error | string | Partial<ErrorReport>): Partial<ErrorReport> {
     if (typeof error === 'string') {
       return { message: error };
     }

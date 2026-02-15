@@ -1,0 +1,187 @@
+
+> devonz@1.0.0 lint C:\software\Devonz
+> eslint --cache --cache-location ./node_modules/.cache/eslint app
+
+
+C:\software\Devonz\app\components\chat\ChatBox.stories.tsx
+   1:1   error    Do not import renderer package "@storybook/react" directly. Use a framework package instead (e.g. @storybook/nextjs, @storybook/react-vite, @storybook/nextjs-vite, @storybook/react-webpack5, @storybook/react-native-web-vite)  storybook/no-renderer-packages
+  13:6   error    Parameter name `Story` must match one of the following formats: camelCase                                                                                                                                                         @typescript-eslint/naming-convention
+  30:38  warning  Unexpected empty method 'setIsModelSettingsCollapsed'                                                                                                                                                                             @typescript-eslint/no-empty-function
+  39:26  warning  Unexpected empty method 'onApiKeysChange'                                                                                                                                                                                         @typescript-eslint/no-empty-function
+  44:22  warning  Unexpected empty method 'handlePaste'                                                                                                                                                                                             @typescript-eslint/no-empty-function
+  53:25  warning  Unexpected empty method 'startListening'                                                                                                                                                                                          @typescript-eslint/no-empty-function
+  54:24  warning  Unexpected empty method 'stopListening'                                                                                                                                                                                           @typescript-eslint/no-empty-function
+  57:25  warning  Unexpected empty method 'setQrModalOpen'                                                                                                                                                                                          @typescript-eslint/no-empty-function
+  58:27  warning  Unexpected empty method 'handleFileUpload'                                                                                                                                                                                        @typescript-eslint/no-empty-function
+  59:28  warning  Unexpected empty method 'handleInputChange'                                                                                                                                                                                       @typescript-eslint/no-empty-function
+  60:27  warning  Unexpected empty method 'setUploadedFiles'                                                                                                                                                                                        @typescript-eslint/no-empty-function
+  61:27  warning  Unexpected empty method 'setImageDataList'                                                                                                                                                                                        @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\components\chat\ToolInvocations.tsx
+  28:7  error  'SHIKI_PURIFY_CONFIG' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\errors\RouteErrorBoundary.tsx
+  1:32  error  'useNavigation' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\header\Header.stories.tsx
+  15:6  error  Parameter name `Story` must match one of the following formats: camelCase  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\components\header\HeaderActionButtons.client.stories.tsx
+  13:6  error  Parameter name `Story` must match one of the following formats: camelCase  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\components\sidebar\HistoryItem.stories.tsx
+  13:6   error  Parameter name `Story` must match one of the following formats: camelCase  @typescript-eslint/naming-convention
+  44:16  error  'e' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+  51:6   error  Parameter name `Story` must match one of the following formats: camelCase  @typescript-eslint/naming-convention
+  64:16  error  'e' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\components\ui\Dialog.stories.tsx
+  2:64  error  'DialogClose' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\entry.server.tsx
+   78:22  error  '_e' is defined but never used                 @typescript-eslint/no-unused-vars
+   91:21  error  'duration' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  105:22  error  '_e' is defined but never used                 @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\api\ipc.ts
+  25:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\metrics.server.ts
+  14:10  error    'e' is defined but never used                    @typescript-eslint/no-unused-vars
+  18:26  warning  Unexpected empty method 'setDefaultLabels'       @typescript-eslint/no-empty-function
+  22:28  warning  Unexpected empty method 'observe'                @typescript-eslint/no-empty-function
+  27:24  warning  Unexpected empty method 'inc'                    @typescript-eslint/no-empty-function
+  30:29  warning  Unexpected empty method 'collectDefaultMetrics'  @typescript-eslint/no-empty-function
+  45:10  error    'e' is defined but never used                    @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\__tests__\security.test.ts
+  2:1  error  '../connectors/ssrfGuard' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  3:1  error  '../security/redactor' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead     no-restricted-imports
+
+C:\software\Devonz\app\lib\modules\connectors\connectorRegistry.ts
+  14:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\connectors\fileSanitizer.ts
+  13:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\connectors\ssrfGuard.ts
+  25:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\llm\governance\auditTrail.ts
+  32:25  warning  Unexpected empty constructor                                              @typescript-eslint/no-empty-function
+  68:17  error    'filter' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\llm\governance\classifier.ts
+   3:7   error    'logger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  20:25  warning  Unexpected empty constructor                 @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\llm\governance\guardrailService.ts
+  29:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\llm\governance\routingEngine.ts
+   1:1   error    '../types' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  44:25  warning  Unexpected empty constructor                                                                                             @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\llm\governance\usageMonitor.ts
+  29:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\cleanupHandler.ts
+   5:7   error    'execAsync' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  15:25  warning  Unexpected empty constructor                    @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\crashReporter.ts
+  14:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\diagnostics.ts
+  14:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\latencyMonitor.ts
+  13:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\logAggregator.ts
+   4:7   error    'logger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  21:25  warning  Unexpected empty constructor                 @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\metricsCollector.ts
+   3:7   error    'logger' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  20:25  warning  Unexpected empty constructor                 @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\observability\startupValidator.ts
+  13:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\security\portResolution.ts
+  13:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\security\rbacEngine.ts
+  47:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\security\redactor.ts
+  21:25  warning  Unexpected empty constructor                                             @typescript-eslint/no-empty-function
+  38:45  error    'match' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\security\secretsManager.ts
+  13:25  warning  Unexpected empty constructor       @typescript-eslint/no-empty-function
+  42:16  error    'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\modules\security\sessionManager.ts
+  22:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\modules\security\tenantGuard.ts
+  12:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\encryption.ts
+  10:7   error    'AUTH_TAG_LENGTH' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  19:25  warning  Unexpected empty constructor                          @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\governance\backup.ts
+   1:1   error    '../db' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  23:25  warning  Unexpected empty constructor                                                                                          @typescript-eslint/no-empty-function
+  92:21  error    'archive' is defined but never used. Allowed unused args must match /^_/u                                             @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\persistence\governance\classifier.ts
+  27:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\governance\exporter.ts
+   1:1   error    '../db' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead         no-restricted-imports
+   2:1   error    '../integrity' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  14:25  warning  Unexpected empty constructor                                                                                                 @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\governance\migration.ts
+   2:1   error    '../parity' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  22:25  warning  Unexpected empty constructor                                                                                              @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\governance\retention.ts
+   1:1   error    '../db' import is restricted from being used by a pattern. Relative imports are not allowed. Please use '~/' instead  no-restricted-imports
+  22:25  warning  Unexpected empty constructor                                                                                          @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\integrity.ts
+  16:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\persistence\parity.ts
+  45:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\runtime\config.ts
+  52:14  error  Variable name `RuntimeConfig` must match one of the following formats: camelCase, UPPER_CASE  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\lib\services\errorReporter.ts
+  24:25  warning  Unexpected empty constructor  @typescript-eslint/no-empty-function
+
+C:\software\Devonz\app\lib\services\longTermMemoryService.ts
+  18:25  warning  Unexpected empty constructor       @typescript-eslint/no-empty-function
+  98:14  error    'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\lib\services\ragService.test.ts
+  19:15  error  Variable name `RAGService` must match one of the following formats: camelCase, UPPER_CASE  @typescript-eslint/naming-convention
+
+C:\software\Devonz\app\lib\stores\middleware.ts
+  1:10  error  'map' is defined but never used           @typescript-eslint/no-unused-vars
+  2:15  error  'MapStore' is defined but never used      @typescript-eslint/no-unused-vars
+  2:25  error  'WritableAtom' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\software\Devonz\app\root.tsx
+  40:25  error  ["csrf_token"] is better written in dot notation  dot-notation
+
+Γ£û 86 problems (40 errors, 46 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.

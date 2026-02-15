@@ -48,6 +48,7 @@ export class SchemaParityService {
     if (!SchemaParityService._instance) {
       SchemaParityService._instance = new SchemaParityService();
     }
+
     return SchemaParityService._instance;
   }
 
@@ -56,7 +57,10 @@ export class SchemaParityService {
    */
   validateRecord(tableName: string, record: any): { valid: boolean; errors: string[] } {
     const table = this._goldenSchema[tableName];
-    if (!table) return { valid: false, errors: [`Table '${tableName}' not found in golden schema.`] };
+
+    if (!table) {
+      return { valid: false, errors: [`Table '${tableName}' not found in golden schema.`] };
+    }
 
     const errors: string[] = [];
 
@@ -67,10 +71,12 @@ export class SchemaParityService {
         if (spec.required) {
           errors.push(`Missing required field: ${fieldName}`);
         }
+
         continue;
       }
 
       const actualType = Array.isArray(value) ? 'array' : typeof value;
+
       if (actualType !== spec.type) {
         errors.push(`Type mismatch for ${fieldName}: expected ${spec.type}, got ${actualType}`);
       }
@@ -90,6 +96,7 @@ export class SchemaParityService {
 
     for (const record of records) {
       const { valid, errors } = this.validateRecord(tableName, record);
+
       if (!valid) {
         driftCount++;
         logger.warn(`Schema drift in ${tableName} record ${record.id || 'unknown'}: ${errors.join(', ')}`);

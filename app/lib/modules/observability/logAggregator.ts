@@ -24,6 +24,7 @@ export class LogAggregator {
     if (!LogAggregator._instance) {
       LogAggregator._instance = new LogAggregator();
     }
+
     return LogAggregator._instance;
   }
 

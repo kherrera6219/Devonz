@@ -39,11 +39,12 @@ describe('RAGService Validation', () => {
       expect(results[0]).toContain('bird');
       console.log('Query successful, found content:', results[0]);
     } catch (error) {
-      const msg = error instanceof AggregateError
-        ? error.errors.map((e) => e.message).join('; ')
-        : error instanceof Error
-          ? error.message
-          : String(error);
+      const msg =
+        error instanceof AggregateError
+          ? error.errors.map((e) => e.message).join('; ')
+          : error instanceof Error
+            ? error.message
+            : String(error);
 
       // Skip gracefully on connection errors (database not running)
       if (msg.includes('ECONNREFUSED') || msg.includes('ENOTFOUND') || msg.includes('connect')) {

@@ -16,6 +16,7 @@ export class LatencyMonitor {
     if (!LatencyMonitor._instance) {
       LatencyMonitor._instance = new LatencyMonitor();
     }
+
     return LatencyMonitor._instance;
   }
 
@@ -32,7 +33,7 @@ export class LatencyMonitor {
 
       metricsCollector.setGauge('service_latency_ms', duration, {
         service: serviceName,
-        operation: operation,
+        operation,
       });
 
       if (duration > 2000) {
@@ -46,6 +47,7 @@ export class LatencyMonitor {
    */
   async measure<T>(serviceName: string, operation: string, fn: () => Promise<T>): Promise<T> {
     const stop = this.startTimer(serviceName, operation);
+
     try {
       return await fn();
     } finally {

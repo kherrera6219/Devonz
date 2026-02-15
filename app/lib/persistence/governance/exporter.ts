@@ -1,5 +1,5 @@
-import { getMessages, getSnapshot, openDatabase } from '../db';
-import { snapshotIntegrity } from '../integrity';
+import { getMessages, getSnapshot, openDatabase } from '~/lib/persistence/db';
+import { snapshotIntegrity } from '~/lib/persistence/integrity';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('EvidenceExporter');
@@ -17,6 +17,7 @@ export class EvidenceExporter {
     if (!EvidenceExporter._instance) {
       EvidenceExporter._instance = new EvidenceExporter();
     }
+
     return EvidenceExporter._instance;
   }
 
@@ -25,10 +26,16 @@ export class EvidenceExporter {
    */
   async exportChatAsBundle(chatId: string): Promise<string> {
     const db = await openDatabase();
-    if (!db) throw new Error('Database not available');
+
+    if (!db) {
+      throw new Error('Database not available');
+    }
 
     const chat = await getMessages(db, chatId);
-    if (!chat) throw new Error(`Chat ${chatId} not found`);
+
+    if (!chat) {
+      throw new Error(`Chat ${chatId} not found`);
+    }
 
     const snapshot = await getSnapshot(db, chatId);
 
@@ -50,8 +57,10 @@ export class EvidenceExporter {
 
     logger.info(`Evidence bundle generated for chat ${chatId}`);
 
-    // In a real browser implementation, this might trigger a file download
-    // For now, we return the JSON string.
+    /*
+     * In a real browser implementation, this might trigger a file download
+     * For now, we return the JSON string.
+     */
     return JSON.stringify(bundle, null, 2);
   }
 }

@@ -27,19 +27,20 @@ export class RBACEngine {
   private readonly _roles: Record<UserRole, RoleDefinition> = {
     ADMIN: {
       permissions: [
-        'read:project', 'write:project', 'delete:project',
-        'manage:secrets', 'execute:tools', 'view:analytics', 'manage:users'
+        'read:project',
+        'write:project',
+        'delete:project',
+        'manage:secrets',
+        'execute:tools',
+        'view:analytics',
+        'manage:users',
       ],
     },
     DEVELOPER: {
-      permissions: [
-        'read:project', 'write:project', 'execute:tools', 'view:analytics'
-      ],
+      permissions: ['read:project', 'write:project', 'execute:tools', 'view:analytics'],
     },
     VIEWER: {
-      permissions: [
-        'read:project', 'view:analytics'
-      ],
+      permissions: ['read:project', 'view:analytics'],
     },
   };
 
@@ -49,6 +50,7 @@ export class RBACEngine {
     if (!RBACEngine._instance) {
       RBACEngine._instance = new RBACEngine();
     }
+
     return RBACEngine._instance;
   }
 

@@ -11,29 +11,35 @@ export function generateCsrfToken(): string {
  * Validate CSRF token (Double Submit Cookie pattern)
  */
 export function validateCsrf(request: Request, cookieHeader: string | null): boolean {
-  if (!cookieHeader) return false;
+  if (!cookieHeader) {
+    return false;
+  }
 
   const tokenFromHeader = request.headers.get('x-csrf-token');
-  if (!tokenFromHeader) return false;
+
+  if (!tokenFromHeader) {
+    return false;
+  }
 
   const cookies = cookieHeader.split(';').reduce(
     (acc, cookie) => {
       const [key, value] = cookie.trim().split('=');
-      if (key) acc[key] = value;
+
+      if (key) {
+        acc[key] = value;
+      }
+
       return acc;
     },
     {} as Record<string, string>,
   );
 
-  const tokenFromCookie = cookies['csrf_token'];
+  const tokenFromCookie = cookies.csrf_token;
 
   // Constant-time comparison to prevent timing attacks
   if (!tokenFromCookie || tokenFromCookie.length !== tokenFromHeader.length) {
     return false;
   }
 
-  return crypto.timingSafeEqual(
-    Buffer.from(tokenFromCookie),
-    Buffer.from(tokenFromHeader)
-  );
+  return crypto.timingSafeEqual(Buffer.from(tokenFromCookie), Buffer.from(tokenFromHeader));
 }

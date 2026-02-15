@@ -22,13 +22,14 @@ export abstract class BaseConnector {
   protected async request<T>(
     endpoint: string,
     schema: z.ZodType<T>,
-    options: ConnectorRequestOptions = {}
+    options: ConnectorRequestOptions = {},
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
     // 1. SSRF Check
     if (options.validateSrf !== false) {
       const isSafe = await ssrfGuard.validateUrl(url);
+
       if (!isSafe) {
         throw new Error(`Security Block: SSRF protection triggered for ${url}`);
       }

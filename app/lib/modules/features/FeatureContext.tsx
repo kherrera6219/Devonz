@@ -20,8 +20,10 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
+
       if (stored) {
         const parsed = JSON.parse(stored);
+
         // Merge stored config with defaults to ensure new flags exist
         setFeatures((prev) => {
           const merged = { ...prev };
@@ -30,6 +32,7 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
               merged[key].enabled = parsed[key].enabled;
             }
           });
+
           return merged;
         });
       }
@@ -43,6 +46,7 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
   // Persist to storage on change
   const saveFeatures = (newFeatures: Record<string, FeatureConfig>) => {
     setFeatures(newFeatures);
+
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newFeatures));
     } catch (e) {
@@ -87,8 +91,10 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
 
 export function useFeatures() {
   const context = useContext(FeatureContext);
+
   if (context === undefined) {
     throw new Error('useFeatures must be used within a FeatureProvider');
   }
+
   return context;
 }

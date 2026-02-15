@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Header } from './Header';
 import { createRemixStub } from '@remix-run/testing';
 import { chatStore } from '~/lib/stores/chat';
@@ -33,6 +33,7 @@ export const Default: Story = {
     chatStore.setKey('started', true);
     chatStore.setKey('showChat', true);
     sidebarStore.setKey('open', false);
+
     return <Header />;
   },
 };
@@ -41,6 +42,7 @@ export const SidebarOpen: Story = {
   render: () => {
     chatStore.setKey('started', true);
     sidebarStore.setKey('open', true);
+
     return <Header />;
   },
 };
@@ -49,6 +51,7 @@ export const ChatHidden: Story = {
   render: () => {
     chatStore.setKey('started', true);
     chatStore.setKey('showChat', false);
+
     return <Header />;
   },
 };
