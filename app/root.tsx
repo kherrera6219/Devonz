@@ -13,12 +13,49 @@ import { I18nextProvider } from 'react-i18next';
 import { IconButton } from '~/components/ui/IconButton';
 import './lib/i18n/config';
 
-import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
-import globalStyles from './styles/index.scss?url';
-import liquidMetalStyles from './styles/liquid-metal.css?url';
-import xtermStyles from '@xterm/xterm/css/xterm.css?url';
+// import reactToastifyStylesimport 'react-toastify/dist/ReactToastify.css?url';
+import './styles/index.scss?url';
+import './styles/liquid-metal.css?url';
+import '@xterm/xterm/css/xterm.css?url';
 
 import 'virtual:uno.css';
+
+import { json, type LoaderFunctionArgs } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const cookieHeader = request.headers.get('Cookie');
+  let csrfToken: string | undefined;
+
+  if (cookieHeader) {
+     const cookies = cookieHeader.split(';').reduce((acc, c) => {
+       const [key, value] = c.trim().split('=');
+       if (key) acc[key] = value;
+       return acc;
+     }, {} as Record<string, string>);
+     csrfToken = cookies['csrf_token'];
+  }
+
+  const newSession = !csrfToken;
+  if (newSession) {
+    const { generateCsrfToken } = await import('~/lib/csrf.server');
+    csrfToken = generateCsrfToken();
+  }
+
+  return json(
+    {
+      csrfToken,
+      ENV: {
+        CSRF_TOKEN: csrfToken,
+      }
+    },
+    {
+      headers: newSession ? {
+        'Set-Cookie': `csrf_token=${csrfToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000`,
+      } : undefined,
+    }
+  );
+}
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -56,6 +93,7 @@ const inlineThemeCode = stripIndents`
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
+  const data = useLoaderData<typeof loader>();
 
   useEffect(() => {
     document.querySelector('html')?.setAttribute('data-theme', theme);
@@ -66,6 +104,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {data?.csrfToken && <meta name="csrf-token" content={data.csrfToken} />}
         <Meta />
         <Links />
         <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
@@ -102,6 +141,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           autoClose={3000}
         />
         <ScrollRestoration />
+        {data?.ENV && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+            }}
+          />
+        )}
         <Scripts />
       </body>
     </html>

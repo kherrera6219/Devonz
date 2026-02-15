@@ -262,6 +262,8 @@ export function sanitizeErrorMessage(error: unknown, isDevelopment = false): str
   return 'An unexpected error occurred';
 }
 
+// export { generateCsrfToken, validateCsrf } from '~/lib/csrf.server';
+
 /**
  * Security wrapper for API routes
  */
@@ -270,6 +272,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
   options: {
     requireAuth?: boolean;
     rateLimit?: boolean;
+    csrf?: boolean;
     allowedMethods?: string[];
   } = {},
 ) {
@@ -284,6 +287,19 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
         status: 405,
         headers: createSecurityHeaders(),
       });
+    }
+
+    // CSRF Check (only for mutating methods if enabled)
+    if (options.csrf && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method)) {
+        // Dynamic import to avoid bundling server code in client
+        const { validateCsrf } = await import('~/lib/csrf.server');
+        const isValid = validateCsrf(request, request.headers.get('Cookie'));
+        if (!isValid) {
+            return new Response('Invalid CSRF Token', {
+                status: 403,
+                headers: createSecurityHeaders(),
+            });
+        }
     }
 
     // Apply rate limiting in all environments

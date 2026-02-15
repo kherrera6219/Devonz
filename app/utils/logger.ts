@@ -1,7 +1,12 @@
-export type DebugLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'none';
-import { Chalk } from 'chalk';
+// import { Chalk } from 'chalk';
 
-const chalk = new Chalk({ level: 3 });
+let chalk: any;
+
+if (typeof process !== 'undefined' && process.release?.name === 'node' && process.env.NODE_ENV !== 'production') {
+  import('chalk').then((m) => {
+    chalk = new m.Chalk({ level: 3 });
+  }).catch(() => { /* ignore */ });
+}
 
 type LoggerFunction = (...messages: any[]) => void;
 
@@ -13,6 +18,20 @@ interface Logger {
   error: LoggerFunction;
   setLevel: (level: DebugLevel) => void;
 }
+
+// Server-side Request ID retrieval (safe for isomorphic usage)
+let getRequestId: () => string | undefined = () => undefined;
+
+/*
+// Disabled for build stability - dynamic import of server module breaks client bundle
+if (typeof process !== 'undefined' && process.release?.name === 'node' && typeof window === 'undefined') {
+  import('~/lib/context.server').then((m) => {
+    getRequestId = m.getRequestId;
+  }).catch(() => {
+    // Ignore errors
+  });
+}
+*/
 
 const getLogLevel = (): DebugLevel => {
   try {
@@ -27,6 +46,7 @@ const getLogLevel = (): DebugLevel => {
 };
 
 let currentLevel: DebugLevel = getLogLevel();
+
 
 export const logger: Logger = {
   trace: (...messages: any[]) => logWithDebugCapture('trace', undefined, messages),
@@ -72,6 +92,30 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
     return;
   }
 
+  // Production JSON Logging
+  if (process.env.NODE_ENV === 'production') {
+    const timestamp = new Date().toISOString();
+    const requestId = getRequestId();
+
+    const logObject = {
+      timestamp,
+      level,
+      requestId,
+      scope,
+      message: messages.map(m => typeof m === 'object' ? JSON.stringify(m) : String(m)).join(' '),
+      data: messages.length > 1 ? messages.slice(1) : undefined,
+    };
+
+    // Use console.log/error directly for JSON output without chalk formatting
+    if (level === 'error') {
+      console.error(JSON.stringify(logObject));
+    } else {
+      console.log(JSON.stringify(logObject));
+    }
+    return;
+  }
+
+  // Development Pretty Logging (Chalk)
   const allMessages = messages.reduce((acc, current) => {
     if (acc.endsWith('\n')) {
       return acc + current;
@@ -97,9 +141,14 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
   }
 
   let labelText = formatText(` ${level.toUpperCase()} `, labelTextColor, labelBackgroundColor);
+  const requestId = getRequestId();
 
   if (scope) {
     labelText = `${labelText} ${formatText(` ${scope} `, '#FFFFFF', '77828D')}`;
+  }
+
+  if (requestId) {
+    labelText = `${formatText(` ${requestId.slice(0, 8)} `, '#000000', '#D3D3D3')} ${labelText}`;
   }
 
   if (typeof window !== 'undefined') {
@@ -110,7 +159,10 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
 }
 
 function formatText(text: string, color: string, bg: string) {
-  return chalk.bgHex(bg)(chalk.hex(color)(text));
+  if (chalk) {
+    return chalk.bgHex(bg)(chalk.hex(color)(text));
+  }
+  return text;
 }
 
 function getLabelStyles(color: string, textColor: string) {
@@ -139,6 +191,7 @@ function getColorForLevel(level: DebugLevel): string {
 }
 
 export const renderLogger = createScopedLogger('Render');
+
 
 // Debug logging integration
 let debugLogger: any = null;
