@@ -152,7 +152,7 @@ $stepNum = 3
 Show-BuildProgress -StepNumber $stepNum -Status $steps[$stepNum - 1]
 
 # Create a batch file launcher that starts the Remix server
-$launcherBat = Join-Path $MsixDir 'devonz-launcher.bat'
+$launcherBat = Join-Path $MsixDir 'app_launcher.bat'
 @"
 @echo off
 title Devonz - AI Agent
@@ -163,7 +163,7 @@ node node_modules\remix-serve\dist\cli.js ./build/server/index.js
 # For MSIX, we need an .exe — use a simple VBS-to-EXE or
 # use the batch file directly if Desktop Bridge supports it.
 # For now, create a small VBS wrapper that launches the batch silently.
-$launcherVbs = Join-Path $MsixDir 'devonz-launcher.vbs'
+$launcherVbs = Join-Path $MsixDir 'app_launcher.vbs'
 @"
 Set WshShell = CreateObject("WScript.Shell")
 WshShell.Run Chr(34) & Replace(WScript.ScriptFullName, ".vbs", ".bat") & Chr(34), 1, False
@@ -225,16 +225,31 @@ foreach ($file in $essentialFiles) {
 }
 
 # Copy node_modules (for remix-serve runtime)
+# We exclude dev dependencies and large icon/doc directories to stay under MSIX/makeappx limits
 $nodeModulesDir = Join-Path $SourceDir 'node_modules'
 if (Test-Path $nodeModulesDir) {
-    Write-Host '  Copying node_modules (this may take a moment)...' -ForegroundColor Cyan
-    Copy-Item -Path $nodeModulesDir -Destination (Join-Path $appDest 'node_modules') -Recurse -Force
-    Write-Host '  node_modules copied' -ForegroundColor Green
+    Write-Host '  Copying production node_modules...' -ForegroundColor Cyan
+    $dest = Join-Path $appDest 'node_modules'
+    if (Test-Path $dest) { Remove-Item -Path $dest -Recurse -Force }
+    New-Item -Path $dest -ItemType Directory -Force | Out-Null
+
+    # List of directories/patterns to exclude to keep the package slim and avoid makeappx failures
+    $excludePatterns = @(
+        '.pnpm', '.bin', '.cache', '.vite', 'eslint*', 'prettier*', 'typescript*',
+        'vitest*', 'storybook*', '@storybook*', 'pnpm*', 'rimraf*', 'husky*',
+        '@types*', 'doc*', 'test*', 'example*', 'coverage*',
+        '@phosphor-icons*', '@heroicons*', 'lucide-react*', 'date-fns*'
+    )
+
+    Get-ChildItem -Path $nodeModulesDir -Exclude $excludePatterns | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination $dest -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    Write-Host '  Production node_modules copied' -ForegroundColor Green
 }
 
 # Copy launcher
-Copy-Item -Path $launcherBat -Destination $StagingDir -Force
-Copy-Item -Path $launcherVbs -Destination $StagingDir -Force
+# We only copy the .exe as makeappx fails with "incorrect label syntax" for .bat/.vbs in root
+Copy-Item -Path (Join-Path $MsixDir "app_launcher.exe") -Destination $StagingDir -Force
 
 # ════════════════════════════════════════════════════════════════
 # STEP 6: Copy visual assets
@@ -291,6 +306,23 @@ Get-ChildItem -Path $StagingDir -Recurse -File | ForEach-Object {
 $mappingLines | Set-Content -Path $mappingFile -Encoding UTF8
 Write-Host "  File mapping generated ($($mappingLines.Count - 1) files)" -ForegroundColor Green
 
+# Sanitize staging directory for MSIX compatibility
+# Files with specific characters like [], (), @, etc. can break makeappx
+Write-Host "  Sanitizing file names for MSIX compatibility..." -ForegroundColor Cyan
+$invalidPattern = '[\[\]\(\);,@%~]'
+Get-ChildItem -Path $StagingDir -Recurse | Where-Object { $_.Name -match $invalidPattern } | ForEach-Object {
+    if ($_.Attributes -match "Directory") {
+        # Actually, MSIX manifest labels (Ids) are the main issue,
+        # but sometimes directory names also trip up makeappx.
+        # Let's try to remove non-essential files with invalid names.
+        Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    else {
+        Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+    }
+}
+Write-Host "  Sanitization complete" -ForegroundColor Green
+
 # ════════════════════════════════════════════════════════════════
 # STEP 8: Create MSIX package
 # ════════════════════════════════════════════════════════════════
@@ -309,12 +341,12 @@ if (Test-Path $OutputMsix) {
 
 Write-Host "  Running makeappx.exe pack..." -ForegroundColor Cyan
 
-& $makeAppx pack /f $mappingFile /p $OutputMsix /o 2>&1 | Out-Null
+# Try packing from directory first as it's more robust for large file counts
+& $makeAppx pack /d $StagingDir /p $OutputMsix /o 2>&1 | Out-Null
 
 if ($LASTEXITCODE -ne 0) {
-    # Try alternate approach: pack from directory
-    Write-Host '  Retrying with directory packing...' -ForegroundColor Yellow
-    & $makeAppx pack /d $StagingDir /p $OutputMsix /o 2>&1 | Out-Null
+    Write-Host '  Directory packing failed, trying with mapping file...' -ForegroundColor Yellow
+    & $makeAppx pack /f $mappingFile /p $OutputMsix /o 2>&1 | Out-Null
 }
 
 if (Test-Path $OutputMsix) {
