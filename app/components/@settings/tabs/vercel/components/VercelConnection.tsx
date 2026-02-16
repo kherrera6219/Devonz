@@ -28,7 +28,6 @@ export default function VercelConnection() {
     }
 
     const initializeConnection = async () => {
-
       hasInitialized.current = true;
 
       // Auto-connect using environment variable if no existing connection but token exists
@@ -277,6 +276,7 @@ export default function VercelConnection() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block p-4 rounded-lg border border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive transition-colors"
+                        aria-label={`View project ${project.name}`}
                       >
                         <div className="flex items-center justify-between">
                           <div>

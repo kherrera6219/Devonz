@@ -574,6 +574,7 @@ export class ImportExportService {
     // Import update settings
     if (data.updates) {
       const updatesData = data.updates as Record<string, unknown>;
+
       if (updatesData?.update_settings) {
         try {
           this._safeSetItem('update_settings', updatesData.update_settings);

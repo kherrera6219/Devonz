@@ -78,7 +78,7 @@ export default function SupabaseTab() {
       });
 
       if (response.ok) {
-        const data = (await response.json()) as any;
+        const data = (await response.json()) as { projects?: unknown[] };
         setConnectionTest({
           status: 'success',
           message: `Connected successfully using environment token. Found ${data.projects?.length || 0} projects`,
@@ -199,7 +199,7 @@ export default function SupabaseTab() {
         const currentState = supabaseConnection.get();
 
         if (!currentState.user) {
-
+          // No user logged in
         }
       } catch (error) {
         console.error('Failed to initialize Supabase connection:', error);
@@ -542,6 +542,7 @@ export default function SupabaseTab() {
                                     value={connection.credentials.supabaseUrl || ''}
                                     readOnly
                                     className="flex-1 px-2 py-1 text-xs bg-bolt-elements-background border border-bolt-elements-borderColor rounded"
+                                    aria-label="Supabase URL"
                                   />
                                   <Button
                                     size="icon"
@@ -568,6 +569,7 @@ export default function SupabaseTab() {
                                     value={connection.credentials.anonKey || ''}
                                     readOnly
                                     className="flex-1 px-2 py-1 text-xs bg-bolt-elements-background border border-bolt-elements-borderColor rounded"
+                                    aria-label="Anon Key"
                                   />
                                   <Button
                                     size="icon"

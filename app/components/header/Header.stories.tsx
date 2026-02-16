@@ -12,7 +12,7 @@ const meta = {
   },
   tags: ['autodocs'],
   decorators: [
-    (storyComponent: any) => {
+    (storyComponent: React.ComponentType) => {
       const RemixStub = createRemixStub([
         {
           path: '/',

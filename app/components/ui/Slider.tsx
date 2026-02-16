@@ -64,8 +64,7 @@ const SliderButton = memo(({ selected, children, setSelected }: SliderButtonProp
         <motion.span
           layoutId="pill-tab"
           transition={{ duration: 0.2, ease: cubicEasingFn }}
-          className="absolute inset-0 z-0 rounded-full"
-          style={{ background: 'rgba(59, 130, 246, 0.15)' }}
+          className="absolute inset-0 z-0 rounded-full bg-blue-500/15"
         ></motion.span>
       )}
     </button>

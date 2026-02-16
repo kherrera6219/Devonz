@@ -24,20 +24,15 @@ export function GitHubConnection({ connectionTest, onTestConnection }: GitHubCon
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
 
-
     if (!token.trim()) {
-
       return;
     }
 
     try {
-
       await connect(token, tokenType);
 
       setToken(''); // Clear token on successful connection
-    } catch (error) {
-
-
+    } catch {
       // Error handling is done in the hook
     }
   };

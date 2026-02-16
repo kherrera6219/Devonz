@@ -81,11 +81,13 @@ export function BranchSelector({
       }
 
       if (!response.ok) {
-        const errorData: any = await response.json().catch(() => ({ error: 'Failed to fetch branches' }));
+        const errorData = (await response.json().catch(() => ({ error: 'Failed to fetch branches' }))) as {
+          error?: string;
+        };
         throw new Error(errorData.error || `HTTP ${response.status}`);
       }
 
-      const data: any = await response.json();
+      const data = (await response.json()) as { branches?: BranchInfo[]; defaultBranch?: string };
       setBranches(data.branches || []);
 
       // Set default selected branch
@@ -155,6 +157,7 @@ export function BranchSelector({
             <button
               onClick={onClose}
               className="p-2 rounded-lg hover:bg-bolt-elements-background-depth-1 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-all"
+              aria-label="Close branch selector"
             >
               <div className="i-ph:x size-5" />
             </button>

@@ -208,7 +208,7 @@ async function parseDOCX(buffer: Buffer, path: string): Promise<ParsedDocument> 
 async function parseExcel(buffer: Buffer, path: string, options: ParseOptions): Promise<ParsedDocument> {
   const excelJS = await import('exceljs');
   const workbook = new excelJS.Workbook();
-  await workbook.xlsx.load(buffer as unknown as Buffer);
+  await workbook.xlsx.load(buffer as any);
 
   const content: string[] = [];
   const sheetNames: string[] = [];

@@ -82,10 +82,8 @@ export default function LocalProvidersTab() {
       const baseUrl = provider.settings.baseUrl;
 
       if (provider.settings.enabled && baseUrl) {
-
         startMonitoring(provider.name as 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl);
       } else if (!provider.settings.enabled && baseUrl) {
-
         stopMonitoring(provider.name as 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl);
       }
     });
@@ -305,13 +303,7 @@ export default function LocalProvidersTab() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div className="flex items-center gap-4">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2))',
-                  boxShadow: '0 0 0 1px rgba(139, 92, 246, 0.3)',
-                }}
-              >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.2))] shadow-[0_0_0_1px_rgba(139,92,246,0.3)]">
                 <div className="i-ph:cpu w-6 h-6 text-purple-500" />
               </div>
               <div>
