@@ -98,6 +98,7 @@ export function GitHubConnection({ connectionTest, onTestConnection }: GitHubCon
                   'focus:outline-none focus:ring-1 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
                   'disabled:opacity-50',
                 )}
+                aria-label="Token Type"
               >
                 <option value="classic">Personal Access Token (Classic)</option>
                 <option value="fine-grained">Fine-grained Token</option>

@@ -4,9 +4,12 @@ import { netlifyConnection } from '~/lib/stores/netlify';
 import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { webcontainer } from '~/lib/webcontainer';
 import { path } from '~/utils/path';
+import { createScopedLogger } from '~/utils/logger';
 import { useState } from 'react';
 import type { ActionCallbackData } from '~/lib/runtime/message-parser';
 import { chatId } from '~/lib/persistence/useChatHistory';
+
+const logger = createScopedLogger('NetlifyDeploy');
 
 export function useNetlifyDeploy() {
   const [isDeploying, setIsDeploying] = useState(false);
@@ -83,7 +86,7 @@ export function useNetlifyDeploy() {
       // Remove /home/project from buildPath if it exists
       const buildPath = artifact.runner.buildOutput.path.replace('/home/project', '');
 
-      console.log('Original buildPath', buildPath);
+      logger.info('Original buildPath', buildPath);
 
       // Check if the build path exists
       let finalBuildPath = buildPath;
@@ -99,11 +102,11 @@ export function useNetlifyDeploy() {
           await container.fs.readdir(dir);
           finalBuildPath = dir;
           buildPathExists = true;
-          console.log(`Using build directory: ${finalBuildPath}`);
+          logger.info(`Using build directory: ${finalBuildPath}`);
           break;
         } catch (error) {
           // Directory doesn't exist, try the next one
-          console.log(`Directory ${dir} doesn't exist, trying next option. ${error}`);
+          logger.info(`Directory ${dir} doesn't exist, trying next option. ${error}`);
           continue;
         }
       }
@@ -152,10 +155,10 @@ export function useNetlifyDeploy() {
         }),
       });
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as { deploy?: { id: string }; site?: { id: string }; error?: string };
 
       if (!response.ok || !data.deploy || !data.site) {
-        console.error('Invalid deploy response:', data);
+        logger.error('Invalid deploy response:', data);
 
         // Notify that deployment failed
         deployArtifact.runner.handleDeployAction('deploying', 'failed', {
@@ -167,7 +170,7 @@ export function useNetlifyDeploy() {
 
       const maxAttempts = 20; // 2 minutes timeout
       let attempts = 0;
-      let deploymentStatus;
+      let deploymentStatus: { state: string; error_message?: string; ssl_url?: string; url?: string };
 
       while (attempts < maxAttempts) {
         try {
@@ -180,7 +183,7 @@ export function useNetlifyDeploy() {
             },
           );
 
-          deploymentStatus = (await statusResponse.json()) as any;
+          deploymentStatus = (await statusResponse.json()) as { state: string; error_message?: string; ssl_url?: string; url?: string };
 
           if (deploymentStatus.state === 'ready' || deploymentStatus.state === 'uploaded') {
             break;
@@ -198,7 +201,7 @@ export function useNetlifyDeploy() {
           attempts++;
           await new Promise((resolve) => setTimeout(resolve, 1000));
         } catch (error) {
-          console.error('Status check error:', error);
+          logger.error('Status check error:', error);
           attempts++;
           await new Promise((resolve) => setTimeout(resolve, 2000));
         }
@@ -229,7 +232,7 @@ export function useNetlifyDeploy() {
 
       return true;
     } catch (error) {
-      console.error('Deploy error:', error);
+      logger.error('Deploy error:', error);
       toast.error(error instanceof Error ? error.message : 'Deployment failed');
 
       return false;

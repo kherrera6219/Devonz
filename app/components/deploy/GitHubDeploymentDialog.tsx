@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Octokit } from '@octokit/rest';
 import { classNames } from '~/utils/classNames';
 import { getLocalStorage } from '~/lib/persistence/localStorage';
+import { createScopedLogger } from '~/utils/logger';
 import type { GitHubUserResponse, GitHubRepoInfo } from '~/types/GitHub';
 import { logStore } from '~/lib/stores/logs';
 import { chatId } from '~/lib/persistence/useChatHistory';
@@ -18,6 +19,8 @@ interface GitHubDeploymentDialogProps {
   projectName: string;
   files: Record<string, string>;
 }
+
+const logger = createScopedLogger('GitHubDeploymentDialog');
 
 export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: GitHubDeploymentDialogProps) {
   const [repoName, setRepoName] = useState('');
@@ -263,9 +266,10 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
             private: isPrivate,
           });
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // 404 means repo doesn't exist, which is what we want for new repos
-        if (error.status !== 404) {
+        const status = (error as any)?.status;
+        if (status !== 404) {
           throw error;
         }
       }
@@ -288,7 +292,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
         setCreatedRepoUrl(newRepo.html_url);
 
         // Since we created the repo with auto_init, we need to wait for GitHub to initialize it
-        console.log('Created new repository with auto_init, waiting for GitHub to initialize it...');
+        logger.info('Created new repository with auto_init, waiting for GitHub to initialize it...');
 
         // Wait a moment for GitHub to set up the initial commit
         await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -327,7 +331,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
           repo: sanitizedRepoName,
         });
         defaultBranch = repo.default_branch || 'main';
-        console.log(`Repository default branch: ${defaultBranch}`);
+        logger.info(`Repository default branch: ${defaultBranch}`);
 
         // For a newly created repo (or existing one), get the reference to the default branch
         try {
@@ -338,7 +342,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
           });
 
           baseSha = refData.object.sha;
-          console.log(`Found existing reference with SHA: ${baseSha}`);
+          logger.info(`Found existing reference with SHA: ${baseSha}`);
 
           // Get the latest commit to use as a base for our tree
           const { data: commitData } = await octokit.git.getCommit({
@@ -349,19 +353,19 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
 
           // Store the base tree SHA for tree creation
           baseSha = commitData.tree.sha;
-          console.log(`Using base tree SHA: ${baseSha}`);
+          logger.info(`Using base tree SHA: ${baseSha}`);
         } catch (refError) {
           console.error('Error getting reference:', refError);
           baseSha = null;
         }
       } catch (repoError) {
-        console.error('Error getting repository info:', repoError);
+        logger.error('Error getting repository info:', repoError);
         defaultBranch = 'main';
         baseSha = null;
       }
 
       try {
-        console.log('Creating tree for repository');
+        logger.info('Creating tree for repository');
 
         // Create a tree with all files
         const tree = fileEntries.map(([filePath, content]) => ({
@@ -371,7 +375,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
           content,
         }));
 
-        console.log(`Creating tree with ${tree.length} files using base: ${baseSha || 'none'}`);
+        logger.info(`Creating tree with ${tree.length} files using base: ${baseSha || 'none'}`);
 
         // Create a tree with all the files, using the base tree if available
         const sanitizedRepoName = sanitizeRepoName(repoName);
@@ -382,7 +386,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
           base_tree: baseSha || undefined,
         });
 
-        console.log('Tree created successfully', treeData.sha);
+        logger.info('Tree created successfully', treeData.sha);
 
         // Get the current reference to use as parent for our commit
         let parentCommitSha: string | null = null;
@@ -394,14 +398,14 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
             ref: `heads/${defaultBranch}`,
           });
           parentCommitSha = refData.object.sha;
-          console.log(`Found parent commit: ${parentCommitSha}`);
+          logger.info(`Found parent commit: ${parentCommitSha}`);
         } catch (refError) {
-          console.log('No reference found, this is a brand new repo', refError);
+          logger.info('No reference found, this is a brand new repo', refError);
           parentCommitSha = null;
         }
 
         // Create a commit with the tree
-        console.log('Creating commit');
+        logger.info('Creating commit');
 
         const { data: commitData } = await octokit.git.createCommit({
           owner: connection.user.login,
@@ -411,11 +415,11 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
           parents: parentCommitSha ? [parentCommitSha] : [], // Use parent if available
         });
 
-        console.log('Commit created successfully', commitData.sha);
+        logger.info('Commit created successfully', commitData.sha);
 
         // Update the reference to point to the new commit
         try {
-          console.log(`Updating reference: heads/${defaultBranch} to ${commitData.sha}`);
+          logger.info(`Updating reference: heads/${defaultBranch} to ${commitData.sha}`);
           await octokit.git.updateRef({
             owner: connection.user.login,
             repo: sanitizedRepoName,
@@ -423,9 +427,9 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
             sha: commitData.sha,
             force: true, // Use force to ensure the update works
           });
-          console.log('Reference updated successfully');
+          logger.info('Reference updated successfully');
         } catch (refError) {
-          console.log('Failed to update reference, attempting to create it', refError);
+          logger.warn('Failed to update reference, attempting to create it', refError);
 
           // If the reference doesn't exist, create it (shouldn't happen with auto_init, but just in case)
           try {
@@ -435,9 +439,9 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
               ref: `refs/heads/${defaultBranch}`,
               sha: commitData.sha,
             });
-            console.log('Reference created successfully');
+            logger.info('Reference created successfully');
           } catch (createRefError) {
-            console.error('Error creating reference:', createRefError);
+            logger.error('Error creating reference:', createRefError);
 
             const errorMsg =
               typeof createRefError === 'object' && createRefError !== null && 'message' in createRefError
@@ -447,7 +451,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
           }
         }
       } catch (gitError) {
-        console.error('Error with git operations:', gitError);
+        logger.error('Error with git operations:', gitError);
 
         const gitErrorMsg =
           typeof gitError === 'object' && gitError !== null && 'message' in gitError
@@ -470,7 +474,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
       // Show success dialog
       setShowSuccessDialog(true);
     } catch (error) {
-      console.error('Error pushing to GitHub:', error);
+      logger.error('Error pushing to GitHub:', error);
 
       // Attempt to extract more specific error information
       let errorMessage = 'Failed to push to GitHub';
@@ -513,7 +517,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
 
         // GitHub API errors
         if ('documentation_url' in error) {
-          console.log('GitHub API documentation:', error.documentation_url);
+          logger.info('GitHub API documentation:', error.documentation_url);
         }
       }
 
@@ -522,7 +526,7 @@ export function GitHubDeploymentDialog({ isOpen, onClose, projectName, files }: 
       toast.error(finalMessage);
 
       // Log detailed error for debugging
-      console.error('Detailed GitHub deployment error:', {
+      logger.error('Detailed GitHub deployment error:', {
         error,
         repoName: sanitizeRepoName(repoName),
         user: connection?.user?.login,

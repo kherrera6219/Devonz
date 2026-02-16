@@ -1,3 +1,5 @@
+import { createScopedLogger } from '~/utils/logger';
+
 // Simple EventEmitter implementation for browser compatibility
 class SimpleEventEmitter {
   private _events: Record<string, ((...args: any[]) => void)[]> = {};
@@ -49,6 +51,8 @@ export interface HealthCheckResult {
   availableModels?: string[];
   version?: string;
 }
+
+const logger = createScopedLogger('LocalModelHealthMonitor');
 
 export class LocalModelHealthMonitor extends SimpleEventEmitter {
   private _healthStatuses = new Map<string, ModelHealthStatus>();
@@ -219,7 +223,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
    */
   private async _checkOllamaHealth(baseUrl: string, signal: AbortSignal): Promise<HealthCheckResult> {
     try {
-      console.log(`[Health Check] Checking Ollama at ${baseUrl}`);
+      logger.info(`[Health Check] Checking Ollama at ${baseUrl}`);
 
       // Check if Ollama is running
       const response = await fetch(`${baseUrl}/api/tags`, {
@@ -234,7 +238,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
       const data = (await response.json()) as { models?: Array<{ name: string }> };
       const models = data.models?.map((model) => model.name) || [];
 
-      console.log(`[Health Check] Ollama healthy with ${models.length} models`);
+      logger.info(`[Health Check] Ollama healthy with ${models.length} models`);
 
       // Try to get version info
       let version: string | undefined;
@@ -257,7 +261,7 @@ export class LocalModelHealthMonitor extends SimpleEventEmitter {
         version,
       };
     } catch (error) {
-      console.error(`[Health Check] Ollama health check failed:`, error);
+      logger.error(`[Health Check] Ollama health check failed:`, error);
       return {
         isHealthy: false,
         responseTime: 0,

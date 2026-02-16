@@ -168,7 +168,7 @@ async function parsePDF(buffer: Buffer, path: string, options: ParseOptions): Pr
   for (let i = 1; i <= numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const strings = content.items.map((item: any) => item.str);
+    const strings = content.items.map((item: { str: string } | unknown) => (item as { str: string }).str || '');
     fullText += strings.join(' ') + '\n';
   }
 
@@ -208,7 +208,7 @@ async function parseDOCX(buffer: Buffer, path: string): Promise<ParsedDocument> 
 async function parseExcel(buffer: Buffer, path: string, options: ParseOptions): Promise<ParsedDocument> {
   const excelJS = await import('exceljs');
   const workbook = new excelJS.Workbook();
-  await workbook.xlsx.load(buffer as any);
+  await workbook.xlsx.load(buffer as unknown as Buffer);
 
   const content: string[] = [];
   const sheetNames: string[] = [];
@@ -227,8 +227,9 @@ async function parseExcel(buffer: Buffer, path: string, options: ParseOptions): 
     }
 
     content.push(`--- Sheet: ${sheetName} ---`);
-    worksheet.eachRow((row: any) => {
-      const rowValues = (row.values as any[]).slice(1); // ExcelJS rows are 1-indexed, first element is null
+    worksheet.eachRow((row) => {
+      // ExcelJS rows are 1-indexed, first element is null/undefined in values array
+      const rowValues = Array.isArray(row.values) ? row.values.slice(1) : [];
       content.push(rowValues.join(', '));
     });
   }

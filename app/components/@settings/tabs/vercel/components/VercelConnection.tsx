@@ -15,8 +15,6 @@ import {
 } from '~/lib/stores/vercel';
 
 export default function VercelConnection() {
-
-
   const connection = useStore(vercelConnection);
   const connecting = useStore(isConnecting);
   const fetchingStats = useStore(isFetchingStats);
@@ -26,7 +24,6 @@ export default function VercelConnection() {
   useEffect(() => {
     // Prevent multiple initializations
     if (hasInitialized.current) {
-
       return;
     }
 
@@ -36,8 +33,6 @@ export default function VercelConnection() {
 
       // Auto-connect using environment variable if no existing connection but token exists
       if (!connection.user && connection.token && import.meta.env?.VITE_VERCEL_ACCESS_TOKEN) {
-
-
         const result = await autoConnectVercel();
 
         if (result.success) {
@@ -49,8 +44,6 @@ export default function VercelConnection() {
         // Fetch stats for existing connection
 
         await fetchVercelStats(connection.token);
-      } else {
-
       }
     };
 
@@ -100,8 +93,6 @@ export default function VercelConnection() {
     toast.success('Disconnected from Vercel');
   };
 
-
-
   return (
     <motion.div
       className="bg-[#FFFFFF] dark:bg-[#0b0d13] rounded-lg border border-[#E5E5E5] dark:border-[#1a2332]"
@@ -118,6 +109,7 @@ export default function VercelConnection() {
               width="24"
               crossOrigin="anonymous"
               src={`https://cdn.simpleicons.org/vercel/black`}
+              alt="Vercel Logo"
             />
             <h3 className="text-base font-medium text-bolt-elements-textPrimary">Vercel Connection</h3>
           </div>
@@ -199,8 +191,6 @@ export default function VercelConnection() {
               {/* Debug button - remove this later */}
               <button
                 onClick={async () => {
-
-
                   const result = await autoConnectVercel();
 
                   if (result.success) {

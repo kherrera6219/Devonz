@@ -4,9 +4,12 @@ import { vercelConnection } from '~/lib/stores/vercel';
 import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { webcontainer } from '~/lib/webcontainer';
 import { path } from '~/utils/path';
+import { createScopedLogger } from '~/utils/logger';
 import { useState } from 'react';
 import type { ActionCallbackData } from '~/lib/runtime/message-parser';
 import { chatId } from '~/lib/persistence/useChatHistory';
+
+const logger = createScopedLogger('VercelDeploy');
 
 export function useVercelDeploy() {
   const [isDeploying, setIsDeploying] = useState(false);
@@ -157,7 +160,7 @@ export function useVercelDeploy() {
               allProjectFiles[relativePath] = content;
             } catch (error) {
               // Skip binary files or files that can't be read as text
-              console.log(`Skipping file ${entry.name}: ${error}`);
+              logger.warn(`Skipping file ${entry.name}: ${error}`);
             }
           } else if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
             await getAllProjectFiles(fullPath);
@@ -190,10 +193,10 @@ export function useVercelDeploy() {
         }),
       });
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as { deploy?: { url: string }; project?: { id: string }; error?: string };
 
       if (!response.ok || !data.deploy || !data.project) {
-        console.error('Invalid deploy response:', data);
+        logger.error('Invalid deploy response:', data);
 
         // Notify that deployment failed
         deployArtifact.runner.handleDeployAction('deploying', 'failed', {
@@ -218,7 +221,7 @@ export function useVercelDeploy() {
 
       return true;
     } catch (err) {
-      console.error('Vercel deploy error:', err);
+      logger.error('Vercel deploy error:', err);
       toast.error(err instanceof Error ? err.message : 'Vercel deployment failed');
 
       return false;

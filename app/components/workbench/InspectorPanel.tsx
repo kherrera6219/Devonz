@@ -243,6 +243,7 @@ export const InspectorPanel = ({
         <button
           onClick={onClose}
           className="text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary transition-colors p-1 rounded hover:bg-bolt-elements-background-depth-4"
+          aria-label="Close inspector"
         >
           <div className="i-ph:x w-4 h-4" />
         </button>
@@ -273,19 +274,18 @@ export const InspectorPanel = ({
 
       {/* Tabs */}
       <div
-        className="flex border-b border-bolt-elements-borderColor"
-        style={{ background: 'var(--bolt-elements-bg-depth-3)' }}
+        className="flex border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-3"
       >
         {(['styles', 'text', 'box', 'ai', 'tree', 'colors'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className="flex-1 px-1.5 py-2 text-[10px] font-medium capitalize transition-colors"
-            style={{
-              background: activeTab === tab ? 'var(--bolt-elements-bg-depth-2)' : 'transparent',
-              color: activeTab === tab ? 'var(--color-accent-500, #3b82f6)' : 'var(--bolt-elements-textSecondary)',
-              borderBottom: activeTab === tab ? '2px solid var(--color-accent-500, #3b82f6)' : '2px solid transparent',
-            }}
+            className={
+              `flex-1 px-1.5 py-2 text-[10px] font-medium capitalize transition-colors border-b-2 ` +
+              (activeTab === tab
+                ? 'bg-bolt-elements-background-depth-2 text-accent-500 border-accent-500'
+                : 'bg-transparent text-bolt-elements-textSecondary border-transparent')
+            }
           >
             {tab === 'ai' ? 'AI' : tab === 'tree' ? '🌳' : tab === 'colors' ? '🎨' : tab}
           </button>
@@ -321,9 +321,9 @@ export const InspectorPanel = ({
                           type="color"
                           value={color.startsWith('#') ? color : '#000000'}
                           onChange={(e) => handleStyleChange(prop, e.target.value)}
-                          className="absolute inset-0 w-[200%] h-[200%] -top-1 -left-1 cursor-pointer border-0 p-0 m-0"
-                          style={{ background: 'transparent' }}
+                          className="absolute inset-0 w-[200%] h-[200%] -top-1 -left-1 cursor-pointer border-0 p-0 m-0 bg-transparent"
                           title="Pick color"
+                          aria-label={`Pick color for ${prop}`}
                         />
                       </div>
                     )}
@@ -332,6 +332,7 @@ export const InspectorPanel = ({
                       value={editedValue}
                       onChange={(e) => handleStyleChange(prop, e.target.value)}
                       className="flex-1 bg-bolt-elements-background-depth-3 border border-bolt-elements-borderColor rounded px-2 py-1 text-bolt-elements-textPrimary font-mono text-xs focus:outline-none focus:border-accent-400"
+                      aria-label={`Value for ${prop}`}
                     />
                   </div>
                 </div>
