@@ -4,7 +4,7 @@
 > **Last Updated**: Feb 16, 2026 (Vite 7 & Infrastructure Upgrade)
 
 ## Prerequisites
--   **Node.js**: v20.19.0+ or v22.12.0+ (Required for Vite 7)
+-   **Node.js**: v20.19.0+ or v22.12.0+ (Strict Requirement for Vite 7)
 -   **PostgreSQL**: v15+ (with `pgvector` extension)
 -   **MinIO**: Compatible S3 storage
 -   **Neo4j** (Optional): For Graph RAG

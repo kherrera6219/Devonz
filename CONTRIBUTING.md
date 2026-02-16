@@ -11,7 +11,7 @@ This project adopts the [Microsoft Open Source Code of Conduct](https://opensour
 ## Getting Started
 
 ### Prerequisites
--   **Node.js**: v18.18.0 or higher
+-   **Node.js**: v20.19.0+ or v22.12.0+ (Strict Requirement for Vite 7)
 -   **pnpm**: v9+ (Recommended package manager)
 -   **Git**: Latest version
 
@@ -48,7 +48,7 @@ This project adopts the [Microsoft Open Source Code of Conduct](https://opensour
 ## Workflow
 1.  **Branching**: Create a feature branch (`git checkout -b feature/my-cool-feature`).
 2.  **Commits**: Use conventional commits (e.g., `feat: add new sidebar`, `fix: resolve auth bug`).
-3.  **Testing**: Ensure all tests pass (`pnpm test`).
+3.  **Testing**: Ensure all tests pass (`pnpm test` runs the full suite: Unit, Integration, and A11y).
 4.  **UI Verification**: Check components in Storybook (`pnpm run storybook`).
 5.  **Linting & Typechecking**: Ensure compliance (`pnpm run lint` and `pnpm run typecheck`).
 5.  **Pre-commit Hooks**: The project uses **Husky** to enforce linting and type safety locally. If a hook fails, resolve the issues before committing.

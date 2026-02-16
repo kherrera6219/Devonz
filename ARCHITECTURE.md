@@ -57,7 +57,7 @@ graph TD
 ### 4. Persistence
 -   **Relational**: PostgreSQL (User data, Projects).
 -   **Vector**: pgvector (Code embeddings, Semantic search).
--   **Local**: IndexedDB (Chat history, offline capability) with integrity verification.
+-   **Local**: IndexedDB (Chat history, offline capability) with integrity verification. Tests use `fake-indexeddb` for stability.
 -   **Cache**: Redis (Rate limiting, Session state, Usage metrics).
 
 ## Data Flow

@@ -1,7 +1,7 @@
 # Security Policy
 
 > **Version**: 1.0.0
-> **Last Updated**: Feb 2026
+> **Last Updated**: Feb 16, 2026
 
 ## Supported Versions
 
