@@ -3,6 +3,9 @@ import { atom, type WritableAtom } from 'nanostores';
 import type { ITerminal } from '~/types/terminal';
 import { newBoltShellProcess, newShellProcess } from '~/utils/shell';
 import { coloredText } from '~/utils/terminal';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('TerminalStore');
 
 export class TerminalStore {
   #webcontainer: Promise<WebContainer>;
@@ -36,8 +39,9 @@ export class TerminalStore {
       }
 
       await this.#boltTerminal.init(wc, terminal);
-    } catch (error: any) {
-      terminal.write(coloredText.red('Failed to spawn bolt shell\n\n') + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      terminal.write(coloredText.red('Failed to spawn bolt shell\n\n') + errorMessage);
       return;
     }
   }
@@ -54,8 +58,9 @@ export class TerminalStore {
 
       const shellProcess = await newShellProcess(wc, terminal);
       this.#terminals.push({ terminal, process: shellProcess });
-    } catch (error: any) {
-      terminal.write(coloredText.red('Failed to spawn shell\n\n') + error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      terminal.write(coloredText.red('Failed to spawn shell\n\n') + errorMessage);
       return;
     }
   }
@@ -75,7 +80,7 @@ export class TerminalStore {
       try {
         process.kill();
       } catch (error) {
-        console.warn('Failed to kill terminal process:', error);
+        logger.warn('Failed to kill terminal process:', error);
       }
       this.#terminals.splice(terminalIndex, 1);
     }

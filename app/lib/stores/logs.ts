@@ -9,7 +9,7 @@ export interface LogEntry {
   timestamp: string;
   level: 'info' | 'warning' | 'error' | 'debug';
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   category:
     | 'system'
     | 'provider'
@@ -34,12 +34,12 @@ export interface LogEntry {
     action?: string;
     userId?: string;
     sessionId?: string;
-    previousValue?: any;
-    newValue?: any;
+    previousValue?: unknown;
+    newValue?: unknown;
   };
 }
 
-interface LogDetails extends Record<string, any> {
+interface LogDetails extends Record<string, unknown> {
   type: string;
   message: string;
 }
@@ -73,7 +73,7 @@ class LogStore {
       try {
         const parsedLogs = JSON.parse(savedLogs);
         this._logs.set(parsedLogs);
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error('Failed to parse logs from cookies:', error);
       }
     }
@@ -90,7 +90,7 @@ class LogStore {
       try {
         const parsedReadLogs = JSON.parse(savedReadLogs);
         this._readLogs = new Set(parsedReadLogs);
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error('Failed to parse read logs:', error);
       }
     }

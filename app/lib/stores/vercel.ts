@@ -1,8 +1,11 @@
 import { atom } from 'nanostores';
-import type { VercelConnection } from '~/types/vercel';
+import type { VercelConnection, VercelProject } from '~/types/vercel';
 import { logStore } from './logs';
 import { toast } from 'react-toastify';
 import { vercelApi } from '~/lib/api/vercel-client';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('VercelStore');
 
 // Auto-connect using environment variable
 const envToken = import.meta.env?.VITE_VERCEL_ACCESS_TOKEN;
@@ -30,7 +33,7 @@ if (storedConnection) {
       initialConnection = parsed;
     }
   } catch (error) {
-    console.error('Error parsing saved Vercel connection:', error);
+    logger.error('Error parsing saved Vercel connection:', error);
     initialConnection = {
       user: null,
       token: envToken || '',
@@ -63,7 +66,7 @@ export const updateVercelConnection = (updates: Partial<VercelConnection>) => {
 // Auto-connect using environment token
 export async function autoConnectVercel() {
   if (!envToken) {
-    console.error('No Vercel token found in environment');
+    logger.error('No Vercel token found in environment');
     return { success: false, error: 'No Vercel token found in environment' };
   }
 
@@ -77,7 +80,7 @@ export async function autoConnectVercel() {
       throw new Error(result.error || 'Vercel API error');
     }
 
-    const userData = result.data as any;
+    const userData = result.data as any; // Adapting external API response to internal type
 
     // Update connection
     updateVercelConnection({
@@ -95,7 +98,7 @@ export async function autoConnectVercel() {
 
     return { success: true };
   } catch (error) {
-    console.error('Failed to auto-connect to Vercel:', error);
+    logger.error('Failed to auto-connect to Vercel:', error);
     logStore.logError(`Vercel auto-connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`, {
       type: 'system',
       message: 'Vercel auto-connection failed',
@@ -116,7 +119,7 @@ export function initializeVercelConnection() {
 
   if (envToken && !vercelConnection.get().token) {
     updateVercelConnection({ token: envToken });
-    fetchVercelStats(envToken).catch(console.error);
+    fetchVercelStats(envToken).catch((err) => logger.error('Failed to fetch stats:', err));
   }
 }
 
@@ -127,7 +130,7 @@ export async function fetchVercelStats(token: string) {
     isFetchingStats.set(true);
 
     // Fetch projects via proxy (bypasses CORS)
-    const projectsResult = await vercelApi.get<{ projects: any[] }>('/v9/projects', token);
+    const projectsResult = await vercelApi.get<{ projects: VercelProject[] }>('/v9/projects', token);
 
     if (!projectsResult.success || !projectsResult.data) {
       throw new Error(projectsResult.error || 'Failed to fetch projects');
@@ -137,23 +140,31 @@ export async function fetchVercelStats(token: string) {
 
     // Fetch latest deployment for each project
     const projectsWithDeployments = await Promise.all(
-      projects.map(async (project: any) => {
+      projects.map(async (project) => {
         try {
-          const deploymentsResult = await vercelApi.get<{ deployments: any[] }>(
+          // We can't import the Deployment type easily, so we'll use a structural match or unknown
+          const deploymentsResult = await vercelApi.get<{ deployments: unknown[] }>(
             `/v6/deployments?projectId=${project.id}&limit=1`,
             token,
           );
 
           if (deploymentsResult.success && deploymentsResult.data) {
+            const latestDeployments = (deploymentsResult.data.deployments || []) as any[];
+
             return {
               ...project,
-              latestDeployments: deploymentsResult.data.deployments || [],
+              latestDeployments: latestDeployments.map((d) => ({
+                id: d.id,
+                url: d.url,
+                created: d.created,
+                state: d.state,
+              })),
             };
           }
 
           return project;
         } catch (error) {
-          console.error(`Error fetching deployments for project ${project.id}:`, error);
+          logger.error(`Error fetching deployments for project ${project.id}:`, error);
           return project;
         }
       }),
@@ -168,7 +179,7 @@ export async function fetchVercelStats(token: string) {
       },
     });
   } catch (error) {
-    console.error('Vercel API Error:', error);
+    logger.error('Vercel API Error:', error);
     logStore.logError('Failed to fetch Vercel stats', { error });
     toast.error('Failed to fetch Vercel statistics');
   } finally {

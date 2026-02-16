@@ -13,6 +13,27 @@ export interface RunStage {
   summary?: string;
 }
 
+export interface QCReport {
+  issues?: {
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  };
+}
+
+export interface LogEvent {
+  type: string;
+  payload?: any;
+  stage: string;
+  summary?: string;
+  details?: {
+    max_iterations?: number;
+    issues?: any;
+  };
+  agent?: string;
+}
+
 export interface RunUIState {
   progress: number;
   stageLabel: string;
@@ -24,8 +45,8 @@ export interface RunUIState {
   runStages: RunStage[];
   statusLines: string[];
   iteration?: { current: number; max: number };
-  events: any[]; // Full history for ExpertDrawer
-  lastQCReport?: any;
+  events: LogEvent[];
+  lastQCReport?: QCReport;
 }
 
 const INITIAL_STAGES: RunStage[] = [
@@ -53,7 +74,7 @@ export function processRunEvents(data: JSONValue[] | undefined): RunUIState {
   // Filter only event logs
   const eventLogs = data
     .filter((item: any) => item && item.type === 'event_log' && item.payload)
-    .map((item: any) => item.payload);
+    .map((item: any) => item.payload as LogEvent);
 
   state.events = eventLogs;
 
@@ -93,7 +114,8 @@ export function processRunEvents(data: JSONValue[] | undefined): RunUIState {
         state.progress = 100;
       }
 
-      state.statusLines.unshift(`Completed: ${event.stage}`);
+      const summary = event.summary || event.stage;
+      state.statusLines.unshift(`Completed: ${summary}`);
     }
 
     // 2. Iteration (Fix Loops)
@@ -110,24 +132,29 @@ export function processRunEvents(data: JSONValue[] | undefined): RunUIState {
       const existingAgent = state.activeAgents.find((a) => a.agentId === event.agent);
 
       if (existingAgent) {
-        existingAgent.currentTask = event.summary;
+        existingAgent.currentTask = event.summary || 'Working...';
         existingAgent.status = 'working';
-      } else {
+      } else if (event.agent) {
         state.activeAgents.push({
           agentId: event.agent,
           status: 'working',
-          currentTask: event.summary,
+          currentTask: event.summary || 'Working...',
           model: 'GPT-4o', // Placeholder or derived
         });
       }
 
-      state.statusLines.unshift(`[${event.agent}] ${event.summary}`);
+      if (event.summary) {
+        state.statusLines.unshift(`[${event.agent}] ${event.summary}`);
+      }
     }
 
     // 4. Artifacts / Patches (Stats)
     if (event.type === 'patch_applied' || event.type === 'artifact_ready') {
       state.stats.filesTouched++;
-      state.statusLines.unshift(`Generated: ${event.summary}`);
+
+      if (event.summary) {
+        state.statusLines.unshift(`Generated: ${event.summary}`);
+      }
     }
 
     // 5. QC Issues
@@ -138,7 +165,9 @@ export function processRunEvents(data: JSONValue[] | undefined): RunUIState {
         state.stats.qcIssues.critical += 1;
       }
 
-      state.statusLines.unshift(`QC Issues Found: ${event.summary}`);
+      if (event.summary) {
+        state.statusLines.unshift(`QC Issues Found: ${event.summary}`);
+      }
     }
 
     // Cap status lines
@@ -150,7 +179,7 @@ export function processRunEvents(data: JSONValue[] | undefined): RunUIState {
   return state;
 }
 
-function updateStageStatus(stages: RunStage[], name: string, status: any, summary?: string) {
+function updateStageStatus(stages: RunStage[], name: string, status: RunStage['status'], summary?: string) {
   const stage = stages.find((s) => s.name === name);
 
   if (stage) {

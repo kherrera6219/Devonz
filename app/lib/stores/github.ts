@@ -1,6 +1,9 @@
 import { atom } from 'nanostores';
-import type { GitHubConnection } from '~/types/GitHub';
+import type { GitHubConnection, GitHubRepoInfo } from '~/types/GitHub';
 import { logStore } from './logs';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('GitHubStore');
 
 // Initialize with stored connection or defaults
 const storedConnection = typeof window !== 'undefined' ? localStorage.getItem('github_connection') : null;
@@ -33,8 +36,10 @@ export async function fetchGitHubStatsViaAPI() {
       throw new Error(`Failed to fetch repositories: ${response.status}`);
     }
 
-    const data = (await response.json()) as { repos: any[] };
-    const repos = data.repos || [];
+    const data = (await response.json()) as { repos: unknown[] };
+
+    // Validate strict shape or cast if we trust the API
+    const repos = (data.repos || []) as GitHubRepoInfo[];
 
     const currentState = githubConnection.get();
     updateGitHubConnection({
@@ -44,12 +49,12 @@ export async function fetchGitHubStatsViaAPI() {
         recentActivity: [],
         languages: {},
         totalGists: 0,
-        publicRepos: repos.filter((r: any) => !r.private).length,
-        privateRepos: repos.filter((r: any) => r.private).length,
-        stars: repos.reduce((sum: number, r: any) => sum + (r.stargazers_count || 0), 0),
-        forks: repos.reduce((sum: number, r: any) => sum + (r.forks_count || 0), 0),
-        totalStars: repos.reduce((sum: number, r: any) => sum + (r.stargazers_count || 0), 0),
-        totalForks: repos.reduce((sum: number, r: any) => sum + (r.forks_count || 0), 0),
+        publicRepos: repos.filter((r) => !r.private).length,
+        privateRepos: repos.filter((r) => r.private).length,
+        stars: repos.reduce((sum, r) => sum + (r.stargazers_count || 0), 0),
+        forks: repos.reduce((sum, r) => sum + (r.forks_count || 0), 0),
+        totalStars: repos.reduce((sum, r) => sum + (r.stargazers_count || 0), 0),
+        totalForks: repos.reduce((sum, r) => sum + (r.forks_count || 0), 0),
         followers: 0,
         publicGists: 0,
         privateGists: 0,
@@ -65,7 +70,7 @@ export async function fetchGitHubStatsViaAPI() {
 
     logStore.logSystem('GitHub stats fetched successfully');
   } catch (error) {
-    console.error('GitHub API Error:', error);
+    logger.error('GitHub API Error:', error);
     logStore.logError('Failed to fetch GitHub stats', { error });
   } finally {
     isFetchingStats.set(false);

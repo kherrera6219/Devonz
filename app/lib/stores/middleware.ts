@@ -1,4 +1,7 @@
 import { runtimeConfig } from '~/lib/runtime/config';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('StoreMiddleware');
 
 /**
  * Frontend State Governance Middleware.
@@ -9,31 +12,29 @@ import { runtimeConfig } from '~/lib/runtime/config';
  * Middleware for the Nanostores state management.
  * Injects the runtimeConfig into the store updates.
  */
-export const storeMiddleware = (store: any) => {
-  store.listen((_value: any, _changed: any) => {
+export const storeMiddleware = (store: { listen: (cb: (value: unknown, changed?: unknown) => void) => void }) => {
+  store.listen((_value: unknown, _changed: unknown) => {
     // Logic to enrich or intercept state updates using runtimeConfig
     if (runtimeConfig.isDevelopment) {
-      // console.log('Store update:', value);
+      // logger.debug('Store update:', _value);
     }
   });
 };
 
-export function createAction<T extends any[]>(
+export function createAction<T extends unknown[]>(
   storeName: string,
   actionName: string,
   action: (...args: T) => void,
 ): (...args: T) => void {
   return (...args: T) => {
     if (runtimeConfig.isDevelopment) {
-      console.groupCollapsed(`[State] ${storeName}/${actionName}`);
-      console.log('Payload:', args);
-      console.groupEnd();
+      logger.debug(`[State] ${storeName}/${actionName}`, { payload: args });
     }
 
     try {
       action(...args);
     } catch (error) {
-      console.error(`[State] Error in ${storeName}/${actionName}:`, error);
+      logger.error(`[State] Error in ${storeName}/${actionName}:`, error);
 
       // Could also report to ErrorReporter here
       throw error;
