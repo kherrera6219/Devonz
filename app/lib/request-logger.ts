@@ -28,7 +28,7 @@ export function logRequest(request: Request, status: number, durationMs: number)
  */
 export function logEvent(
   name: string,
-  attributes: Record<string, any> = {},
+  attributes: Record<string, unknown> = {},
   level: 'info' | 'warn' | 'error' = 'info',
 ): void {
   logger[level](
@@ -43,9 +43,10 @@ export function logEvent(
 /**
  * Wrap an API handler with request/response logging.
  */
-export function withRequestLogging<T extends (...args: any[]) => Promise<Response>>(handler: T): T {
-  return (async (...args: any[]) => {
-    const request = args[0]?.request || args[0];
+export function withRequestLogging<T extends (...args: unknown[]) => Promise<Response>>(handler: T): T {
+  return (async (...args: unknown[]) => {
+    const context = args[0] as { request?: Request };
+    const request = context?.request || (args[0] as Request);
     const start = Date.now();
 
     try {
@@ -57,5 +58,5 @@ export function withRequestLogging<T extends (...args: any[]) => Promise<Respons
       logRequest(request, 500, Date.now() - start);
       throw error;
     }
-  }) as T;
+  }) as unknown as T;
 }

@@ -23,7 +23,12 @@ export function usePromptEnhancer() {
     setEnhancingPrompt(true);
     setPromptEnhanced(false);
 
-    const requestBody: any = {
+    const requestBody: {
+      message: string;
+      model: string;
+      provider: ProviderInfo;
+      apiKeys?: Record<string, string>;
+    } = {
       message: input,
       model,
       provider,

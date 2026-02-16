@@ -570,12 +570,12 @@ export const useStickToBottom = (options: StickToBottomOptions = {}) => {
   };
 };
 
-function useRefCallback<T extends (ref: HTMLElement | null) => any>(callback: T, deps: DependencyList) {
+function useRefCallback<T extends (ref: HTMLElement | null) => unknown>(callback: T, deps: DependencyList) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: not needed
   const result = useCallback((ref: HTMLElement | null) => {
     result.current = ref;
     return callback(ref);
-  }, deps) as any as MutableRefObject<HTMLElement | null> & RefCallback<HTMLElement>;
+  }, deps) as unknown as MutableRefObject<HTMLElement | null> & RefCallback<HTMLElement>;
 
   return result;
 }

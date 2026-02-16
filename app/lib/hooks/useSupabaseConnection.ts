@@ -77,16 +77,16 @@ export function useSupabaseConnection() {
         }),
       });
 
-      const data = (await response.json()) as any;
+      const data = (await response.json()) as { error?: string; user?: unknown; stats?: unknown };
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to connect');
       }
 
       updateSupabaseConnection({
-        user: data.user,
+        user: (data.user as import('~/types/supabase').SupabaseUser) || null,
         token: connection.token,
-        stats: data.stats,
+        stats: data.stats as import('~/types/supabase').SupabaseStats,
       });
 
       toast.success('Successfully connected to Supabase');

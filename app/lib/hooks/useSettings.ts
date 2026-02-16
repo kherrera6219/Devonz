@@ -88,11 +88,6 @@ export interface UseSettingsReturn {
   resetTabConfiguration: () => void;
 }
 
-// Add interface to match ProviderSetting type
-interface ProviderSettingWithIndex extends IProviderSetting {
-  [key: string]: any;
-}
-
 export function useSettings(): UseSettingsReturn {
   const providers = useStore(providersStore);
   const debug = useStore(isDebugMode);
@@ -134,8 +129,8 @@ export function useSettings(): UseSettingsReturn {
     });
   }, []);
 
-  const updateProviderSettings = useCallback((provider: string, config: ProviderSettingWithIndex) => {
-    updateProviderSettingsStore(provider, config);
+  const updateProviderSettings = useCallback((provider: string, config: IProviderSetting) => {
+    updateProviderSettingsStore(provider, config as ProviderSetting);
   }, []);
 
   const enableDebugMode = useCallback((enabled: boolean) => {
