@@ -138,10 +138,11 @@ export const ImportFolderButton: React.FC<ImportFolderButtonProps> = ({ classNam
         type="file"
         ref={inputRef}
         className="hidden"
-        webkitdirectory=""
-        directory=""
+        title="Upload folder"
+        placeholder="Upload folder"
         onChange={handleFileChange}
-        {...({} as any)}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        {...({ webkitdirectory: '', directory: '' } as any)}
       />
       <Button
         onClick={() => {

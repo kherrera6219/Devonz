@@ -2,11 +2,24 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Activity, ShieldCheck, BookOpen, GitCommit } from 'lucide-react';
 
+interface ExpertEvent {
+  type: string;
+  agent: string;
+  timestamp: string;
+  summary: string;
+  details?: any; // Keeping details loose for now as it varies greatly
+}
+
+interface QCReport {
+  issues?: Array<{ title: string; description: string }>;
+  [key: string]: any;
+}
+
 interface ExpertDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  events: any[];
-  qcReport?: any;
+  events: ExpertEvent[];
+  qcReport?: QCReport;
 }
 
 export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, events, qcReport: _qcReport }) => {
@@ -57,7 +70,7 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id as 'timeline' | 'qc' | 'research' | 'changes')}
             className={`flex-1 py-3 text-xs font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
               activeTab === tab.id
                 ? 'border-blue-500 text-blue-400 bg-blue-500/5'
@@ -121,7 +134,7 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
                     <span className="text-xs font-bold text-orange-400 capitalize">{ev.summary}</span>
                     <span className="text-[10px] text-gray-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
                   </div>
-                  {ev.details?.issues?.map((issue: any, j: number) => (
+                  {ev.details?.issues?.map((issue: { title: string; description: string }, j: number) => (
                     <div key={j} className="text-xs text-gray-300 pl-2 border-l border-orange-500/30">
                       <div className="font-bold">{issue.title}</div>
                       <div className="text-gray-500">{issue.description}</div>
@@ -149,7 +162,7 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
                     <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded">
                       <p className="text-xs text-blue-100/70 mb-2">{researchData.techReality.stackSummary}</p>
                       <ul className="space-y-1">
-                        {researchData.techReality.recommendedPins?.map((p: any, i: number) => (
+                        {researchData.techReality.recommendedPins?.map((p: { name: string; recommended: string; reason: string }, i: number) => (
                           <li key={i} className="text-[11px] text-gray-400">
                             <span className="text-blue-300 font-mono">
                               {p.name}@{p.recommended}

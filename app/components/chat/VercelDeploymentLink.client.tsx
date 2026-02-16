@@ -5,6 +5,22 @@ import { vercelApi } from '~/lib/api/vercel-client';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { useEffect, useState } from 'react';
 
+interface VercelProject {
+  id: string;
+  name: string;
+  link?: {
+    type: 'github';
+    repo: string;
+    deployHooks?: Array<{ name: string; url: string }>;
+  };
+  targets?: {
+    production?: {
+      url: string;
+      alias?: string[];
+    };
+  };
+}
+
 export function VercelDeploymentLink() {
   const connection = useStore(vercelConnection);
   const currentChatId = useStore(chatId);
@@ -28,7 +44,7 @@ export function VercelDeploymentLink() {
 
       try {
         // Fetch projects via proxy (bypasses CORS)
-        const projectsResult = await vercelApi.get<{ projects: any[] }>('/v9/projects', connection.token);
+        const projectsResult = await vercelApi.get<{ projects: VercelProject[] }>('/v9/projects', connection.token);
 
         if (!projectsResult.success || !projectsResult.data) {
           throw new Error(projectsResult.error || 'Failed to fetch projects');
@@ -40,35 +56,35 @@ export function VercelDeploymentLink() {
         const chatNumber = currentChatId.split('-')[0];
 
         // Find project by matching the chat number in the name
-        const project = projects.find((p: { name: string | string[] }) => p.name.includes(`bolt-diy-${chatNumber}`));
+        const project = projects.find((p: VercelProject) => p.name.includes(`bolt-diy-${chatNumber}`));
 
         if (project) {
           // Fetch project details via proxy
-          const projectDetailsResult = await vercelApi.get<any>(`/v9/projects/${project.id}`, connection.token);
+          const projectDetailsResult = await vercelApi.get<VercelProject>(
+            `/v9/projects/${project.id}`,
+            connection.token,
+          );
 
           if (projectDetailsResult.success && projectDetailsResult.data) {
             const projectDetails = projectDetailsResult.data;
 
-            // Try to get URL from production aliases first
-            if (projectDetails.targets?.production?.alias && projectDetails.targets.production.alias.length > 0) {
-              // Find the clean URL (without -projects.vercel.app)
-              const cleanUrl = projectDetails.targets.production.alias.find(
-                (a: string) => a.endsWith('.vercel.app') && !a.includes('-projects.vercel.app'),
-              );
+            // Find the clean URL (without -projects.vercel.app)
+            const cleanUrl = projectDetails.targets?.production?.alias?.find(
+              (a: string) => a.endsWith('.vercel.app') && !a.includes('-projects.vercel.app'),
+            );
 
-              if (cleanUrl) {
-                setDeploymentUrl(`https://${cleanUrl}`);
-                return;
-              } else {
-                // If no clean URL found, use the first alias
-                setDeploymentUrl(`https://${projectDetails.targets.production.alias[0]}`);
-                return;
-              }
+            if (cleanUrl) {
+              setDeploymentUrl(`https://${cleanUrl}`);
+              return;
+            } else if (projectDetails.targets?.production?.alias?.[0]) {
+              // If no clean URL found, use the first alias
+              setDeploymentUrl(`https://${projectDetails.targets.production.alias[0]}`);
+              return;
             }
           }
 
           // If no aliases or project details failed, try fetching deployments
-          const deploymentsResult = await vercelApi.get<{ deployments: any[] }>(
+          const deploymentsResult = await vercelApi.get<{ deployments: Array<{ url: string }> }>(
             `/v6/deployments?projectId=${project.id}&limit=1`,
             connection.token,
           );

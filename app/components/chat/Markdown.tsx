@@ -9,6 +9,7 @@ import type { Message } from 'ai';
 import styles from './Markdown.module.scss';
 import ThoughtBox from './ThoughtBox';
 import type { ProviderInfo } from '~/types/model';
+import type { ElementInfo } from '~/components/workbench/InspectorTypes';
 
 const logger = createScopedLogger('MarkdownComponent');
 
@@ -52,7 +53,7 @@ export const Markdown = memo(
             const elementDataAttr = node?.properties.dataElement as string;
 
             // Parse the element data if it exists
-            let elementData: any = null;
+            let elementData: ElementInfo | null = null;
 
             if (elementDataAttr) {
               try {

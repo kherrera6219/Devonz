@@ -100,8 +100,7 @@ export function LeftActionPanel({ importChat }: LeftActionPanelProps) {
             input?.click();
           }}
           variant="default"
-          className={buttonBaseClass}
-          style={{ backgroundColor: '#1a2332', width: '100%', height: '100%' }}
+          className={classNames(buttonBaseClass, 'bg-[#1a2332] w-full h-full')}
         >
           <span className="i-ph:upload-simple w-4 h-4" />
           <span>Import Chat</span>
@@ -112,17 +111,14 @@ export function LeftActionPanel({ importChat }: LeftActionPanelProps) {
       <div className="flex h-10">
         <ImportFolderButton
           importChat={importChat}
-          className={buttonBaseClass}
-          style={{ backgroundColor: '#1a2332', width: '100%', height: '100%' }}
+          className={classNames(buttonBaseClass, 'bg-[#1a2332] w-full h-full')}
         />
       </div>
 
-      {/* Clone a Repo Button - Primary/Highlighted */}
       <div className="flex h-10">
         <GitCloneButton
           importChat={importChat}
-          className={primaryButtonClass}
-          style={{ width: '100%', height: '100%' }}
+          className={classNames(primaryButtonClass, 'w-full h-full')}
         />
       </div>
     </div>

@@ -1,17 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, AlertTriangle, Layers, RotateCw } from 'lucide-react';
+import { classNames } from '~/utils/classNames';
+
+interface AgentStatus {
+  agentId: string;
+  status: 'idle' | 'working' | 'blocked' | 'done' | 'error';
+  currentTask: string;
+  model?: string;
+}
 
 interface RunHeaderProps {
   progress: number; // 0-100
   stageLabel: string;
   iteration?: { current: number; max: number };
-  activeAgents: Array<{
-    agentId: string;
-    status: 'idle' | 'working' | 'blocked' | 'done' | 'error';
-    currentTask: string;
-    model?: string;
-  }>;
+  activeAgents: AgentStatus[];
   stats: {
     filesTouched: number;
     qcIssues: { critical: number; high: number; medium: number; low: number };
@@ -20,7 +23,7 @@ interface RunHeaderProps {
   isExpertOpen: boolean;
 }
 
-const AgentChip = ({ agent }: { agent: any }) => {
+const AgentChip = ({ agent }: { agent: AgentStatus }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'working':
@@ -36,7 +39,7 @@ const AgentChip = ({ agent }: { agent: any }) => {
 
   return (
     <div className="flex items-center gap-2 bg-[#0A0A0A] border border-[#333] px-3 py-1.5 rounded-full text-xs">
-      <div className={`w-2 h-2 rounded-full ${getStatusColor(agent.status)}`} />
+      <div className={classNames('w-2 h-2 rounded-full', getStatusColor(agent.status))} />
       <div className="flex flex-col">
         <span className="font-medium text-gray-200 uppercase tracking-wider text-[10px]">
           {agent.agentId} <span className="text-gray-500 ml-1">{agent.model}</span>

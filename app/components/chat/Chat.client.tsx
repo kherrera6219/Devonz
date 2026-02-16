@@ -24,7 +24,7 @@ import { streamingState } from '~/lib/stores/streaming';
 import { filesToArtifacts } from '~/utils/fileUtils';
 import { supabaseConnection } from '~/lib/stores/supabase';
 import { defaultDesignScheme, type DesignScheme } from '~/types/design-scheme';
-import type { ElementInfo } from '~/components/workbench/Inspector';
+import type { ElementInfo } from '~/components/workbench/InspectorTypes';
 import type { TextUIPart, FileUIPart, Attachment } from '@ai-sdk/ui-utils';
 import { useMCPStore } from '~/lib/stores/mcp';
 import type { LlmErrorAlertType } from '~/types/actions';
@@ -329,7 +329,7 @@ export const ChatImpl = memo(
     };
 
     const handleError = useCallback(
-      (error: any, context: 'chat' | 'template' | 'llmcall' = 'chat') => {
+      (error: unknown, context: 'chat' | 'template' | 'llmcall' = 'chat') => {
         logger.error(`${context} request failed`, error);
 
         stop();
@@ -344,18 +344,24 @@ export const ChatImpl = memo(
           retryDelay: 0,
         };
 
-        if (error.message) {
+        if (
+          error &&
+          typeof error === 'object' &&
+          'message' in error &&
+          typeof (error as { message: unknown }).message === 'string'
+        ) {
+          const message = (error as { message: string }).message;
           try {
-            const parsed = JSON.parse(error.message);
+            const parsed = JSON.parse(message);
 
             if (parsed.error || parsed.message) {
               errorInfo = { ...errorInfo, ...parsed };
-            } else {
-              errorInfo.message = error.message;
             }
           } catch {
-            errorInfo.message = error.message;
+            // Ignore parsing errors
           }
+
+          errorInfo.message = message;
         }
 
         let errorType: LlmErrorAlertType['errorType'] = 'unknown';
