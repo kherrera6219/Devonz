@@ -177,7 +177,8 @@ export function useDataOperations({
         showProgress('Filtering selected categories', 40);
 
         const filteredSettings: Record<string, unknown> = {
-          exportDate: allSettings._meta?.exportDate || new Date().toISOString(),
+          exportDate:
+            (allSettings as { _meta?: { exportDate?: string } })._meta?.exportDate || new Date().toISOString(),
         };
 
         // Add selected categories to filtered settings

@@ -237,7 +237,10 @@ const getFs = (
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
-        const result = await webcontainer.fs.readdir(relativePath, options as { withFileTypes?: boolean });
+        const result = await webcontainer.fs.readdir(
+          relativePath,
+          options as Parameters<typeof webcontainer.fs.readdir>[1],
+        );
 
         return result;
       } catch (error) {
