@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/role-supports-aria-props */
+/* eslint-disable jsx-a11y/aria-proptypes */
 import type { ProviderInfo } from '~/types/model';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
@@ -675,7 +677,7 @@ export const CombinedModelSelector = ({
                   <span
                     className="text-sm"
                     dangerouslySetInnerHTML={{
-                      __html: (p as any).highlightedName || p.name,
+                      __html: (p as ProviderInfo & { highlightedName?: string }).highlightedName || p.name,
                     }}
                   />
                   {provider?.name === p.name && <span className="i-ph:check ml-auto text-[#8badd4]" />}

@@ -454,30 +454,12 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
 
     return (
       <div
-        className={`resize-handle-${side}`}
+        className={classNames(
+          `resize-handle-${side}`,
+          'absolute top-0 h-full w-[15px] flex items-center justify-center cursor-ew-resize transition-[background] duration-200 z-10 select-none touch-none bg-bolt-elements-background-depth-4 hover:bg-bolt-elements-background-depth-4/50',
+          side === 'left' ? 'left-0 -ml-[7px]' : 'right-0 -mr-[7px]',
+        )}
         onPointerDown={(e) => startResizing(e, side)}
-        style={{
-          position: 'absolute',
-          top: 0,
-          ...(side === 'left' ? { left: 0, marginLeft: '-7px' } : { right: 0, marginRight: '-7px' }),
-          width: '15px',
-          height: '100%',
-          cursor: 'ew-resize',
-          background: 'var(--bolt-elements-background-depth-4, rgba(0,0,0,.3))',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'background 0.2s',
-          userSelect: 'none',
-          touchAction: 'none',
-          zIndex: 10,
-        }}
-        onMouseOver={(e) =>
-          (e.currentTarget.style.background = 'var(--bolt-elements-background-depth-4, rgba(0,0,0,.3))')
-        }
-        onMouseOut={(e) =>
-          (e.currentTarget.style.background = 'var(--bolt-elements-background-depth-3, rgba(0,0,0,.15))')
-        }
         title="Drag to resize width"
       >
         <GripIcon />
@@ -640,17 +622,7 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
         pointerEvents: 'none',
       }}
     >
-      <div
-        style={{
-          color: 'var(--bolt-elements-textSecondary, rgba(0,0,0,0.5))',
-          fontSize: '10px',
-          lineHeight: '5px',
-          userSelect: 'none',
-          marginLeft: '1px',
-        }}
-      >
-        ••• •••
-      </div>
+      <div className="text-[10px] leading-[5px] select-none ml-[1px] text-bolt-elements-textSecondary">••• •••</div>
     </div>
   );
 
@@ -1591,68 +1563,61 @@ Add these rules to style the elements as specified. The !important flags ensure 
           {activePreview ? (
             <>
               {isDeviceModeOn && showDeviceFrameInPreview ? (
-                <div
-                  className="device-wrapper"
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    width: '100%',
-                    height: '100%',
-                    padding: '0',
-                    overflow: 'auto',
-                    transition: 'all 0.3s ease',
-                    position: 'relative',
-                  }}
-                >
+                <div className="device-wrapper flex justify-center items-center w-full h-full p-0 overflow-auto transition-all duration-300 relative">
                   <div
-                    style={{
-                      position: 'relative',
-                      borderRadius: selectedWindowSize.frameType === 'mobile' ? '36px' : '20px',
-                      background: getFrameColor(),
-                      padding: getFramePadding(),
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-                      overflow: 'hidden',
-                      transform: 'scale(1)',
-                      transformOrigin: 'center center',
-                      transition: 'all 0.3s ease',
-                      margin: '40px',
-                      width: isLandscape
-                        ? `${selectedWindowSize.height + (selectedWindowSize.frameType === 'mobile' ? 120 : 60)}px`
-                        : `${selectedWindowSize.width + (selectedWindowSize.frameType === 'mobile' ? 40 : 60)}px`,
-                      height: isLandscape
-                        ? `${selectedWindowSize.width + (selectedWindowSize.frameType === 'mobile' ? 80 : 60)}px`
-                        : `${selectedWindowSize.height + (selectedWindowSize.frameType === 'mobile' ? 80 : 100)}px`,
-                    }}
+                    style={
+                      {
+                        position: 'relative',
+                        borderRadius: selectedWindowSize.frameType === 'mobile' ? '36px' : '20px',
+                        background: getFrameColor(),
+                        padding: getFramePadding(),
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                        overflow: 'hidden',
+                        transform: 'scale(1)',
+                        transformOrigin: 'center center',
+                        transition: 'all 0.3s ease',
+                        margin: '40px',
+                        width: isLandscape
+                          ? `${selectedWindowSize.height + (selectedWindowSize.frameType === 'mobile' ? 120 : 60)}px`
+                          : `${selectedWindowSize.width + (selectedWindowSize.frameType === 'mobile' ? 40 : 60)}px`,
+                        height: isLandscape
+                          ? `${selectedWindowSize.width + (selectedWindowSize.frameType === 'mobile' ? 80 : 60)}px`
+                          : `${selectedWindowSize.height + (selectedWindowSize.frameType === 'mobile' ? 80 : 100)}px`,
+                      } as React.CSSProperties
+                    }
                   >
                     {/* Notch - positioned based on orientation */}
                     <div
-                      style={{
-                        position: 'absolute',
-                        top: isLandscape ? '50%' : '20px',
-                        left: isLandscape ? '30px' : '50%',
-                        transform: isLandscape ? 'translateY(-50%)' : 'translateX(-50%)',
-                        width: isLandscape ? '8px' : selectedWindowSize.frameType === 'mobile' ? '60px' : '80px',
-                        height: isLandscape ? (selectedWindowSize.frameType === 'mobile' ? '60px' : '80px') : '8px',
-                        background: '#333',
-                        borderRadius: '4px',
-                        zIndex: 2,
-                      }}
+                      style={
+                        {
+                          position: 'absolute',
+                          top: isLandscape ? '50%' : '20px',
+                          left: isLandscape ? '30px' : '50%',
+                          transform: isLandscape ? 'translateY(-50%)' : 'translateX(-50%)',
+                          width: isLandscape ? '8px' : selectedWindowSize.frameType === 'mobile' ? '60px' : '80px',
+                          height: isLandscape ? (selectedWindowSize.frameType === 'mobile' ? '60px' : '80px') : '8px',
+                          background: '#333',
+                          borderRadius: '4px',
+                          zIndex: 2,
+                        } as React.CSSProperties
+                      }
                     />
 
                     {/* Home button - positioned based on orientation */}
                     <div
-                      style={{
-                        position: 'absolute',
-                        bottom: isLandscape ? '50%' : '15px',
-                        right: isLandscape ? '30px' : '50%',
-                        transform: isLandscape ? 'translateY(50%)' : 'translateX(50%)',
-                        width: isLandscape ? '4px' : '40px',
-                        height: isLandscape ? '40px' : '4px',
-                        background: '#333',
-                        borderRadius: '50%',
-                        zIndex: 2,
-                      }}
+                      style={
+                        {
+                          position: 'absolute',
+                          bottom: isLandscape ? '50%' : '15px',
+                          right: isLandscape ? '30px' : '50%',
+                          transform: isLandscape ? 'translateY(50%)' : 'translateX(50%)',
+                          width: isLandscape ? '4px' : '40px',
+                          height: isLandscape ? '40px' : '4px',
+                          background: '#333',
+                          borderRadius: '50%',
+                          zIndex: 2,
+                        } as React.CSSProperties
+                      }
                     />
 
                     <iframe
@@ -1692,20 +1657,10 @@ Add these rules to style the elements as specified. The !important flags ensure 
             <>
               {/* Width indicator */}
               <div
-                style={{
-                  position: 'absolute',
-                  top: '-25px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  background: 'var(--bolt-elements-background-depth-3, rgba(0,0,0,0.7))',
-                  color: 'var(--bolt-elements-textPrimary, white)',
-                  padding: '2px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  pointerEvents: 'none',
-                  opacity: resizingState.current.isResizing ? 1 : 0,
-                  transition: 'opacity 0.3s',
-                }}
+                className={classNames(
+                  'absolute -top-[25px] left-1/2 -translateX-1/2 bg-bolt-elements-background-depth-3 text-bolt-elements-textPrimary px-2 py-1 rounded text-xs pointer-events-none transition-opacity duration-300',
+                  resizingState.current.isResizing ? 'opacity-100' : 'opacity-0',
+                )}
               >
                 {currentWidth}px
               </div>

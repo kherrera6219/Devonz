@@ -7,12 +7,27 @@ interface ExpertEvent {
   agent: string;
   timestamp: string;
   summary: string;
-  details?: any; // Keeping details loose for now as it varies greatly
+  details?: unknown; // Keeping details loose for now as it varies greatly
+}
+
+interface ResearchData {
+  techReality: {
+    stackSummary: string;
+    recommendedPins?: Array<{ name: string; recommended: string; reason: string }>;
+  };
+  codebaseAnalysis?: {
+    summary: string;
+    files?: string[];
+    architecturalNotes?: string;
+    bottlenecks?: string[];
+  };
+  patchCount?: number;
+  [key: string]: unknown;
 }
 
 interface QCReport {
   issues?: Array<{ title: string; description: string }>;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface ExpertDrawerProps {
@@ -32,7 +47,9 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
     const qcs = events.filter((e) => e.type === 'qc_issues_found' || e.type === 'qc_passed' || e.type === 'qc_failed');
 
     return {
-      researchData: researchEvent?.details,
+      researchData: (researchEvent?.details as ResearchData) || {
+        techReality: { stackSummary: '' },
+      },
       patchEvents: patches,
       qcEvents: qcs,
     };
@@ -134,7 +151,7 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
                     <span className="text-xs font-bold text-orange-400 capitalize">{ev.summary}</span>
                     <span className="text-[10px] text-gray-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
                   </div>
-                  {ev.details?.issues?.map((issue: { title: string; description: string }, j: number) => (
+                  {(ev.details as QCReport)?.issues?.map((issue: { title: string; description: string }, j: number) => (
                     <div key={j} className="text-xs text-gray-300 pl-2 border-l border-orange-500/30">
                       <div className="font-bold">{issue.title}</div>
                       <div className="text-gray-500">{issue.description}</div>
@@ -162,14 +179,16 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
                     <div className="p-3 bg-blue-500/5 border border-blue-500/20 rounded">
                       <p className="text-xs text-blue-100/70 mb-2">{researchData.techReality.stackSummary}</p>
                       <ul className="space-y-1">
-                        {researchData.techReality.recommendedPins?.map((p: { name: string; recommended: string; reason: string }, i: number) => (
-                          <li key={i} className="text-[11px] text-gray-400">
-                            <span className="text-blue-300 font-mono">
-                              {p.name}@{p.recommended}
-                            </span>
-                            : {p.reason}
-                          </li>
-                        ))}
+                        {researchData.techReality.recommendedPins?.map(
+                          (p: { name: string; recommended: string; reason: string }, i: number) => (
+                            <li key={i} className="text-[11px] text-gray-400">
+                              <span className="text-blue-300 font-mono">
+                                {p.name}@{p.recommended}
+                              </span>
+                              : {p.reason}
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   </section>
@@ -212,7 +231,7 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
                     <span className="text-[10px] text-gray-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
                   </div>
                   <div className="text-[10px] font-mono text-gray-500 bg-black/50 p-2 rounded max-h-[150px] overflow-y-auto">
-                    {ev.details?.patchCount} file(s) modified
+                    {(ev.details as ResearchData)?.patchCount} file(s) modified
                   </div>
                 </div>
               ))

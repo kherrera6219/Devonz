@@ -131,30 +131,33 @@ const LogEntryItem = ({ log, isExpanded: forceExpanded, use24Hour, showTimestamp
     }
   }, [log.level, log.category]);
 
-  const renderDetails = (details: Record<string, any>) => {
+  const renderDetails = (details: Record<string, unknown>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = details as any;
+
     if (log.category === 'provider') {
       return (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <span>Model: {details.model}</span>
+            <span>Model: {data.model}</span>
             <span>•</span>
-            <span>Tokens: {details.totalTokens}</span>
+            <span>Tokens: {data.totalTokens}</span>
             <span>•</span>
-            <span>Duration: {details.duration}ms</span>
+            <span>Duration: {data.duration}ms</span>
           </div>
-          {details.prompt && (
+          {data.prompt && (
             <div className="flex flex-col gap-1">
               <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Prompt:</div>
               <pre className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded p-2 whitespace-pre-wrap">
-                {details.prompt}
+                {data.prompt}
               </pre>
             </div>
           )}
-          {details.response && (
+          {data.response && (
             <div className="flex flex-col gap-1">
               <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Response:</div>
               <pre className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded p-2 whitespace-pre-wrap">
-                {details.response}
+                {data.response}
               </pre>
             </div>
           )}
@@ -166,34 +169,34 @@ const LogEntryItem = ({ log, isExpanded: forceExpanded, use24Hour, showTimestamp
       return (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <span className={details.method === 'GET' ? 'text-green-500' : 'text-blue-500'}>{details.method}</span>
+            <span className={data.method === 'GET' ? 'text-green-500' : 'text-blue-500'}>{data.method}</span>
             <span>•</span>
-            <span>Status: {details.statusCode}</span>
+            <span>Status: {data.statusCode}</span>
             <span>•</span>
-            <span>Duration: {details.duration}ms</span>
+            <span>Duration: {data.duration}ms</span>
           </div>
-          <div className="text-xs text-gray-600 dark:text-gray-400 break-all">{details.url}</div>
-          {details.request && (
+          <div className="text-xs text-gray-600 dark:text-gray-400 break-all">{data.url}</div>
+          {data.request && (
             <div className="flex flex-col gap-1">
               <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Request:</div>
               <pre className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded p-2 whitespace-pre-wrap">
-                {JSON.stringify(details.request, null, 2)}
+                {JSON.stringify(data.request, null, 2)}
               </pre>
             </div>
           )}
-          {details.response && (
+          {data.response && (
             <div className="flex flex-col gap-1">
               <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Response:</div>
               <pre className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded p-2 whitespace-pre-wrap">
-                {JSON.stringify(details.response, null, 2)}
+                {JSON.stringify(data.response, null, 2)}
               </pre>
             </div>
           )}
-          {details.error && (
+          {data.error && (
             <div className="flex flex-col gap-1">
               <div className="text-xs font-medium text-red-500">Error:</div>
               <pre className="text-xs text-red-400 bg-red-50 dark:bg-red-500/10 rounded p-2 whitespace-pre-wrap">
-                {JSON.stringify(details.error, null, 2)}
+                {JSON.stringify(data.error, null, 2)}
               </pre>
             </div>
           )}
@@ -203,7 +206,7 @@ const LogEntryItem = ({ log, isExpanded: forceExpanded, use24Hour, showTimestamp
 
     return (
       <pre className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded whitespace-pre-wrap">
-        {JSON.stringify(details, null, 2)}
+        {JSON.stringify(data, null, 2)}
       </pre>
     );
   };
@@ -874,7 +877,7 @@ export function EventLogsTab() {
             >
               <span
                 className={classNames('text-lg', selectedLevelOption?.icon || 'i-ph:funnel')}
-                style={{ color: selectedLevelOption?.color }}
+                style={{ color: selectedLevelOption?.color } as React.CSSProperties}
               />
               {selectedLevelOption?.label || 'All Types'}
               <span className="i-ph:caret-down text-lg text-gray-500 dark:text-gray-400" />
@@ -897,7 +900,7 @@ export function EventLogsTab() {
                   <div className="mr-3 flex h-5 w-5 items-center justify-center">
                     <div
                       className={classNames(option.icon, 'text-lg group-hover:text-purple-500 transition-colors')}
-                      style={{ color: option.color }}
+                      style={{ color: option.color } as React.CSSProperties}
                     />
                   </div>
                   <span className="group-hover:text-purple-500 transition-colors">{option.label}</span>

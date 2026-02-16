@@ -262,7 +262,6 @@ function InlineInput({ depth, placeholder, initialValue = '', onSubmit, onCancel
 
   return (
     <div
-      // eslint-disable-next-line
       className="flex items-center w-full px-2 bg-bolt-elements-background-depth-4 border border-bolt-elements-item-contentAccent py-0.5 text-bolt-elements-textPrimary file-tree-indent"
       style={{ '--depth': depth } as React.CSSProperties}
     >

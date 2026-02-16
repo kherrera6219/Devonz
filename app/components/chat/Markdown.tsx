@@ -157,7 +157,7 @@ export const Markdown = memo(
                           type: 'text',
                           text: `[Model: ${model}]\n\n[Provider: ${provider?.name}]\n\n${message}`,
                         },
-                      ] as any,
+                      ] as unknown as Message['content'],
                       role: 'user',
                     });
                     console.log('Message appended:', message);
@@ -170,7 +170,7 @@ export const Markdown = memo(
                           type: 'text',
                           text: `[Model: ${model}]\n\n[Provider: ${provider?.name}]\n\n${message}`,
                         },
-                      ] as any,
+                      ] as unknown as Message['content'],
                       role: 'user',
                     });
                   } else if (type === 'link' && typeof href === 'string') {

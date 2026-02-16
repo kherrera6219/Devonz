@@ -156,8 +156,7 @@ export const Workbench = memo(
       chatStarted &&
       showWorkbench && (
         <div
-          // eslint-disable-next-line
-          className={classNames('h-full z-workbench', {
+          className={classNames('h-full z-workbench overflow-hidden transition-[width] duration-300', {
             'flex-grow': !!fullWidth,
             'flex-shrink-0': !fullWidth,
           })}
