@@ -74,7 +74,7 @@ export default function GitCloneButton({ importChat, className, style }: GitClon
         const fileContents = [];
 
         for (const filePath of filePaths) {
-          const { data: content, encoding } = data[filePath];
+          const { data: content } = data[filePath];
 
           // Skip binary files
           if (
@@ -87,7 +87,7 @@ export default function GitCloneButton({ importChat, className, style }: GitClon
 
           try {
             const textContent =
-              encoding === 'utf8' ? content : content instanceof Uint8Array ? textDecoder.decode(content) : '';
+              typeof content === 'string' ? content : content instanceof Uint8Array ? textDecoder.decode(content) : '';
 
             if (!textContent) {
               continue;
@@ -112,8 +112,9 @@ export default function GitCloneButton({ importChat, className, style }: GitClon
               path: filePath,
               content: textContent,
             });
-          } catch (e: any) {
-            skippedFiles.push(`${filePath} (error: ${e.message})`);
+          } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            skippedFiles.push(`${filePath} (error: ${errorMessage})`);
           }
         }
 
@@ -172,14 +173,14 @@ ${escapeBoltTags(file.content)}
         size="lg"
         className={classNames(
           'flex gap-2',
-          'text-gray-300 hover:text-white',
+          'bg-[#2a2a2a] text-gray-300 hover:text-white',
           'border border-[#333333] hover:border-purple-500/50',
           'h-10 px-4 py-2 justify-center',
           'transition-all duration-200 ease-in-out',
           'hover:shadow-[0_0_12px_rgba(168,85,247,0.15)]',
           className,
         )}
-        style={{ backgroundColor: '#2a2a2a', ...style }}
+        style={{ ...style }}
         disabled={!ready || loading}
       >
         Clone a repo
@@ -192,16 +193,15 @@ ${escapeBoltTags(file.content)}
       {/* Provider Selection Dialog */}
       {isDialogOpen && !selectedProvider && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div
-            className="rounded-xl shadow-2xl border border-[#333333] max-w-md w-full"
-            style={{ backgroundColor: '#1a2332' }}
-          >
+          <div className="rounded-xl shadow-2xl border border-[#333333] max-w-md w-full bg-[#1a2332]">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white">Choose Repository Provider</h3>
                 <button
                   onClick={() => setIsDialogOpen(false)}
                   className="p-2 rounded-lg bg-transparent hover:bg-[#2a2a2a] text-gray-400 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95"
+                  title="Close dialog"
+                  aria-label="Close dialog"
                 >
                   <div className="i-ph:x size-5 transition-transform duration-200 hover:rotate-90" />
                 </button>
@@ -210,8 +210,7 @@ ${escapeBoltTags(file.content)}
               <div className="space-y-3">
                 <button
                   onClick={() => setSelectedProvider('github')}
-                  className="w-full p-4 rounded-lg border border-[#333333] hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
-                  style={{ backgroundColor: '#2a2a2a' }}
+                  className="w-full p-4 rounded-lg border border-[#333333] hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)] bg-[#2a2a2a]"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
@@ -226,8 +225,7 @@ ${escapeBoltTags(file.content)}
 
                 <button
                   onClick={() => setSelectedProvider('gitlab')}
-                  className="w-full p-4 rounded-lg border border-[#333333] hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]"
-                  style={{ backgroundColor: '#2a2a2a' }}
+                  className="w-full p-4 rounded-lg border border-[#333333] hover:border-purple-500/50 transition-all duration-200 text-left group hover:shadow-[0_0_15px_rgba(168,85,247,0.1)] bg-[#2a2a2a]"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
@@ -269,6 +267,8 @@ ${escapeBoltTags(file.content)}
                   setSelectedProvider(null);
                 }}
                 className="p-2 rounded-lg bg-transparent hover:bg-bolt-elements-background-depth-1 dark:hover:bg-bolt-elements-background-depth-1 text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary dark:hover:text-bolt-elements-textPrimary transition-all duration-200 hover:scale-105 active:scale-95"
+                title="Close dialog"
+                aria-label="Close dialog"
               >
                 <div className="i-ph:x size-5 transition-transform duration-200 hover:rotate-90" />
               </button>
@@ -305,6 +305,8 @@ ${escapeBoltTags(file.content)}
                   setSelectedProvider(null);
                 }}
                 className="p-2 rounded-lg bg-transparent hover:bg-bolt-elements-background-depth-1 dark:hover:bg-bolt-elements-background-depth-1 text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary dark:hover:text-bolt-elements-textPrimary transition-all duration-200 hover:scale-105 active:scale-95"
+                title="Close dialog"
+                aria-label="Close dialog"
               >
                 <div className="i-ph:x size-5 transition-transform duration-200 hover:rotate-90" />
               </button>

@@ -57,7 +57,7 @@ export function SupabaseChatAlert({ alert, clearAlert, postMessage }: Props) {
       });
 
       if (!response.ok) {
-        const errorData = (await response.json()) as any;
+        const errorData = (await response.json()) as { error?: { message?: string } };
         throw new Error(`Supabase query failed: ${errorData.error?.message || response.statusText}`);
       }
 
@@ -104,7 +104,13 @@ export function SupabaseChatAlert({ alert, clearAlert, postMessage }: Props) {
         {/* Header */}
         <div className="p-4 pb-2">
           <div className="flex items-center gap-2">
-            <img height="10" width="18" crossOrigin="anonymous" src="https://cdn.simpleicons.org/supabase" />
+            <img
+              height="10"
+              width="18"
+              crossOrigin="anonymous"
+              src="https://cdn.simpleicons.org/supabase"
+              alt="Supabase Logo"
+            />
             <h3 className="text-sm font-medium text-[#3DCB8F]">{title}</h3>
           </div>
         </div>

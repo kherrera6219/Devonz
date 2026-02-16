@@ -1,3 +1,4 @@
+/* stylelint-disable plugin/no-unsupported-browser-features */
 @use 'variables.scss';
 @use 'z-index.scss';
 @use 'animations.scss';
@@ -54,10 +55,10 @@ textarea,
 [class*='overflow-y-auto'],
 [class*='overflow-x-auto'],
 [class*='overflow-scroll'] {
-  /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+  /* stylelint-disable */
   scrollbar-width: thin;
-  /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
   scrollbar-color: var(--bolt-elements-borderColor) var(--bolt-elements-bg-depth-1);
+  /* stylelint-enable */
 
   &::-webkit-scrollbar {
     width: 8px;
@@ -121,30 +122,32 @@ textarea,
   }
 
   // Firefox support
-  /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+  /* stylelint-disable */
   scrollbar-width: thin;
   // Use CSS variables for Firefox colors
-  /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
   scrollbar-color: var(--modern-scrollbar-thumb-background) var(--modern-scrollbar-track-background, #131a24);
+  /* stylelint-enable */
 }
 
 .modern-scrollbar-invert {
   &::-webkit-scrollbar-thumb {
     // Override with a contrasting color, e.g., primary text color with transparency
-    /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+    /* stylelint-disable */
     background-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 70%);
+    /* stylelint-enable */
   }
 
   &::-webkit-scrollbar-thumb:hover {
     // Darker/more opaque version on hover
-    /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
-    /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+    /* stylelint-disable */
     background-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%);
+    /* stylelint-enable */
   }
 
   // Firefox support for inverted colors
-  /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+  /* stylelint-disable */
   scrollbar-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%) transparent;
+  /* stylelint-enable */
 }
 
 // Content visibility optimization for long message lists

@@ -90,6 +90,7 @@ export function SupabaseConnection() {
             width="20"
             crossOrigin="anonymous"
             src="https://cdn.simpleicons.org/supabase"
+            alt="Supabase Logo"
           />
           {isConnected && supabaseConn.project && (
             <span className="ml-1 text-xs max-w-[100px] truncate">{supabaseConn.project.name}</span>
@@ -109,6 +110,7 @@ export function SupabaseConnection() {
                     width="24"
                     crossOrigin="anonymous"
                     src="https://cdn.simpleicons.org/supabase"
+                    alt="Supabase Logo"
                   />
                   Connect to Supabase
                 </DialogTitle>
@@ -181,6 +183,7 @@ export function SupabaseConnection() {
                       width="24"
                       crossOrigin="anonymous"
                       src="https://cdn.simpleicons.org/supabase"
+                      alt="Supabase Logo"
                     />
                     Supabase Connection
                   </DialogTitle>
@@ -312,7 +315,7 @@ export function SupabaseConnection() {
 interface ButtonProps {
   active?: boolean;
   disabled?: boolean;
-  children?: any;
+  children?: React.ReactNode;
   onClick?: VoidFunction;
   className?: string;
 }

@@ -82,7 +82,15 @@ export function LeftActionPanel({ importChat }: LeftActionPanelProps) {
   return (
     <div className="grid grid-cols-3 gap-3 w-full max-w-xl items-stretch">
       {/* Hidden file input */}
-      <input type="file" id="chat-import-left" className="hidden" accept=".json" onChange={handleFileImport} />
+      <input
+        type="file"
+        id="chat-import-left"
+        className="hidden"
+        accept=".json"
+        onChange={handleFileImport}
+        title="Upload chat JSON file"
+        aria-label="Upload chat JSON file"
+      />
 
       {/* Import Chat Button */}
       <div className="flex h-10">

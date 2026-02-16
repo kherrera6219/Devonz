@@ -4,6 +4,7 @@ import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { webcontainer } from '~/lib/webcontainer';
 import { WORK_DIR } from '~/utils/constants';
 import { debounce } from '~/utils/debounce';
+import { classNames } from '~/utils/classNames';
 
 interface DisplayMatch {
   path: string;
@@ -30,18 +31,33 @@ async function performTextSearch(
     folders: [WORK_DIR],
   };
 
-  const progressCallback: TextSearchOnProgressCallback = (filePath: any, apiMatches: any[]) => {
+  const progressCallback: TextSearchOnProgressCallback = (filePath, apiMatches) => {
     const displayMatches: DisplayMatch[] = [];
 
-    apiMatches.forEach((apiMatch: { preview: { text: string; matches: string | any[] }; ranges: any[] }) => {
+    interface ApiMatchRange {
+      startLineNumber: number;
+      startColumn: number;
+      endColumn: number;
+    }
+
+    interface ApiMatch {
+      preview: {
+        text: string;
+        matches: unknown[];
+      };
+      ranges: ApiMatchRange[];
+    }
+
+    (apiMatches as ApiMatch[]).forEach((apiMatch) => {
       const previewLines = apiMatch.preview.text.split('\n');
 
-      apiMatch.ranges.forEach((range: { startLineNumber: number; startColumn: any; endColumn: any }) => {
+      apiMatch.ranges.forEach((range) => {
         let previewLineText = '(Preview line not found)';
         let lineIndexInPreview = -1;
 
         if (apiMatch.preview.matches.length > 0) {
-          const previewStartLine = apiMatch.preview.matches[0].startLineNumber;
+          // apiMatch.preview.matches[0] might be unknown, but we know it has startLineNumber
+          const previewStartLine = (apiMatch.preview.matches[0] as { startLineNumber: number }).startLineNumber;
           lineIndexInPreview = range.startLineNumber - previewStartLine;
         }
 
@@ -107,7 +123,8 @@ export function Search() {
     }
   }, [groupedResults, searchResults]);
 
-  const handleSearch = useCallback(async (query: string) => {
+  const handleSearch = useCallback(async (queryValue: unknown) => {
+    const query = typeof queryValue === 'string' ? queryValue : '';
     if (!query.trim()) {
       setSearchResults([]);
       setIsSearching(false);
@@ -210,8 +227,10 @@ export function Search() {
                 onClick={() => setExpandedFiles((prev) => ({ ...prev, [file]: !prev[file] }))}
               >
                 <span
-                  className=" i-ph:caret-down-thin w-3 h-3 text-bolt-elements-textSecondary transition-transform"
-                  style={{ transform: expandedFiles[file] ? 'rotate(180deg)' : undefined }}
+                  className={classNames(
+                    'i-ph:caret-down-thin w-3 h-3 text-bolt-elements-textSecondary transition-transform',
+                    expandedFiles[file] ? 'rotate-180' : '',
+                  )}
                 />
                 <span className="font-normal text-sm">{file.split('/').pop()}</span>
                 <span className="h-5.5 w-5.5 flex items-center justify-center text-xs ml-auto bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent rounded-full">

@@ -13,7 +13,6 @@ import { path } from '~/utils/path';
 
 const logger = createScopedLogger('FileTree');
 
-
 const DEFAULT_HIDDEN_FILES = [/\/node_modules\//, /\/\.next/, /\/\.astro/];
 
 interface Props {

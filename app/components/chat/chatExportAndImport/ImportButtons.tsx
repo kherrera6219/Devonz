@@ -17,6 +17,8 @@ export function ImportButtons(importChat: ((description: string, messages: Messa
         id="chat-import"
         className="hidden"
         accept=".json"
+        title="Upload chat JSON file"
+        aria-label="Upload chat JSON file"
         onChange={async (e) => {
           const file = e.target.files?.[0];
 

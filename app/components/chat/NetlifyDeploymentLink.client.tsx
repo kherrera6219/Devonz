@@ -34,6 +34,7 @@ export function NetlifyDeploymentLink() {
             }}
           >
             <div className="i-ph:link w-4 h-4 hover:text-blue-400" />
+            <span className="sr-only">Open deployed site</span>
           </a>
         </Tooltip.Trigger>
         <Tooltip.Portal>

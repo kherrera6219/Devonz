@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { cubicEasingFn } from '~/utils/easings';
-import { genericMemo } from '~/utils/react';
+import { classNames } from '~/utils/classNames';
 
 export type SliderOptions<T> = {
   left: { value: T; text: string };
@@ -15,7 +15,7 @@ interface SliderProps<T> {
   setSelected?: (selected: T) => void;
 }
 
-export const Slider = genericMemo(<T,>({ selected, options, setSelected }: SliderProps<T>) => {
+const SliderComponent = <T,>({ selected, options, setSelected }: SliderProps<T>) => {
   const hasMiddle = !!options.middle;
   const isLeftSelected = hasMiddle ? selected === options.left.value : selected === options.left.value;
   const isMiddleSelected = hasMiddle && options.middle ? selected === options.middle.value : false;
@@ -40,7 +40,9 @@ export const Slider = genericMemo(<T,>({ selected, options, setSelected }: Slide
       </SliderButton>
     </div>
   );
-});
+};
+
+export const Slider = memo(SliderComponent) as <T>(props: SliderProps<T>) => JSX.Element;
 
 interface SliderButtonProps {
   selected: boolean;
@@ -52,10 +54,10 @@ const SliderButton = memo(({ selected, children, setSelected }: SliderButtonProp
   return (
     <button
       onClick={setSelected}
-      className="bg-transparent text-sm px-2.5 py-0.5 rounded-full relative"
-      style={{
-        color: selected ? '#60a5fa' : 'rgba(255,255,255,0.5)',
-      }}
+      className={classNames(
+        'bg-transparent text-sm px-2.5 py-0.5 rounded-full relative',
+        selected ? 'text-blue-400' : 'text-white/50',
+      )}
     >
       <span className="relative z-10">{children}</span>
       {selected && (

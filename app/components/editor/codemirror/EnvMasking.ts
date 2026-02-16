@@ -46,6 +46,7 @@ export function createEnvMaskingExtension(getFilePath: () => string | undefined)
           return Decoration.none;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const decorations: any[] = [];
         const doc = view.state.doc;
 

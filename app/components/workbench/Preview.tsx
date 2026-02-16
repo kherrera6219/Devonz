@@ -28,7 +28,9 @@ interface WindowSize {
   frameType?: 'mobile' | 'tablet' | 'laptop' | 'desktop';
 }
 
-const getWindowSizes = (t: any): WindowSize[] => [
+import type { TFunction } from 'i18next';
+
+const getWindowSizes = (t: TFunction): WindowSize[] => [
   {
     name: t('preview.device.iphone_se', 'iPhone SE'),
     width: 375,
@@ -1604,7 +1606,6 @@ Add these rules to style the elements as specified. The !important flags ensure 
                   }}
                 >
                   <div
-                    className="device-frame-container"
                     style={{
                       position: 'relative',
                       borderRadius: selectedWindowSize.frameType === 'mobile' ? '36px' : '20px',

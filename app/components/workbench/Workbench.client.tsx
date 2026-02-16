@@ -37,7 +37,7 @@ interface WorkspaceProps {
   metadata?: {
     gitUrl?: string;
   };
-  updateChatMestaData?: (metadata: Record<string, any>) => void;
+  updateChatMestaData?: (metadata: Record<string, unknown>) => void;
   setSelectedElement?: (element: ElementInfo | null) => void;
 
   /** The width of the workbench panel in pixels */
@@ -49,7 +49,9 @@ interface WorkspaceProps {
 
 const viewTransition = { ease: cubicEasingFn };
 
-const getSliderOptions = (t: any): SliderOptions<WorkbenchViewType> => ({
+import type { TFunction } from 'i18next';
+
+const getSliderOptions = (t: TFunction): SliderOptions<WorkbenchViewType> => ({
   left: {
     value: 'code',
     text: t('workbench.code', 'Code'),

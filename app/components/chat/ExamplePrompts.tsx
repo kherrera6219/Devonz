@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { classNames } from '~/utils/classNames';
 
 interface ExamplePromptsProps {
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
@@ -37,21 +38,7 @@ export function ExamplePrompts({ sendMessage }: ExamplePromptsProps) {
     setPrompts(shuffleArray(ALL_PROMPTS).slice(0, 3));
   }, []);
 
-  const buttonStyle = {
-    backgroundColor: '#1a2332',
-    color: '#9ca3af',
-    border: '1px solid #333333',
-  };
 
-  const hoverIn = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = '#2a2a2a';
-    e.currentTarget.style.color = '#ffffff';
-  };
-
-  const hoverOut = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.backgroundColor = '#1a2332';
-    e.currentTarget.style.color = '#9ca3af';
-  };
 
   return (
     <div className="flex items-center gap-2 w-full max-w-3xl mx-auto px-3 py-2">
@@ -59,10 +46,11 @@ export function ExamplePrompts({ sendMessage }: ExamplePromptsProps) {
         <button
           key={`${prompt.text}-${index}`}
           onClick={(event) => sendMessage?.(event, prompt.text)}
-          className="flex items-center gap-1.5 px-2.5 py-1 text-xs transition-colors whitespace-nowrap rounded"
-          style={buttonStyle}
-          onMouseEnter={hoverIn}
-          onMouseLeave={hoverOut}
+          className={classNames(
+            'flex items-center gap-1.5 px-2.5 py-1 text-xs transition-colors whitespace-nowrap rounded',
+            'bg-[#1a2332] text-gray-400 border border-[#333333]',
+            'hover:bg-[#2a2a2a] hover:text-white',
+          )}
         >
           <div className={`${prompt.icon} ${prompt.color} text-sm flex-shrink-0`} />
           <span>{prompt.text}</span>
@@ -71,10 +59,11 @@ export function ExamplePrompts({ sendMessage }: ExamplePromptsProps) {
 
       <button
         onClick={refreshPrompts}
-        className="ml-auto flex-shrink-0 p-1.5 transition-colors rounded"
-        style={buttonStyle}
-        onMouseEnter={hoverIn}
-        onMouseLeave={hoverOut}
+        className={classNames(
+          'ml-auto flex-shrink-0 p-1.5 transition-colors rounded',
+          'bg-[#1a2332] text-gray-400 border border-[#333333]',
+          'hover:bg-[#2a2a2a] hover:text-white',
+        )}
         title="Try different ideas"
       >
         <div className="i-ph:arrows-clockwise text-sm" />
