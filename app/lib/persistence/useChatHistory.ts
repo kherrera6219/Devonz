@@ -357,4 +357,3 @@ function navigateChat(nextId: string) {
 
   window.history.replaceState({ idx: window.history.state?.idx ?? 0 }, '', url);
 }
-

@@ -302,4 +302,3 @@ const View = memo(({ children, ...props }: ViewProps) => {
     </motion.div>
   );
 });
-

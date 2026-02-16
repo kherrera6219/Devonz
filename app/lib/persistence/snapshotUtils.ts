@@ -71,4 +71,3 @@ export async function takeDelayedSnapshot(
   await new Promise((resolve) => setTimeout(resolve, delayMs));
   return takeGlobalSnapshot(chatIndex, chatSummary);
 }
-

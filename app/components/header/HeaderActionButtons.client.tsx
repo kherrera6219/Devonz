@@ -92,4 +92,3 @@ export function HeaderActionButtons({ chatStarted: _chatStarted }: HeaderActionB
     </div>
   );
 }
-

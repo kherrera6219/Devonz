@@ -156,6 +156,15 @@ export class CoordinatorAgent {
         ...state.status,
         stage: analysis.needsResearch ? 'RESEARCH_TECH_AND_SKILLS' : 'ARCH_BUILD',
       },
+
+      // Viva Logic: Speak to the user!
+      response: `I have analyzed your request.
+
+**Intent:** ${analysis.intent}
+
+I have created a plan with ${analysis.plan.length} tasks.
+${analysis.needsResearch ? 'I will now conduct research to ensure we have the right context.' : 'I am proceeding directly to architecture and implementation.'}
+`,
     };
   }
 }

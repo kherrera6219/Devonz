@@ -209,6 +209,16 @@ export class ArchitectAgent {
         activeAgents:
           state.status?.activeAgents?.map((a) => (a.agentId === 'architect' ? { ...a, status: 'done' } : a)) || [],
       },
+
+      // Viva Logic: Architect Speaks!
+      response: `I have implemented ${result.patches.length} patches.
+
+**Summary:** ${result.summary}
+
+Files modified:
+${result.patches.map((p) => `- \`${p.filesTouched.join(', ')}\``).join('\n')}
+
+Passing to QC for verification.`,
     } as Partial<RunState>;
   }
 }

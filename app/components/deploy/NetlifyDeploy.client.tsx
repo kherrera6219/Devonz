@@ -244,4 +244,3 @@ export function useNetlifyDeploy() {
     isConnected: !!netlifyConn.user,
   };
 }
-

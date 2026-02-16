@@ -5,8 +5,12 @@ import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.mcp-update-config');
 
+import { requirePermission } from '~/lib/.server/rbac-guard';
+
 export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   try {
+    await requirePermission(request, 'manage:secrets');
+
     const mcpConfig = (await request.json()) as MCPConfig;
 
     if (!mcpConfig || typeof mcpConfig !== 'object') {

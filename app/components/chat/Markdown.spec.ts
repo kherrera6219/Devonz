@@ -3,8 +3,10 @@ import { stripCodeFenceFromArtifact } from './Markdown';
 
 vi.mock('~/lib/stores/workbenchStore', () => ({
   workbenchStore: {
-    // Add any required properties if the test accesses them,
-    // otherwise empty object is often enough for module side-effect avoidance.
+    /*
+     * Add any required properties if the test accesses them,
+     * otherwise empty object is often enough for module side-effect avoidance.
+     */
   },
 }));
 

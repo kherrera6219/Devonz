@@ -23,7 +23,7 @@ export class OrchestratorService {
   async processRequest(
     userRequest: string,
     conversationId: string,
-    dataStream: { writeData: (data: any) => void; writeText?: (text: string) => void },
+    dataStream: { writeData: (data: any) => void; writeText?: (text: string) => void; append?: (text: string) => void },
     existingMessages: any[],
     apiKeys: Record<string, string>,
     streamRecovery?: { updateActivity: () => void },
@@ -137,7 +137,14 @@ export class OrchestratorService {
            * Stream actual response content to the text stream
            * This is still how the final "message" to the user is delivered
            */
-          if (stateUpdate?.response && dataStream.writeText) {
+          /*
+           * Stream actual response content to the text stream
+           * This is still how the final "message" to the user is delivered
+           */
+          if (stateUpdate?.response && dataStream.append) {
+            dataStream.append(stateUpdate.response);
+          } else if (stateUpdate?.response && dataStream.writeText) {
+            // Fallback for legacy interface if strict check fails
             dataStream.writeText(stateUpdate.response);
           }
 

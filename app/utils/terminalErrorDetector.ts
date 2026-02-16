@@ -709,4 +709,3 @@ export function detectTerminalErrors(data: string): void {
 export function resetTerminalErrorDetector(): void {
   getTerminalErrorDetector().reset();
 }
-

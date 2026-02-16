@@ -1306,4 +1306,3 @@ export function getAgentToolNames(): string[] {
 export function isAgentTool(toolName: string): boolean {
   return toolName in agentToolDefinitions;
 }
-

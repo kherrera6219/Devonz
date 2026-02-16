@@ -831,4 +831,3 @@ export const ChatImpl = memo(
     );
   },
 );
-

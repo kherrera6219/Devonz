@@ -12,8 +12,12 @@ interface DeployRequestBody {
   chatId: string;
 }
 
+import { requirePermission } from '~/lib/.server/rbac-guard';
+
 export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   try {
+    await requirePermission(request, 'deploy');
+
     const { siteId, files, token, chatId } = (await request.json()) as DeployRequestBody & { token: string };
 
     if (!token) {

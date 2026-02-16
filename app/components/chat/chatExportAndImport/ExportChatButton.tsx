@@ -49,4 +49,3 @@ export const ExportChatButton = ({ exportChat }: { exportChat?: () => void }) =>
     </div>
   );
 };
-

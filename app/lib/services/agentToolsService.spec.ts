@@ -528,4 +528,3 @@ describe('isAgentTool', () => {
     expect(isAgentTool('mcp_something')).toBe(false);
   });
 });
-

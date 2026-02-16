@@ -1744,4 +1744,3 @@ Add these rules to style the elements as specified. The !important flags ensure 
     </div>
   );
 });
-

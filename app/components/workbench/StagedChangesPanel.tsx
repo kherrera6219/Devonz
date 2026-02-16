@@ -786,4 +786,3 @@ export const StagedChangesPanel = memo(() => {
 });
 
 StagedChangesPanel.displayName = 'StagedChangesPanel';
-

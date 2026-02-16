@@ -230,8 +230,12 @@ interface DeployRequestBody {
   framework?: string;
 }
 
+import { requirePermission } from '~/lib/.server/rbac-guard';
+
 export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   try {
+    await requirePermission(request, 'deploy');
+
     const { projectId, files, sourceFiles, token, chatId, framework } = (await request.json()) as DeployRequestBody & {
       token: string;
     };
