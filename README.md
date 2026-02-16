@@ -5,9 +5,12 @@
 **Build anything with AI. Precision coding, orchestrated.**
 
 > **Version**: 1.0.0
-> **Last Updated**: Feb 16, 2026 (Dependency Migration & Infrastructure Upgrade)
+> **Status**: Production Ready
+> **Last Updated**: Feb 16, 2026
 
-Devonz is a multi-agent AI development environment that helps you build full-stack applications through natural language. Built on Remix, Vite, and LangGraph, it orchestrates specialized agents to plan, architect, and execute complex software tasks with precision.
+Devonz is a sophisticated **multi-agent AI development environment** designed to accelerate full-stack application building. By orchestrating specialized agents (Coordinator, Researcher, Architect) via **LangGraph**, it transforms natural language requests into production-grade code with precision and context-awareness.
+
+Built on the latest **Remix** and **Vite 7** stack, it offers a blazing fast, secure, and enterprise-ready foundation for AI-assisted engineering.
 
 ---
 
@@ -15,58 +18,83 @@ Devonz is a multi-agent AI development environment that helps you build full-sta
 
 | Guide | Description |
 | :--- | :--- |
-| [**Architecture**](./ARCHITECTURE.md) | System design, data flow, and agent orchestration logic. |
-| [**Deployment**](./DEPLOYMENT.md) | Production setup, environment variables, and build guides. |
-| [**Security**](./SECURITY.md) | Vulnerability reporting and security policies. |
-| [**Desktop Governance**](./docs/DESKTOP_GOVERNANCE.md) | Windows installer, update, and port resolution policies. |
-| [**Release Checklist**](./docs/RELEASE_CHECKLIST.md) | Standardized workflow for production deployments. |
-| [**Project Structure**](./docs/PROJECT_STRUCTURE.md) | Annotated file system map for new developers. |
+| [**Architecture**](./ARCHITECTURE.md) | System design, agent orchestration, and data flow diagrams. |
+| [**Deployment**](./DEPLOYMENT.md) | Production setup, environment variables, and build requirements. |
+| [**Security**](./SECURITY.md) | Vulnerability reporting, policies, and security subsystems. |
+| [**Desktop Governance**](./docs/DESKTOP_GOVERNANCE.md) | Windows installer (`.msix`), updates, and port management. |
+| [**Release Checklist**](./docs/RELEASE_CHECKLIST.md) | Standardized workflow for reliable production deployments. |
+| [**Project Structure**](./docs/PROJECT_STRUCTURE.md) | Annotated map of the file system and key directories. |
 
 ---
 
 ## ✨ Key Features (2026 Edition)
 
-- **Fluent Design UI**: Native-class Windows 11 aesthetics (Mica, Acrylic) with enterprise-grade UX components.
-- **AI Governance Layer**: Production-hardened guardrails, prompt registry, and cost/usage monitoring.
-- **Secure Data Layer**: AES-256 encryption-at-rest, HMAC integrity verification, and automated retention management.
-- **Multi-Agent Orchestration**: Specialized Coordinator, Researcher, and Architect agents working via LangGraph.
-- **Enterprise Security**: RBAC enforcement, SSRF protection, secure secrets management, and automated log redaction.
-- **High-Fidelity Observability**: Real-time metrics, latency monitoring, and automated diagnostic support bundles.
-- **CI/CD Enforcement**: Unified GitHub Actions pipeline for automated linting, typechecking, and testing. **Strict Zero-Error Policy enforced (Current Status: 333/333 Tests Passing).**
-- **WebContainer Environment**: Full Node.js runtime directly in the browser for secure, sandboxed code execution.
+Devonz has been re-architected for performance, security, and scalability.
+
+### 🧠 Intelligent Orchestration
+*   **Multi-Agent System**: Specialized agents (Coordinator, Researcher, Architect) work in concert via **LangGraph** to solve complex tasks.
+*   **Contextual Memory**: Hybrid persistence using **PostgreSQL** (Relational), **pgvector** (Semantic), and **Neo4j** (Graph) for deep context retention.
+*   **WebContainer Runtime**: Executes code safely in a browser-based Node.js sandbox, ensuring secure & isolated environments.
+
+### 🛡️ Enterprise-Grade Security
+*   **AI Governance**: Real-time prompt injection detection, guardrails, and usage monitoring (Token/Cost tracking).
+*   **Data Protection**: **AES-256** encryption-at-rest for sensitive data and **HMAC-SHA256** integrity verification for chat snapshots.
+*   **Zero-Trust**: Comprehensive **RBAC** enforcement, **SSRFGuard** for external requests, and automated **Log Redaction** for secrets.
+
+### ⚡ Modern Infrastructure
+*   **Vite 7 Powered**: Upgraded to the latest Vite ecosystem for instant HMR and optimized builds (requires Node.js v20+).
+*   **Fluent Design**: Stunning, native-class Windows 11 aesthetics (Mica, Acrylic) powered by **UnoCSS** and **Tailwind**.
+*   **Resilient Persistence**: Local-first architecture using **IndexedDB** with robust cloud synchronization.
+
+### ✅ Strict Quality Assurance
+*   **Zero-Error Policy**: Global CI/CD pipeline enforces 100% test passing, linting compliance, and type safety.
+*   **Current Status**: **333/333 Tests Passing** (Unit, Integration, E2E).
+*   **Security Audited**: Proactive dependency management and regular vulnerability scans.
+
+---
 
 ## 🚀 Quick Start
 
-1.  **Clone & Install**
+### Prerequisites
+* **Node.js**: v20.19.0+ or v22.12.0+ (Strict requirement for Vite 7)
+* **pnpm**: v9+ (Recommended)
+
+### Installation
+
+1. **Clone & Install**
+
     ```bash
     git clone https://github.com/kherrera6219/Devonz.git
     cd Devonz
     pnpm install
     ```
 
-2.  **Configure**
+2. **Configure Environment**
+
     ```bash
     cp .env.example .env.local
-    # Add your OpenAI/Anthropic keys to .env.local
+    # Edit .env.local with your API keys (OpenAI, Anthropic, etc.)
     ```
 
-3.  **Run**
+3. **Start Development Server**
+
     ```bash
     pnpm run dev
     ```
+
     Visit `http://localhost:5173` to start building.
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
--   **Framework**: Remix + Vite 7
--   **Language**: TypeScript (Strict)
--   **AI**: Vercel AI SDK + LangGraph
--   **Database**: PostgreSQL (pgvector), Neo4j, IndexedDB, MinIO
--   **Styling**: UnoCSS + Tailwind CSS + Fluent Design
+* **Frontend**: Remix, React 18, Vite 7, UnoCSS, Tailwind CSS
+* **AI/LLM**: Vercel AI SDK, LangGraph, LangChain
+* **Database**: PostgreSQL, pgvector, Neo4j, Redis, MinIO
+* **Local Persistence**: IndexedDB, Nanostores
+* **Testing**: Vitest, Playwright, Testing Library
 
 ---
 
 > [!NOTE]
-> This project follows [Microsoft Open Source](https://opensource.microsoft.com/codeofconduct/) standards. for more details, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+> This project follows [Microsoft Open Source](https://opensource.microsoft.com/codeofconduct/) standards. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
