@@ -391,6 +391,7 @@ export default function LocalProvidersTab() {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-purple-500 hover:underline inline-flex items-center gap-1"
+                              title="Browse Ollama models"
                             >
                               ollama.com/library
                               <div className="i-ph:arrow-square-out w-3 h-3" />
