@@ -5,6 +5,9 @@ import Cookies from 'js-cookie';
 import type { GitHubUserResponse, GitHubConnection } from '~/types/GitHub';
 import { useGitHubAPI } from './useGitHubAPI';
 import { githubConnection, isConnecting, updateGitHubConnection } from '~/lib/stores/github';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('useGitHubConnection');
 
 export interface ConnectionState {
   isConnected: boolean;
@@ -98,21 +101,21 @@ export function useGitHubConnection(): UseGitHubConnectionReturn {
   }, []);
 
   const connect = useCallback(async (token: string, tokenType: 'classic' | 'fine-grained') => {
-    console.log('useGitHubConnection.connect called with tokenType:', tokenType);
+    logger.debug('useGitHubConnection.connect called with tokenType:', tokenType);
 
     if (!token.trim()) {
-      console.log('Token validation failed - empty token');
+      logger.warn('Token validation failed - empty token');
       setError('Token is required');
 
       return;
     }
 
-    console.log('Setting isConnecting to true');
+    logger.debug('Setting isConnecting to true');
     isConnecting.set(true);
     setError(null);
 
     try {
-      console.log('Making API request to GitHub...');
+      logger.info('Making API request to GitHub...');
 
       // Test the token by fetching user info
       const response = await fetch('https://api.github.com/user', {
@@ -123,7 +126,7 @@ export function useGitHubConnection(): UseGitHubConnectionReturn {
         },
       });
 
-      console.log('GitHub API response status:', response.status, response.statusText);
+      logger.info('GitHub API response status:', response.status, response.statusText);
 
       if (!response.ok) {
         throw new Error(`Authentication failed: ${response.status} ${response.statusText}`);

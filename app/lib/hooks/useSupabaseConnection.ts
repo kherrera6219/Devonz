@@ -11,6 +11,9 @@ import {
   fetchProjectApiKeys,
   initializeSupabaseConnection,
 } from '~/lib/stores/supabase';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('useSupabaseConnection');
 
 export function useSupabaseConnection() {
   const connection = useStore(supabaseConnection);
@@ -22,7 +25,7 @@ export function useSupabaseConnection() {
 
   useEffect(() => {
     const initConnection = async () => {
-      console.log('useSupabaseConnection: Initializing connection...');
+      logger.info('useSupabaseConnection: Initializing connection...');
 
       // First, try to initialize from server-side token
       try {
@@ -37,7 +40,7 @@ export function useSupabaseConnection() {
       const savedCredentials = localStorage.getItem('supabaseCredentials');
 
       if (savedConnection) {
-        console.log('useSupabaseConnection: Loading from localStorage');
+        logger.info('useSupabaseConnection: Loading from localStorage');
 
         const parsed = JSON.parse(savedConnection);
 

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import type { DataStreamWriter } from 'ai';
+import type { DataStreamWriter, Message } from 'ai';
 import { type FileMap } from '~/lib/.server/llm/constants';
 import { createSummary } from '~/lib/.server/llm/create-summary';
 import { getFilePaths, selectContext } from '~/lib/.server/llm/select-context';
@@ -10,6 +10,12 @@ import { createScopedLogger } from '~/utils/logger';
 import { RAGService } from './ragService';
 import { redisService } from './redisService';
 
+interface AppContext {
+  cloudflare?: {
+    env: Record<string, string | undefined>;
+  };
+}
+
 const logger = createScopedLogger('ContextService');
 
 export interface ContextResult {
@@ -18,13 +24,13 @@ export interface ContextResult {
 }
 
 export interface PrepareContextOptions {
-  messages: any[];
-  files: any;
+  messages: Message[];
+  files: FileMap;
   promptId?: string;
   contextOptimization: boolean;
   apiKeys: Record<string, string>;
   providerSettings: Record<string, IProviderSetting>;
-  context: any; // Remix context (env)
+  context: AppContext; // Remix context (env)
   dataStream: DataStreamWriter;
   cumulativeUsage: {
     completionTokens: number;
@@ -107,7 +113,7 @@ export class ContextService {
         try {
           summary = await createSummary({
             messages: [...messages],
-            env: (context as any).cloudflare?.env,
+            env: context.cloudflare?.env,
             apiKeys,
             providerSettings,
             promptId,
@@ -168,7 +174,7 @@ export class ContextService {
       try {
         filteredFiles = await selectContext({
           messages: [...messages],
-          env: (context as any).cloudflare?.env,
+          env: context.cloudflare?.env,
           apiKeys,
           files,
           providerSettings,

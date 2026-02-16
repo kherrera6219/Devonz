@@ -86,7 +86,7 @@ interface BaseChatProps {
   setDesignScheme?: (scheme: DesignScheme) => void;
   selectedElement?: ElementInfo | null;
   setSelectedElement?: (element: ElementInfo | null) => void;
-  addToolResult?: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
+  addToolResult?: ({ toolCallId, result }: { toolCallId: string; result: unknown }) => void;
   runUIState?: RunUIState;
 }
 
@@ -179,7 +179,7 @@ export const BaseChat = memo(
       useEffect(() => {
         if (data) {
           const progressList = data.filter(
-            (x: any) => typeof x === 'object' && x?.type === 'progress',
+            (x: unknown) => typeof x === 'object' && x !== null && 'type' in x && x.type === 'progress',
           ) as ProgressAnnotation[];
           setProgressAnnotations(progressList);
         }

@@ -60,7 +60,7 @@ interface ProxyRequest {
 /**
  * Get Vercel token from request
  */
-function getVercelToken(request: Request, context: any): string | null {
+function getVercelToken(request: Request, context: { cloudflare?: { env: Record<string, any> } }): string | null {
   // Try cookies first
   const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromCookie(cookieHeader);

@@ -691,7 +691,8 @@ export class WorkbenchStore {
     }
   }
 
-  actionStreamSampler = createSampler(async (data: ActionCallbackData, isStreaming: boolean = false) => {
+  actionStreamSampler = createSampler(async (...args: unknown[]) => {
+    const [data, isStreaming = false] = args as [ActionCallbackData, boolean];
     return await this._runAction(data, isStreaming);
   }, 100); // Sampling interval in ms - prevents action stream flooding
 
@@ -806,7 +807,7 @@ export class WorkbenchStore {
         try {
           const resp = await octokit.repos.get({ owner, repo: repoName });
           repo = resp.data;
-          console.log('Repository already exists, using existing repo');
+          logger.info('Repository already exists, using existing repo');
 
           // Check if we need to update visibility of existing repo
           if (repo.private !== isPrivate) {
@@ -822,15 +823,15 @@ export class WorkbenchStore {
                 private: isPrivate,
               });
 
-              console.log('Repository visibility updated successfully');
+              logger.info('Repository visibility updated successfully');
               repo = updatedRepo;
               visibilityJustChanged = true;
 
               // Add a delay after changing visibility to allow GitHub to fully process the change
-              console.log('Waiting for visibility change to propagate...');
+              logger.info('Waiting for visibility change to propagate...');
               await new Promise((resolve) => setTimeout(resolve, 3000)); // 3 second delay
             } catch (visibilityError) {
-              console.error('Failed to update repository visibility:', visibilityError);
+              logger.error('Failed to update repository visibility:', visibilityError);
 
               // Continue with push even if visibility update fails
             }
@@ -838,7 +839,7 @@ export class WorkbenchStore {
         } catch (error) {
           if (error instanceof Error && 'status' in error && error.status === 404) {
             // Repository doesn't exist, so create a new one
-            console.log(`Creating new repository with private=${isPrivate}`);
+            logger.info(`Creating new repository with private=${isPrivate}`);
 
             // Create new repository with specified privacy setting
             const createRepoOptions = {
@@ -847,18 +848,18 @@ export class WorkbenchStore {
               auto_init: true,
             };
 
-            console.log('Create repo options:', createRepoOptions);
+            logger.debug('Create repo options:', createRepoOptions);
 
             const { data: newRepo } = await octokit.repos.createForAuthenticatedUser(createRepoOptions);
 
-            console.log('Repository created:', newRepo.html_url, 'Private:', newRepo.private);
+            logger.info('Repository created:', newRepo.html_url, 'Private:', newRepo.private);
             repo = newRepo;
 
             // Add a small delay after creating a repository to allow GitHub to fully initialize it
-            console.log('Waiting for repository to initialize...');
+            logger.info('Waiting for repository to initialize...');
             await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay
           } else {
-            console.error('Cannot create repo:', error);
+            logger.error('Cannot create repo:', error);
             throw error; // Some other error occurred
           }
         }
@@ -875,7 +876,7 @@ export class WorkbenchStore {
           const maxAttempts = 3;
 
           try {
-            console.log(`Pushing files to repository (attempt ${attempt}/${maxAttempts})...`);
+            logger.info(`Pushing files to repository (attempt ${attempt}/${maxAttempts})...`);
 
             // Create blobs for each file
             const blobs = await Promise.all(
@@ -942,16 +943,16 @@ export class WorkbenchStore {
               sha: newCommit.sha,
             });
 
-            console.log('Files successfully pushed to repository');
+            logger.info('Files successfully pushed to repository');
 
             return repo.html_url;
           } catch (error) {
-            console.error(`Error during push attempt ${attempt}:`, error);
+            logger.error(`Error during push attempt ${attempt}:`, error);
 
             // If we've just changed visibility and this is not our last attempt, wait and retry
             if ((visibilityJustChanged || attempt === 1) && attempt < maxAttempts) {
               const delayMs = attempt * 2000; // Increasing delay with each attempt
-              console.log(`Waiting ${delayMs}ms before retry...`);
+              logger.info(`Waiting ${delayMs}ms before retry...`);
               await new Promise((resolve) => setTimeout(resolve, delayMs));
 
               return pushFilesToRepo(attempt + 1);
@@ -1026,7 +1027,7 @@ export class WorkbenchStore {
       // Should not reach here since we only handle GitHub and GitLab
       throw new Error(`Unsupported provider: ${provider}`);
     } catch (error) {
-      console.error('Error pushing to repository:', error);
+      logger.error('Error pushing to repository:', error);
       throw error; // Rethrow the error for further handling
     }
   }

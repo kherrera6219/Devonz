@@ -13,6 +13,9 @@ import {
   hasPendingChanges,
   pendingChanges,
 } from './staging';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('SettingsStore');
 
 export interface Shortcut {
   key: string;
@@ -39,7 +42,8 @@ export interface Shortcuts {
 export const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
 export const LOCAL_PROVIDERS = ['OpenAILike', 'LMStudio', 'Ollama'];
 
-export type ProviderSetting = Partial<IProviderSetting> & Record<string, unknown>;
+export type ProviderSetting = Record<string, IProviderConfig>;
+export type IProviderUpdate = Partial<IProviderSetting> & Record<string, unknown>;
 
 
 // Simplified shortcuts store with only theme toggle
@@ -246,7 +250,7 @@ const autoEnableConfiguredProviders = async () => {
       const allAutoEnabled = [...new Set([...previouslyAutoEnabled, ...newlyAutoEnabled])];
       localStorage.setItem(AUTO_ENABLED_KEY, JSON.stringify(allAutoEnabled));
 
-      console.log(`Auto-enabled providers: ${newlyAutoEnabled.join(', ')}`);
+      logger.info(`Auto-enabled providers: ${newlyAutoEnabled.join(', ')}`);
     }
   } catch (error) {
     console.error('Error auto-enabling configured providers:', error);
@@ -267,7 +271,7 @@ if (isBrowser) {
 }
 
 // Create a function to update provider settings that handles both store and persistence
-export const updateProviderSettings = (provider: string, settings: ProviderSetting) => {
+export const updateProviderSettings = (provider: string, settings: IProviderUpdate) => {
   const currentSettings = providersStore.get();
 
   // Create new provider config with updated settings

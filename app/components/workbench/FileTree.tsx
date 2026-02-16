@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { FileMap } from '~/lib/stores/files';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { classNames } from '~/utils/classNames';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import * as ContextMenu from '@radix-ui/react-context-menu';
@@ -208,14 +209,14 @@ interface FolderProps {
   onCopyPath: () => void;
   onCopyRelativePath: () => void;
   onClick: () => void;
-  t: any;
+  t: TFunction;
 }
 
 interface FileContextMenuProps {
   onCopyPath?: () => void;
   onCopyRelativePath?: () => void;
   children: ReactNode;
-  t: any;
+  t: TFunction;
 }
 
 function ContextMenuItem({ onSelect, children }: { onSelect?: () => void; children: ReactNode }) {
@@ -639,7 +640,7 @@ interface FileProps {
   onCopyPath: () => void;
   onCopyRelativePath: () => void;
   onClick: () => void;
-  t: any;
+  t: TFunction;
 }
 
 function File({
@@ -678,7 +679,7 @@ function File({
       ignoreCase: false,
     });
 
-    return changes.reduce(
+    return (changes as Change[]).reduce(
       (acc: { additions: number; deletions: number }, change: Change) => {
         if (change.added) {
           acc.additions += change.value.split('\n').length;

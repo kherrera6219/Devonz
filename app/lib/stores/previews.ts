@@ -1,5 +1,8 @@
 import type { WebContainer } from '@webcontainer/api';
 import { atom } from 'nanostores';
+import { createScopedLogger } from '~/utils/logger';
+
+const logger = createScopedLogger('PreviewsStore');
 
 // Extend Window interface to include our custom property
 declare global {
@@ -178,7 +181,7 @@ export class PreviewsStore {
 
     // Listen for server ready events
     webcontainer.on('server-ready', (port, url) => {
-      console.log('[Preview] Server ready on port:', port, url);
+      logger.info('[Preview] Server ready on port:', port, url);
       this.broadcastUpdate(url);
 
       // Initial storage sync when preview is ready
@@ -327,7 +330,7 @@ export class PreviewsStore {
       }
     }
 
-    console.log('[PreviewsStore] Broadcasted hard-refresh to all previews');
+    logger.info('[PreviewsStore] Broadcasted hard-refresh to all previews');
   }
 }
 

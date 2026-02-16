@@ -130,7 +130,7 @@ export function useSettings(): UseSettingsReturn {
   }, []);
 
   const updateProviderSettings = useCallback((provider: string, config: IProviderSetting) => {
-    updateProviderSettingsStore(provider, config as ProviderSetting);
+    updateProviderSettingsStore(provider, config as import('~/lib/stores/settings').IProviderUpdate);
   }, []);
 
   const enableDebugMode = useCallback((enabled: boolean) => {

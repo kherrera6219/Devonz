@@ -128,7 +128,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     orchestratorMode,
   } = parsed.data as {
     messages: Messages;
-    files: any;
+    files: FileMap;
     promptId?: string;
     contextOptimization: boolean;
     chatMode: 'discuss' | 'build';
@@ -169,7 +169,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
   try {
     const mcpService = MCPService.getInstance();
-    const totalMessageContent = messages.reduce((acc: string, message: { content: any }) => {
+    const totalMessageContent = messages.reduce((acc: string, message) => {
       const content =
         typeof message.content === 'string'
           ? message.content
@@ -422,7 +422,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             streamRecovery.updateActivity();
 
             if (part.type === 'error') {
-              const error: any = part.error;
+              const error = part.error as Error;
               logger.error('Streaming error:', error);
               streamRecovery.stop();
 
@@ -440,7 +440,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         })();
         result.mergeIntoDataStream(dataStream);
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         // Provide more specific error messages for common issues
         const errorMessage = error.message || 'Unknown error';
 
@@ -521,7 +521,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         'Text-Encoding': 'chunked',
       },
     });
-  } catch (error: any) {
+  } catch (rawError: unknown) {
+    const error = rawError as Error & { statusCode?: number; isRetryable?: boolean; provider?: string };
     logger.error(error);
 
     const errorResponse = {

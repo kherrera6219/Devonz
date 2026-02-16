@@ -41,7 +41,7 @@ function getProviderInfo(llmManager: LLMManager) {
 }
 
 export const loader = async ({ request, params, context }: LoaderFunctionArgs) => {
-  const llmManager = LLMManager.getInstance((context as any).cloudflare?.env);
+  const llmManager = LLMManager.getInstance((context as { cloudflare?: { env: Record<string, unknown> } }).cloudflare?.env);
 
   // Get client side maintained API keys and provider settings from cookies
   const cookieHeader = request.headers.get('Cookie');
@@ -61,7 +61,7 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
         modelList = await llmManager.getModelListFromProvider(provider, {
           apiKeys: apiKeys as Record<string, string>,
           providerSettings,
-          serverEnv: (context as any).cloudflare?.env,
+          serverEnv: (context as { cloudflare?: { env: Record<string, unknown> } }).cloudflare?.env,
         });
       }
     } else {

@@ -12,6 +12,8 @@ import pkg from 'pg';
 
 const { Client: PG_CLIENT } = pkg;
 
+import type { PGVectorStore } from '@llamaindex/postgres';
+
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('rag-service');
@@ -22,9 +24,7 @@ const logger = createScopedLogger('rag-service');
 export class RAGService {
   private static _instance: RAGService;
 
-  // Typed as any because PGVectorStore is dynamically imported to avoid build issues
-
-  private _vectorStore?: any;
+  private _vectorStore?: PGVectorStore;
   private _isInitialized = false;
 
   private constructor() {
@@ -175,7 +175,7 @@ export class RAGService {
           },
         ],
       },
-    } as any);
+    });
 
     const nodesWithScores = await retriever.retrieve({ query });
 
