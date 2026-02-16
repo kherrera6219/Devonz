@@ -3,6 +3,21 @@ import remarkGfm from 'remark-gfm';
 import type { PluggableList, Plugin } from 'unified';
 import rehypeSanitize, { defaultSchema, type Options as RehypeSanitizeOptions } from 'rehype-sanitize';
 import { SKIP, visit } from 'unist-util-visit';
+import type { Node } from 'unist';
+
+interface UnistNode extends Node {
+  type: string;
+  value?: string;
+  children?: UnistNode[];
+  position?: {
+    start: { offset: number };
+    end: { offset: number };
+  };
+}
+
+interface UnistParent extends UnistNode {
+  children: UnistNode[];
+}
 
 // No unist imports needed.
 
@@ -62,7 +77,7 @@ export const allowedHTMLElements = [
 
 // Add custom rehype plugin
 function remarkThinkRawContent() {
-  return (tree: any) => {
+  return (tree: Node) => {
     visit(tree, (node: any) => {
       if (node.type === 'html' && node.value && node.value.startsWith('<think>')) {
         const cleanedContent = node.value.slice(7);
@@ -127,12 +142,13 @@ export function rehypePlugins(html: boolean) {
 }
 
 const limitedMarkdownPlugin: Plugin = () => {
-  return (tree: any, file: any) => {
+  return (tree: UnistNode, file: { toString: () => string }) => {
     const contents = file.toString();
 
     visit(tree, (node: any, index, parent: any) => {
       if (
         index == null ||
+        parent == null ||
         ['paragraph', 'text', 'inlineCode', 'code', 'strong', 'emphasis'].includes(node.type) ||
         !node.position
       ) {
@@ -148,7 +164,7 @@ const limitedMarkdownPlugin: Plugin = () => {
       parent.children[index] = {
         type: 'text',
         value,
-      } as any;
+      } as UnistNode;
 
       return [SKIP, index] as const;
     });

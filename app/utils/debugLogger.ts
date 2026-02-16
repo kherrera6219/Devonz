@@ -4,7 +4,7 @@ import { PROVIDER_LIST, DEFAULT_MODEL } from './constants';
 import { logger } from './logger';
 
 // Lazy import to avoid circular dependencies
-let logStore: any = null;
+let logStore: unknown = null;
 const getLogStore = () => {
   if (!logStore && typeof window !== 'undefined') {
     try {
@@ -148,7 +148,7 @@ export interface LogEntry {
   level: 'trace' | 'debug' | 'info' | 'warn' | 'error';
   scope?: string;
   message: string;
-  data?: any;
+  data?: unknown;
 }
 
 export interface ErrorEntry {
@@ -160,7 +160,7 @@ export interface ErrorEntry {
   line?: number;
   column?: number;
   userAgent?: string;
-  context?: any;
+  context?: unknown;
 }
 
 export interface NetworkEntry {
@@ -185,7 +185,7 @@ export interface PerformanceEntry {
     total: number;
     limit: number;
   };
-  timing: any; // Using any instead of deprecated PerformanceTiming
+  timing: unknown; // Using unknown instead of deprecated PerformanceTiming
 }
 
 export interface StateEntry {
@@ -205,7 +205,7 @@ export interface UserActionEntry {
   timestamp: string;
   action: string;
   target?: string;
-  data?: any;
+  data?: unknown;
 }
 
 export interface TerminalEntry {
@@ -431,19 +431,19 @@ class DebugLogger {
   private _interceptConsole(): void {
     const self = this;
 
-    console.log = function (...args: any[]) {
+    console.log = function (...args: unknown[]) {
       self.captureLog('info', undefined, args);
-      self._originalConsoleLog.apply(console, args);
+      self._originalConsoleLog.apply(console, args as any);
     };
 
-    console.error = function (...args: any[]) {
+    console.error = function (...args: unknown[]) {
       self.captureLog('error', undefined, args);
-      self._originalConsoleError.apply(console, args);
+      self._originalConsoleError.apply(console, args as any);
     };
 
-    console.warn = function (...args: any[]) {
+    console.warn = function (...args: unknown[]) {
       self.captureLog('warn', undefined, args);
-      self._originalConsoleWarn.apply(console, args);
+      self._originalConsoleWarn.apply(console, args as any);
     };
   }
 
@@ -564,7 +564,7 @@ class DebugLogger {
     });
   }
 
-  captureLog(level: LogEntry['level'], scope?: string, args: any[] = []): void {
+  captureLog(level: LogEntry['level'], scope?: string, args: unknown[] = []): void {
     if (!this._isCapturing) {
       return;
     }
@@ -587,7 +587,7 @@ class DebugLogger {
     }
   }
 
-  private _formatMessage(args: any[]): string {
+  private _formatMessage(args: unknown[]): string {
     this._seenObjects = new WeakSet(); // Reset for each message
 
     return args
@@ -606,7 +606,7 @@ class DebugLogger {
       .join(' ');
   }
 
-  private _jsonReplacer(_key: string, value: any): any {
+  private _jsonReplacer(_key: string, value: unknown): unknown {
     // Prevent circular references and limit object depth
     if (typeof value === 'object' && value !== null) {
       if (this._seenObjects.has(value)) {
@@ -635,7 +635,7 @@ class DebugLogger {
     }
   }
 
-  captureUserAction(action: string, target?: string, data?: any): void {
+  captureUserAction(action: string, target?: string, data?: unknown): void {
     if (!this._isCapturing) {
       return;
     }
@@ -812,7 +812,7 @@ class DebugLogger {
     try {
       if (typeof window !== 'undefined') {
         // Access stores if available
-        const workbenchStore = (window as any).__bolt_workbench_store;
+        const workbenchStore = (window as unknown as { __bolt_workbench_store: any }).__bolt_workbench_store;
 
         if (workbenchStore) {
           const state = workbenchStore.get?.() || {};
@@ -912,7 +912,7 @@ class DebugLogger {
         const gitInfo = await response.json();
 
         // Transform the API response to match our interface
-        const gitInfoTyped = gitInfo as any;
+        const gitInfoTyped = gitInfo as Record<string, any>;
 
         // Type assertion for API response
         return {
@@ -966,8 +966,14 @@ class DebugLogger {
   }
 
   private _collectPerformanceInfo(): PerformanceEntry {
-    const timing = performance.timing as any;
+    const timing = performance.timing as unknown as Record<string, number>;
     const paintEntries = performance.getEntriesByType('paint');
+
+    const memory = (
+      performance as unknown as {
+        memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number };
+      }
+    ).memory;
 
     return {
       navigationStart: timing.navigationStart,
@@ -975,11 +981,11 @@ class DebugLogger {
       domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
       firstPaint: paintEntries.find((entry) => entry.name === 'first-paint')?.startTime,
       firstContentfulPaint: paintEntries.find((entry) => entry.name === 'first-contentful-paint')?.startTime,
-      memoryUsage: (performance as any).memory
+      memoryUsage: memory
         ? {
-            used: (performance as any).memory.usedJSHeapSize,
-            total: (performance as any).memory.totalJSHeapSize,
-            limit: (performance as any).memory.jsHeapSizeLimit,
+            used: memory.usedJSHeapSize,
+            total: memory.totalJSHeapSize,
+            limit: memory.jsHeapSizeLimit,
           }
         : undefined,
       timing,
@@ -993,13 +999,13 @@ class DebugLogger {
     // Get recent alerts from logStore
     if (store) {
       try {
-        const logs = store.getLogs?.() || [];
+        const logs = (store as { getLogs?: () => any[] }).getLogs?.() || [];
         alerts = logs
-          .filter((log: any) => ['error', 'warning'].includes(log.level))
+          .filter((log) => ['error', 'warning'].includes(log.level))
           .slice(0, 10)
-          .map((log: any) => ({
+          .map((log) => ({
             type: log.level,
-            title: log.message.substring(0, 100),
+            title: String(log.message || '').substring(0, 100),
             source: log.category,
           }));
       } catch {
@@ -1018,7 +1024,7 @@ class DebugLogger {
 
     try {
       if (typeof window !== 'undefined') {
-        const workbenchStore = (window as any).__bolt_workbench_store;
+        const workbenchStore = (window as unknown as { __bolt_workbench_store: any }).__bolt_workbench_store;
 
         if (workbenchStore) {
           const state = workbenchStore.get?.() || {};
@@ -1243,7 +1249,7 @@ export function captureTerminalLog(
   }
 }
 
-export function captureUserAction(action: string, target?: string, data?: any): void {
+export function captureUserAction(action: string, target?: string, data?: unknown): void {
   try {
     debugLogger.captureUserAction(action, target, data);
   } catch (error) {

@@ -1,6 +1,6 @@
 // import { Chalk } from 'chalk';
 
-let chalk: any;
+let chalk: unknown;
 
 if (typeof process !== 'undefined' && process.release?.name === 'node' && process.env.NODE_ENV !== 'production') {
   import('chalk')
@@ -14,7 +14,7 @@ if (typeof process !== 'undefined' && process.release?.name === 'node' && proces
 
 export type DebugLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'none';
 
-type LoggerFunction = (...messages: any[]) => void;
+type LoggerFunction = (...messages: unknown[]) => void;
 
 interface Logger {
   trace: LoggerFunction;
@@ -54,21 +54,21 @@ const getLogLevel = (): DebugLevel => {
 let currentLevel: DebugLevel = getLogLevel();
 
 export const logger: Logger = {
-  trace: (...messages: any[]) => logWithDebugCapture('trace', undefined, messages),
-  debug: (...messages: any[]) => logWithDebugCapture('debug', undefined, messages),
-  info: (...messages: any[]) => logWithDebugCapture('info', undefined, messages),
-  warn: (...messages: any[]) => logWithDebugCapture('warn', undefined, messages),
-  error: (...messages: any[]) => logWithDebugCapture('error', undefined, messages),
+  trace: (...messages: unknown[]) => logWithDebugCapture('trace', undefined, messages),
+  debug: (...messages: unknown[]) => logWithDebugCapture('debug', undefined, messages),
+  info: (...messages: unknown[]) => logWithDebugCapture('info', undefined, messages),
+  warn: (...messages: unknown[]) => logWithDebugCapture('warn', undefined, messages),
+  error: (...messages: unknown[]) => logWithDebugCapture('error', undefined, messages),
   setLevel,
 };
 
 export function createScopedLogger(scope: string): Logger {
   return {
-    trace: (...messages: any[]) => logWithDebugCapture('trace', scope, messages),
-    debug: (...messages: any[]) => logWithDebugCapture('debug', scope, messages),
-    info: (...messages: any[]) => logWithDebugCapture('info', scope, messages),
-    warn: (...messages: any[]) => logWithDebugCapture('warn', scope, messages),
-    error: (...messages: any[]) => logWithDebugCapture('error', scope, messages),
+    trace: (...messages: unknown[]) => logWithDebugCapture('trace', scope, messages),
+    debug: (...messages: unknown[]) => logWithDebugCapture('debug', scope, messages),
+    info: (...messages: unknown[]) => logWithDebugCapture('info', scope, messages),
+    warn: (...messages: unknown[]) => logWithDebugCapture('warn', scope, messages),
+    error: (...messages: unknown[]) => logWithDebugCapture('error', scope, messages),
     setLevel,
   };
 }
@@ -85,7 +85,7 @@ function setLevel(level: DebugLevel) {
   currentLevel = level;
 }
 
-function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
+function log(level: DebugLevel, scope: string | undefined, messages: unknown[]) {
   const levelOrder: DebugLevel[] = ['trace', 'debug', 'info', 'warn', 'error', 'none'];
 
   if (levelOrder.indexOf(level) < levelOrder.indexOf(currentLevel)) {
@@ -122,16 +122,18 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
   }
 
   // Development Pretty Logging (Chalk)
-  const allMessages = messages.reduce((acc, current) => {
+  const allMessages = messages.reduce((acc: string, current: unknown) => {
+    const currentStr = typeof current === 'object' ? JSON.stringify(current) : String(current);
+
     if (acc.endsWith('\n')) {
-      return acc + current;
+      return acc + currentStr;
     }
 
     if (!acc) {
-      return current;
+      return currentStr;
     }
 
-    return `${acc} ${current}`;
+    return `${acc} ${currentStr}`;
   }, '');
 
   const labelBackgroundColor = getColorForLevel(level);
@@ -166,7 +168,7 @@ function log(level: DebugLevel, scope: string | undefined, messages: any[]) {
 
 function formatText(text: string, color: string, bg: string) {
   if (chalk) {
-    return chalk.bgHex(bg)(chalk.hex(color)(text));
+    return (chalk as any).bgHex(bg)((chalk as any).hex(color)(text));
   }
 
   return text;
@@ -200,7 +202,7 @@ function getColorForLevel(level: DebugLevel): string {
 export const renderLogger = createScopedLogger('Render');
 
 // Debug logging integration
-let debugLogger: any = null;
+let debugLogger: { captureLog: (level: DebugLevel, scope: string | undefined, messages: unknown[]) => void } | null = null;
 
 // Lazy load debug logger to avoid circular dependencies
 const getDebugLogger = () => {
@@ -224,14 +226,20 @@ const getDebugLogger = () => {
 
 // Override the log function to also capture to debug logger
 
-function logWithDebugCapture(level: DebugLevel, scope: string | undefined, messages: any[]) {
+function logWithDebugCapture(level: DebugLevel, scope: string | undefined, messages: unknown[]) {
   // Call original log function (the one that does the actual console logging)
   log(level, scope, messages);
 
-  // Also capture to debug logger if available
-  const debug = getDebugLogger();
+  // Capture log to debug logger if it exists and level is not 'none'
+  if (level !== 'none' && typeof window !== 'undefined') {
+    const loggerInstance = getDebugLogger();
 
-  if (debug) {
-    debug.captureLog(level, scope, messages);
+    if (loggerInstance) {
+      (loggerInstance as any).captureLog(
+        level,
+        scope,
+        messages,
+      );
+    }
   }
 }

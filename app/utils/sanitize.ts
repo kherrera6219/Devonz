@@ -21,23 +21,23 @@ export interface SanitizeOptions {
    * Return a trusted HTML type (if configured) or string
    */
   RETURN_TRUSTED_TYPE?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Default strict configuration
-const DEFAULT_CONFIG: any = {
+const DEFAULT_CONFIG: SanitizeOptions = {
   USE_PROFILES: { html: true }, // Only allow HTML, strip SVG/MathML/etc by default unless specified
   FORBID_TAGS: ['style', 'script', 'iframe', 'object', 'embed', 'form'],
   FORBID_ATTR: ['style', 'onmouseover', 'onclick', 'onerror', 'onload'],
 };
 
 // Shiki-compatible configuration (allows inline styles for syntax highlighting)
-export const SHIKI_CONFIG: any = {
+export const SHIKI_CONFIG: SanitizeOptions = {
   ADD_TAGS: ['span', 'pre', 'code'],
   ADD_ATTR: ['style', 'class'], // Shiki uses inline styles and classes
 };
 
-export function sanitizeHTML(dirty: string, options: any = DEFAULT_CONFIG): string {
+export function sanitizeHTML(dirty: string, options: SanitizeOptions = DEFAULT_CONFIG): string {
   if (runtimeConfig.isServer) {
     /*
      * DOMPurify requires a window/JSDOM.
@@ -49,7 +49,7 @@ export function sanitizeHTML(dirty: string, options: any = DEFAULT_CONFIG): stri
     return dirty;
   }
 
-  return DOMPurify.sanitize(dirty, options) as string;
+  return DOMPurify.sanitize(dirty, options as unknown as SanitizeOptions) as string;
 }
 
 export const sanitizer = {

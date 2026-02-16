@@ -51,12 +51,12 @@ export async function newShellProcess(webcontainer: WebContainer, terminal: ITer
         // Capture terminal output for debugging
         try {
           import('~/utils/debugLogger')
-            .then(({ captureTerminalLog }) => {
+            .then(({ captureTerminalLog: logFunc }) => {
               // Clean the data by removing ANSI escape sequences for logging
               const cleanData = data.replace(/\x1b\[[0-9;]*[mG]/g, '').trim();
 
               if (cleanData) {
-                captureTerminalLog(cleanData, 'output');
+                logFunc(cleanData, 'output');
               }
             })
             .catch(() => {
@@ -78,12 +78,12 @@ export async function newShellProcess(webcontainer: WebContainer, terminal: ITer
       // Capture terminal input for debugging
       try {
         import('~/utils/debugLogger')
-          .then(({ captureTerminalLog }) => {
+          .then(({ captureTerminalLog: logFunc }) => {
             // Clean the data and check if it's a command (not just cursor movement)
             const cleanData = data.replace(/\x1b\[[0-9;]*[A-Z]/g, '').trim();
 
             if (cleanData && cleanData !== '\r' && cleanData !== '\n') {
-              captureTerminalLog(cleanData, 'input');
+              logFunc(cleanData, 'input');
             }
           })
           .catch(() => {
