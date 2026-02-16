@@ -5,7 +5,7 @@
  * that can be called from anywhere in the app (e.g., after accepting staged changes).
  */
 
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { setSnapshot } from './db';
 import { chatId, dbStore } from './useChatHistory';
 import type { Snapshot } from './types';
@@ -71,3 +71,4 @@ export async function takeDelayedSnapshot(
   await new Promise((resolve) => setTimeout(resolve, delayMs));
   return takeGlobalSnapshot(chatIndex, chatSummary);
 }
+

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { vercelConnection } from '~/lib/stores/vercel';
 import { HeaderAvatar } from './HeaderAvatar.client';
 import { AutoFixStatus } from './AutoFixStatus.client';
@@ -92,3 +92,4 @@ export function HeaderActionButtons({ chatStarted: _chatStarted }: HeaderActionB
     </div>
   );
 }
+

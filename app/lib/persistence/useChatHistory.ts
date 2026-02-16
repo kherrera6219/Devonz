@@ -4,7 +4,7 @@ import { atom } from 'nanostores';
 import { type JSONValue, type Message } from 'ai';
 import { toast } from 'react-toastify';
 import { logger } from '~/utils/logger';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { versionsStore } from '~/lib/stores/versions';
 import { logStore } from '~/lib/stores/logs'; // Import logStore
 import {
@@ -357,3 +357,4 @@ function navigateChat(nextId: string) {
 
   window.history.replaceState({ idx: window.history.state?.idx ?? 0 }, '', url);
 }
+

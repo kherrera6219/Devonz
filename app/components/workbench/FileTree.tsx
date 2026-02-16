@@ -6,7 +6,7 @@ import { createScopedLogger, renderLogger } from '~/utils/logger';
 import * as ContextMenu from '@radix-ui/react-context-menu';
 import type { FileHistory } from '~/types/actions';
 import { diffLines, type Change } from 'diff';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { toast } from 'react-toastify';
 import { path } from '~/utils/path';
 
@@ -933,3 +933,4 @@ function compareNodes(a: Node, b: Node): number {
 
   return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
 }
+

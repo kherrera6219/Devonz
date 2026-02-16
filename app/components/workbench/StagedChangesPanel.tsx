@@ -8,7 +8,7 @@ import { Button } from '~/components/ui/Button';
 import { IconButton } from '~/components/ui/IconButton';
 import { webcontainer } from '~/lib/webcontainer';
 import { toast } from 'react-toastify';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { usePreviewStore } from '~/lib/stores/previews';
 import { WORK_DIR } from '~/utils/constants';
 import { takeDelayedSnapshot } from '~/lib/persistence/snapshotUtils';
@@ -786,3 +786,4 @@ export const StagedChangesPanel = memo(() => {
 });
 
 StagedChangesPanel.displayName = 'StagedChangesPanel';
+

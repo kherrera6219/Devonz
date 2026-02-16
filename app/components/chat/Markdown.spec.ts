@@ -1,5 +1,12 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { stripCodeFenceFromArtifact } from './Markdown';
+
+vi.mock('~/lib/stores/workbenchStore', () => ({
+  workbenchStore: {
+    // Add any required properties if the test accesses them,
+    // otherwise empty object is often enough for module side-effect avoidance.
+  },
+}));
 
 describe('stripCodeFenceFromArtifact', () => {
   it('should remove code fences around artifact element', () => {

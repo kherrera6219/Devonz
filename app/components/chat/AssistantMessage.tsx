@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Markdown } from './Markdown';
 import type { JSONValue } from 'ai';
 import Popover from '~/components/ui/Popover';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { WORK_DIR } from '~/utils/constants';
 import WithTooltip from '~/components/ui/Tooltip';
 import type { Message } from 'ai';
@@ -225,3 +225,4 @@ export const AssistantMessage = memo(
     );
   },
 );
+

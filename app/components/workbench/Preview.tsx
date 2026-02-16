@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { classNames } from '~/utils/classNames';
 import { useStore } from '@nanostores/react';
 import { IconButton } from '~/components/ui/IconButton';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { stagingStore } from '~/lib/stores/staging';
 import { setPendingChatMessage } from '~/lib/stores/chat';
 import { PortDropdown } from './PortDropdown';
@@ -1744,3 +1744,4 @@ Add these rules to style the elements as specified. The !important flags ensure 
     </div>
   );
 });
+

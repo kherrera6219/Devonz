@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '@nanostores/react';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { webcontainer } from '~/lib/webcontainer';
 import { classNames } from '~/utils/classNames';
 import { toast } from 'react-toastify';
@@ -226,3 +226,4 @@ export default function ProjectMemoryTab() {
     </div>
   );
 }
+

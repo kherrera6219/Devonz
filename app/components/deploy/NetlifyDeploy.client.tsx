@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import { useStore } from '@nanostores/react';
 import { netlifyConnection } from '~/lib/stores/netlify';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { webcontainer } from '~/lib/webcontainer';
 import { path } from '~/utils/path';
 import { useState } from 'react';
@@ -244,3 +244,4 @@ export function useNetlifyDeploy() {
     isConnected: !!netlifyConn.user,
   };
 }
+

@@ -39,11 +39,11 @@ import { parseDocument, isSupportedFormat, SUPPORTED_FORMATS } from '~/lib/servi
 const logger = createScopedLogger('AgentTools');
 
 // Lazy import to avoid circular dependencies
-let workbenchStoreModule: typeof import('~/lib/stores/workbench') | null = null;
+let workbenchStoreModule: typeof import('~/lib/stores/workbenchStore') | null = null;
 
 async function getWorkbenchStore() {
   if (!workbenchStoreModule) {
-    workbenchStoreModule = await import('~/lib/stores/workbench');
+    workbenchStoreModule = await import('~/lib/stores/workbenchStore');
   }
 
   return workbenchStoreModule.workbenchStore;
@@ -1306,3 +1306,4 @@ export function getAgentToolNames(): string[] {
 export function isAgentTool(toolName: string): boolean {
   return toolName in agentToolDefinitions;
 }
+

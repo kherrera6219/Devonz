@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify';
 import { useStore } from '@nanostores/react';
 import { vercelConnection } from '~/lib/stores/vercel';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { webcontainer } from '~/lib/webcontainer';
 import { path } from '~/utils/path';
 import { useState } from 'react';
@@ -233,3 +233,4 @@ export function useVercelDeploy() {
     isConnected: !!vercelConn.user,
   };
 }
+

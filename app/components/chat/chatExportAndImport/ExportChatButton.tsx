@@ -1,5 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { classNames } from '~/utils/classNames';
 
 export const ExportChatButton = ({ exportChat }: { exportChat?: () => void }) => {
@@ -49,3 +49,4 @@ export const ExportChatButton = ({ exportChat }: { exportChat?: () => void }) =>
     </div>
   );
 };
+

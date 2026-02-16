@@ -240,7 +240,7 @@ class PreviewErrorHandler {
      * Lazy import to avoid circular dependency:
      * webcontainer/index.ts -> previewErrorHandler.ts -> workbench.ts -> webcontainer/index.ts
      */
-    const { workbenchStore } = await import('~/lib/stores/workbench');
+    const { workbenchStore } = await import('~/lib/stores/workbenchStore');
 
     workbenchStore.actionAlert.set({
       type: 'preview',
@@ -313,3 +313,4 @@ export function getPreviewErrorHandler(): PreviewErrorHandler {
 export function resetPreviewErrorHandler(): void {
   getPreviewErrorHandler().reset();
 }
+

@@ -5,7 +5,7 @@
  * so users can easily send errors to Devonz for fixing.
  */
 
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { createScopedLogger } from '~/utils/logger';
 import {
   autoFixStore,
@@ -709,3 +709,4 @@ export function detectTerminalErrors(data: string): void {
 export function resetTerminalErrorDetector(): void {
   getTerminalErrorDetector().reset();
 }
+

@@ -4,7 +4,7 @@ import { computed } from 'nanostores';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
 import type { ActionState } from '~/lib/runtime/action-runner';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { getChangeForFile } from '~/lib/stores/staging';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
@@ -23,9 +23,9 @@ const highlighterOptions = {
 };
 
 const codeHighlighter: HighlighterGeneric<BundledLanguage, BundledTheme> =
-  (import.meta as any).hot?.data.codeHighlighter ?? (await createHighlighter(highlighterOptions));
+  (import.meta as any).hot?.data?.codeHighlighter ?? (await createHighlighter(highlighterOptions));
 
-if ((import.meta as any).hot) {
+if ((import.meta as any).hot?.data) {
   (import.meta as any).hot.data.codeHighlighter = codeHighlighter;
 }
 
@@ -444,3 +444,4 @@ function getIconColor(status: ActionState['status']) {
     }
   }
 }
+

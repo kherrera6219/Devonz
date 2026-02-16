@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { versionsStore, type ProjectVersion } from '~/lib/stores/versions';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 
 interface VersionCardProps {
   version: ProjectVersion;
@@ -206,3 +206,4 @@ export const Versions = memo(() => {
     </div>
   );
 });
+

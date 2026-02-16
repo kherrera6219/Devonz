@@ -33,7 +33,7 @@ vi.mock('~/lib/webcontainer', () => ({
 }));
 
 // Mock the workbench store for run_command
-vi.mock('~/lib/stores/workbench', () => ({
+vi.mock('~/lib/stores/workbenchStore', () => ({
   workbenchStore: {
     boltTerminal: {
       ready: () => mockShellReady(),
@@ -528,3 +528,4 @@ describe('isAgentTool', () => {
     expect(isAgentTool('mcp_something')).toBe(false);
   });
 });
+

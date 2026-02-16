@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import type { ActionAlert } from '~/types/actions';
 import { classNames } from '~/utils/classNames';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { resetTerminalErrorDetector } from '~/utils/terminalErrorDetector';
 import { resetPreviewErrorHandler } from '~/utils/previewErrorHandler';
 
@@ -122,3 +122,4 @@ export default function ChatAlert({ alert, clearAlert, postMessage }: Props) {
     </AnimatePresence>
   );
 }
+

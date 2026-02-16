@@ -1,7 +1,7 @@
 import type { Message } from 'ai';
 import { useCallback, useState } from 'react';
 import { EnhancedStreamingMessageParser } from '~/lib/runtime/enhanced-message-parser';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { versionsStore } from '~/lib/stores/versions';
 import { createScopedLogger } from '~/utils/logger';
 
@@ -200,3 +200,4 @@ export function useMessageParser() {
 
   return { parsedMessages, parseMessages };
 }
+

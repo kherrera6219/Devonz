@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 import { useStore } from '@nanostores/react';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { webcontainer } from '~/lib/webcontainer';
 import { path } from '~/utils/path';
 import { useState } from 'react';
@@ -169,3 +169,4 @@ export function useGitHubDeploy() {
     isConnected: !!getLocalStorage('github_connection')?.user,
   };
 }
+

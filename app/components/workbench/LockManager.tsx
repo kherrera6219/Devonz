@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore } from '~/lib/stores/workbenchStore';
 import { classNames } from '~/utils/classNames';
 import { Checkbox } from '~/components/ui/Checkbox';
 import { toast } from '~/components/ui/use-toast';
@@ -260,3 +260,4 @@ export function LockManager() {
     </div>
   );
 }
+

@@ -10,7 +10,7 @@ export const webcontainerContext: WebContainerContext = import.meta.hot?.data?.w
   loaded: false,
 };
 
-if (import.meta.hot) {
+if (import.meta.hot?.data) {
   import.meta.hot.data.webcontainerContext = webcontainerContext;
 }
 
@@ -20,7 +20,7 @@ export let webcontainer: Promise<WebContainer> = new Promise(() => {
 
 if (!import.meta.env.SSR) {
   webcontainer =
-    import.meta.hot?.data.webcontainer ??
+    import.meta.hot?.data?.webcontainer ??
     Promise.resolve()
       .then(() => {
         return WebContainer.boot({
@@ -57,7 +57,7 @@ if (!import.meta.env.SSR) {
         return webcontainer;
       });
 
-  if (import.meta.hot) {
+  if (import.meta.hot?.data) {
     import.meta.hot.data.webcontainer = webcontainer;
   }
 }

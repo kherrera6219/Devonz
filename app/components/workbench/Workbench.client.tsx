@@ -10,7 +10,7 @@ import {
 } from '~/components/editor/codemirror/CodeMirrorEditor';
 import { IconButton } from '~/components/ui/IconButton';
 import { Slider, type SliderOptions } from '~/components/ui/Slider';
-import { workbenchStore, type WorkbenchViewType } from '~/lib/stores/workbench';
+import { workbenchStore, type WorkbenchViewType } from '~/lib/stores/workbenchStore';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
 import { renderLogger } from '~/utils/logger';
@@ -302,3 +302,4 @@ const View = memo(({ children, ...props }: ViewProps) => {
     </motion.div>
   );
 });
+

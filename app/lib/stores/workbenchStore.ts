@@ -47,31 +47,32 @@ export class WorkbenchStore {
 
   #reloadedMessages = new Set<string>();
 
-  artifacts: Artifacts = import.meta.hot?.data.artifacts ?? map({});
+  artifacts: Artifacts = import.meta.hot?.data?.artifacts ?? map({});
 
-  showWorkbench: WritableAtom<boolean> = import.meta.hot?.data.showWorkbench ?? atom(false);
-  currentView: WritableAtom<WorkbenchViewType> = import.meta.hot?.data.currentView ?? atom('code');
-  unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data.unsavedFiles ?? atom(new Set<string>());
+  showWorkbench: WritableAtom<boolean> = import.meta.hot?.data?.showWorkbench ?? atom(false);
+  currentView: WritableAtom<WorkbenchViewType> = import.meta.hot?.data?.currentView ?? atom('code');
+  unsavedFiles: WritableAtom<Set<string>> = import.meta.hot?.data?.unsavedFiles ?? atom(new Set<string>());
 
   /** The width of the workbench panel in pixels. Default is 70% of viewport for more code space. */
   workbenchWidth: WritableAtom<number> =
-    import.meta.hot?.data.workbenchWidth ?? atom(typeof window !== 'undefined' ? window.innerWidth * 0.7 : 1100);
+    import.meta.hot?.data?.workbenchWidth ?? atom(typeof window !== 'undefined' ? window.innerWidth * 0.7 : 1100);
 
   actionAlert: WritableAtom<ActionAlert | undefined> =
-    import.meta.hot?.data.actionAlert ?? atom<ActionAlert | undefined>(undefined);
+    import.meta.hot?.data?.actionAlert ?? atom<ActionAlert | undefined>(undefined);
   supabaseAlert: WritableAtom<SupabaseAlert | undefined> =
-    import.meta.hot?.data.supabaseAlert ?? atom<SupabaseAlert | undefined>(undefined);
+    import.meta.hot?.data?.supabaseAlert ?? atom<SupabaseAlert | undefined>(undefined);
   deployAlert: WritableAtom<DeployAlert | undefined> =
-    import.meta.hot?.data.deployAlert ?? atom<DeployAlert | undefined>(undefined);
+    import.meta.hot?.data?.deployAlert ?? atom<DeployAlert | undefined>(undefined);
 
   /** Flag to indicate if we're restoring a session from snapshot */
-  isRestoringSession: WritableAtom<boolean> = import.meta.hot?.data.isRestoringSession ?? atom(false);
+  isRestoringSession: WritableAtom<boolean> = import.meta.hot?.data?.isRestoringSession ?? atom(false);
 
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
   #globalExecutionQueue = Promise.resolve();
   constructor() {
-    if (import.meta.hot) {
+    if (import.meta.hot?.data) {
+      import.meta.hot.data.webcontainerContext = webcontainer;
       import.meta.hot.data.artifacts = this.artifacts;
       import.meta.hot.data.unsavedFiles = this.unsavedFiles;
       import.meta.hot.data.showWorkbench = this.showWorkbench;
