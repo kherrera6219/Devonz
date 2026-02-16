@@ -23,8 +23,12 @@ export class OrchestratorService {
   async processRequest(
     userRequest: string,
     conversationId: string,
-    dataStream: { writeData: (data: any) => void; writeText?: (text: string) => void; append?: (text: string) => void },
-    existingMessages: any[],
+    dataStream: {
+      writeData: (data: Record<string, unknown>) => void;
+      writeText?: (text: string) => void;
+      append?: (text: string) => void;
+    },
+    existingMessages: unknown[],
     apiKeys: Record<string, string>,
     streamRecovery?: { updateActivity: () => void },
   ) {
@@ -151,7 +155,10 @@ export class OrchestratorService {
           // Check for generic errors in the state update (not in events)
           if (stateUpdate?.error && !stateUpdate?.events) {
             const errorObj = stateUpdate.error;
-            const errMsg = typeof errorObj === 'string' ? errorObj : (errorObj as any).message || 'Unknown Error';
+            const errMsg =
+              typeof errorObj === 'string'
+                ? errorObj
+                : (errorObj as Record<string, unknown>)?.message || 'Unknown Error';
             dataStream.writeData({
               type: 'progress',
               label: 'error',
@@ -163,7 +170,7 @@ export class OrchestratorService {
       })();
 
       await Promise.race([graphPromise, timeoutPromise]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Orchestrator Execution Error:', error);
 
       // Report system-level errors to the UI
@@ -171,7 +178,7 @@ export class OrchestratorService {
         type: 'progress',
         label: 'system',
         status: 'failed',
-        message: `System Error: ${error.message}`,
+        message: `System Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     }
   }

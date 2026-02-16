@@ -62,11 +62,13 @@ export class GitHubApiServiceClass {
     });
 
     if (!response.ok) {
-      const errorData: any = await response.json().catch(() => ({ message: response.statusText }));
+      const errorData = (await response.json().catch(() => ({
+        message: response.statusText,
+      }))) as Record<string, unknown>;
       const error: GitHubApiError = {
-        message: errorData.message || response.statusText,
+        message: (errorData.message as string) || response.statusText,
         status: response.status,
-        code: errorData.code,
+        code: errorData.code as string,
       };
       throw error;
     }
@@ -156,7 +158,7 @@ export class GitHubApiServiceClass {
       return match ? parseInt(match[1], 10) : 1;
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as unknown[];
 
     return Array.isArray(data) ? data.length : 0;
   }
@@ -184,7 +186,7 @@ export class GitHubApiServiceClass {
       return match ? parseInt(match[1], 10) : 1;
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as unknown[];
 
     return Array.isArray(data) ? data.length : 0;
   }
@@ -212,7 +214,7 @@ export class GitHubApiServiceClass {
       return match ? parseInt(match[1], 10) : 1;
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as unknown[];
 
     return Array.isArray(data) ? data.length : 0;
   }
@@ -359,7 +361,7 @@ export class GitHubApiServiceClass {
       // Fetch additional data in parallel
       const [organizations, recentActivity] = await Promise.allSettled([
         this._makeRequestInternal<GitHubOrganization[]>('/user/orgs'),
-        this._makeRequestInternal<any[]>(`/users/${userData.login}/events?per_page=10`),
+        this._makeRequestInternal<Record<string, unknown>[]>(`/users/${userData.login}/events?per_page=10`),
       ]);
 
       // Calculate aggregated metrics
@@ -371,12 +373,15 @@ export class GitHubApiServiceClass {
         repos: detailedRepos,
         recentActivity:
           recentActivity.status === 'fulfilled'
-            ? recentActivity.value.slice(0, 10).map((event: any) => ({
-                id: event.id,
-                type: event.type,
-                repo: { name: event.repo.name, url: event.repo.url },
-                created_at: event.created_at,
-                payload: event.payload || {},
+            ? recentActivity.value.slice(0, 10).map((event) => ({
+                id: event.id as string,
+                type: event.type as string,
+                repo: {
+                  name: (event.repo as Record<string, string>).name,
+                  url: (event.repo as Record<string, string>).url,
+                },
+                created_at: event.created_at as string,
+                payload: (event.payload as Record<string, unknown>) || {},
               }))
             : [],
         languages: stats.languages,
@@ -412,12 +417,12 @@ export class GitHubApiServiceClass {
   async fetchUser(
     token: string,
     tokenType: 'classic' | 'fine-grained' = 'classic',
-  ): Promise<{ user: GitHubUserResponse; rateLimit: any }> {
+  ): Promise<{ user: GitHubUserResponse; rateLimit: Record<string, unknown> }> {
     this.configure({ token, tokenType });
 
     const [user, rateLimit] = await Promise.all([
       this.getAuthenticatedUser(),
-      this._makeRequestInternal('/rate_limit'),
+      this._makeRequestInternal<Record<string, unknown>>('/rate_limit'),
     ]);
 
     return { user, rateLimit };

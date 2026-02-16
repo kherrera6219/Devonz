@@ -16,7 +16,7 @@ interface CacheEntry<T> {
 }
 
 class GitLabCache {
-  private _cache = new Map<string, CacheEntry<any>>();
+  private _cache = new Map<string, CacheEntry<unknown>>();
 
   set<T>(key: string, data: T, duration = CACHE_DURATION): void {
     const timestamp = Date.now();
@@ -39,7 +39,7 @@ class GitLabCache {
       return null;
     }
 
-    return entry.data;
+    return entry.data as T;
   }
 
   clear(): void {
@@ -147,7 +147,7 @@ export class GitLabApiService {
 
       // Try to get more details from response body
       try {
-        const errorData = (await response.json()) as any;
+        const errorData = (await response.json()) as Record<string, unknown>;
 
         if (errorData.message) {
           errorMessage += ` Details: ${errorData.message}`;
@@ -171,7 +171,11 @@ export class GitLabApiService {
     // Handle different avatar URL fields that GitLab might return
     const processedUser = {
       ...user,
-      avatar_url: user.avatar_url || (user as any).avatarUrl || (user as any).profile_image_url || null,
+      avatar_url:
+        user.avatar_url ||
+        (user as unknown as Record<string, unknown>).avatarUrl ||
+        (user as unknown as Record<string, unknown>).profile_image_url ||
+        null,
     };
 
     return { ...processedUser, rateLimit } as GitLabUserResponse & { rateLimit: typeof rateLimit };
@@ -185,7 +189,7 @@ export class GitLabApiService {
       return cached;
     }
 
-    let allProjects: any[] = [];
+    let allProjects: Record<string, unknown>[] = [];
     let page = 1;
     const maxPages = 10; // Limit to prevent excessive API calls
 
@@ -207,7 +211,7 @@ export class GitLabApiService {
         throw new Error(errorMessage);
       }
 
-      const projects: any[] = await response.json();
+      const projects = (await response.json()) as Record<string, unknown>[];
 
       if (projects.length === 0) {
         break;
@@ -224,17 +228,17 @@ export class GitLabApiService {
     }
 
     // Transform to our interface
-    const transformedProjects: GitLabProjectInfo[] = allProjects.map((project: any) => ({
-      id: project.id,
-      name: project.name,
-      path_with_namespace: project.path_with_namespace,
-      description: project.description,
-      http_url_to_repo: project.http_url_to_repo,
-      star_count: project.star_count,
-      forks_count: project.forks_count,
-      default_branch: project.default_branch,
-      updated_at: project.updated_at,
-      visibility: project.visibility,
+    const transformedProjects: GitLabProjectInfo[] = allProjects.map((project) => ({
+      id: project.id as number,
+      name: project.name as string,
+      path_with_namespace: project.path_with_namespace as string,
+      description: project.description as string,
+      http_url_to_repo: project.http_url_to_repo as string,
+      star_count: project.star_count as number,
+      forks_count: project.forks_count as number,
+      default_branch: project.default_branch as string,
+      updated_at: project.updated_at as string,
+      visibility: project.visibility as string,
     }));
 
     gitlabCache.set(cacheKey, transformedProjects);
@@ -249,14 +253,14 @@ export class GitLabApiService {
       throw new Error(`Failed to fetch events: ${response.statusText}`);
     }
 
-    const events: any[] = await response.json();
+    const events = (await response.json()) as Record<string, unknown>[];
 
-    return events.slice(0, 5).map((event: any) => ({
-      id: event.id,
-      action_name: event.action_name,
-      project_id: event.project_id,
-      project: event.project,
-      created_at: event.created_at,
+    return events.slice(0, 5).map((event) => ({
+      id: event.id as number,
+      action_name: event.action_name as string,
+      project_id: event.project_id as number,
+      project: event.project as { name: string; path_with_namespace: string },
+      created_at: event.created_at as string,
     }));
   }
 
@@ -270,11 +274,11 @@ export class GitLabApiService {
     return [];
   }
 
-  async getSnippets(): Promise<any[]> {
+  async getSnippets(): Promise<Record<string, unknown>[]> {
     const response = await this._request('/snippets');
 
     if (response.ok) {
-      return await response.json();
+      return (await response.json()) as Record<string, unknown>[];
     }
 
     return [];
@@ -304,12 +308,12 @@ export class GitLabApiService {
       let errorMessage = `Failed to create project: ${response.status} ${response.statusText}`;
 
       try {
-        const errorData = (await response.json()) as any;
+        const errorData = (await response.json()) as Record<string, unknown>;
 
         if (errorData.message) {
           if (typeof errorData.message === 'object') {
             // Handle validation errors
-            const messages = Object.entries(errorData.message as Record<string, any>)
+            const messages = Object.entries(errorData.message as Record<string, unknown>)
               .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(', ') : value}`)
               .join('; ');
             errorMessage = `Failed to create project: ${messages}`;
@@ -337,7 +341,7 @@ export class GitLabApiService {
     return null;
   }
 
-  async createBranch(projectId: number, branchName: string, ref: string): Promise<any> {
+  async createBranch(projectId: number, branchName: string, ref: string): Promise<Record<string, unknown>> {
     const response = await this._request(`/projects/${projectId}/repository/branches`, {
       method: 'POST',
       body: JSON.stringify({
@@ -353,7 +357,7 @@ export class GitLabApiService {
     return await response.json();
   }
 
-  async commitFiles(projectId: number, commitRequest: GitLabCommitRequest): Promise<any> {
+  async commitFiles(projectId: number, commitRequest: GitLabCommitRequest): Promise<Record<string, unknown>> {
     const response = await this._request(`/projects/${projectId}/repository/commits`, {
       method: 'POST',
       body: JSON.stringify(commitRequest),

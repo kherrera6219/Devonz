@@ -119,7 +119,7 @@ export class MCPService {
     return MCPService._instance;
   }
 
-  private _validateServerConfig(serverName: string, config: any): MCPServerConfig {
+  private _validateServerConfig(serverName: string, config: Record<string, unknown>): MCPServerConfig {
     const hasStdioField = config.command !== undefined;
     const hasUrlField = config.url !== undefined;
 
@@ -135,16 +135,18 @@ export class MCPService {
       throw new Error(`missing "type" field, only "sse" and "streamable-http" are valid options.`);
     }
 
-    if (!['stdio', 'sse', 'streamable-http'].includes(config.type)) {
+    const configType = config.type as string;
+
+    if (!['stdio', 'sse', 'streamable-http'].includes(configType)) {
       throw new Error(`provided "type" is invalid, only "stdio", "sse" or "streamable-http" are valid options.`);
     }
 
     // Check for type/field mismatch
-    if (config.type === 'stdio' && !hasStdioField) {
+    if (configType === 'stdio' && !hasStdioField) {
       throw new Error(`missing "command" field.`);
     }
 
-    if (['sse', 'streamable-http'].includes(config.type) && !hasUrlField) {
+    if (['sse', 'streamable-http'].includes(configType) && !hasUrlField) {
       throw new Error(`missing "url" field.`);
     }
 
@@ -262,12 +264,13 @@ export class MCPService {
             config,
           };
         }
-      } catch (error) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error(`Failed to initialize MCP client for server: ${serverName}`, error);
         this._mcpToolsPerServer[serverName] = {
           status: 'unavailable',
-          error: (error as Error).message,
-          client,
+          error: errorMessage,
+          client: client as MCPClient,
           config,
         };
       }
@@ -349,6 +352,60 @@ export class MCPService {
     this._toolsWithoutExecute = {};
     this._mcpToolsPerServer = {};
     this._toolNamesToServerNames.clear();
+  }
+
+  async processToolCalls(
+    serverName: string,
+    toolCalls: ToolCall[],
+    dataStream: DataStreamWriter,
+  ): Promise<Record<string, unknown>[]> {
+    const server = this._mcpToolsPerServer[serverName];
+
+    if (!server || server.status === 'unavailable') {
+      throw new Error(`Server "${serverName}" is not available`);
+    }
+
+    const results: Record<string, unknown>[] = [];
+
+    for (const toolCall of toolCalls) {
+      try {
+        const result = await server.client.tools();
+        const tool = result[toolCall.toolName] as unknown as {
+          execute: (args: Record<string, unknown>, opts: Record<string, unknown>) => Promise<unknown>;
+        };
+
+        const executeResult = (await tool.execute(toolCall.args, {
+          abortSignal: new AbortController().signal,
+        })) as Record<string, unknown>;
+
+        results.push({
+          toolCallId: toolCall.toolCallId,
+          result: executeResult,
+        });
+
+        dataStream.writeData({
+          type: 'tool-result',
+          toolCallId: toolCall.toolCallId,
+          result: executeResult as import('ai').JSONValue,
+        });
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.error(`Error executing tool ${toolCall.toolName}:`, error);
+
+        results.push({
+          toolCallId: toolCall.toolCallId,
+          error: errorMessage,
+        });
+
+        dataStream.writeData({
+          type: 'tool-error',
+          toolCallId: toolCall.toolCallId,
+          error: errorMessage,
+        });
+      }
+    }
+
+    return results;
   }
 
   isValidToolName(toolName: string): boolean {

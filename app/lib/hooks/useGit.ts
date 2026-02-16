@@ -32,7 +32,7 @@ export function useGit() {
   const [ready, setReady] = useState(false);
   const [webcontainer, setWebcontainer] = useState<WebContainer>();
   const [fs, setFs] = useState<PromiseFsClient>();
-  const fileData = useRef<Record<string, { data: any; encoding?: string }>>({});
+  const fileData = useRef<Record<string, { data: string | Uint8Array; encoding?: string }>>({});
   useEffect(() => {
     webcontainerPromise.then((container) => {
       fileData.current = {};
@@ -129,7 +129,7 @@ export function useGit() {
           },
         });
 
-        const data: Record<string, { data: any; encoding?: string }> = {};
+        const data: Record<string, { data: string | Uint8Array; encoding?: string }> = {};
 
         for (const [key, value] of Object.entries(fileData.current)) {
           data[key] = value;
@@ -183,22 +183,22 @@ export function useGit() {
 
 const getFs = (
   webcontainer: WebContainer,
-  record: MutableRefObject<Record<string, { data: any; encoding?: string }>>,
+  record: MutableRefObject<Record<string, { data: string | Uint8Array; encoding?: string }>>,
 ) => ({
   promises: {
-    readFile: async (path: string, options: any) => {
+    readFile: async (path: string, options?: { encoding?: 'utf8' | 'binary' }) => {
       const encoding = options?.encoding;
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
-        const result = await webcontainer.fs.readFile(relativePath, encoding);
+        const result = await webcontainer.fs.readFile(relativePath, encoding as 'utf8');
 
         return result;
       } catch (error) {
         throw error;
       }
     },
-    writeFile: async (path: string, data: any, options: any = {}) => {
+    writeFile: async (path: string, data: string | Uint8Array, options: { encoding?: string } = {}) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       if (record.current) {
@@ -222,7 +222,7 @@ const getFs = (
         throw error;
       }
     },
-    mkdir: async (path: string, options: any) => {
+    mkdir: async (path: string, options?: { recursive?: boolean }) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
@@ -233,18 +233,18 @@ const getFs = (
         throw error;
       }
     },
-    readdir: async (path: string, options: any) => {
+    readdir: async (path: string, options?: { withFileTypes?: boolean }) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
-        const result = await webcontainer.fs.readdir(relativePath, options);
+        const result = await webcontainer.fs.readdir(relativePath, options as { withFileTypes?: boolean });
 
         return result;
       } catch (error) {
         throw error;
       }
     },
-    rm: async (path: string, options: any) => {
+    rm: async (path: string, options?: { recursive?: boolean; force?: boolean }) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
@@ -255,7 +255,7 @@ const getFs = (
         throw error;
       }
     },
-    rmdir: async (path: string, options: any) => {
+    rmdir: async (path: string, options?: { recursive?: boolean }) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
@@ -343,12 +343,14 @@ const getFs = (
           birthtime: new Date(),
           atime: new Date(),
         };
-      } catch (error: any) {
-        if (!error.code) {
-          error.code = 'ENOENT';
-          error.errno = -2;
-          error.syscall = 'stat';
-          error.path = path;
+      } catch (error: unknown) {
+        if (error && typeof error === 'object' && !('code' in error)) {
+          Object.assign(error, {
+            code: 'ENOENT',
+            errno: -2,
+            syscall: 'stat',
+            path,
+          });
         }
 
         throw error;

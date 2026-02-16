@@ -1,11 +1,68 @@
 import Cookies from 'js-cookie';
 import { type Message } from 'ai';
 import { getAllChats, deleteChat } from '~/lib/persistence/chats';
+import { type IChatMetadata } from '~/lib/persistence/db';
 
 interface ExtendedMessage extends Message {
   name?: string;
-  function_call?: any;
+  function_call?: Record<string, unknown> | string;
   timestamp?: number;
+}
+
+export interface ChatExportItem {
+  id: string;
+  description: string;
+  messages: {
+    id: string;
+    role: string;
+    content: string;
+    name?: string;
+    function_call?: Record<string, unknown> | string;
+    timestamp?: number;
+  }[];
+  timestamp: string | number;
+  urlId: string | null;
+  metadata: IChatMetadata | Record<string, unknown> | null;
+}
+
+export interface SettingsExportData {
+  [key: string]: unknown;
+}
+
+export interface OldSettingsExportData {
+  core: Record<string, unknown>;
+  providers: Record<string, unknown>;
+  features: Record<string, unknown>;
+  ui: Record<string, unknown>;
+  connections: Record<string, unknown>;
+  debug: Record<string, unknown>;
+  updates: Record<string, unknown>;
+  chatSnapshots: Record<string, unknown>;
+  _raw: {
+    localStorage: Record<string, unknown>;
+    cookies: Record<string, string>;
+  };
+  _meta: {
+    exportDate: string;
+    version: string;
+    appVersion: string;
+  };
+}
+
+interface ImportData {
+  _meta?: { version: string; appVersion: string };
+  core?: Record<string, unknown>;
+  provider_settings?: Record<string, unknown>;
+  providers?: Record<string, unknown>;
+  devonz_tab_configuration?: Record<string, unknown>;
+  promptId?: string | number;
+  ui?: Record<string, unknown>;
+  netlify_connection?: Record<string, unknown>;
+  update_settings?: Record<string, unknown>;
+  last_acknowledged_update?: string | number;
+  chats?: ChatExportItem[];
+  debug?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 /**
@@ -17,7 +74,7 @@ export class ImportExportService {
    * @param db The IndexedDB database instance
    * @returns A promise that resolves to the export data
    */
-  static async exportAllChats(db: IDBDatabase): Promise<{ chats: any[]; exportDate: string }> {
+  static async exportAllChats(db: IDBDatabase): Promise<{ chats: ChatExportItem[]; exportDate: string }> {
     if (!db) {
       throw new Error('Database not initialized');
     }
@@ -59,7 +116,7 @@ export class ImportExportService {
    * Export application settings to a JSON file
    * @returns A promise that resolves to the settings data
    */
-  static async exportSettings(): Promise<any> {
+  static async exportSettings(): Promise<SettingsExportData> {
     try {
       // Get all cookies
       const allCookies = Cookies.get();
@@ -181,9 +238,9 @@ export class ImportExportService {
    * Import settings from a JSON file
    * @param importedData The imported data
    */
-  static async importSettings(importedData: any): Promise<void> {
+  static async importSettings(importedData: Record<string, unknown>): Promise<void> {
     // Check if this is the new comprehensive format (v2.0)
-    const isNewFormat = importedData._meta?.version === '2.0';
+    const isNewFormat = (importedData._meta as Record<string, unknown>)?.version === '2.0';
 
     if (isNewFormat) {
       // Import using the new comprehensive format
@@ -198,7 +255,7 @@ export class ImportExportService {
    * Import API keys from a JSON file
    * @param keys The API keys to import
    */
-  static importAPIKeys(keys: Record<string, any>): Record<string, string> {
+  static importAPIKeys(keys: Record<string, unknown>): Record<string, string> {
     // Get existing keys from cookies
     const existingKeys = (() => {
       const storedApiKeys = Cookies.get('apiKeys');
@@ -248,7 +305,7 @@ export class ImportExportService {
    * Create an API keys template
    * @returns The API keys template
    */
-  static createAPIKeysTemplate(): Record<string, any> {
+  static createAPIKeysTemplate(): Record<string, unknown> {
     /*
      * Create a template with provider names as keys
      * This matches how the application stores API keys in cookies
@@ -365,7 +422,7 @@ export class ImportExportService {
    * Import settings from a comprehensive format
    * @param data The imported data
    */
-  private static async _importComprehensiveFormat(data: any): Promise<void> {
+  private static async _importComprehensiveFormat(data: ImportData): Promise<void> {
     // Import core settings
     if (data.core) {
       Object.entries(data.core).forEach(([key, value]) => {
@@ -392,10 +449,11 @@ export class ImportExportService {
 
       // Import API keys and other provider cookies
       const providerCookies = ['apiKeys', 'selectedModel', 'selectedProvider', 'providers'];
+      const providersDict = data.providers as Record<string, unknown>;
       providerCookies.forEach((key) => {
-        if (data.providers[key]) {
+        if (providersDict[key]) {
           try {
-            this._safeSetCookie(key, data.providers[key]);
+            this._safeSetCookie(key, providersDict[key]);
           } catch (err) {
             console.error(`Error importing provider cookie ${key}:`, err);
           }
@@ -437,10 +495,11 @@ export class ImportExportService {
 
       // Import UI cookies
       const uiCookies = ['tabConfiguration', 'cachedPrompt'];
+      const uiDict = data.ui as Record<string, unknown>;
       uiCookies.forEach((key) => {
-        if (data.ui[key]) {
+        if (uiDict[key]) {
           try {
-            this._safeSetCookie(key, data.ui[key]);
+            this._safeSetCookie(key, uiDict[key]);
           } catch (err) {
             console.error(`Error importing UI cookie ${key}:`, err);
           }
@@ -451,16 +510,19 @@ export class ImportExportService {
     // Import connections
     if (data.connections) {
       // Import Netlify connection
-      if (data.connections.netlify_connection) {
+
+      const connectionsData = data.connections as Record<string, unknown>;
+
+      if (connectionsData?.netlify_connection) {
         try {
-          this._safeSetItem('netlify_connection', data.connections.netlify_connection);
+          this._safeSetItem('netlify_connection', connectionsData.netlify_connection);
         } catch (err) {
           console.error('Error importing Netlify connection:', err);
         }
       }
 
       // Import GitHub connections
-      Object.entries(data.connections).forEach(([key, value]) => {
+      Object.entries(data.connections as Record<string, unknown>).forEach(([key, value]) => {
         if (key.startsWith('github_') && value !== null && value !== undefined) {
           try {
             this._safeSetItem(key, value);
@@ -473,6 +535,8 @@ export class ImportExportService {
 
     // Import debug settings
     if (data.debug) {
+      const debugData = data.debug as Record<string, unknown>;
+
       // Import debug localStorage settings
       const debugLocalStorageKeys = [
         'devonz_acknowledged_debug_issues',
@@ -482,9 +546,9 @@ export class ImportExportService {
       ];
 
       debugLocalStorageKeys.forEach((key) => {
-        if (data.debug[key] !== null && data.debug[key] !== undefined) {
+        if (debugData[key] !== null && debugData[key] !== undefined) {
           try {
-            this._safeSetItem(key, data.debug[key]);
+            this._safeSetItem(key, debugData[key]);
           } catch (err) {
             console.error(`Error importing debug setting ${key}:`, err);
           }
@@ -494,9 +558,9 @@ export class ImportExportService {
       // Import debug cookies
       const debugCookies = ['isDebugEnabled', 'eventLogs'];
       debugCookies.forEach((key) => {
-        if (data.debug[key]) {
+        if (debugData[key]) {
           try {
-            this._safeSetCookie(key, data.debug[key]);
+            this._safeSetCookie(key, debugData[key]);
           } catch (err) {
             console.error(`Error importing debug cookie ${key}:`, err);
           }
@@ -506,17 +570,18 @@ export class ImportExportService {
 
     // Import update settings
     if (data.updates) {
-      if (data.updates.update_settings) {
+      const updatesData = data.updates as Record<string, unknown>;
+      if (updatesData?.update_settings) {
         try {
-          this._safeSetItem('update_settings', data.updates.update_settings);
+          this._safeSetItem('update_settings', updatesData.update_settings);
         } catch (err) {
           console.error('Error importing update settings:', err);
         }
       }
 
-      if (data.updates.last_acknowledged_update) {
+      if (updatesData?.last_acknowledged_update) {
         try {
-          this._safeSetItem('devonz_last_acknowledged_version', data.updates.last_acknowledged_update);
+          this._safeSetItem('devonz_last_acknowledged_version', updatesData.last_acknowledged_update);
         } catch (err) {
           console.error('Error importing last acknowledged update:', err);
         }
@@ -541,14 +606,14 @@ export class ImportExportService {
    * Import settings from a legacy format
    * @param data The imported data
    */
-  private static async _importLegacyFormat(data: any): Promise<void> {
+  private static async _importLegacyFormat(data: ImportData): Promise<void> {
     /**
      * Handle legacy format (v1.0 or earlier)
      * This is a simplified version that tries to import whatever is available
      */
 
     // Try to import settings directly
-    Object.entries(data).forEach(([key, value]) => {
+    Object.entries(data as Record<string, unknown>).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
         // Skip metadata fields
         if (key === 'exportDate' || key === 'version' || key === 'appVersion') {
@@ -585,10 +650,11 @@ export class ImportExportService {
    * @param key The key to get
    * @returns The value or null if not found
    */
-  private static _safeGetItem(key: string): any {
+  private static _safeGetItem(key: string): unknown {
     try {
       const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : null;
+
+      return item ? (JSON.parse(item) as unknown) : null;
     } catch (err) {
       console.error(`Error getting localStorage item ${key}:`, err);
       return null;
@@ -599,8 +665,8 @@ export class ImportExportService {
    * Get all localStorage items
    * @returns All localStorage items
    */
-  private static _getAllLocalStorage(): Record<string, any> {
-    const result: Record<string, any> = {};
+  private static _getAllLocalStorage(): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
 
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -627,8 +693,8 @@ export class ImportExportService {
    * @param _cookies The cookies object
    * @returns GitHub connections
    */
-  private static _getGitHubConnections(_cookies: Record<string, string>): Record<string, any> {
-    const result: Record<string, any> = {};
+  private static _getGitHubConnections(_cookies: Record<string, string>): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
 
     // Get GitHub connections from localStorage
     const localStorageKeys = Object.keys(localStorage).filter((key) => key.startsWith('github_'));
@@ -649,8 +715,8 @@ export class ImportExportService {
    * Get chat snapshots from localStorage
    * @returns Chat snapshots
    */
-  private static _getChatSnapshots(): Record<string, any> {
-    const result: Record<string, any> = {};
+  private static _getChatSnapshots(): Record<string, unknown> {
+    const result: Record<string, unknown> = {};
 
     // Get chat snapshots from localStorage
     const snapshotKeys = Object.keys(localStorage).filter((key) => key.startsWith('snapshot:'));
@@ -672,7 +738,7 @@ export class ImportExportService {
    * @param key The key to set
    * @param value The value to set
    */
-  private static _safeSetItem(key: string, value: any): void {
+  private static _safeSetItem(key: string, value: unknown): void {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (err) {
@@ -685,7 +751,7 @@ export class ImportExportService {
    * @param key The key to set
    * @param value The value to set
    */
-  private static _safeSetCookie(key: string, value: any): void {
+  private static _safeSetCookie(key: string, value: unknown): void {
     try {
       Cookies.set(key, typeof value === 'string' ? value : JSON.stringify(value), { expires: 365 });
     } catch (err) {

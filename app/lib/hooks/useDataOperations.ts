@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { ImportExportService } from '~/lib/services/importExportService';
+import { ImportExportService, type ChatExportItem } from '~/lib/services/importExportService';
 import { useIndexedDB } from '~/lib/hooks/useIndexedDB';
 import { generateId } from 'ai';
 
@@ -51,7 +51,7 @@ export function useDataOperations({
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
   const [progressMessage, setProgressMessage] = useState<string>('');
   const [progressPercent, setProgressPercent] = useState<number>(0);
-  const [lastOperation, setLastOperation] = useState<{ type: string; data: any } | null>(null);
+  const [lastOperation, setLastOperation] = useState<{ type: string; data: unknown } | null>(null);
 
   /**
    * Show progress toast with percentage
@@ -176,14 +176,16 @@ export function useDataOperations({
         // Step 2: Filter settings by category
         showProgress('Filtering selected categories', 40);
 
-        const filteredSettings: Record<string, any> = {
-          exportDate: allSettings.exportDate,
+        const filteredSettings: Record<string, unknown> = {
+          exportDate: allSettings._meta?.exportDate || new Date().toISOString(),
         };
 
         // Add selected categories to filtered settings
         categoryIds.forEach((category) => {
-          if (allSettings[category]) {
-            filteredSettings[category] = allSettings[category];
+          const value = (allSettings as Record<string, unknown>)[category];
+
+          if (value) {
+            filteredSettings[category] = value;
           }
         });
 
@@ -282,7 +284,7 @@ export function useDataOperations({
       });
 
       // Direct database query approach for more reliable access
-      const directChats = await new Promise<any[]>((resolve, reject) => {
+      const directChats = await new Promise<ChatExportItem[]>((resolve, reject) => {
         try {
           console.log(`Creating transaction on '${db.name}' database, objectStore 'chats'`);
 
@@ -292,7 +294,7 @@ export function useDataOperations({
 
           request.onsuccess = () => {
             console.log(`Found ${request.result ? request.result.length : 0} chats directly from database`);
-            resolve(request.result || []);
+            resolve((request.result || []) as ChatExportItem[]);
           };
 
           request.onerror = () => {
@@ -405,9 +407,9 @@ export function useDataOperations({
 
         // Create an array to store the promises for getting each chat
         const chatPromises = chatIds.map((chatId) => {
-          return new Promise<any>((resolve, reject) => {
+          return new Promise<ChatExportItem | undefined>((resolve, reject) => {
             const request = store.get(chatId);
-            request.onsuccess = () => resolve(request.result);
+            request.onsuccess = () => resolve(request.result as ChatExportItem | undefined);
             request.onerror = () => reject(request.error);
           });
         });
@@ -592,35 +594,40 @@ export function useDataOperations({
         // Step 3: Validate each chat object
         showProgress('Validating chat data', 60);
 
-        const validatedChats = importedData.chats.map((chat: any) => {
-          if (!chat.id || !Array.isArray(chat.messages)) {
+        const validatedChats = (importedData.chats as unknown[]).map((chatObj) => {
+          const chat = chatObj as Record<string, unknown>;
+          const messages = (chat.messages as unknown[]) || [];
+
+          if (!chat.id || !Array.isArray(messages)) {
             throw new Error('Invalid chat format: missing required fields');
           }
 
           // Ensure each message has required fields
-          const validatedMessages = chat.messages.map((msg: any) => {
+          const validatedMessages = messages.map((msgObj) => {
+            const msg = msgObj as Record<string, unknown>;
+
             if (!msg.role || !msg.content) {
               throw new Error('Invalid message format: missing required fields');
             }
 
             return {
-              id: msg.id || generateId(),
-              role: msg.role,
-              content: msg.content,
-              name: msg.name,
-              function_call: msg.function_call,
-              timestamp: msg.timestamp || Date.now(),
+              id: (msg.id as string) || generateId(),
+              role: msg.role as string,
+              content: msg.content as import('ai').JSONValue, // Content structure is defined by the ai library
+              name: msg.name as string | undefined,
+              function_call: msg.function_call as Record<string, unknown> | string | undefined,
+              timestamp: (msg.timestamp as number) || Date.now(),
             };
           });
 
           return {
-            id: chat.id,
-            description: chat.description || '',
+            id: chat.id as string,
+            description: (chat.description as string) || '',
             messages: validatedMessages,
-            timestamp: chat.timestamp || new Date().toISOString(),
-            urlId: chat.urlId || null,
-            metadata: chat.metadata || null,
-          };
+            timestamp: (chat.timestamp as string) || new Date().toISOString(),
+            urlId: (chat.urlId as string) || null,
+            metadata: chat.metadata as import('~/lib/persistence/db').IChatMetadata | Record<string, unknown> | null,
+          } as ChatExportItem;
         });
 
         // Step 4: Save current chats for potential undo
@@ -1080,7 +1087,8 @@ export function useDataOperations({
       switch (lastOperation.type) {
         case 'import-settings': {
           // Restore previous settings
-          await ImportExportService.importSettings(lastOperation.data.previous);
+          const importData = (lastOperation.data as { previous: Record<string, unknown> }).previous;
+          await ImportExportService.importSettings(importData);
 
           // Dismiss progress toast before showing success toast
           toast.dismiss('progress-toast');
@@ -1105,7 +1113,9 @@ export function useDataOperations({
           const transaction = db.transaction(['chats'], 'readwrite');
           const store = transaction.objectStore('chats');
 
-          for (const chat of lastOperation.data.previous.chats) {
+          const importChatsData = (lastOperation.data as { previous: { chats: ChatExportItem[] } }).previous;
+
+          for (const chat of importChatsData.chats) {
             store.put(chat);
           }
 
@@ -1131,7 +1141,8 @@ export function useDataOperations({
 
         case 'reset-settings': {
           // Restore previous settings
-          await ImportExportService.importSettings(lastOperation.data.previous);
+          const resetSettingsData = (lastOperation.data as { previous: Record<string, unknown> }).previous;
+          await ImportExportService.importSettings(resetSettingsData);
 
           // Dismiss progress toast before showing success toast
           toast.dismiss('progress-toast');
@@ -1153,7 +1164,9 @@ export function useDataOperations({
           const chatTransaction = db.transaction(['chats'], 'readwrite');
           const chatStore = chatTransaction.objectStore('chats');
 
-          for (const chat of lastOperation.data.previous.chats) {
+          const resetChatsData = (lastOperation.data as { previous: { chats: ChatExportItem[] } }).previous;
+
+          for (const chat of resetChatsData.chats) {
             chatStore.put(chat);
           }
 
@@ -1179,7 +1192,7 @@ export function useDataOperations({
 
         case 'import-api-keys': {
           // Restore previous API keys
-          const previousAPIKeys = lastOperation.data.previous;
+          const previousAPIKeys = (lastOperation.data as { previous: Record<string, string> }).previous;
           const newKeys = ImportExportService.importAPIKeys(previousAPIKeys);
           const apiKeysJson = JSON.stringify(newKeys);
           document.cookie = `apiKeys=${apiKeysJson}; path=/; max-age=31536000`;

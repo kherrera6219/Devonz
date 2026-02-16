@@ -24,12 +24,12 @@ export interface QCReport {
 
 export interface LogEvent {
   type: string;
-  payload?: any;
+  payload?: unknown;
   stage: string;
   summary?: string;
   details?: {
     max_iterations?: number;
-    issues?: any;
+    issues?: unknown;
   };
   agent?: string;
 }
@@ -72,9 +72,9 @@ export function processRunEvents(data: JSONValue[] | undefined): RunUIState {
   }
 
   // Filter only event logs
-  const eventLogs = data
-    .filter((item: any) => item && item.type === 'event_log' && item.payload)
-    .map((item: any) => item.payload as LogEvent);
+  const eventLogs = (data as Record<string, unknown>[])
+    .filter((item) => item && item.type === 'event_log' && item.payload)
+    .map((item) => item.payload as LogEvent);
 
   state.events = eventLogs;
 

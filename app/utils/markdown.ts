@@ -5,20 +5,6 @@ import rehypeSanitize, { defaultSchema, type Options as RehypeSanitizeOptions } 
 import { SKIP, visit } from 'unist-util-visit';
 import type { Node } from 'unist';
 
-interface UnistNode extends Node {
-  type: string;
-  value?: string;
-  children?: UnistNode[];
-  position?: {
-    start: { offset: number };
-    end: { offset: number };
-  };
-}
-
-interface UnistParent extends UnistNode {
-  children: UnistNode[];
-}
-
 // No unist imports needed.
 
 export const allowedHTMLElements = [
@@ -78,7 +64,7 @@ export const allowedHTMLElements = [
 // Add custom rehype plugin
 function remarkThinkRawContent() {
   return (tree: Node) => {
-    visit(tree, (node: any) => {
+    visit(tree, (node: Node & { value?: string }) => {
       if (node.type === 'html' && node.value && node.value.startsWith('<think>')) {
         const cleanedContent = node.value.slice(7);
         node.value = `<div class="__boltThought__">${cleanedContent}`;
@@ -142,10 +128,10 @@ export function rehypePlugins(html: boolean) {
 }
 
 const limitedMarkdownPlugin: Plugin = () => {
-  return (tree: UnistNode, file: { toString: () => string }) => {
+  return ((tree: Node, file: { toString: () => string }) => {
     const contents = file.toString();
 
-    visit(tree, (node: any, index, parent: any) => {
+    visit(tree, (node: Node & { position?: any }, index, parent: any) => {
       if (
         index == null ||
         parent == null ||
@@ -164,9 +150,9 @@ const limitedMarkdownPlugin: Plugin = () => {
       parent.children[index] = {
         type: 'text',
         value,
-      } as UnistNode;
+      };
 
       return [SKIP, index] as const;
     });
-  };
+  }) as any;
 };

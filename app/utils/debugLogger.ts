@@ -433,17 +433,17 @@ class DebugLogger {
 
     console.log = function (...args: unknown[]) {
       self.captureLog('info', undefined, args);
-      self._originalConsoleLog.apply(console, args as any);
+      self._originalConsoleLog.apply(console, args as unknown[]);
     };
 
     console.error = function (...args: unknown[]) {
       self.captureLog('error', undefined, args);
-      self._originalConsoleError.apply(console, args as any);
+      self._originalConsoleError.apply(console, args as unknown[]);
     };
 
     console.warn = function (...args: unknown[]) {
       self.captureLog('warn', undefined, args);
-      self._originalConsoleWarn.apply(console, args as any);
+      self._originalConsoleWarn.apply(console, args as unknown[]);
     };
   }
 
@@ -757,9 +757,20 @@ class DebugLogger {
         }
       }
 
-      const logs = store.getLogs?.() || [];
+      const logs =
+        (
+          store as {
+            getLogs?: () => Array<{
+              timestamp: string;
+              level: string;
+              category?: string;
+              message: string;
+              details?: unknown;
+            }>;
+          }
+        ).getLogs?.() || [];
 
-      return logs.slice(0, 500).map((log: any) => ({
+      return logs.slice(0, 500).map((log) => ({
         timestamp: log.timestamp,
         level: log.level as LogEntry['level'],
         scope: log.category,
@@ -811,8 +822,21 @@ class DebugLogger {
     // Try to get workbench information
     try {
       if (typeof window !== 'undefined') {
-        // Access stores if available
-        const workbenchStore = (window as unknown as { __bolt_workbench_store: any }).__bolt_workbench_store;
+        const workbenchStore = (
+          window as unknown as {
+            __bolt_workbench_store: {
+              get?: () => {
+                currentView?: string;
+                showWorkbench?: boolean;
+                showTerminal?: boolean;
+                artifacts?: Record<string, unknown>;
+                files?: Record<string, unknown>;
+                unsavedFiles?: Set<string>;
+                previews?: unknown[];
+              };
+            };
+          }
+        ).__bolt_workbench_store;
 
         if (workbenchStore) {
           const state = workbenchStore.get?.() || {};
@@ -909,22 +933,27 @@ class DebugLogger {
       const response = await fetch('/api/system/git-info');
 
       if (response.ok) {
-        const gitInfo = await response.json();
-
-        // Transform the API response to match our interface
-        const gitInfoTyped = gitInfo as Record<string, any>;
+        const gitInfo = (await response.json()) as {
+          local?: {
+            branch?: string;
+            commitHash?: string;
+            remoteUrl?: string;
+            commitTime?: string;
+            author?: string;
+          };
+        };
 
         // Type assertion for API response
         return {
-          branch: gitInfoTyped.local?.branch || 'unknown',
-          commit: gitInfoTyped.local?.commitHash || 'unknown',
+          branch: gitInfo.local?.branch || 'unknown',
+          commit: gitInfo.local?.commitHash || 'unknown',
           isDirty: false, // The existing API doesn't provide this info
-          remoteUrl: gitInfoTyped.local?.remoteUrl,
-          lastCommit: gitInfoTyped.local
+          remoteUrl: gitInfo.local?.remoteUrl,
+          lastCommit: gitInfo.local
             ? {
                 message: 'Latest commit',
-                date: gitInfoTyped.local.commitTime,
-                author: gitInfoTyped.local.author,
+                date: gitInfo.local.commitTime || 'unknown',
+                author: gitInfo.local.author || 'unknown',
               }
             : undefined,
         };
@@ -999,7 +1028,8 @@ class DebugLogger {
     // Get recent alerts from logStore
     if (store) {
       try {
-        const logs = (store as { getLogs?: () => any[] }).getLogs?.() || [];
+        const logs =
+          (store as { getLogs?: () => Array<{ level: string; message: string; category?: string }> }).getLogs?.() || [];
         alerts = logs
           .filter((log) => ['error', 'warning'].includes(log.level))
           .slice(0, 10)
@@ -1024,7 +1054,19 @@ class DebugLogger {
 
     try {
       if (typeof window !== 'undefined') {
-        const workbenchStore = (window as unknown as { __bolt_workbench_store: any }).__bolt_workbench_store;
+        const workbenchStore = (
+          window as unknown as {
+            __bolt_workbench_store: {
+              get?: () => {
+                currentView?: string;
+                showWorkbench?: boolean;
+                showTerminal?: boolean;
+                artifacts?: Record<string, unknown>;
+                files?: Record<string, unknown>;
+              };
+            };
+          }
+        ).__bolt_workbench_store;
 
         if (workbenchStore) {
           const state = workbenchStore.get?.() || {};
