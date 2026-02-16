@@ -138,8 +138,8 @@ textarea,
   &::-webkit-scrollbar-thumb:hover {
     // Darker/more opaque version on hover
     /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
-  /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
-  background-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%);
+    /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+    background-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%);
   }
 
   // Firefox support for inverted colors
@@ -160,4 +160,9 @@ textarea,
 .file-tree-item {
   content-visibility: auto;
   contain-intrinsic-size: 0 24px;
+}
+
+/* File Tree dynamic padding to avoid inline style lint warnings */
+.file-tree-indent {
+  padding-left: calc(6px + var(--depth, 0) * 8px) !important;
 }

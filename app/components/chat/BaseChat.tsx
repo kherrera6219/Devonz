@@ -466,7 +466,7 @@ export const BaseChat = memo(
                           alert={deployAlert}
                           clearAlert={() => clearDeployAlert?.()}
                           postMessage={(message: string | undefined) => {
-                            sendMessage?.({} as any, message);
+                            sendMessage?.({} as React.UIEvent, message);
                             clearSupabaseAlert?.();
                           }}
                         />
@@ -476,7 +476,7 @@ export const BaseChat = memo(
                           alert={supabaseAlert}
                           clearAlert={() => clearSupabaseAlert?.()}
                           postMessage={(message) => {
-                            sendMessage?.({} as any, message);
+                            sendMessage?.({} as React.UIEvent, message);
                             clearSupabaseAlert?.();
                           }}
                         />
@@ -486,7 +486,7 @@ export const BaseChat = memo(
                           alert={actionAlert}
                           clearAlert={() => clearAlert?.()}
                           postMessage={(message) => {
-                            sendMessage?.({} as any, message);
+                            sendMessage?.({} as React.UIEvent, message);
                             clearAlert?.();
                           }}
                         />
@@ -497,7 +497,7 @@ export const BaseChat = memo(
                       {/* Plan Approval Alert - shows when a plan is pending approval */}
                       <PlanApprovalAlert
                         postMessage={(message) => {
-                          sendMessage?.({} as any, message);
+                          sendMessage?.({} as React.UIEvent, message);
                         }}
                       />
                     </div>
