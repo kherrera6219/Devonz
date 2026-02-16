@@ -16,6 +16,7 @@ export interface NetlifySite {
     repo_branch?: string;
     cmd: string;
   };
+  plan?: string;
   published_deploy: {
     id?: string;
     published_at: string;
@@ -89,4 +90,20 @@ export interface NetlifySiteInfo {
   name: string;
   url: string;
   chatId: string;
+}
+
+export interface NetlifyEnvVar {
+  key: string;
+  values: {
+    value: string;
+    context: string;
+  }[];
+  scopes: string[];
+}
+
+export interface NetlifyFunction {
+  id: string;
+  n: string; // name
+  r: string; // runtime
+  s: string; // sha
 }

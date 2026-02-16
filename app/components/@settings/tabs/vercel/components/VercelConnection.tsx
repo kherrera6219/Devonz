@@ -15,7 +15,7 @@ import {
 } from '~/lib/stores/vercel';
 
 export default function VercelConnection() {
-  console.log('VercelConnection component mounted');
+
 
   const connection = useStore(vercelConnection);
   const connecting = useStore(isConnecting);
@@ -23,33 +23,20 @@ export default function VercelConnection() {
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(false);
   const hasInitialized = useRef(false);
 
-  console.log('VercelConnection initial state:', {
-    connection: {
-      user: connection.user,
-      token: connection.token ? '[TOKEN_EXISTS]' : '[NO_TOKEN]',
-    },
-    envToken: import.meta.env?.VITE_VERCEL_ACCESS_TOKEN ? '[ENV_TOKEN_EXISTS]' : '[NO_ENV_TOKEN]',
-  });
-
   useEffect(() => {
     // Prevent multiple initializations
     if (hasInitialized.current) {
-      console.log('Vercel: Already initialized, skipping');
+
       return;
     }
 
     const initializeConnection = async () => {
-      console.log('Vercel initializeConnection:', {
-        user: connection.user,
-        token: connection.token ? '[TOKEN_EXISTS]' : '[NO_TOKEN]',
-        envToken: import.meta.env?.VITE_VERCEL_ACCESS_TOKEN ? '[ENV_TOKEN_EXISTS]' : '[NO_ENV_TOKEN]',
-      });
 
       hasInitialized.current = true;
 
       // Auto-connect using environment variable if no existing connection but token exists
       if (!connection.user && connection.token && import.meta.env?.VITE_VERCEL_ACCESS_TOKEN) {
-        console.log('Vercel: Attempting auto-connection');
+
 
         const result = await autoConnectVercel();
 
@@ -60,10 +47,10 @@ export default function VercelConnection() {
         }
       } else if (connection.user && connection.token) {
         // Fetch stats for existing connection
-        console.log('Vercel: Fetching stats for existing connection');
+
         await fetchVercelStats(connection.token);
       } else {
-        console.log('Vercel: No auto-connection conditions met');
+
       }
     };
 
@@ -113,7 +100,7 @@ export default function VercelConnection() {
     toast.success('Disconnected from Vercel');
   };
 
-  console.log('connection', connection);
+
 
   return (
     <motion.div
@@ -212,7 +199,7 @@ export default function VercelConnection() {
               {/* Debug button - remove this later */}
               <button
                 onClick={async () => {
-                  console.log('Manual auto-connect test');
+
 
                   const result = await autoConnectVercel();
 

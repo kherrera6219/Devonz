@@ -82,10 +82,10 @@ export default function LocalProvidersTab() {
       const baseUrl = provider.settings.baseUrl;
 
       if (provider.settings.enabled && baseUrl) {
-        console.log(`[LocalProvidersTab] Starting monitoring for ${provider.name} at ${baseUrl}`);
+
         startMonitoring(provider.name as 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl);
       } else if (!provider.settings.enabled && baseUrl) {
-        console.log(`[LocalProvidersTab] Stopping monitoring for ${provider.name} at ${baseUrl}`);
+
         stopMonitoring(provider.name as 'Ollama' | 'LMStudio' | 'OpenAILike', baseUrl);
       }
     });

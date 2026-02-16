@@ -199,7 +199,7 @@ export default function SupabaseTab() {
         const currentState = supabaseConnection.get();
 
         if (!currentState.user) {
-          console.log('No server-side Supabase token available, manual connection required');
+
         }
       } catch (error) {
         console.error('Failed to initialize Supabase connection:', error);

@@ -131,7 +131,7 @@ const LogEntryItem = ({ log, isExpanded: forceExpanded, use24Hour, showTimestamp
     }
   }, [log.level, log.category]);
 
-  const renderDetails = (details: any) => {
+  const renderDetails = (details: Record<string, any>) => {
     if (log.category === 'provider') {
       return (
         <div className="flex flex-col gap-2">

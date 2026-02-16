@@ -153,15 +153,9 @@ export function DataTab() {
   // Load available chats
   useEffect(() => {
     if (db) {
-      console.log('Loading chats from boltHistory database', {
-        name: db.name,
-        version: db.version,
-        objectStoreNames: Array.from(db.objectStoreNames),
-      });
-
       getAllChats(db)
         .then((chats) => {
-          console.log('Found chats:', chats.length);
+
 
           // Cast to ExtendedChat to handle additional properties
           const extendedChats = chats as ExtendedChat[];
@@ -347,12 +341,6 @@ export function DataTab() {
                             toast.error('Database not available');
                             return;
                           }
-
-                          console.log('Database information:', {
-                            name: db.name,
-                            version: db.version,
-                            objectStoreNames: Array.from(db.objectStoreNames),
-                          });
 
                           if (availableChats.length === 0) {
                             toast.warning('No chats available to export');
