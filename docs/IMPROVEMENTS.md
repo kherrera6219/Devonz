@@ -1,8 +1,8 @@
 # Devonz vs. Bolt.new: Evolution & Improvements
 
-This document outlines the major architectural, security, and functional upgrades that distinguish **Devonz (2026 Edition)** from the original `bolt.new` starter template.
+This document outlines the major architectural, security, and functional upgrades that distinguish **Devonz (2026 Edition)** from the original [bolt.new](https://github.com/stackblitz/bolt.new) starter template by **StackBlitz**.
 
-Our mission was to transform a "proof-of-concept" AI coding tool into an **enterprise-grade, production-ready development environment**.
+We gratefully acknowledge the StackBlitz team for providing the powerful foundation upon which this enterprise-grade environment is built.
 
 ---
 

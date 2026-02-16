@@ -98,3 +98,15 @@ Devonz has been re-architected for performance, security, and scalability.
 
 > [!NOTE]
 > This project follows [Microsoft Open Source](https://opensource.microsoft.com/codeofconduct/) standards. For contribution guidelines, please see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+---
+
+## 👏 Credits & Acknowledgements
+
+**Devonz** is built upon the excellent foundation of [bolt.new](https://github.com/stackblitz/bolt.new) by **StackBlitz**.
+
+*   **Original Concept**: StackBlitz Team
+*   **Foundation**: Remix + Vite Template
+*   **Inspiration**: The `bolt.new` architecture provided the initial spark for this multi-agent evolution.
+
+We strictly adhere to the MIT License and open-source principles.
