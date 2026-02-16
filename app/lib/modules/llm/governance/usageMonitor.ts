@@ -26,7 +26,9 @@ export class UsageMonitor {
     default: { prompt: 1.0, completion: 2.0 },
   };
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): UsageMonitor {
     if (!UsageMonitor._instance) {

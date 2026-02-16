@@ -22,29 +22,45 @@ type Story = StoryObj<typeof meta>;
 
 const defaultProps = {
   isModelSettingsCollapsed: false,
-  setIsModelSettingsCollapsed: () => {},
+  setIsModelSettingsCollapsed: () => {
+    // No-op
+  },
   provider: { name: 'OpenAI', staticModels: [], getApiKeyLink: '' },
   providerList: [],
   modelList: [],
   apiKeys: {},
   isModelLoading: undefined,
-  onApiKeysChange: () => {},
+  onApiKeysChange: () => {
+    // No-op
+  },
   uploadedFiles: [],
   imageDataList: [],
   textareaRef: { current: null },
   input: '',
-  handlePaste: () => {},
+  handlePaste: () => {
+    // No-op
+  },
   TEXTAREA_MIN_HEIGHT: 50,
   TEXTAREA_MAX_HEIGHT: 200,
   isStreaming: false,
-  handleSendMessage: () => {},
+  handleSendMessage: () => {
+    // No-op
+  },
   isListening: false,
-  startListening: () => {},
-  stopListening: () => {},
+  startListening: () => {
+    // No-op
+  },
+  stopListening: () => {
+    // No-op
+  },
   chatStarted: false,
   qrModalOpen: false,
-  setQrModalOpen: () => {},
-  handleFileUpload: () => {},
+  setQrModalOpen: () => {
+    // No-op
+  },
+  handleFileUpload: () => {
+    // No-op
+  },
 };
 
 export const Default: Story = {

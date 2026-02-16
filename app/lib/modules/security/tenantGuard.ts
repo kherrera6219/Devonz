@@ -9,7 +9,9 @@ const logger = createScopedLogger('TenantGuard');
 export class TenantGuard {
   private static _instance: TenantGuard;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): TenantGuard {
     if (!TenantGuard._instance) {

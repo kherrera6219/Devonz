@@ -15,7 +15,7 @@ export const chatRequestSchema = z.object({
         content: z.union([z.string(), z.array(z.record(z.unknown()))]),
       }),
     )
-    .min(1, 'At least one message is required'),
+    .min(1, { message: 'At least one message is required' }),
   files: z.record(z.unknown()).optional().default({}),
   promptId: z.string().optional(),
   contextOptimization: z.boolean().default(false),

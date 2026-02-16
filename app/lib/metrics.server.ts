@@ -15,21 +15,37 @@ try {
   // NOOP Shim if prom-client is missing
   client = {
     Registry: class {
-      setDefaultLabels() {}
+      setDefaultLabels() {
+        // No-op
+      }
     },
     Histogram: class {
-      constructor() {}
+      constructor() {
+        // No-op
+      }
       labels() {
-        return { observe() {} };
+        return {
+          observe() {
+            // No-op
+          },
+        };
       }
     },
     Counter: class {
-      constructor() {}
+      constructor() {
+        // No-op
+      }
       labels() {
-        return { inc() {} };
+        return {
+          inc() {
+            // No-op
+          },
+        };
       }
     },
-    collectDefaultMetrics() {},
+    collectDefaultMetrics() {
+      // No-op
+    },
   };
 }
 

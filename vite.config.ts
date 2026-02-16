@@ -1,6 +1,8 @@
+/// <reference types="vitest" />
 import { vitePlugin as remixVitePlugin } from '@remix-run/dev';
 import UnoCSS from 'unocss/vite';
 import { defineConfig, type ViteDevServer } from 'vite';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -11,7 +13,7 @@ dotenv.config({ path: '.env.local' });
 dotenv.config({ path: '.env' });
 dotenv.config();
 
-export default defineConfig((config) => {
+export default defineConfig((_config) => {
   return {
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
@@ -50,6 +52,8 @@ export default defineConfig((config) => {
         '@langchain/anthropic',
         '@langchain/google-genai',
         'prom-client',
+        'exceljs',
+        'pdfjs-dist',
       ],
     },
     plugins: [
@@ -65,14 +69,13 @@ export default defineConfig((config) => {
       }),
       {
         name: 'buffer-polyfill',
-        transform(code, id) {
+        transform(code: string, id: string) {
           if (id.includes('env.mjs')) {
             return {
               code: `import { Buffer } from 'buffer';\n${code}`,
               map: null,
             };
           }
-
           return null;
         },
       },
@@ -87,9 +90,9 @@ export default defineConfig((config) => {
       }),
       UnoCSS(),
       tsconfigPaths(),
+      optimizeCssModules(),
       chrome129IssuePlugin(),
-      // config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
-    ],
+    ] as any[],
     envPrefix: [
       'VITE_',
       'OPENAI_LIKE_API_BASE_URL',
@@ -101,7 +104,7 @@ export default defineConfig((config) => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'modern-compiler',
+          // Vite 7 uses modern compiler by default
         },
       },
     },
@@ -128,7 +131,7 @@ function chrome129IssuePlugin() {
   return {
     name: 'chrome129IssuePlugin',
     configureServer(server: ViteDevServer) {
-      server.middlewares.use((req, res, next) => {
+      server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
         const raw = req.headers['user-agent']?.match(/Chrom(e|ium)\/([0-9]+)\./);
 
         if (raw) {

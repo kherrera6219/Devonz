@@ -19,7 +19,9 @@ export class MigrationGovernanceSystem {
   private static _instance: MigrationGovernanceSystem;
   private _migrations: Migration[] = [];
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): MigrationGovernanceSystem {
     if (!MigrationGovernanceSystem._instance) {

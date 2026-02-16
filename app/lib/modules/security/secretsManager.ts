@@ -10,7 +10,9 @@ const logger = createScopedLogger('SecretsManager');
 export class SecretsManager {
   private static _instance: SecretsManager;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): SecretsManager {
     if (!SecretsManager._instance) {

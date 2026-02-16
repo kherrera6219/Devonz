@@ -15,7 +15,9 @@ export class SnapshotIntegrity {
   private static _instance: SnapshotIntegrity;
   private _key: CryptoKey | null = null;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): SnapshotIntegrity {
     if (!SnapshotIntegrity._instance) {

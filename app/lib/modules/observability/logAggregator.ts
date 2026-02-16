@@ -1,3 +1,4 @@
+import { logRedactor } from '~/lib/modules/security/redactor';
 
 export interface StructuredLog {
   timestamp: string;
@@ -14,7 +15,9 @@ export interface StructuredLog {
 export class LogAggregator {
   private static _instance: LogAggregator;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): LogAggregator {
     if (!LogAggregator._instance) {

@@ -29,7 +29,9 @@ export interface AuditEntry {
 export class MetadataAuditTrail {
   private static _instance: MetadataAuditTrail;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): MetadataAuditTrail {
     if (!MetadataAuditTrail._instance) {

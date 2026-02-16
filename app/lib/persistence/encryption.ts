@@ -18,7 +18,9 @@ export class EncryptionService {
   private static _instance: EncryptionService;
   private _key: CryptoKey | null = null;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): EncryptionService {
     if (!EncryptionService._instance) {

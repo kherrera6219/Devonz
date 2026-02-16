@@ -21,7 +21,9 @@ class ErrorReporterService {
   private static _instance: ErrorReporterService;
   private _initialized = false;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): ErrorReporterService {
     if (!ErrorReporterService._instance) {

@@ -13,7 +13,9 @@ const logger = createScopedLogger('CrashReporter');
 export class CrashReporter {
   private static _instance: CrashReporter;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): CrashReporter {
     if (!CrashReporter._instance) {

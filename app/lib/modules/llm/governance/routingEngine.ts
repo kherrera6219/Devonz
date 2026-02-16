@@ -41,7 +41,9 @@ export class ModelRoutingEngine {
     },
   };
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): ModelRoutingEngine {
     if (!ModelRoutingEngine._instance) {

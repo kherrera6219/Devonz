@@ -15,7 +15,9 @@ export class LongTermMemoryService {
   private readonly _memoryDir = '.devonz';
   private readonly _memoryFile = 'MEMORY.md';
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): LongTermMemoryService {
     if (!LongTermMemoryService._instance) {

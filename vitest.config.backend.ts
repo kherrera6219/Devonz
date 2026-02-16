@@ -1,8 +1,6 @@
-
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import * as dotenv from 'dotenv';
-import { vitePlugin as remixVitePlugin } from '@remix-run/dev';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -12,9 +10,7 @@ dotenv.config();
 export default defineConfig({
   plugins: [
     tsconfigPaths(),
-    // Remix plugin might be needed for some resolutions, but let's try without if it fails
-    // remixVitePlugin({ future: { v3_singleFetch: true } }),
-  ],
+  ] as any[],
   test: {
     globals: true,
     environment: 'node', // Use node environment for backend tests
@@ -28,4 +24,4 @@ export default defineConfig({
       'app/routes/**', // Exclude routes if they import UI
     ],
   },
-});
+} as any);

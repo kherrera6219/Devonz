@@ -10,7 +10,9 @@ const logger = createScopedLogger('FileSanitizer');
 export class FileSanitizer {
   private static _instance: FileSanitizer;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): FileSanitizer {
     if (!FileSanitizer._instance) {

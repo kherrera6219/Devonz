@@ -10,7 +10,9 @@ const logger = createScopedLogger('LatencyMonitor');
 export class LatencyMonitor {
   private static _instance: LatencyMonitor;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): LatencyMonitor {
     if (!LatencyMonitor._instance) {

@@ -11,7 +11,9 @@ const logger = createScopedLogger('EvidenceExporter');
 export class EvidenceExporter {
   private static _instance: EvidenceExporter;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): EvidenceExporter {
     if (!EvidenceExporter._instance) {

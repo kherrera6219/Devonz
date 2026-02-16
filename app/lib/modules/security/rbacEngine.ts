@@ -44,7 +44,9 @@ export class RBACEngine {
     },
   };
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): RBACEngine {
     if (!RBACEngine._instance) {

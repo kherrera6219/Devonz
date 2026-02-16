@@ -13,7 +13,9 @@ export class MetricsCollector {
   private static _instance: MetricsCollector;
   private _metrics: MetricEntry[] = [];
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): MetricsCollector {
     if (!MetricsCollector._instance) {

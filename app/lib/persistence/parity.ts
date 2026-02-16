@@ -42,7 +42,9 @@ export class SchemaParityService {
     },
   };
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): SchemaParityService {
     if (!SchemaParityService._instance) {

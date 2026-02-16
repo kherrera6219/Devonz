@@ -11,7 +11,9 @@ const logger = createScopedLogger('Diagnostics');
 export class DiagnosticsService {
   private static _instance: DiagnosticsService;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): DiagnosticsService {
     if (!DiagnosticsService._instance) {

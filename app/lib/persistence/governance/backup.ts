@@ -16,7 +16,9 @@ export interface BackupArchive {
 export class BackupService {
   private static _instance: BackupService;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): BackupService {
     if (!BackupService._instance) {

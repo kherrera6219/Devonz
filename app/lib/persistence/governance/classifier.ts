@@ -24,7 +24,9 @@ export class DataClassificationService {
     RESTRICTED: { level: 'RESTRICTED', requiredEncryption: true, retentionDays: 7 },
   };
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): DataClassificationService {
     if (!DataClassificationService._instance) {

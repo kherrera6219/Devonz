@@ -15,7 +15,9 @@ export type AIOutputClass =
 export class OutputClassifier {
   private static _instance: OutputClassifier;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): OutputClassifier {
     if (!OutputClassifier._instance) {

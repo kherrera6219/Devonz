@@ -22,7 +22,9 @@ declare global {
 class IPCService {
   private static _instance: IPCService;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): IPCService {
     if (!IPCService._instance) {

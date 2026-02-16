@@ -10,7 +10,9 @@ const logger = createScopedLogger('StartupValidator');
 export class StartupValidator {
   private static _instance: StartupValidator;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): StartupValidator {
     if (!StartupValidator._instance) {

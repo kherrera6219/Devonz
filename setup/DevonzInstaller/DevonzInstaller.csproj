@@ -8,4 +8,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="../payload.zip">
+      <LogicalName>DevonzInstaller.payload.zip</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

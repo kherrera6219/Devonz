@@ -147,23 +147,38 @@ export async function parseDocument(
  * Parse PDF document
  */
 async function parsePDF(buffer: Buffer, path: string, options: ParseOptions): Promise<ParsedDocument> {
-  // Dynamic import with type assertion for ESM compatibility
-  const pdfParseModule = (await import('pdf-parse')) as { default?: unknown };
-  const pdfParse = (pdfParseModule.default ?? pdfParseModule) as (
-    buf: Buffer,
-    opts?: { max?: number },
-  ) => Promise<{ text: string; numpages: number }>;
-  const data = await pdfParse(buffer, {
-    max: options.maxPages || 0, // 0 = all pages
+  const pdfjs = await import('pdfjs-dist');
+
+  /*
+   * Disable worker as we are in a Node environment or similar
+   * In some environments we need to set the workerSrc
+   */
+
+  const loadingTask = pdfjs.getDocument({
+    data: new Uint8Array(buffer),
+    useSystemFonts: true,
+    disableFontFace: true,
   });
 
+  const pdf = await loadingTask.promise;
+  const numPages = options.maxPages ? Math.min(options.maxPages, pdf.numPages) : pdf.numPages;
+
+  let fullText = '';
+
+  for (let i = 1; i <= numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const strings = content.items.map((item: any) => item.str);
+    fullText += strings.join(' ') + '\n';
+  }
+
   return {
-    content: data.text,
+    content: fullText.trim(),
     metadata: {
       format: 'pdf',
       originalPath: path,
-      pages: data.numpages,
-      wordCount: data.text.split(/\s+/).length,
+      pages: pdf.numPages,
+      wordCount: fullText.split(/\s+/).length,
     },
     success: true,
   };
@@ -191,22 +206,31 @@ async function parseDOCX(buffer: Buffer, path: string): Promise<ParsedDocument> 
  * Parse Excel document
  */
 async function parseExcel(buffer: Buffer, path: string, options: ParseOptions): Promise<ParsedDocument> {
-  const XLSX = await import('xlsx');
-  const workbook = XLSX.read(buffer, { type: 'buffer' });
+  const excelJS = await import('exceljs');
+  const workbook = new excelJS.Workbook();
+  await workbook.xlsx.load(buffer as any);
 
-  const sheets = options.sheet ? [options.sheet] : workbook.SheetNames;
   const content: string[] = [];
+  const sheetNames: string[] = [];
 
-  for (const sheetName of sheets) {
-    if (!workbook.Sheets[sheetName]) {
+  workbook.eachSheet((sheet) => {
+    sheetNames.push(sheet.name);
+  });
+
+  const targetSheets = options.sheet ? [options.sheet] : sheetNames;
+
+  for (const sheetName of targetSheets) {
+    const worksheet = workbook.getWorksheet(sheetName);
+
+    if (!worksheet) {
       continue;
     }
 
-    const sheet = workbook.Sheets[sheetName];
-    const csv = XLSX.utils.sheet_to_csv(sheet);
-
     content.push(`--- Sheet: ${sheetName} ---`);
-    content.push(csv);
+    worksheet.eachRow((row: any) => {
+      const rowValues = (row.values as any[]).slice(1); // ExcelJS rows are 1-indexed, first element is null
+      content.push(rowValues.join(', '));
+    });
   }
 
   return {
@@ -214,7 +238,7 @@ async function parseExcel(buffer: Buffer, path: string, options: ParseOptions): 
     metadata: {
       format: 'xlsx',
       originalPath: path,
-      sheets: workbook.SheetNames,
+      sheets: sheetNames,
     },
     success: true,
   };

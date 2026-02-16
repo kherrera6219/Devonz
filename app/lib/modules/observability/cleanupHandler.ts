@@ -9,7 +9,9 @@ const logger = createScopedLogger('CleanupHandler');
 export class CleanupHandler {
   private static _instance: CleanupHandler;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): CleanupHandler {
     if (!CleanupHandler._instance) {

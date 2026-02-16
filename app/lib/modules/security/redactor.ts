@@ -18,7 +18,9 @@ export class LogRedactor {
     { name: 'API Key', pattern: /[a-z0-9]{32,}/gi }, // Generic hex-like key (last resort)
   ];
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): LogRedactor {
     if (!LogRedactor._instance) {

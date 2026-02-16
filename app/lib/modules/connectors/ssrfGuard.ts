@@ -22,7 +22,9 @@ export class SSRFGuard {
     /^fc00:/, // IPv6 Unique Local
   ];
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): SSRFGuard {
     if (!SSRFGuard._instance) {

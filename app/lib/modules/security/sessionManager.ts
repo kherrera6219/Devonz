@@ -19,7 +19,9 @@ export class SessionManager {
   private static _instance: SessionManager;
   private _sessions: Map<string, Session> = new Map();
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): SessionManager {
     if (!SessionManager._instance) {

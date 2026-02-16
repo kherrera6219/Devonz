@@ -11,7 +11,9 @@ export class ConnectorRegistry {
   private static _instance: ConnectorRegistry;
   private _connectors: Map<string, BaseConnector> = new Map();
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): ConnectorRegistry {
     if (!ConnectorRegistry._instance) {

@@ -48,7 +48,8 @@ app/commit.json
 changelogUI.md
 docs/instructions/Roadmap.md
 .cursorrules
-*.md
+# *.md
+setup/payload.zip
 .qodo
 
 *storybook.log

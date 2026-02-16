@@ -19,7 +19,9 @@ export class RetentionEngine {
     preserveProtected: true,
   };
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): RetentionEngine {
     if (!RetentionEngine._instance) {

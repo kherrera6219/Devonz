@@ -10,7 +10,9 @@ const logger = createScopedLogger('PortResolution');
 export class PortResolution {
   private static _instance: PortResolution;
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): PortResolution {
     if (!PortResolution._instance) {

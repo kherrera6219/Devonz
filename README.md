@@ -5,7 +5,7 @@
 **Build anything with AI. Precision coding, orchestrated.**
 
 > **Version**: 1.0.0
-> **Last Updated**: Feb 14, 2026 (MSIX Build Stabilization & Zero-Error Sweep)
+> **Last Updated**: Feb 16, 2026 (Dependency Migration & Infrastructure Upgrade)
 
 Devonz is a multi-agent AI development environment that helps you build full-stack applications through natural language. Built on Remix, Vite, and LangGraph, it orchestrates specialized agents to plan, architect, and execute complex software tasks with precision.
 
@@ -60,7 +60,7 @@ Devonz is a multi-agent AI development environment that helps you build full-sta
 
 ## Tech Stack
 
--   **Framework**: Remix + Vite
+-   **Framework**: Remix + Vite 7
 -   **Language**: TypeScript (Strict)
 -   **AI**: Vercel AI SDK + LangGraph
 -   **Database**: PostgreSQL (pgvector), Neo4j, IndexedDB, MinIO

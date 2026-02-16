@@ -26,7 +26,9 @@ export class GuardrailService {
     /reveal system prompt/i,
   ];
 
-  private constructor() {}
+  private constructor() {
+    // Singleton
+  }
 
   static getInstance(): GuardrailService {
     if (!GuardrailService._instance) {
