@@ -1,4 +1,5 @@
 import { EditorView, Decoration, type DecorationSet, ViewPlugin, WidgetType } from '@codemirror/view';
+import type { Range } from '@codemirror/state';
 
 // Create a proper WidgetType class for the masked text
 class MaskedTextWidget extends WidgetType {
@@ -46,8 +47,7 @@ export function createEnvMaskingExtension(getFilePath: () => string | undefined)
           return Decoration.none;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const decorations: any[] = [];
+        const decorations: Range<Decoration>[] = [];
         const doc = view.state.doc;
 
         for (let i = 1; i <= doc.lines; i++) {

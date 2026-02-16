@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { ElementInfo } from './Inspector';
+import type { ElementInfo } from './InspectorTypes';
 import { BoxModelEditor } from './BoxModelEditor';
 import { AiQuickActions } from './AIQuickActions';
 import { ElementTreeNavigator } from './ElementTreeNavigator';
@@ -64,7 +64,7 @@ export const InspectorPanel = ({
   // Reset edited values when element changes
   const handleStyleChange = useCallback(
     (property: string, value: string) => {
-      console.log('[InspectorPanel] Style change:', property, value, 'bulk:', bulkTarget?.selector);
+
       setEditedStyles((prev) => ({ ...prev, [property]: value }));
 
       // If in bulk mode, apply to all matching elements
@@ -79,7 +79,7 @@ export const InspectorPanel = ({
 
   const handleTextChange = useCallback(
     (text: string) => {
-      console.log('[InspectorPanel] Text change:', text);
+
       setEditedText(text);
       onTextChange?.(text);
     },
