@@ -53,6 +53,26 @@ function classifyError(error: unknown): { status: number; message: string } {
     return { status: 504, message: 'Request timed out' };
   }
 
+  // LLM Specifics
+  if (msg.includes('model') && msg.includes('not found')) {
+    return {
+      status: 400,
+      message: 'Invalid model selected. Please check that the model name is correct and available.',
+    };
+  }
+
+  if (msg.includes('invalid json response')) {
+    return {
+      status: 502,
+      message:
+        'The AI service returned an invalid response. This may be due to an invalid model name, API rate limiting, or server issues.',
+    };
+  }
+
+  if (msg.includes('network') || msg.includes('timeout')) {
+    return { status: 504, message: 'Network error or timeout. Please check your internet connection and try again.' };
+  }
+
   // Default
   return { status: 500, message: 'An unexpected error occurred' };
 }

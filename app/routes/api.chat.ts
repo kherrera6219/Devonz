@@ -6,6 +6,8 @@ import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
 import type { IProviderSetting } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
+import { chatOrchestrationService } from '~/lib/services/chatOrchestrationService';
+import { handleApiError } from '~/lib/api-error-handler';
 
 const logger = createScopedLogger('api.chat');
 
@@ -13,19 +15,8 @@ import { getFilePaths } from '~/lib/.server/llm/select-context';
 import type { ProgressAnnotation } from '~/types/context';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 import type { DesignScheme } from '~/types/design-scheme';
-import { MCPService } from '~/lib/services/mcpService';
 import { StreamRecoveryManager } from '~/lib/.server/llm/stream-recovery';
-import {
-  getAgentToolSetWithoutExecute,
-  shouldUseAgentMode,
-  getAgentSystemPrompt,
-  initializeAgentSession,
-  incrementAgentIteration,
-  getAgentIterationWarning,
-  processAgentToolInvocations,
-  processAgentToolCall,
-  isAgentToolName,
-} from '~/lib/services/agentChatIntegration';
+import { shouldUseAgentMode, getAgentSystemPrompt } from '~/lib/services/agentChatIntegration';
 import { contextService } from '~/lib/services/contextService';
 
 import { withSecurity } from '~/lib/security.server';
@@ -168,13 +159,12 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   let progressCounter: number = 1;
 
   try {
-    const mcpService = MCPService.getInstance();
-    const totalMessageContent = messages.reduce((acc: string, message) => {
+    const totalMessageContent = (messages as any[]).reduce((acc: string, message) => {
       const content =
         typeof message.content === 'string'
           ? message.content
           : Array.isArray(message.content)
-            ? message.content.map((p) => ('text' in p ? p.text : '')).join('')
+            ? (message.content as any[]).map((p) => ('text' in p ? p.text : '')).join('')
             : '';
       return acc + content;
     }, '');
@@ -190,16 +180,16 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         // Orchestrator Mode Hijack
         if (useOrchestrator) {
           try {
-            const messageMap = messages.filter((m) => m.role === 'user').pop();
+            const messageMap = (messages as any[]).filter((m) => m.role === 'user').pop();
             const userQuery = messageMap?.content || '';
 
-            // Import dynamically to avoid circular issues if any, or just import at top
+            // Delegate to Orchestrator service
             const { orchestratorService } = await import('~/lib/services/orchestratorService');
 
             await orchestratorService.processRequest(
-              userQuery,
-              generateId(), // Conversation ID
-              dataStream,
+              userQuery as string,
+              generateId(),
+              dataStream as any,
               messages,
               apiKeys,
               streamRecovery,
@@ -209,38 +199,31 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
             return;
           } catch (error) {
-            logger.error('Orchestrator failed to initialize/run, falling back to standard chat:', error);
+            logger.error('Orchestrator failed:', error);
             dataStream.writeData({
               type: 'progress',
               label: 'system',
               status: 'failed',
-              message: `Orchestrator Error: ${error instanceof Error ? error.message : String(error)}. Falling back to standard chat.`,
+              message: error instanceof Error ? error.message : String(error),
             });
-
-            // Fall through to standard logic...
+            return;
           }
         }
 
         const filePaths = getFilePaths(files || {});
-
-        let filteredFiles: FileMap | undefined = undefined;
-        let summary: string | undefined = undefined;
+        let filteredFiles: FileMap | undefined;
+        let summary: string | undefined;
         let messageSliceId = 0;
 
-        // Process MCP tool invocations first
-        let processedMessages = await mcpService.processToolInvocations(messages, dataStream);
-
-        // Process agent tool invocations when agent mode is enabled
-        if (useAgentMode) {
-          processedMessages = await processAgentToolInvocations(processedMessages, dataStream);
-        }
+        // Process invocations via Orchestration Service
+        const processedMessages = await chatOrchestrationService.processInvocations(messages, dataStream, useAgentMode);
 
         if (processedMessages.length > 3) {
           messageSliceId = processedMessages.length - 3;
         }
 
         if (filePaths.length > 0 && contextOptimization) {
-          const { summary: newSummary, filteredFiles: newFilteredFiles } = await contextService.prepareContext({
+          const contextResult = await contextService.prepareContext({
             messages: [...processedMessages],
             files,
             promptId,
@@ -251,65 +234,26 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             dataStream,
             cumulativeUsage,
           });
-
-          summary = newSummary;
-          filteredFiles = newFilteredFiles;
+          summary = contextResult.summary;
+          filteredFiles = contextResult.filteredFiles;
         }
 
-        // Merge MCP tools with agent tools when agent mode is enabled
-        let combinedTools = mcpService.toolsWithoutExecute;
-
-        if (useAgentMode) {
-          logger.info('🤖 Agent mode enabled - merging agent tools');
-
-          const agentTools = getAgentToolSetWithoutExecute();
-          const agentToolNames = Object.keys(agentTools);
-          const mcpToolNames = Object.keys(mcpService.toolsWithoutExecute);
-          logger.info(`🔧 MCP tools available: ${mcpToolNames.length} - [${mcpToolNames.join(', ')}]`);
-          logger.info(`🔧 Agent tools available: ${agentToolNames.length} - [${agentToolNames.join(', ')}]`);
-          combinedTools = { ...mcpService.toolsWithoutExecute, ...agentTools };
-          logger.info(`🔧 Combined tools total: ${Object.keys(combinedTools).length}`);
-
-          // Initialize agent session for this chat
-          initializeAgentSession();
-
-          // Notify about agent mode activation
-          dataStream.writeData({
-            type: 'progress',
-            label: 'agent',
-            status: 'in-progress',
-            order: progressCounter++,
-            message: 'Agent Mode Active',
-          } satisfies ProgressAnnotation);
-        }
+        // Prepare session tools and agent state via Orchestration Service
+        const { useAgentMode: agentModeFromSession = false, combinedTools } = await chatOrchestrationService.prepareChatSession({
+          agentMode,
+          dataStream,
+        });
 
         const options: StreamingOptions = {
           supabaseConnection: supabase,
           toolChoice: 'auto',
           tools: combinedTools,
           maxSteps: maxLLMSteps,
-          agentMode: useAgentMode,
+          agentMode: !!useAgentMode,
           agentSystemPrompt: useAgentMode ? getAgentSystemPrompt() : undefined,
           onStepFinish: ({ toolCalls }) => {
-            // add tool call annotations for frontend processing
-            toolCalls.forEach((toolCall) => {
-              // Check if it's an agent tool first
-              if (useAgentMode && isAgentToolName(toolCall.toolName)) {
-                processAgentToolCall(toolCall, dataStream);
-
-                // Increment iteration counter for agent mode
-                incrementAgentIteration();
-
-                // Check for iteration warning
-                const warning = getAgentIterationWarning();
-
-                if (warning) {
-                  logger.warn('Agent iteration warning:', warning);
-                }
-              } else {
-                // Process as MCP tool
-                mcpService.processToolCall(toolCall, dataStream);
-              }
+            toolCalls.forEach((toolCall: any) => {
+              chatOrchestrationService.handleStepFinish([toolCall], dataStream, !!useAgentMode);
             });
           },
           onFinish: async ({ text: content, finishReason, usage }) => {
@@ -440,40 +384,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         })();
         result.mergeIntoDataStream(dataStream);
       },
-      onError: (error: Error) => {
-        // Provide more specific error messages for common issues
-        const errorMessage = error.message || 'Unknown error';
-
-        if (errorMessage.includes('model') && errorMessage.includes('not found')) {
-          return 'Custom error: Invalid model selected. Please check that the model name is correct and available.';
-        }
-
-        if (errorMessage.includes('Invalid JSON response')) {
-          return 'Custom error: The AI service returned an invalid response. This may be due to an invalid model name, API rate limiting, or server issues. Try selecting a different model or check your API key.';
-        }
-
-        if (
-          errorMessage.includes('API key') ||
-          errorMessage.includes('unauthorized') ||
-          errorMessage.includes('authentication')
-        ) {
-          return 'Custom error: Invalid or missing API key. Please check your API key configuration.';
-        }
-
-        if (errorMessage.includes('token') && errorMessage.includes('limit')) {
-          return 'Custom error: Token limit exceeded. The conversation is too long for the selected model. Try using a model with larger context window or start a new conversation.';
-        }
-
-        if (errorMessage.includes('rate limit') || errorMessage.includes('429')) {
-          return 'Custom error: API rate limit exceeded. Please wait a moment before trying again.';
-        }
-
-        if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
-          return 'Custom error: Network error. Please check your internet connection and try again.';
-        }
-
-        return `Custom error: ${errorMessage}`;
-      },
+      onError: (error: unknown) => handleApiError(error, 'api.chat (streaming)').statusText,
     }).pipeThrough(
       new TransformStream({
         transform: (chunk, controller) => {

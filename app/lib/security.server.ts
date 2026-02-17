@@ -3,6 +3,7 @@ import { redisService } from './services/redisService';
 import { createScopedLogger } from '~/utils/logger';
 import crypto from 'node:crypto';
 import { rbacEngine, type Permission, type UserRole } from '~/lib/modules/security/rbacEngine';
+import { sessionManager } from '~/lib/modules/security/sessionManager';
 import { sanitizeErrorMessage } from './security-utils';
 
 const logger = createScopedLogger('Security');
@@ -245,12 +246,21 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
 
     // RBAC Check
     if (options.permission) {
-      /*
-       * TODO: Retrieve actual user role from session/JWT
-       * For now, we assume a default secure role or developer role based on environment
-       * In a real app, this would be: const role = session.user.role;
-       */
-      const role: UserRole = process.env.NODE_ENV === 'development' ? 'DEVELOPER' : 'VIEWER';
+      const cookieHeader = request.headers.get('Cookie') || '';
+      const sessionId = cookieHeader.match(/session_id=([^;]+)/)?.[1];
+
+      let role: UserRole = 'VIEWER';
+
+      if (sessionId) {
+        const session = sessionManager.validateSession(sessionId);
+
+        if (session) {
+          role = session.role as UserRole;
+        }
+      } else if (process.env.NODE_ENV === 'development') {
+        // Fallback for local development without session
+        role = 'DEVELOPER';
+      }
 
       const hasPermission = rbacEngine.can(role, options.permission);
 
@@ -258,6 +268,7 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
         logger.warn(
           `RBAC Access Denied: User with role '${role}' attempted to access '${endpoint}' requires '${options.permission}'`,
         );
+
         return new Response('Forbidden: Insufficient Permissions', {
           status: 403,
           headers: createSecurityHeaders(),
