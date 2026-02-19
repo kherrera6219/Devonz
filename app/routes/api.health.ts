@@ -12,10 +12,15 @@ interface HealthResponse {
   timestamp: string;
   uptime: number;
   version: string;
+  environment: 'desktop' | 'server';
   services: Record<string, ServiceHealth>;
 }
 
 async function checkPostgres(): Promise<ServiceHealth> {
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_HOST) {
+    return { status: 'unconfigured' };
+  }
+
   try {
     const { Pool: pgPool } = await import('pg');
     const pool = new pgPool({
@@ -40,6 +45,10 @@ async function checkPostgres(): Promise<ServiceHealth> {
 }
 
 async function checkRedis(): Promise<ServiceHealth> {
+  if (!process.env.REDIS_URL && !process.env.REDIS_HOST) {
+    return { status: 'unconfigured' };
+  }
+
   try {
     const ioRedis = (await import('ioredis')).default;
     const redis = new ioRedis({
@@ -64,6 +73,10 @@ async function checkRedis(): Promise<ServiceHealth> {
 }
 
 async function checkNeo4j(): Promise<ServiceHealth> {
+  if (!process.env.NEO4J_URI) {
+    return { status: 'unconfigured' };
+  }
+
   try {
     const neo4j = await import('neo4j-driver');
     const driver = neo4j.default.driver(
@@ -90,7 +103,7 @@ export const loader = withSecurity(
     const url = new URL(_request.url);
     const detailed = url.searchParams.get('detailed') === 'true';
 
-    // Quick health check for load balancers
+    // Quick health check for load balancers / desktop tray
     if (!detailed) {
       return json({
         status: 'healthy',
@@ -107,16 +120,25 @@ export const loader = withSecurity(
       neo4j: neo4j.status === 'fulfilled' ? neo4j.value : { status: 'unhealthy', error: 'Check failed' },
     };
 
-    const unhealthyCount = Object.values(services).filter((s) => s.status === 'unhealthy').length;
+    // Only count configured services for health assessment
+    const configuredServices = Object.values(services).filter((s) => s.status !== 'unconfigured');
+    const unhealthyCount = configuredServices.filter((s) => s.status === 'unhealthy').length;
 
     const overallStatus: HealthResponse['status'] =
-      unhealthyCount === 0 ? 'healthy' : unhealthyCount === Object.keys(services).length ? 'unhealthy' : 'degraded';
+      configuredServices.length === 0
+        ? 'healthy' // No external services configured = desktop mode, app is healthy
+        : unhealthyCount === 0
+          ? 'healthy'
+          : unhealthyCount === configuredServices.length
+            ? 'unhealthy'
+            : 'degraded';
 
     const response: HealthResponse = {
       status: overallStatus,
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      version: process.env.npm_package_version || '1.0.0',
+      version: process.env.npm_package_version || '2.0.0',
+      environment: configuredServices.length === 0 ? 'desktop' : 'server',
       services,
     };
 

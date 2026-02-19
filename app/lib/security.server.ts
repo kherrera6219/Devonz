@@ -36,6 +36,47 @@ const RATE_LIMITS = {
 };
 
 /**
+ * In-memory rate limiter for when Redis is unavailable.
+ * This is a fallback — not distributed, but prevents unlimited requests.
+ */
+const inMemoryRateLimits = new Map<string, { count: number; resetTime: number }>();
+
+// Periodic cleanup of expired entries
+setInterval(
+  () => {
+    const now = Date.now();
+
+    for (const [key, data] of inMemoryRateLimits) {
+      if (data.resetTime < now) {
+        inMemoryRateLimits.delete(key);
+      }
+    }
+  },
+  5 * 60 * 1000,
+);
+
+function inMemoryRateLimit(
+  key: string,
+  config: { windowMs: number; maxRequests: number },
+  now: number,
+): { allowed: boolean; resetTime?: number } {
+  let entry = inMemoryRateLimits.get(key);
+
+  if (!entry || entry.resetTime < now) {
+    entry = { count: 0, resetTime: now + config.windowMs };
+  }
+
+  if (entry.count >= config.maxRequests) {
+    return { allowed: false, resetTime: entry.resetTime };
+  }
+
+  entry.count++;
+  inMemoryRateLimits.set(key, entry);
+
+  return { allowed: true };
+}
+
+/**
  * Trusted proxy configuration.
  * When behind a reverse proxy (nginx, Cloudflare, etc.), only trust
  * IP headers from known proxy addresses.
@@ -93,9 +134,11 @@ export async function checkRateLimit(
     await redisService.set(key, JSON.stringify(rateLimitData), Math.ceil((rateLimitData.resetTime - now) / 1000));
 
     return { allowed: true };
-  } catch (error) {
-    logger.error(`Rate limit error for ${key}`, error);
-    return { allowed: true }; // Fail open in case of Redis error
+  } catch {
+    logger.warn(`Redis unavailable for rate limiting, using in-memory fallback for ${key}`);
+
+    // In-memory fallback when Redis is down
+    return inMemoryRateLimit(key, config, now);
   }
 }
 
@@ -181,8 +224,7 @@ export function createSecurityHeaders(nonce?: string) {
     // Prevent MIME type sniffing
     'X-Content-Type-Options': 'nosniff',
 
-    // Enable XSS protection
-    'X-XSS-Protection': '1; mode=block',
+    // X-XSS-Protection intentionally omitted (deprecated; CSP provides protection)
 
     // Content Security Policy
     'Content-Security-Policy': [
@@ -209,8 +251,8 @@ export function createSecurityHeaders(nonce?: string) {
     // Permissions Policy (formerly Feature Policy)
     'Permissions-Policy': ['camera=()', 'microphone=()', 'geolocation=()', 'payment=()'].join(', '),
 
-    // HSTS (HTTP Strict Transport Security) - only in production
-    ...(process.env.NODE_ENV === 'production'
+    /* HSTS - only when explicitly enabled (not for local desktop apps over HTTP) */
+    ...(process.env.HSTS_ENABLED === 'true'
       ? {
           'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
         }
@@ -258,8 +300,8 @@ export function withSecurity<T extends (args: ActionFunctionArgs | LoaderFunctio
           role = session.role as UserRole;
         }
       } else if (process.env.NODE_ENV === 'development') {
-        // Fallback for local development without session
-        role = 'DEVELOPER';
+        // Local desktop app: grant full access to the local user
+        role = 'ADMIN';
       }
 
       const hasPermission = rbacEngine.can(role, options.permission);

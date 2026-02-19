@@ -4,8 +4,38 @@ const logger = createScopedLogger('Encryption');
 const ENCODER = new TextEncoder();
 const DECODER = new TextDecoder();
 
-// In production, this should be a 32-byte secure key from environment (VITE_ENCRYPTION_KEY)
-const ENCRYPTION_SECRET = import.meta.env.VITE_ENCRYPTION_KEY || 'dev-encryption-key-2026-secret-32';
+/**
+ * Encryption secret: must be set via ENCRYPTION_KEY env var.
+ * In dev, falls back to a dev-only key with a console warning.
+ * In production, missing key will throw at first use.
+ */
+const DEV_ONLY_KEY = 'dev-encryption-key-2026-secret-32';
+
+function getEncryptionSecret(): string {
+  // Server-side: use process.env (never exposed to client bundle)
+  const envKey = typeof process !== 'undefined' ? process.env.ENCRYPTION_KEY : undefined;
+
+  if (envKey) {
+    return envKey;
+  }
+
+  const isProd =
+    (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') ||
+    (typeof import.meta !== 'undefined' && import.meta.env?.PROD);
+
+  if (isProd) {
+    throw new Error(
+      'ENCRYPTION_KEY environment variable is required in production. ' +
+        'Set a 32+ character secret key in your environment.',
+    );
+  }
+
+  console.warn('[Encryption] Using development-only encryption key. Set ENCRYPTION_KEY for production.');
+
+  return DEV_ONLY_KEY;
+}
+
+const ENCRYPTION_SECRET = getEncryptionSecret();
 const ALGORITHM = 'AES-GCM';
 const IV_LENGTH = 12; // Standard for GCM
 

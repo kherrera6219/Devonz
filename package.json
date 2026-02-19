@@ -3,9 +3,13 @@
   "description": "An AI Agent",
   "private": true,
   "license": "MIT",
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css",
+    "*.scss",
+    "virtual:uno.css"
+  ],
   "type": "module",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "author": {
     "name": "Devonz team"
   },
@@ -22,12 +26,13 @@
     "typecheck": "tsc",
     "preview": "pnpm run build && pnpm run start",
     "prepare": "husky",
+    "postinstall": "node scripts/fix-remix-windows.js",
     "clean": "node scripts/clean.js",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
   "engines": {
-    "node": ">=18.18.0"
+    "node": ">=20.19.0"
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "1.0.6",

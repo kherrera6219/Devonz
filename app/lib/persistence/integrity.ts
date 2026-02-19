@@ -3,8 +3,37 @@ import { createScopedLogger } from '~/utils/logger';
 const logger = createScopedLogger('DataIntegrity');
 const ENCODER = new TextEncoder();
 
-// In production, this should be a secure environment variable (VITE_APP_SECRET)
-const INTEGRITY_SECRET = import.meta.env.VITE_APP_SECRET || 'dev-integrity-secret-2026';
+/**
+ * Integrity secret: must be set via APP_SECRET env var.
+ * In dev, falls back to a dev-only key with a console warning.
+ * In production, missing key will throw at first use.
+ */
+const DEV_ONLY_SECRET = 'dev-integrity-secret-2026';
+
+function getIntegritySecret(): string {
+  const envKey = typeof process !== 'undefined' ? process.env.APP_SECRET : undefined;
+
+  if (envKey) {
+    return envKey;
+  }
+
+  const isProd =
+    (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') ||
+    (typeof import.meta !== 'undefined' && import.meta.env?.PROD);
+
+  if (isProd) {
+    throw new Error(
+      'APP_SECRET environment variable is required in production. ' +
+        'Set a 32+ character secret key in your environment.',
+    );
+  }
+
+  console.warn('[Integrity] Using development-only integrity secret. Set APP_SECRET for production.');
+
+  return DEV_ONLY_SECRET;
+}
+
+const INTEGRITY_SECRET = getIntegritySecret();
 
 /**
  * Data Layer: Snapshot Integrity System

@@ -117,9 +117,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
       </head>
       <body>
-        <I18nextProvider i18n={(window as any).i18next || undefined}>
-          <DndProvider backend={HTML5Backend}>{children}</DndProvider>
-        </I18nextProvider>
+        <I18nextProvider i18n={(window as any).i18next || undefined}>{children}</I18nextProvider>
         <ToastContainer
           closeButton={({ closeToast }: { closeToast: (e: React.MouseEvent<HTMLElement>) => void }) => (
             <IconButton
@@ -151,7 +149,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {data?.ENV && (
           <script
             dangerouslySetInnerHTML={{
-              __html: `window.ENV = ${JSON.stringify(data.ENV)}`,
+              __html: `window.ENV = ${JSON.stringify(data.ENV).replace(/</g, '\\u003c')}`,
             }}
           />
         )}

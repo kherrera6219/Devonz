@@ -4,13 +4,13 @@ import { MAX_RESPONSE_SEGMENTS, MAX_TOKENS, type FileMap } from '~/lib/.server/l
 import { CONTINUE_PROMPT } from '~/lib/common/prompts/prompts';
 import { streamText, type Messages, type StreamingOptions } from '~/lib/.server/llm/stream-text';
 import SwitchableStream from '~/lib/.server/llm/switchable-stream';
-import type { IProviderSetting } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
 import { chatOrchestrationService } from '~/lib/services/chatOrchestrationService';
 import { handleApiError } from '~/lib/api-error-handler';
 
 const logger = createScopedLogger('api.chat');
 
+import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
 import { getFilePaths } from '~/lib/.server/llm/select-context';
 import type { ProgressAnnotation } from '~/types/context';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
@@ -25,45 +25,6 @@ import { chatRequestSchema } from '~/lib/api-validation';
 export const action = withSecurity(async (args: ActionFunctionArgs) => {
   return chatAction(args);
 });
-
-function parseCookies(cookieHeader: string): Record<string, string> {
-  const cookies: Record<string, string> = {};
-
-  if (!cookieHeader) {
-    return cookies;
-  }
-
-  const items = cookieHeader.split(';').map((cookie) => cookie.trim());
-
-  items.forEach((item) => {
-    const [name, ...rest] = item.split('=');
-
-    if (name && rest) {
-      try {
-        const decodedName = decodeURIComponent(name.trim());
-        const decodedValue = decodeURIComponent(rest.join('=').trim());
-        cookies[decodedName] = decodedValue;
-      } catch {
-        logger.warn('Failed to decode cookie:', item);
-      }
-    }
-  });
-
-  return cookies;
-}
-
-function safeJsonParse<T>(jsonString: string | undefined, fallback: T): T {
-  if (!jsonString) {
-    return fallback;
-  }
-
-  try {
-    return JSON.parse(jsonString) as T;
-  } catch {
-    logger.warn('Failed to parse JSON:', jsonString.substring(0, 100));
-    return fallback;
-  }
-}
 
 async function chatAction({ context, request }: ActionFunctionArgs) {
   const streamRecovery = new StreamRecoveryManager({
@@ -144,9 +105,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   const useOrchestrator = !!orchestratorMode;
 
   const cookieHeader = request.headers.get('Cookie');
-  const cookies = parseCookies(cookieHeader || '');
-  const apiKeys = safeJsonParse(cookies.apiKeys, {} as Record<string, string>);
-  const providerSettings = safeJsonParse(cookies.providers, {} as Record<string, IProviderSetting>);
+  const apiKeys = getApiKeysFromCookie(cookieHeader);
+  const providerSettings = getProviderSettingsFromCookie(cookieHeader);
 
   const stream = new SwitchableStream();
 

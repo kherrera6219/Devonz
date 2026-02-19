@@ -3,10 +3,13 @@ import { RemixServer } from '@remix-run/react';
 import { isbot } from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
 import { PassThrough } from 'node:stream';
-import { createSecurityHeaders } from '~/lib/security.server';
+import { createSecurityHeaders, generateNonce } from '~/lib/security.server';
+import { createScopedLogger } from '~/utils/logger';
 import crypto from 'node:crypto';
 import { requestContext } from '~/lib/context.server';
 import { httpRequestDurationMicroseconds } from '~/lib/metrics.server';
+
+const logger = createScopedLogger('SSR');
 
 const ABORT_DELAY = 5_000;
 
@@ -19,6 +22,7 @@ export default async function handleRequest(
 ) {
   const requestId = request.headers.get('X-Request-ID') || crypto.randomUUID();
   const startTime = Date.now();
+  const nonce = generateNonce();
 
   // Add Request ID to response headers
   responseHeaders.set('X-Request-ID', requestId);
@@ -33,7 +37,7 @@ export default async function handleRequest(
         {
           [callbackName]: () => {
             shellRendered = true;
-            console.log(`[SSR][${requestId}] Processing shell ready...`);
+            logger.info(`[${requestId}] Processing shell ready...`);
 
             const body = new PassThrough();
 
@@ -52,7 +56,7 @@ export default async function handleRequest(
              * Content Security Policy (CSP)
              * Managed centrally in app/lib/security.ts
              */
-            const securityHeaders = createSecurityHeaders();
+            const securityHeaders = createSecurityHeaders(nonce);
             const csp = securityHeaders['Content-Security-Policy'];
 
             responseHeaders.set('Content-Security-Policy', csp);
@@ -66,12 +70,13 @@ export default async function handleRequest(
 
             pipe(body);
 
-            // Record metrics
+            // Record actual request duration metrics
             try {
               if (typeof httpRequestDurationMicroseconds !== 'undefined') {
+                const durationSeconds = (Date.now() - startTime) / 1000;
                 httpRequestDurationMicroseconds
-                  .labels('GET', new URL(request.url).pathname, String(responseStatusCode))
-                  .observe(500); // observe dummy value since duration not available here
+                  .labels(request.method, new URL(request.url).pathname, String(responseStatusCode))
+                  .observe(durationSeconds);
               }
             } catch {
               // Ignore metrics errors
@@ -83,27 +88,20 @@ export default async function handleRequest(
           onError(error: unknown) {
             responseStatusCode = 500;
 
-            // Record error metrics
+            // Record error metrics with actual duration
             try {
-              // Approximate duration for error case (calculated but not sent to metrics yet)
-              void (Date.now() - startTime);
-
-              /*
-               *if (httpRequestDurationMicroseconds) {
-               *  httpRequestDurationMicroseconds.observe(
-               *    {
-               *      method: request.method,
-               *      route: new URL(request.url).pathname,
-               *      status_code: responseStatusCode,
-               *    },
-               *    duration,
-               *  );
-               *}
-               */
-            } catch {}
+              if (typeof httpRequestDurationMicroseconds !== 'undefined') {
+                const durationSeconds = (Date.now() - startTime) / 1000;
+                httpRequestDurationMicroseconds
+                  .labels(request.method, new URL(request.url).pathname, String(responseStatusCode))
+                  .observe(durationSeconds);
+              }
+            } catch {
+              // Ignore metrics errors
+            }
 
             if (shellRendered) {
-              console.error(error);
+              logger.error('SSR rendering error:', error);
             }
           },
         },

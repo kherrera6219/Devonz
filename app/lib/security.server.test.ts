@@ -48,9 +48,11 @@ describe('Security Server Module', () => {
 
       expect(headers['X-Frame-Options']).toBe('DENY');
       expect(headers['X-Content-Type-Options']).toBe('nosniff');
-      expect(headers['X-XSS-Protection']).toBe('1; mode=block');
       expect(headers['Referrer-Policy']).toBe('strict-origin-when-cross-origin');
       expect(headers['Permissions-Policy']).toContain('camera=()');
+
+      // X-XSS-Protection intentionally removed (deprecated, CSP provides protection)
+      expect((headers as Record<string, string>)['X-XSS-Protection']).toBeUndefined();
     });
 
     it('should include Content-Security-Policy', () => {

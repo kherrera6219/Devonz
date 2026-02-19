@@ -11,9 +11,10 @@ export class RedisService {
   private static _instance: RedisService;
   private _client: Redis | null = null;
   private _isConnected = false;
+  private _initAttempted = false;
 
   private constructor() {
-    this._initialize();
+    /* Lazy initialization — Redis is optional for local desktop usage */
   }
 
   static getInstance(): RedisService {
@@ -24,18 +25,35 @@ export class RedisService {
     return RedisService._instance;
   }
 
-  private _initialize() {
+  /**
+   * Lazily initialize Redis connection on first use.
+   * If Redis is unreachable, logs once and returns without error.
+   */
+  private _ensureInitialized(): boolean {
+    if (this._isConnected) {
+      return true;
+    }
+
+    if (this._initAttempted) {
+      return false;
+    }
+
+    this._initAttempted = true;
+
     try {
       this._client = new Redis(REDIS_URL, {
-        maxRetriesPerRequest: 3,
+        maxRetriesPerRequest: 1,
         retryStrategy: (times) => {
-          if (times > 3) {
-            logger.warn('Redis connection retry limit reached. Continuing without Redis.');
-            return null;
+          if (times > 1) {
+            logger.info('Redis not available — running in local-only mode.');
+
+            return null; // Stop retrying
           }
 
-          return Math.min(times * 100, 3000);
+          return 500;
         },
+        lazyConnect: true,
+        enableOfflineQueue: false,
       });
 
       this._client.on('connect', () => {
@@ -43,16 +61,32 @@ export class RedisService {
         logger.info('Connected to Redis');
       });
 
-      this._client.on('error', (error) => {
+      this._client.on('error', () => {
         this._isConnected = false;
-        logger.error('Redis connection error', error);
+
+        // Don't spam logs - only log once
       });
-    } catch (error) {
-      logger.error('Failed to initialize Redis client', error);
+
+      this._client.on('close', () => {
+        this._isConnected = false;
+      });
+
+      // Attempt connection (non-blocking)
+      this._client.connect().catch(() => {
+        logger.info('Redis not available — all caching/rate-limiting will use in-memory fallbacks.');
+        this._client = null;
+      });
+    } catch {
+      logger.info('Redis not available — running in local-only mode.');
+      this._client = null;
     }
+
+    return this._isConnected;
   }
 
   async get(key: string): Promise<string | null> {
+    this._ensureInitialized();
+
     if (!this._isConnected || !this._client) {
       return null;
     }
@@ -66,6 +100,8 @@ export class RedisService {
   }
 
   async set(key: string, value: string, ttlSeconds?: number): Promise<void> {
+    this._ensureInitialized();
+
     if (!this._isConnected || !this._client) {
       return;
     }
@@ -82,6 +118,8 @@ export class RedisService {
   }
 
   async del(key: string): Promise<void> {
+    this._ensureInitialized();
+
     if (!this._isConnected || !this._client) {
       return;
     }
@@ -94,6 +132,8 @@ export class RedisService {
   }
 
   async sadd(key: string, ...members: string[]): Promise<void> {
+    this._ensureInitialized();
+
     if (!this._isConnected || !this._client) {
       return;
     }
@@ -106,6 +146,8 @@ export class RedisService {
   }
 
   async smembers(key: string): Promise<string[]> {
+    this._ensureInitialized();
+
     if (!this._isConnected || !this._client) {
       return [];
     }

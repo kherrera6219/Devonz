@@ -51,6 +51,8 @@ const envSchema = z.object({
   VITE_SUPABASE_ANON_KEY: z.string().optional(),
 
   // Security
+  ENCRYPTION_KEY: z.string().min(32).optional().describe('32+ char encryption key for data at rest'),
+  APP_SECRET: z.string().min(32).optional().describe('32+ char secret for integrity signing'),
   TRUSTED_PROXIES: z.string().optional().default('127.0.0.1,::1'),
   ALLOWED_ORIGINS: z.string().optional(),
 
