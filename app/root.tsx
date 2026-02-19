@@ -11,6 +11,9 @@ import { ClientOnly } from 'remix-utils/client-only';
 import { cssTransition, ToastContainer } from 'react-toastify';
 import { I18nextProvider } from 'react-i18next';
 import { IconButton } from '~/components/ui/IconButton';
+import { RouteErrorBoundary } from '~/components/errors/RouteErrorBoundary';
+import { FeatureProvider } from '~/lib/modules/features/FeatureContext';
+import { logStore } from './lib/stores/logs';
 import './lib/i18n/config';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
@@ -117,11 +120,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
       </head>
       <body>
-        <I18nextProvider i18n={(window as any).i18next || undefined}>{children}</I18nextProvider>
+        <I18nextProvider
+          i18n={(window as unknown as { i18next?: typeof import('i18next').default }).i18next || undefined}
+        >
+          {children}
+        </I18nextProvider>
         <ToastContainer
           closeButton={({ closeToast }: { closeToast: (e: React.MouseEvent<HTMLElement>) => void }) => (
             <IconButton
-              onClick={(e) => closeToast(e as any)}
+              onClick={(e) => closeToast(e as unknown as React.MouseEvent<HTMLElement>)}
               title="Close Toast"
               className="text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary"
             >
@@ -159,10 +166,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-import { logStore } from './lib/stores/logs';
-
-import { RouteErrorBoundary } from '~/components/errors/RouteErrorBoundary';
-
 export function ErrorBoundary() {
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-bolt-elements-background-depth-1">
@@ -170,10 +173,6 @@ export function ErrorBoundary() {
     </div>
   );
 }
-
-import { FeatureProvider } from '~/lib/modules/features/FeatureContext';
-
-// ...
 
 export default function App() {
   const theme = useStore(themeStore);

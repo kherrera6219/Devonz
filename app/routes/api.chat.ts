@@ -119,13 +119,18 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
   let progressCounter: number = 1;
 
   try {
-    const totalMessageContent = (messages as any[]).reduce((acc: string, message) => {
-      const content =
-        typeof message.content === 'string'
-          ? message.content
-          : Array.isArray(message.content)
-            ? (message.content as any[]).map((p) => ('text' in p ? p.text : '')).join('')
-            : '';
+    const totalMessageContent = messages.reduce((acc: string, message) => {
+      const rawContent: unknown = message.content;
+      let content = '';
+
+      if (typeof rawContent === 'string') {
+        content = rawContent;
+      } else if (Array.isArray(rawContent)) {
+        content = (rawContent as Array<Record<string, unknown>>)
+          .map((p) => ('text' in p ? String(p.text) : ''))
+          .join('');
+      }
+
       return acc + content;
     }, '');
 
@@ -140,8 +145,8 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         // Orchestrator Mode Hijack
         if (useOrchestrator) {
           try {
-            const messageMap = (messages as any[]).filter((m) => m.role === 'user').pop();
-            const userQuery = messageMap?.content || '';
+            const messageMap = messages.filter((m) => m.role === 'user').pop();
+            const userQuery = typeof messageMap?.content === 'string' ? messageMap.content : '';
 
             // Delegate to Orchestrator service
             const { orchestratorService } = await import('~/lib/services/orchestratorService');
@@ -149,7 +154,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             await orchestratorService.processRequest(
               userQuery as string,
               generateId(),
-              dataStream as any,
+              dataStream as unknown as Parameters<typeof orchestratorService.processRequest>[2],
               messages,
               apiKeys,
               streamRecovery,
@@ -166,6 +171,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               status: 'failed',
               message: error instanceof Error ? error.message : String(error),
             });
+
             return;
           }
         }
@@ -199,9 +205,10 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         }
 
         // Prepare session tools and agent state via Orchestration Service
-        const { useAgentMode: agentModeFromSession = false, combinedTools } = await chatOrchestrationService.prepareChatSession({
-          agentMode,
+        const { combinedTools } = await chatOrchestrationService.prepareChatSession({
+          agentMode: agentMode ?? false,
           dataStream,
+          messages: [...processedMessages],
         });
 
         const options: StreamingOptions = {
@@ -212,7 +219,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
           agentMode: !!useAgentMode,
           agentSystemPrompt: useAgentMode ? getAgentSystemPrompt() : undefined,
           onStepFinish: ({ toolCalls }) => {
-            toolCalls.forEach((toolCall: any) => {
+            toolCalls.forEach((toolCall) => {
               chatOrchestrationService.handleStepFinish([toolCall], dataStream, !!useAgentMode);
             });
           },
@@ -266,7 +273,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
             const result = await streamText({
               messages: [...processedMessages],
-              env: (context as any).cloudflare?.env,
+              env: process.env,
               options,
               apiKeys,
               files,
@@ -285,13 +292,12 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             (async () => {
               for await (const part of result.fullStream) {
                 if (part.type === 'error') {
-                  const error: any = part.error;
-                  logger.error(`${error}`);
+                  logger.error(`Stream continuation error: ${part.error}`);
 
                   return;
                 }
               }
-            })();
+            })().catch((err) => logger.error('Stream continuation processing failed:', err));
 
             return;
           },
@@ -307,7 +313,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
         const result = await streamText({
           messages: [...processedMessages],
-          env: (context as any).cloudflare?.env,
+          env: process.env,
           options,
           apiKeys,
           files,
@@ -326,7 +332,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             streamRecovery.updateActivity();
 
             if (part.type === 'error') {
-              const error = part.error as Error;
+              const error = part.error instanceof Error ? part.error : new Error(String(part.error));
               logger.error('Streaming error:', error);
               streamRecovery.stop();
 
@@ -341,7 +347,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
             }
           }
           streamRecovery.stop();
-        })();
+        })().catch((err) => logger.error('Stream processing failed:', err));
         result.mergeIntoDataStream(dataStream);
       },
       onError: (error: unknown) => handleApiError(error, 'api.chat (streaming)').statusText,

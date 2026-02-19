@@ -74,7 +74,7 @@ export class SnapshotIntegrity {
   /**
    * Signs a snapshot object and returns the HMAC signature.
    */
-  async sign(data: any): Promise<string> {
+  async sign(data: unknown): Promise<string> {
     try {
       const key = await this._getKey();
       const serialized = JSON.stringify(data);
@@ -93,7 +93,7 @@ export class SnapshotIntegrity {
   /**
    * Verifies the integrity of a snapshot using its signature.
    */
-  async verify(data: any, signature: string): Promise<boolean> {
+  async verify(data: unknown, signature: string): Promise<boolean> {
     try {
       const expected = await this.sign(data);
 
@@ -108,7 +108,7 @@ export class SnapshotIntegrity {
   /**
    * Wraps data with an integrity header.
    */
-  async wrapWithIntegrity(data: any) {
+  async wrapWithIntegrity(data: unknown) {
     const signature = await this.sign(data);
 
     return {
