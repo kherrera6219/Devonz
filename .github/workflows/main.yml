@@ -29,6 +29,9 @@ jobs:
       - name: Static Analysis (Lint)
         run: pnpm run lint
 
+      - name: Static Analysis (Audit)
+        run: pnpm audit --audit-level moderate
+
       - name: Type Safety (TSC)
         run: pnpm run typecheck
 
