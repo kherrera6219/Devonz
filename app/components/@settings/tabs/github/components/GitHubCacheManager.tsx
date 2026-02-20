@@ -112,7 +112,7 @@ class CacheManagerService {
       try {
         // Re-serialize with minimal data
         const compacted = {
-          ...entry.data,
+          ...(entry.data as Record<string, unknown>),
           lastAccessed: Date.now(),
         };
         localStorage.setItem(entry.key, JSON.stringify(compacted));

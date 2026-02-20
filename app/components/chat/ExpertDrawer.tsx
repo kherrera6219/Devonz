@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Activity, ShieldCheck, BookOpen, GitCommit } from 'lucide-react';
 
-interface ExpertEvent {
-  type: string;
-  agent: string;
-  timestamp: string;
-  summary: string;
-  details?: unknown; // Keeping details loose for now as it varies greatly
-}
+import type { LogEvent as ExpertEvent, QCReport } from '~/utils/eventProcessor';
 
 interface ResearchData {
   techReality: {
@@ -22,11 +16,6 @@ interface ResearchData {
     bottlenecks?: string[];
   };
   patchCount?: number;
-  [key: string]: unknown;
-}
-
-interface QCReport {
-  issues?: Array<{ title: string; description: string }>;
   [key: string]: unknown;
 }
 
@@ -145,20 +134,25 @@ export const ExpertDrawer: React.FC<ExpertDrawerProps> = ({ isOpen, onClose, eve
           <div className="space-y-4">
             <div className="text-xs text-gray-500 uppercase tracking-widest font-bold mb-2">Issue List</div>
             {qcEvents.length > 0 ? (
-              qcEvents.map((ev, i) => (
-                <div key={i} className="p-3 border border-[#222] bg-[#111] rounded space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-orange-400 capitalize">{ev.summary}</span>
-                    <span className="text-[10px] text-gray-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
-                  </div>
-                  {(ev.details as QCReport)?.issues?.map((issue: { title: string; description: string }, j: number) => (
-                    <div key={j} className="text-xs text-gray-300 pl-2 border-l border-orange-500/30">
-                      <div className="font-bold">{issue.title}</div>
-                      <div className="text-gray-500">{issue.description}</div>
+              qcEvents.map((ev, i) => {
+                const report = ev.details as QCReport;
+                const issues = Array.isArray(report?.issues) ? report.issues : [];
+
+                return (
+                  <div key={i} className="p-3 border border-[#222] bg-[#111] rounded space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-orange-400 capitalize">{ev.summary}</span>
+                      <span className="text-[10px] text-gray-500">{new Date(ev.timestamp).toLocaleTimeString()}</span>
                     </div>
-                  ))}
-                </div>
-              ))
+                    {issues.map((issue: { title: string; description: string }, j: number) => (
+                      <div key={j} className="text-xs text-gray-300 pl-2 border-l border-orange-500/30">
+                        <div className="font-bold">{issue.title}</div>
+                        <div className="text-gray-500">{issue.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })
             ) : (
               <div className="p-10 border border-dashed border-[#222] rounded text-gray-500 text-center text-sm">
                 No QC findings recorded yet.

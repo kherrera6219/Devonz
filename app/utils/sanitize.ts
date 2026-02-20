@@ -49,7 +49,7 @@ export function sanitizeHTML(dirty: string, options: SanitizeOptions = DEFAULT_C
     return dirty;
   }
 
-  return DOMPurify.sanitize(dirty, options as unknown as SanitizeOptions) as string;
+  return DOMPurify.sanitize(dirty, options as any) as string;
 }
 
 export const sanitizer = {

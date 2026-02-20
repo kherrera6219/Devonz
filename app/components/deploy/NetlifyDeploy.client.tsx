@@ -170,7 +170,7 @@ export function useNetlifyDeploy() {
 
       const maxAttempts = 20; // 2 minutes timeout
       let attempts = 0;
-      let deploymentStatus: { state: string; error_message?: string; ssl_url?: string; url?: string };
+      let deploymentStatus: { state: string; error_message?: string; ssl_url?: string; url?: string } | undefined;
 
       while (attempts < maxAttempts) {
         try {
@@ -183,7 +183,12 @@ export function useNetlifyDeploy() {
             },
           );
 
-          deploymentStatus = (await statusResponse.json()) as { state: string; error_message?: string; ssl_url?: string; url?: string };
+          deploymentStatus = (await statusResponse.json()) as {
+            state: string;
+            error_message?: string;
+            ssl_url?: string;
+            url?: string;
+          };
 
           if (deploymentStatus.state === 'ready' || deploymentStatus.state === 'uploaded') {
             break;
@@ -216,6 +221,11 @@ export function useNetlifyDeploy() {
         throw new Error('Deployment timed out');
       }
 
+      // Ensure deploymentStatus is defined (it should be since we broke the loop)
+      if (!deploymentStatus) {
+        throw new Error('Deployment status unavailable');
+      }
+
       // Store the site ID if it's a new site
       if (data.site) {
         localStorage.setItem(`netlify-site-${currentChatId}`, data.site.id);
@@ -223,7 +233,7 @@ export function useNetlifyDeploy() {
 
       // Notify that deployment completed successfully
       deployArtifact.runner.handleDeployAction('complete', 'complete', {
-        url: deploymentStatus.ssl_url || deploymentStatus.url,
+        url: deploymentStatus.ssl_url || deploymentStatus.url || '',
         source: 'netlify',
       });
 

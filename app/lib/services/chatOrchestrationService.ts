@@ -9,9 +9,8 @@ import {
   incrementAgentIteration,
 } from './agentChatIntegration';
 import { createScopedLogger } from '~/utils/logger';
-import type { Message, DataStreamWriter, ToolSet } from 'ai';
+import type { Message, DataStreamWriter, ToolSet, ToolCall } from 'ai';
 import type { ProgressAnnotation } from '~/types/context';
-import type { ToolCall } from '@mcp-js/mcp';
 
 const logger = createScopedLogger('ChatOrchestrationService');
 
@@ -88,7 +87,7 @@ export class ChatOrchestrationService {
   /**
    * Unified tool call processor for onStepFinish.
    */
-  handleStepFinish(toolCalls: ToolCall[], dataStream: DataStreamWriter, useAgentMode: boolean) {
+  handleStepFinish(toolCalls: ToolCall<string, unknown>[], dataStream: DataStreamWriter, useAgentMode: boolean) {
     const mcpService = MCPService.getInstance();
 
     toolCalls.forEach((toolCall) => {

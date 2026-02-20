@@ -3,6 +3,7 @@ import {
   type ToolSet,
   type Message,
   type DataStreamWriter,
+  type ToolCall,
   convertToCoreMessages,
   formatDataStreamPart,
 } from 'ai';
@@ -76,13 +77,6 @@ export type MCPClient = {
   close: () => Promise<void>;
 } & {
   serverName: string;
-};
-
-export type ToolCall = {
-  type: 'tool-call';
-  toolCallId: string;
-  toolName: string;
-  args: Record<string, unknown>;
 };
 
 export type MCPServerTools = Record<string, MCPServer>;
@@ -356,7 +350,7 @@ export class MCPService {
 
   async processToolCalls(
     serverName: string,
-    toolCalls: ToolCall[],
+    toolCalls: ToolCall<string, unknown>[],
     dataStream: DataStreamWriter,
   ): Promise<Record<string, unknown>[]> {
     const server = this._mcpToolsPerServer[serverName];
@@ -412,7 +406,7 @@ export class MCPService {
     return toolName in this._tools;
   }
 
-  processToolCall(toolCall: ToolCall, dataStream: DataStreamWriter): void {
+  processToolCall(toolCall: ToolCall<string, unknown>, dataStream: DataStreamWriter): void {
     const { toolCallId, toolName } = toolCall;
 
     if (this.isValidToolName(toolName)) {

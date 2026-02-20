@@ -59,6 +59,7 @@ export interface NetlifyBuild {
   done: boolean;
   error?: string;
   created_at: string;
+  commit_ref?: string;
 }
 
 export interface NetlifyUser {

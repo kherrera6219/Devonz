@@ -31,6 +31,7 @@ export class OrchestratorService {
     existingMessages: unknown[],
     apiKeys: Record<string, string>,
     streamRecovery?: { updateActivity: () => void },
+    signal?: AbortSignal,
   ) {
     // Initial State (RunState)
     const initialState: Partial<RunState> = {
@@ -69,9 +70,20 @@ export class OrchestratorService {
         setTimeout(() => reject(new Error('Orchestrator timed out after 5 minutes')), 300000),
       );
 
+      // Create abort promise
+      const abortPromise = new Promise((_, reject) => {
+        if (signal?.aborted) {
+          reject(new Error('Request aborted'));
+        } else {
+          signal?.addEventListener('abort', () => reject(new Error('Request aborted')));
+        }
+      });
+
       // Create the graph execution promise
       const graphPromise = (async () => {
-        const stream = await this._graph.stream(initialState, config);
+        // Pass signal to graph if supported (assuming config supports it, otherwise handled by race)
+        const runConfig = { ...config, signal };
+        const stream = await this._graph.stream(initialState, runConfig);
 
         for await (const event of stream) {
           // Keep stream alive
@@ -169,7 +181,7 @@ export class OrchestratorService {
         }
       })();
 
-      await Promise.race([graphPromise, timeoutPromise]);
+      await Promise.race([graphPromise, timeoutPromise, abortPromise]);
     } catch (error: unknown) {
       logger.error('Orchestrator Execution Error:', error);
 

@@ -25,7 +25,7 @@ interface ConnectionTestResult {
 
 interface SiteAction {
   name: string;
-  icon: React.ComponentType<React.ComponentProps<'svg'>>;
+  icon: string;
   action: (siteId: string) => Promise<void>;
   requiresConfirmation?: boolean;
   variant?: 'default' | 'destructive' | 'outline';

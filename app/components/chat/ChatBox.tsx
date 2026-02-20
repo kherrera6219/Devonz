@@ -16,7 +16,7 @@ import { Dialog, DialogRoot, DialogTitle, DialogDescription } from '~/components
 import styles from './BaseChat.module.scss';
 import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
 import type { DesignScheme } from '~/types/design-scheme';
-import type { ElementInfo } from '~/components/workbench/Inspector';
+import type { ElementInfo } from '~/components/workbench/InspectorTypes';
 import { McpTools } from './MCPTools';
 
 import { useTranslation } from 'react-i18next';

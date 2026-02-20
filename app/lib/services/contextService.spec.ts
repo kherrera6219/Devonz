@@ -42,13 +42,13 @@ describe('ContextService', () => {
 
   describe('prepareContext', () => {
     const defaultOptions = {
-      messages: [{ id: '1', role: 'user', content: 'test message' }],
-      files: { 'file1.ts': 'content' },
+      messages: [{ id: '1', role: 'user' as const, content: 'test message' }],
+      files: { 'file1.ts': { type: 'file' as const, content: 'content', isBinary: false } },
       promptId: 'default',
       contextOptimization: true,
       apiKeys: {},
       providerSettings: {},
-      context: { cloudflare: { env: {} } },
+      context: {},
       dataStream: mockDataStream,
       cumulativeUsage: { completionTokens: 0, promptTokens: 0, totalTokens: 0 },
     };
@@ -68,7 +68,9 @@ describe('ContextService', () => {
     it('should use cached summary if available', async () => {
       vi.mocked(selectContextModule.getFilePaths).mockReturnValue(['file1.ts']);
       vi.mocked(redisService.get).mockResolvedValue('cached summary');
-      vi.mocked(selectContextModule.selectContext).mockResolvedValue({ 'file1.ts': 'content' } as any);
+      vi.mocked(selectContextModule.selectContext).mockResolvedValue({
+        'file1.ts': { type: 'file' as const, content: 'content', isBinary: false },
+      } as any);
 
       const result = await contextService.prepareContext(defaultOptions as any);
 
@@ -84,7 +86,9 @@ describe('ContextService', () => {
       vi.mocked(selectContextModule.getFilePaths).mockReturnValue(['file1.ts']);
       vi.mocked(redisService.get).mockResolvedValue(null);
       vi.mocked(createSummaryModule.createSummary).mockResolvedValue('new summary');
-      vi.mocked(selectContextModule.selectContext).mockResolvedValue({ 'file1.ts': 'content' } as any);
+      vi.mocked(selectContextModule.selectContext).mockResolvedValue({
+        'file1.ts': { type: 'file' as const, content: 'content', isBinary: false },
+      } as any);
 
       const result = await contextService.prepareContext(defaultOptions as any);
 
@@ -96,12 +100,16 @@ describe('ContextService', () => {
     it('should select context files', async () => {
       vi.mocked(selectContextModule.getFilePaths).mockReturnValue(['selected.ts']);
       vi.mocked(redisService.get).mockResolvedValue('summary');
-      vi.mocked(selectContextModule.selectContext).mockResolvedValue({ 'selected.ts': 'content' } as any);
+      vi.mocked(selectContextModule.selectContext).mockResolvedValue({
+        'selected.ts': { type: 'file' as const, content: 'content', isBinary: false },
+      } as any);
 
       const result = await contextService.prepareContext(defaultOptions as any);
 
       expect(selectContextModule.selectContext).toHaveBeenCalled();
-      expect(result.filteredFiles).toEqual({ 'selected.ts': 'content' });
+      expect(result.filteredFiles).toEqual({
+        'selected.ts': { type: 'file' as const, content: 'content', isBinary: false },
+      });
       expect(mockDataStream.writeMessageAnnotation).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'codeContext', files: ['selected.ts'] }),
       );

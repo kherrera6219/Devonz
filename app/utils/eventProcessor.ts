@@ -14,12 +14,13 @@ export interface RunStage {
 }
 
 export interface QCReport {
-  issues?: {
+  issues?: Array<{ title: string; description: string }> | {
     critical: number;
     high: number;
     medium: number;
     low: number;
   };
+  [key: string]: unknown;
 }
 
 export interface LogEvent {
@@ -30,8 +31,10 @@ export interface LogEvent {
   details?: {
     max_iterations?: number;
     issues?: unknown;
+    [key: string]: unknown;
   };
-  agent?: string;
+  agent: string;
+  timestamp: string;
 }
 
 export interface RunUIState {
@@ -74,7 +77,15 @@ export function processRunEvents(data: JSONValue[] | undefined): RunUIState {
   // Filter only event logs
   const eventLogs = (data as Record<string, unknown>[])
     .filter((item) => item && item.type === 'event_log' && item.payload)
-    .map((item) => item.payload as LogEvent);
+    .map((item) => {
+      const payload = item.payload as Partial<LogEvent>;
+
+      return {
+        ...payload,
+        agent: payload.agent || 'System',
+        timestamp: (item.timestamp as string) || new Date().toISOString(),
+      } as LogEvent;
+    });
 
   state.events = eventLogs;
 
@@ -161,8 +172,22 @@ export function processRunEvents(data: JSONValue[] | undefined): RunUIState {
     if (event.type === 'qc_issues_found') {
       // Assuming details has severity counts
       if (event.details?.issues) {
-        // simple increment for demo if details structure varies
-        state.stats.qcIssues.critical += 1;
+        const issues = event.details.issues as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+        if (typeof issues === 'object' && !Array.isArray(issues)) {
+          try {
+            // simple increment for demo if details structure varies
+            state.stats.qcIssues.critical += issues.critical || 0;
+            state.stats.qcIssues.high += issues.high || 0;
+            state.stats.qcIssues.medium += issues.medium || 0;
+            state.stats.qcIssues.low += issues.low || 0;
+          } catch {
+            // ignore
+          }
+        }
+
+        // Capture report for expert drawer
+        state.lastQCReport = event.details as QCReport;
       }
 
       if (event.summary) {
