@@ -14,7 +14,7 @@ import { IconButton } from '~/components/ui/IconButton';
 import { RouteErrorBoundary } from '~/components/errors/RouteErrorBoundary';
 import { FeatureProvider } from '~/lib/modules/features/FeatureContext';
 import { logStore } from './lib/stores/logs';
-import './lib/i18n/config';
+import i18n from './lib/i18n/config';
 
 import reactToastifyStyles from 'react-toastify/dist/ReactToastify.css?url';
 import globalStyles from './styles/index.scss?url';
@@ -120,9 +120,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
       </head>
       <body>
-        <I18nextProvider
-          i18n={(window as unknown as { i18next?: typeof import('i18next').default }).i18next || undefined}
-        >
+        <I18nextProvider i18n={(window as unknown as { i18next?: typeof import('i18next').default }).i18next || i18n}>
           {children}
         </I18nextProvider>
         <ToastContainer

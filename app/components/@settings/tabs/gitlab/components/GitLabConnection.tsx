@@ -174,9 +174,7 @@ export default function GitLabConnection({ connectionTest, onTestConnection }: G
                 </button>
                 <button
                   type="button"
-                  onClick={() =>
-
-                  }
+                  onClick={() => {}}
                   className="px-4 py-2 rounded-lg text-sm bg-gray-500 text-white hover:bg-gray-600"
                 >
                   Test Values
