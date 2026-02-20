@@ -57,6 +57,7 @@ export class RetentionEngine {
 
       if (chat && chatAge > maxAgeMs) {
         // Check if chat is explicitly protected from deletion if the flag is set
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const metadata = (chat as any).metadata;
 
         if (this._policy.preserveProtected && metadata?.isProtected) {

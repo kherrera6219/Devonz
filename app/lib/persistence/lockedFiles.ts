@@ -48,6 +48,7 @@ function initializeCache(): LockedItem[] {
         const items = JSON.parse(lockedItemsJson);
 
         // Handle legacy format (without isFolder property)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const normalizedItems = items.map((item: any) => ({
           ...item,
           isFolder: item.isFolder !== undefined ? item.isFolder : false,

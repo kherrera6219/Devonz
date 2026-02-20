@@ -25,6 +25,7 @@ interface BranchInfo {
 
 async function gitlabBranchesLoader({ request }: { request: Request }) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body: any = await request.json();
     const { token, gitlabUrl = 'https://gitlab.com', projectId } = body;
 
@@ -82,6 +83,7 @@ async function gitlabBranchesLoader({ request }: { request: Request }) {
     let defaultBranchName = 'main'; // fallback
 
     if (projectResponse.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const projectInfo: any = await projectResponse.json();
       defaultBranchName = projectInfo.default_branch || 'main';
     }

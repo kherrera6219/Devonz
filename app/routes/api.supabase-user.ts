@@ -5,6 +5,7 @@ import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.supabase-user');
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function supabaseUserLoader({ request, context }: { request: Request; context: any }) {
   try {
     // Get API keys from cookies (server-side only)
@@ -84,6 +85,7 @@ export const loader = withSecurity(supabaseUserLoader, {
   allowedMethods: ['GET'],
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function supabaseUserAction({ request, context }: { request: Request; context: any }) {
   try {
     const formData = await request.formData();

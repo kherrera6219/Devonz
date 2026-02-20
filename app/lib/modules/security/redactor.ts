@@ -49,6 +49,7 @@ export class LogRedactor {
   /**
    * Redacts sensitive information from an object (recursively).
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   redactObject(obj: any): any {
     if (typeof obj !== 'object' || obj === null) {
       return typeof obj === 'string' ? this.redact(obj) : obj;
@@ -58,6 +59,7 @@ export class LogRedactor {
       return obj.map((item) => this.redactObject(item));
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: any = {};
 
     for (const [key, value] of Object.entries(obj)) {

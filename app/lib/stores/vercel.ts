@@ -80,6 +80,7 @@ export async function autoConnectVercel() {
       throw new Error(result.error || 'Vercel API error');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userData = result.data as any; // Adapting external API response to internal type
 
     // Update connection
@@ -149,6 +150,7 @@ export async function fetchVercelStats(token: string) {
           );
 
           if (deploymentsResult.success && deploymentsResult.data) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const latestDeployments = (deploymentsResult.data.deployments || []) as any[];
 
             return {

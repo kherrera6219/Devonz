@@ -351,6 +351,7 @@ export const ChatImpl = memo(
           typeof (error as { message: unknown }).message === 'string'
         ) {
           const message = (error as { message: string }).message;
+
           try {
             const parsed = JSON.parse(message);
 

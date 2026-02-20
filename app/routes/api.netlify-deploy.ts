@@ -46,6 +46,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
         return json({ error: 'Failed to create site' }, { status: 400 });
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newSite = (await createSiteResponse.json()) as any;
       targetSiteId = newSite.id;
       siteInfo = {
@@ -64,6 +65,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
         });
 
         if (siteResponse.ok) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const existingSite = (await siteResponse.json()) as any;
           siteInfo = {
             id: existingSite.id,
@@ -95,6 +97,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
           return json({ error: 'Failed to create site' }, { status: 400 });
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newSite = (await createSiteResponse.json()) as any;
         targetSiteId = newSite.id;
         siteInfo = {
@@ -138,6 +141,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
       return json({ error: 'Failed to create deployment' }, { status: 400 });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deploy = (await deployResponse.json()) as any;
     let retryCount = 0;
     const maxRetries = 60;
@@ -150,6 +154,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
         },
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const status = (await statusResponse.json()) as any;
 
       if (status.state === 'prepared' || status.state === 'uploaded') {

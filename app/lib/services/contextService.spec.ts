@@ -29,6 +29,8 @@ describe('ContextService', () => {
     writeSource: vi.fn(),
     merge: vi.fn(),
     onError: vi.fn(),
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
 
   beforeEach(() => {
@@ -70,8 +72,11 @@ describe('ContextService', () => {
       vi.mocked(redisService.get).mockResolvedValue('cached summary');
       vi.mocked(selectContextModule.selectContext).mockResolvedValue({
         'file1.ts': { type: 'file' as const, content: 'content', isBinary: false },
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await contextService.prepareContext(defaultOptions as any);
 
       expect(redisService.get).toHaveBeenCalled();
@@ -88,8 +93,11 @@ describe('ContextService', () => {
       vi.mocked(createSummaryModule.createSummary).mockResolvedValue('new summary');
       vi.mocked(selectContextModule.selectContext).mockResolvedValue({
         'file1.ts': { type: 'file' as const, content: 'content', isBinary: false },
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await contextService.prepareContext(defaultOptions as any);
 
       expect(createSummaryModule.createSummary).toHaveBeenCalled();
@@ -102,8 +110,11 @@ describe('ContextService', () => {
       vi.mocked(redisService.get).mockResolvedValue('summary');
       vi.mocked(selectContextModule.selectContext).mockResolvedValue({
         'selected.ts': { type: 'file' as const, content: 'content', isBinary: false },
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await contextService.prepareContext(defaultOptions as any);
 
       expect(selectContextModule.selectContext).toHaveBeenCalled();
@@ -118,14 +129,17 @@ describe('ContextService', () => {
     it('should query RAG and append to summary', async () => {
       vi.mocked(selectContextModule.getFilePaths).mockReturnValue(['file1.ts']);
       vi.mocked(redisService.get).mockResolvedValue('summary');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.mocked(selectContextModule.selectContext).mockResolvedValue({} as any);
 
       const mockQuery = vi.fn().mockResolvedValue(['rag snippet']);
 
       // Mock the singleton behavior properly
       const ragInstance = { query: mockQuery };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.spyOn(RAGService, 'getInstance').mockReturnValue(ragInstance as any);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await contextService.prepareContext(defaultOptions as any);
 
       expect(mockQuery).toHaveBeenCalled();
@@ -141,8 +155,10 @@ describe('ContextService', () => {
 
       const mockQuery = vi.fn().mockRejectedValue(new Error('RAG error'));
       const ragInstance = { query: mockQuery };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       vi.spyOn(RAGService, 'getInstance').mockReturnValue(ragInstance as any);
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await contextService.prepareContext(defaultOptions as any);
 
       // Should not throw, should return undefined/empty where appropriate

@@ -14,12 +14,14 @@ export interface RunStage {
 }
 
 export interface QCReport {
-  issues?: Array<{ title: string; description: string }> | {
-    critical: number;
-    high: number;
-    medium: number;
-    low: number;
-  };
+  issues?:
+    | Array<{ title: string; description: string }>
+    | {
+        critical: number;
+        high: number;
+        medium: number;
+        low: number;
+      };
   [key: string]: unknown;
 }
 

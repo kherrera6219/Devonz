@@ -51,8 +51,6 @@ interface SiteAction {
 }
 
 export default function NetlifyConnection() {
-
-
   const connection = useStore(netlifyConnection);
   const [tokenInput, setTokenInput] = useState('');
   const [fetchingStats, setFetchingStats] = useState(false);
@@ -379,8 +377,6 @@ export default function NetlifyConnection() {
   };
 
   useEffect(() => {
-
-
     // Initialize connection with environment token if available
     initializeNetlifyConnection();
   }, []);
@@ -952,7 +948,6 @@ export default function NetlifyConnection() {
               {/* Debug button - remove this later */}
               <button
                 onClick={async () => {
-
                   await initializeNetlifyConnection();
                 }}
                 className="px-3 py-2 rounded-lg text-xs bg-blue-500 text-white hover:bg-blue-600"

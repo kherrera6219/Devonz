@@ -16,6 +16,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
   }
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { projectId, query } = (await request.json()) as any;
     logger.debug('Executing query:', { projectId, query });
 

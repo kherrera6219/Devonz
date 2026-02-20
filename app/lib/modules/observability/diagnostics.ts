@@ -48,6 +48,7 @@ export class DiagnosticsService {
     return JSON.stringify(logRedactor.redactObject(bundle), null, 2);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _getSanitizedConfig(): Record<string, any> {
     // Collect non-sensitive app config
     return {

@@ -26,12 +26,10 @@ export default function GitLabConnection({ connectionTest, onTestConnection }: G
     event.preventDefault();
 
     if (!token.trim()) {
-
       return;
     }
 
     try {
-
       await connect(token, gitlabUrl);
 
       setToken(''); // Clear token on successful connection

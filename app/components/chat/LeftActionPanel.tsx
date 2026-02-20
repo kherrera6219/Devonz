@@ -116,10 +116,7 @@ export function LeftActionPanel({ importChat }: LeftActionPanelProps) {
       </div>
 
       <div className="flex h-10">
-        <GitCloneButton
-          importChat={importChat}
-          className={classNames(primaryButtonClass, 'w-full h-full')}
-        />
+        <GitCloneButton importChat={importChat} className={classNames(primaryButtonClass, 'w-full h-full')} />
       </div>
     </div>
   );

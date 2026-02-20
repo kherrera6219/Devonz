@@ -42,6 +42,7 @@ export class MigrationGovernanceSystem {
   /**
    * Performs pre-flight checks before applying migrations.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async preFlightCheck(tableName: string, sampleData: any[]): Promise<boolean> {
     logger.info(`Performing pre-flight check for table: ${tableName}`);
 

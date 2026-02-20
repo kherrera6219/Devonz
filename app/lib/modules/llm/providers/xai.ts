@@ -31,6 +31,7 @@ export default class XAIProvider extends BaseProvider {
     const { apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: providerSettings?.[this.name],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       serverEnv: serverEnv as any,
       defaultBaseUrlKey: '',
       defaultApiTokenKey: 'XAI_API_KEY',

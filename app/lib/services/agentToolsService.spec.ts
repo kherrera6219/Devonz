@@ -236,8 +236,11 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({ path: '/' });
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.entries).toHaveLength(3);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.entries[0]).toEqual({ name: '/src', isDirectory: true });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.entries[1]).toEqual({ name: '/package.json', isDirectory: false });
     });
 
@@ -247,6 +250,7 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({});
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.path).toBe('/');
     });
 
@@ -262,6 +266,7 @@ describe('agentToolDefinitions', () => {
       const result = await listDirTool.execute({ path: '/', recursive: true });
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.entries.length).toBeGreaterThan(1);
     });
 
@@ -314,7 +319,9 @@ describe('agentToolDefinitions', () => {
       const result = await runCommandTool.execute({ command: 'npm install' });
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.exitCode).toBe(0);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.stdout).toBe('Command output here');
     });
 
@@ -328,7 +335,9 @@ describe('agentToolDefinitions', () => {
       const result = await runCommandTool.execute({ command: 'npm run invalid' });
 
       expect(result.success).toBe(true); // Tool succeeded, command failed
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.exitCode).toBe(1);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.stderr).toBe('Error: module not found');
     });
 
@@ -369,7 +378,9 @@ describe('agentToolDefinitions', () => {
       const result = await getErrorsTool.execute({});
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.hasErrors).toBe(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.count).toBe(0);
     });
 
@@ -392,7 +403,9 @@ describe('agentToolDefinitions', () => {
       const result = await getErrorsTool.execute({ source: 'terminal' });
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.hasErrors).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.count).toBe(1);
     });
   });
@@ -418,7 +431,9 @@ describe('agentToolDefinitions', () => {
       const result = await searchCodeTool.execute({ query: 'React' });
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.matchCount).toBeGreaterThan(0);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.results[0].file).toContain('App.tsx');
     });
 
@@ -432,6 +447,7 @@ describe('agentToolDefinitions', () => {
       });
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.matchCount).toBe(2);
     });
 
@@ -442,6 +458,7 @@ describe('agentToolDefinitions', () => {
       const result = await searchCodeTool.execute({ query: 'nonexistent' });
 
       expect(result.success).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((result.data as any)?.matchCount).toBe(0);
     });
   });

@@ -45,7 +45,6 @@ export const LOCAL_PROVIDERS = ['OpenAILike', 'LMStudio', 'Ollama'];
 export type ProviderSetting = Record<string, IProviderConfig>;
 export type IProviderUpdate = Partial<IProviderSetting> & Record<string, unknown>;
 
-
 // Simplified shortcuts store with only theme toggle
 export const shortcutsStore = map<Shortcuts>({
   toggleTheme: {
@@ -491,8 +490,6 @@ const getInitialTabConfiguration = (): TabWindowConfig => {
     return defaultConfig;
   }
 };
-
-
 
 export const tabConfigurationStore = map<TabWindowConfig>(getInitialTabConfiguration());
 

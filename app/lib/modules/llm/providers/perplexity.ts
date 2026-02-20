@@ -44,6 +44,7 @@ export default class PerplexityProvider extends BaseProvider {
     const { apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: providerSettings?.[this.name],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       serverEnv: serverEnv as any,
       defaultBaseUrlKey: '',
       defaultApiTokenKey: 'PERPLEXITY_API_KEY',

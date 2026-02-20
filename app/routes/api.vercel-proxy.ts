@@ -60,6 +60,7 @@ interface ProxyRequest {
 /**
  * Get Vercel token from request
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getVercelToken(request: Request, context: { cloudflare?: { env: Record<string, any> } }): string | null {
   // Try cookies first
   const cookieHeader = request.headers.get('Cookie');

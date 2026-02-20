@@ -3,6 +3,7 @@ import { getApiKeysFromCookie } from '~/lib/api/cookies';
 import { withSecurity } from '~/lib/security.server';
 import type { GitHubUserResponse, GitHubStats } from '~/types/GitHub';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function githubStatsLoader({ request, context }: { request: Request; context: any }) {
   try {
     // Get API keys from cookies (server-side only)
@@ -41,7 +42,7 @@ async function githubStatsLoader({ request, context }: { request: Request; conte
 
     const user = (await userResponse.json()) as GitHubUserResponse;
 
-    // Fetch repositories with pagination
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let allRepos: any[] = [];
     let page = 1;
     let hasMore = true;

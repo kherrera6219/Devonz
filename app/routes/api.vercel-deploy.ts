@@ -187,6 +187,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs) => {
       return json({ error: 'Failed to fetch project' }, { status: 400 });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const projectData = (await projectResponse.json()) as any;
 
     const deploymentsResponse = await fetch(`https://api.vercel.com/v6/deployments?projectId=${projectId}&limit=1`, {
@@ -199,6 +200,7 @@ export const loader = withSecurity(async ({ request }: LoaderFunctionArgs) => {
       return json({ error: 'Failed to fetch deployments' }, { status: 400 });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deploymentsData = (await deploymentsResponse.json()) as any;
     const latestDeployment = deploymentsData.deployments?.[0];
 
@@ -268,6 +270,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
       });
 
       if (!createProjectResponse.ok) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const errorData = (await createProjectResponse.json()) as any;
         return json(
           { error: `Failed to create project: ${errorData.error?.message || 'Unknown error'}` },
@@ -275,6 +278,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
         );
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newProject = (await createProjectResponse.json()) as any;
       targetProjectId = newProject.id;
       projectInfo = {
@@ -291,6 +295,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
       });
 
       if (projectResponse.ok) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const existingProject = (await projectResponse.json()) as any;
         projectInfo = {
           id: existingProject.id,
@@ -313,6 +318,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
         });
 
         if (!createProjectResponse.ok) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const errorData = (await createProjectResponse.json()) as any;
           return json(
             { error: `Failed to create project: ${errorData.error?.message || 'Unknown error'}` },
@@ -320,6 +326,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
           );
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newProject = (await createProjectResponse.json()) as any;
         targetProjectId = newProject.id;
         projectInfo = {
@@ -348,6 +355,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deploymentConfig: any = {
       name: projectInfo.name,
       project: targetProjectId,
@@ -393,6 +401,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
     });
 
     if (!deployResponse.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const errorData = (await deployResponse.json()) as any;
       return json(
         { error: `Failed to create deployment: ${errorData.error?.message || 'Unknown error'}` },
@@ -400,6 +409,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deployData = (await deployResponse.json()) as any;
     let retryCount = 0;
     const maxRetries = 60;
@@ -412,6 +422,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
       });
 
       if (statusResponse.ok) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const status = (await statusResponse.json()) as any;
         deploymentState = status.readyState;
         deploymentUrl = status.url ? `https://${status.url}` : '';

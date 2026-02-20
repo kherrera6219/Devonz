@@ -21,6 +21,7 @@ interface BranchInfo {
   isDefault: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function githubBranchesLoader({ request, context }: { request: Request; context: any }) {
   try {
     let owner: string;
@@ -29,6 +30,7 @@ async function githubBranchesLoader({ request, context }: { request: Request; co
 
     if (request.method === 'POST') {
       // Handle POST request with token in body (from BranchSelector)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const body: any = await request.json();
       owner = body.owner;
       repo = body.repo;
@@ -91,6 +93,7 @@ async function githubBranchesLoader({ request, context }: { request: Request; co
       throw new Error(`GitHub API error: ${repoResponse.status}`);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const repoInfo: any = await repoResponse.json();
     const defaultBranch = repoInfo.default_branch;
 

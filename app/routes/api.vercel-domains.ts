@@ -30,7 +30,7 @@ interface DomainRequest {
 /**
  * Get Vercel token from request
  */
-function getVercelToken(request: Request, context: any): string | null {
+function getVercelToken(request: Request, context: unknown): string | null {
   // Try cookies first
   const cookieHeader = request.headers.get('Cookie');
   const apiKeys = getApiKeysFromCookie(cookieHeader);
@@ -40,7 +40,8 @@ function getVercelToken(request: Request, context: any): string | null {
   }
 
   // Try environment
-  const envToken = context?.cloudflare?.env?.VITE_VERCEL_ACCESS_TOKEN || process.env.VITE_VERCEL_ACCESS_TOKEN;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const envToken = (context as any)?.cloudflare?.env?.VITE_VERCEL_ACCESS_TOKEN || process.env.VITE_VERCEL_ACCESS_TOKEN;
 
   if (envToken) {
     return envToken;

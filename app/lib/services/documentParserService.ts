@@ -208,6 +208,7 @@ async function parseDOCX(buffer: Buffer, path: string): Promise<ParsedDocument> 
 async function parseExcel(buffer: Buffer, path: string, options: ParseOptions): Promise<ParsedDocument> {
   const excelJS = await import('exceljs');
   const workbook = new excelJS.Workbook();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await workbook.xlsx.load(buffer as any);
 
   const content: string[] = [];

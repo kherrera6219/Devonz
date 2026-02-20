@@ -23,6 +23,7 @@ interface ConfiguredProvidersResponse {
  */
 export const loader: LoaderFunction = withSecurity(async ({ context }) => {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const llmManager = LLMManager.getInstance(context?.cloudflare?.env as any);
     const configuredProviders: ConfiguredProvider[] = [];
 
@@ -41,6 +42,7 @@ export const loader: LoaderFunction = withSecurity(async ({ context }) => {
          */
         if (config.baseUrlKey) {
           const baseUrlEnvVar = config.baseUrlKey;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const cloudflareEnv = (context?.cloudflare?.env as Record<string, any>)?.[baseUrlEnvVar];
           const processEnv = process.env[baseUrlEnvVar];
           const managerEnv = llmManager.env[baseUrlEnvVar];
@@ -69,6 +71,7 @@ export const loader: LoaderFunction = withSecurity(async ({ context }) => {
         if (config.apiTokenKey && !isConfigured) {
           const apiTokenEnvVar = config.apiTokenKey;
           const envApiToken =
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (context?.cloudflare?.env as Record<string, any>)?.[apiTokenEnvVar] ||
             process.env[apiTokenEnvVar] ||
             llmManager.env[apiTokenEnvVar];

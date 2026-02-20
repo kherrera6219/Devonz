@@ -5,6 +5,7 @@ import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.vercel-user');
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function vercelUserLoader({ request, context }: { request: Request; context: any }) {
   try {
     // Get API keys from cookies (server-side only)
@@ -80,6 +81,7 @@ export const loader = withSecurity(vercelUserLoader, {
   allowedMethods: ['GET'],
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function vercelUserAction({ request, context }: { request: Request; context: any }) {
   try {
     const formData = await request.formData();

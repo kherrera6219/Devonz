@@ -5,6 +5,7 @@ import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.github-user');
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function githubUserLoader({ request, context }: { request: Request; context: any }) {
   try {
     // Get API keys from cookies (server-side only)
@@ -73,6 +74,7 @@ export const loader = withSecurity(githubUserLoader, {
   allowedMethods: ['GET'],
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function githubUserAction({ request, context }: { request: Request; context: any }) {
   try {
     let action: string | null = null;
@@ -84,6 +86,7 @@ async function githubUserAction({ request, context }: { request: Request; contex
     const contentType = request.headers.get('Content-Type') || '';
 
     if (contentType.includes('application/json')) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const jsonData = (await request.json()) as any;
       action = jsonData.action;
       repoFullName = jsonData.repo;

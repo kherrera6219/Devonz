@@ -178,7 +178,6 @@ export function GitHubCacheManager({ className = '', showStats = true }: GitHubC
 
       if (removedCount > 0) {
         // Show success message or trigger update
-
       }
     } catch (error) {
       console.error('Failed to clear expired cache:', error);

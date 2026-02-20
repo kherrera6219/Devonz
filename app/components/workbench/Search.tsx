@@ -125,6 +125,7 @@ export function Search() {
 
   const handleSearch = useCallback(async (queryValue: unknown) => {
     const query = typeof queryValue === 'string' ? queryValue : '';
+
     if (!query.trim()) {
       setSearchResults([]);
       setIsSearching(false);

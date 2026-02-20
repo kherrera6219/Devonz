@@ -8,7 +8,9 @@ export interface BackupArchive {
   createdAt: string;
   source: string;
   data: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     chats: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     snapshots: any[];
   };
 }
@@ -41,9 +43,9 @@ export class BackupService {
     const chats = await getAll(db);
 
     /*
-     * snapshots are in a separate store, we'd need to iterate them too
      * for this mock, we'll assume we grab them via a similar getAll loop
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const snapshots: any[] = [];
 
     const archive: BackupArchive = {

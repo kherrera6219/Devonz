@@ -140,6 +140,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
             content: `${message}`,
           },
         ],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         env: context.cloudflare?.env as any,
         apiKeys,
         providerSettings,
@@ -185,6 +186,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
     }
   } else {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const models = await getModelList({ apiKeys, providerSettings, serverEnv: context.cloudflare?.env as any });
       const modelDetails = models.find((m: ModelInfo) => m.name === model);
 
@@ -230,6 +232,7 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
         ],
         model: providerInfo.getModelInstance({
           model: modelDetails.name,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           serverEnv: context.cloudflare?.env as any,
           apiKeys,
           providerSettings,
@@ -278,8 +281,11 @@ async function llmCallAction({ context, request }: ActionFunctionArgs) {
       const errorResponse = {
         error: true,
         message: error instanceof Error ? error.message : 'An unexpected error occurred',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         statusCode: (error as any).statusCode || 500,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         isRetryable: (error as any).isRetryable !== false,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         provider: (error as any).provider || 'unknown',
       };
 

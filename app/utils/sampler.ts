@@ -8,6 +8,7 @@
  * @param sampleInterval How often to sample calls (in ms)
  * @returns The sampled function
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createSampler<T extends (...args: any[]) => any>(fn: T, sampleInterval: number): T {
   let lastArgs: Parameters<T> | null = null;
   let lastTime = 0;

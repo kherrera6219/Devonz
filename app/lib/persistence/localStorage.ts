@@ -1,6 +1,7 @@
 // Client-side storage utilities
 const isClient = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getLocalStorage(key: string): any | null {
   if (!isClient) {
     return null;
@@ -15,6 +16,7 @@ export function getLocalStorage(key: string): any | null {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function setLocalStorage(key: string, value: any): void {
   if (!isClient) {
     return;

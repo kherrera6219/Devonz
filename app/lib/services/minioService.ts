@@ -44,6 +44,7 @@ class MinIOService {
         const bucket = getBucketName();
         await this._client.send(new HeadBucketCommand({ Bucket: bucket }));
         logger.info(`MinIO bucket ${bucket} exists`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
           const bucket = getBucketName();

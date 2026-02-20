@@ -7,6 +7,7 @@ const NEO4J_PASSWORD = process.env.NEO4J_PASSWORD || 'devonz_graph_password';
 export interface GraphNode {
   id: string;
   label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: Record<string, any>;
 }
 
@@ -14,6 +15,7 @@ export interface GraphRelationship {
   sourceId: string;
   targetId: string;
   type: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: Record<string, any>;
 }
 
@@ -45,6 +47,7 @@ export class GraphService {
     return `Project_${projectId.replace(/-/g, '_')}`;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async addFileNode(projectId: string, path: string, metadata: Record<string, any> = {}) {
     const session = await this._getSession();
     const projectLabel = this._getProjectLabel(projectId);
@@ -67,6 +70,7 @@ export class GraphService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async addFileNodesBatch(projectId: string, files: { path: string; metadata?: Record<string, any> }[]) {
     if (files.length === 0) {
       return;
@@ -161,8 +165,10 @@ export class GraphService {
       );
 
       return result.records.map((record) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         source: record.get('n').properties as Record<string, any>,
         relationship: record.get('r').type as string,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         target: record.get('m').properties as Record<string, any>,
       }));
     } finally {

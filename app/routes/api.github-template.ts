@@ -6,6 +6,7 @@ import { withSecurity } from '~/lib/security.server';
 const logger = createScopedLogger('api.github-template');
 
 // Function to detect if we're running in Cloudflare
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isCloudflareEnvironment(context: any): boolean {
   // Check if we're in production AND have Cloudflare Pages specific env vars
   const isProduction = process.env.NODE_ENV === 'production';
@@ -35,6 +36,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
     throw new Error(`Repository not found: ${repo}`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const repoData = (await repoResponse.json()) as any;
   const defaultBranch = repoData.default_branch;
 
@@ -51,9 +53,11 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
     throw new Error(`Failed to fetch repository tree: ${treeResponse.status}`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const treeData = (await treeResponse.json()) as any;
 
   // Filter for files only (not directories) and limit size
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const files = treeData.tree.filter((item: any) => {
     if (item.type !== 'blob') {
       return false;
@@ -83,6 +87,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
 
   for (let i = 0; i < files.length; i += batchSize) {
     const batch = files.slice(i, i + batchSize);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const batchPromises = batch.map(async (file: any) => {
       try {
         const contentResponse = await fetch(`${baseUrl}/repos/${repo}/contents/${file.path}`, {
@@ -98,6 +103,7 @@ async function fetchRepoContentsCloudflare(repo: string, githubToken?: string) {
           return null;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const contentData = (await contentResponse.json()) as any;
         const content = atob(contentData.content.replace(/\s/g, ''));
 
@@ -141,6 +147,7 @@ async function fetchRepoContentsZip(repo: string, githubToken?: string) {
     throw new Error(`GitHub API error: ${releaseResponse.status} - ${releaseResponse.statusText}`);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const releaseData = (await releaseResponse.json()) as any;
   const zipballUrl = releaseData.zipball_url;
 
@@ -205,6 +212,7 @@ async function fetchRepoContentsZip(repo: string, githubToken?: string) {
   return results.filter(Boolean);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const loader = withSecurity(async ({ request, context }: { request: Request; context: any }) => {
   const url = new URL(request.url);
   const repo = url.searchParams.get('repo');
@@ -227,6 +235,7 @@ export const loader = withSecurity(async ({ request, context }: { request: Reque
     }
 
     // Filter out .git files for both methods
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filteredFiles = fileList.filter((file: any) => !file.path.startsWith('.git'));
 
     return json(filteredFiles);

@@ -5,6 +5,7 @@ import { withSecurity } from '~/lib/security.server';
 const logger = createScopedLogger('api.system.disk-info');
 
 // Only import child_process if we're not in a Cloudflare environment
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let execSync: any;
 
 try {

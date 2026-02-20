@@ -5,6 +5,7 @@ import { withSecurity } from '~/lib/security.server';
 
 const logger = createScopedLogger('api.netlify-user');
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function netlifyUserLoader({ request, context }: { request: Request; context: any }) {
   try {
     // Get API keys from cookies (server-side only)
@@ -69,6 +70,7 @@ export const loader = withSecurity(netlifyUserLoader, {
   allowedMethods: ['GET'],
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function netlifyUserAction({ request, context }: { request: Request; context: any }) {
   try {
     const formData = await request.formData();
@@ -107,6 +109,7 @@ async function netlifyUserAction({ request, context }: { request: Request; conte
         name: string;
         url: string;
         admin_url: string;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         build_settings: any;
         created_at: string;
         updated_at: string;

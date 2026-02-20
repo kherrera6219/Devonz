@@ -748,7 +748,6 @@ interface ButtonProps {
 function NodeButton({ depth, iconClasses, onClick, className, children }: ButtonProps) {
   return (
     <button
-      // eslint-disable-next-line
       className={classNames(
         'flex items-center gap-1.5 w-full pr-2 border-2 border-transparent text-faded py-0.5 file-tree-indent',
         className,

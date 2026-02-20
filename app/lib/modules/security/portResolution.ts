@@ -29,6 +29,7 @@ export class PortResolution {
     return new Promise((resolve) => {
       const server = net.createServer();
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       server.once('error', (err: any) => {
         if (err.code === 'EADDRINUSE') {
           resolve(false);

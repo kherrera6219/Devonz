@@ -64,7 +64,6 @@ export const InspectorPanel = ({
   // Reset edited values when element changes
   const handleStyleChange = useCallback(
     (property: string, value: string) => {
-
       setEditedStyles((prev) => ({ ...prev, [property]: value }));
 
       // If in bulk mode, apply to all matching elements
@@ -79,7 +78,6 @@ export const InspectorPanel = ({
 
   const handleTextChange = useCallback(
     (text: string) => {
-
       setEditedText(text);
       onTextChange?.(text);
     },
@@ -273,9 +271,7 @@ export const InspectorPanel = ({
       </div>
 
       {/* Tabs */}
-      <div
-        className="flex border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-3"
-      >
+      <div className="flex border-b border-bolt-elements-borderColor bg-bolt-elements-background-depth-3">
         {(['styles', 'text', 'box', 'ai', 'tree', 'colors'] as const).map((tab) => (
           <button
             key={tab}

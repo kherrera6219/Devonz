@@ -112,6 +112,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
           `,
         },
       ],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       env: context.cloudflare?.env as any,
       apiKeys,
       providerSettings,
@@ -135,6 +136,7 @@ async function enhancerAction({ context, request }: ActionFunctionArgs) {
       try {
         for await (const part of result.fullStream) {
           if (part.type === 'error') {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const error: any = part.error;
             logger.error('Streaming error:', error);
             break;

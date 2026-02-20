@@ -50,6 +50,7 @@ export const action = withSecurity(async ({ request }: ActionFunctionArgs) => {
         try {
           // Adapt the AI SDK DataStream to the Orchestrator's expected interface
           const streamAdapter = {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             writeData: (data: any) => dataStream.writeData(data),
             writeText: (text: string) => dataStream.writeMessageAnnotation({ type: 'text', value: text }),
 

@@ -28,6 +28,7 @@ export class CrashReporter {
   /**
    * Reports a crash with a support bundle and metadata.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async reportCrash(error: Error, metadata: Record<string, any> = {}) {
     logger.error('CRASH DETECTED:', error);
 

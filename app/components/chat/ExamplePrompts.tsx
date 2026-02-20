@@ -38,8 +38,6 @@ export function ExamplePrompts({ sendMessage }: ExamplePromptsProps) {
     setPrompts(shuffleArray(ALL_PROMPTS).slice(0, 3));
   }, []);
 
-
-
   return (
     <div className="flex items-center gap-2 w-full max-w-3xl mx-auto px-3 py-2">
       {prompts.map((prompt, index) => (

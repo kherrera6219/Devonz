@@ -13,6 +13,7 @@ interface ErrorReport {
   stack?: string;
   source?: string; // 'react-boundary', 'window.onerror', 'promise', etc.
   severity: ErrorSeverity;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
   timestamp: number;
 }

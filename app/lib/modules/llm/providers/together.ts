@@ -61,9 +61,12 @@ export default class TogetherProvider extends BaseProvider {
       },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const res = (await response.json()) as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = (res || []).filter((model: any) => model.type === 'chat');
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.map((m: any) => ({
       name: m.id,
       label: `${m.display_name} - in:$${m.pricing.input.toFixed(2)} out:$${m.pricing.output.toFixed(2)} - context ${Math.floor(m.context_length / 1000)}k`,
@@ -84,6 +87,7 @@ export default class TogetherProvider extends BaseProvider {
     const { baseUrl, apiKey } = this.getProviderBaseUrlAndKey({
       apiKeys,
       providerSettings: providerSettings?.[this.name],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       serverEnv: serverEnv as any,
       defaultBaseUrlKey: 'TOGETHER_API_BASE_URL',
       defaultApiTokenKey: 'TOGETHER_API_KEY',

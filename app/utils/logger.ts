@@ -168,6 +168,7 @@ function log(level: DebugLevel, scope: string | undefined, messages: unknown[]) 
 
 function formatText(text: string, color: string, bg: string) {
   if (chalk) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (chalk as any).bgHex(bg)((chalk as any).hex(color)(text));
   }
 

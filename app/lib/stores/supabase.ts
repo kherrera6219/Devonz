@@ -172,6 +172,7 @@ export async function fetchSupabaseStats(token: string) {
       throw new Error('Failed to fetch projects');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = (await response.json()) as any;
 
     updateSupabaseConnection({
@@ -205,6 +206,7 @@ export async function fetchProjectApiKeys(projectId: string, token: string) {
       throw new Error('Failed to fetch API keys');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = (await response.json()) as any;
     const apiKeys = data.apiKeys;
 

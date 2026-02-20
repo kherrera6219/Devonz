@@ -2,8 +2,10 @@ import { createScopedLogger } from '~/utils/logger';
 
 // Simple EventEmitter implementation for browser compatibility
 class SimpleEventEmitter {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _events: Record<string, ((...args: any[]) => void)[]> = {};
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   on(event: string, listener: (...args: any[]) => void): void {
     if (!this._events[event]) {
       this._events[event] = [];
@@ -12,6 +14,7 @@ class SimpleEventEmitter {
     this._events[event].push(listener);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   off(event: string, listener: (...args: any[]) => void): void {
     if (!this._events[event]) {
       return;
@@ -20,6 +23,7 @@ class SimpleEventEmitter {
     this._events[event] = this._events[event].filter((l) => l !== listener);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   emit(event: string, ...args: any[]): void {
     if (!this._events[event]) {
       return;

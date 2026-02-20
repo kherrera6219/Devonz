@@ -64,6 +64,7 @@ export class DataClassificationService {
   /**
    * Enforces classification rules on a record before persistence.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   enforcePolicy(record: any, level: SensitivityLevel) {
     const policy = this.getPolicy(level);
 

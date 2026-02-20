@@ -115,6 +115,7 @@ export const action = withSecurity(
     try {
       // Parse and validate request body
       const formData = await request.formData();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rawData: any = Object.fromEntries(formData.entries());
 
       // Parse environment info if provided
@@ -150,8 +151,10 @@ export const action = withSecurity(
 
       // Get GitHub configuration
       const githubToken =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (context?.cloudflare?.env as any)?.GITHUB_BUG_REPORT_TOKEN || process.env.GITHUB_BUG_REPORT_TOKEN;
       const targetRepo =
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (context?.cloudflare?.env as any)?.BUG_REPORT_REPO || process.env.BUG_REPORT_REPO || 'zebbern/Devonz';
 
       if (!githubToken) {

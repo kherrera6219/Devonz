@@ -155,8 +155,6 @@ export function DataTab() {
     if (db) {
       getAllChats(db)
         .then((chats) => {
-
-
           // Cast to ExtendedChat to handle additional properties
           const extendedChats = chats as ExtendedChat[];
           setAvailableChats(extendedChats);

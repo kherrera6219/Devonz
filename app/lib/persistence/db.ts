@@ -13,6 +13,7 @@ export interface IChatMetadata {
 
 const logger = createScopedLogger('ChatHistory');
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function processRetrievedItem(item: any): Promise<ChatHistoryItem> {
   if (typeof item.messages === 'string') {
     try {
@@ -94,6 +95,7 @@ export async function getAll(
       ? store.index(options.index).openCursor(null, options.direction)
       : store.openCursor(null, options?.direction);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const results: any[] = [];
     let advanced = false;
     let count = 0;

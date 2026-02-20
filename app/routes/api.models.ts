@@ -41,7 +41,10 @@ function getProviderInfo(llmManager: LLMManager) {
 }
 
 export const loader = async ({ request, params, context }: LoaderFunctionArgs) => {
-  const llmManager = LLMManager.getInstance((context as { cloudflare?: { env: Record<string, unknown> } }).cloudflare?.env);
+  const llmManager = LLMManager.getInstance(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (context as { cloudflare?: { env: Record<string, any> } }).cloudflare?.env as Record<string, string> | undefined,
+  );
 
   // Get client side maintained API keys and provider settings from cookies
   const cookieHeader = request.headers.get('Cookie');
@@ -61,7 +64,10 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
         modelList = await llmManager.getModelListFromProvider(provider, {
           apiKeys: apiKeys as Record<string, string>,
           providerSettings,
-          serverEnv: (context as { cloudflare?: { env: Record<string, unknown> } }).cloudflare?.env,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          serverEnv: (context as { cloudflare?: { env: Record<string, any> } }).cloudflare?.env as
+            | Record<string, string>
+            | undefined,
         });
       }
     } else {
@@ -69,6 +75,7 @@ export const loader = async ({ request, params, context }: LoaderFunctionArgs) =
       modelList = await llmManager.updateModelList({
         apiKeys: apiKeys as Record<string, string>,
         providerSettings,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         serverEnv: (context as any).cloudflare?.env,
       });
     }

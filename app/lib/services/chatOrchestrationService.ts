@@ -31,17 +31,14 @@ export class ChatOrchestrationService {
     if (!ChatOrchestrationService._instance) {
       ChatOrchestrationService._instance = new ChatOrchestrationService();
     }
+
     return ChatOrchestrationService._instance;
   }
 
   /**
    * Orchestrates tool merging and session initialization.
    */
-  async prepareChatSession(options: {
-    agentMode: boolean;
-    dataStream: DataStreamWriter;
-    messages: Message[];
-  }) {
+  async prepareChatSession(options: { agentMode: boolean; dataStream: DataStreamWriter; messages: Message[] }) {
     const { agentMode, dataStream } = options;
     const mcpService = MCPService.getInstance();
     const useAgentMode = shouldUseAgentMode({ agentMode });
@@ -50,6 +47,7 @@ export class ChatOrchestrationService {
 
     if (useAgentMode) {
       logger.info('🤖 Agent mode enabled - merging tools');
+
       const agentTools = getAgentToolSetWithoutExecute();
       combinedTools = { ...mcpService.toolsWithoutExecute, ...agentTools };
 

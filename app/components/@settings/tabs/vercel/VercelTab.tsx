@@ -172,7 +172,6 @@ export default function VercelTab() {
         const currentState = vercelConnection.get();
 
         if (!currentState.user) {
-
         }
       } catch (error) {
         console.error('Failed to initialize Vercel connection:', error);
@@ -693,8 +692,6 @@ export default function VercelTab() {
     handleProjectAction,
     projectActions,
   ]);
-
-
 
   return (
     <div className="space-y-6">

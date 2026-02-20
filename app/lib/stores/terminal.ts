@@ -42,6 +42,7 @@ export class TerminalStore {
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       terminal.write(coloredText.red('Failed to spawn bolt shell\n\n') + errorMessage);
+
       return;
     }
   }
@@ -61,6 +62,7 @@ export class TerminalStore {
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       terminal.write(coloredText.red('Failed to spawn shell\n\n') + errorMessage);
+
       return;
     }
   }

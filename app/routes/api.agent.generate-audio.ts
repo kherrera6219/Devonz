@@ -22,6 +22,7 @@ export const action = withSecurity(
 
       const response = await openai.audio.speech.create({
         model: 'tts-1',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         voice: voice as any,
         input: text,
         response_format: 'mp3',

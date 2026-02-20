@@ -57,6 +57,7 @@ export class SchemaParityService {
   /**
    * Validates a record against the golden schema for a given table.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validateRecord(tableName: string, record: any): { valid: boolean; errors: string[] } {
     const table = this._goldenSchema[tableName];
 
@@ -93,6 +94,7 @@ export class SchemaParityService {
   /**
    * Checks for schema drift in a batch of records.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   checkDrift(tableName: string, records: any[]): void {
     let driftCount = 0;
 

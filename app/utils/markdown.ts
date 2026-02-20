@@ -131,6 +131,7 @@ const limitedMarkdownPlugin: Plugin = () => {
   return ((tree: Node, file: { toString: () => string }) => {
     const contents = file.toString();
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     visit(tree, (node: Node & { position?: any }, index, parent: any) => {
       if (
         index == null ||
@@ -154,5 +155,6 @@ const limitedMarkdownPlugin: Plugin = () => {
 
       return [SKIP, index] as const;
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }) as any;
 };

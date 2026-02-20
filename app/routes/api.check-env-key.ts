@@ -10,6 +10,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
     return json({ isSet: false });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const llmManager = LLMManager.getInstance(context?.cloudflare?.env as any);
   const providerInstance = llmManager.getProvider(provider);
 
@@ -32,6 +33,7 @@ export const loader: LoaderFunction = async ({ context, request }) => {
    */
   const isSet = !!(
     apiKeys?.[provider] ||
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (context?.cloudflare?.env as Record<string, any>)?.[envVarName] ||
     process.env[envVarName] ||
     llmManager.env[envVarName]

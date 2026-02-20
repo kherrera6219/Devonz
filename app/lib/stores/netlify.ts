@@ -92,6 +92,7 @@ export async function fetchNetlifyStats(token: string) {
       throw new Error(`Failed to fetch sites: ${sitesResponse.status}`);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sites = (await sitesResponse.json()) as any;
 
     const currentState = netlifyConnection.get();

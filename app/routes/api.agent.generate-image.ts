@@ -27,6 +27,7 @@ export const action = withSecurity(
         model: 'dall-e-3',
         prompt,
         n: 1,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         size: size as any,
         response_format: 'b64_json',
       });
